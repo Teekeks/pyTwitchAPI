@@ -7,6 +7,7 @@ import threading
 import asyncio
 from uuid import UUID
 from datetime import datetime
+import logging
 
 
 class TwitchWebHook:
@@ -120,7 +121,7 @@ class TwitchWebHook:
             data['hub.secret'] = self.secret
         result = self.__api_post_request(TWITCH_API_BASE_URL + "webhooks/hub", data=data)
         if result.status_code != 202:
-            print(f'status code: {result.status_code}, body: {result.text}')
+            logging.error(f'Subscription failed! status code: {result.status_code}, body: {result.text}')
         return result.status_code == 202
 
     def _generic_subscribe(self, callback_path: str, url: str, uuid: UUID, callback_func) -> bool:
@@ -290,7 +291,7 @@ class TwitchWebHook:
     # ==================================================================================================================
 
     async def __handle_default(self, request: 'web.Request'):
-        return web.Response(text="You should not be here")
+        return web.Response(text="pyTwitchAPI webhook")
 
     async def __handle_stream_changed(self, request: 'web.Request'):
         d = await get_json(request)
