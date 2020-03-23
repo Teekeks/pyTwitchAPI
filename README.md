@@ -22,9 +22,10 @@ user_id = user_info[0]['id']
 
 ### Webhook
 
-Setting up a webhook
 Authentication is off by default but you can choose to authenticate to use some Webhook Topics or to get more information.
 Please note that Your Endpoint URL has to be HTTPS if you choose to authenticate which means that you probably need a reverse proxy like nginx.
+
+Example on how to set up a webhook and start it:
 ````python
 hook = twitch.get_webhook('https://my.url.com', port=80)
 hook.authenticate(twitch.get_auth_token())
@@ -48,4 +49,9 @@ The subscription function returns a UUID that identifies this subscription. This
 To unsubscribe, just use that UUID from the subscription:
 ```python
 success = hook.unsubscribe_user_changed(sub_uuid)
+```
+
+Stopping the webhook:
+```python
+hook.stop()
 ```
