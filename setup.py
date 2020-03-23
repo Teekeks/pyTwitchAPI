@@ -10,9 +10,9 @@ setup(
   author = 'Lena "Teekeks" During',
   author_email = 'info@teawork.de',
   url = 'https://github.com/Teekeks/pyTwitchAPI',
-  download_url = 'https://github.com/Teekeks/pyTwitchAPI/archive/v0.1.tar.gz',    # I explain this later on
+  download_url = 'https://github.com/Teekeks/pyTwitchAPI/archive/v0.1.tar.gz',
   keywords = ['twitch', 'webhook', 'helix'],
-  install_requires=[            # I get to this in a second
+  install_requires=[
           'aiohttp',
           'requests',
       ],
