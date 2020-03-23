@@ -3,6 +3,12 @@
 This is a python 3.7 implementation of the Twitch API and its Webhook.  
 **At the current time, only the Webhook is fully implemented!**
 
+## Installation
+
+Install using pip:
+
+```pip install twitchAPI```
+
 ## Usage
 
 ### Basic API calls
