@@ -8,6 +8,7 @@ import asyncio
 from uuid import UUID
 from datetime import datetime
 import logging
+from dateutil import parser as du_parser
 
 
 class TwitchWebHook:
@@ -298,20 +299,8 @@ class TwitchWebHook:
         data = None
         if d is not None:
             if len(d['data']) > 0:
-                d = d['data'][0]
-                data = {
-                    'id': d['id'],
-                    'user_id': d['user_id'],
-                    'user_name': d['user_name'],
-                    'game_id': d['game_id'],
-                    'community_ids': d['community_ids'],
-                    'type': d['type'],
-                    'title': d['title'],
-                    'viewer_count': int(d['viewer_count']),
-                    'language': d['language'],
-                    'thumbnail_url': d['thumbnail_url'],
-                    'started_at': datetime.fromisoformat(d['started_at'])
-                }
+                data = d['data'][0]
+                data['started_at'] = datetime.fromisoformat(data['started_at'])
             else:
                 data = {
                     'type': 'offline'
@@ -319,35 +308,16 @@ class TwitchWebHook:
         return self._generic_handle_callback(request, data)
 
     async def __handle_user_follows(self, request: 'web.Request'):
-        d = await get_json(request)
-        data = None
-        if d is not None:
-            d = d['data'][0]
-            data = {
-                'from_id': d['from_id'],
-                'from_name': d['from_name'],
-                'to_id': d['to_id'],
-                'to_name': d['to_name'],
-                'followed_at': datetime.fromisoformat(d['followed_at'])
-            }
+        data = await get_json(request)
+        if data is not None:
+            data = data['data'][0]
+            data['followed_at'] = du_parser.isoparse(data['followed_at'])
         return self._generic_handle_callback(request, data)
 
     async def __handle_user_changed(self, request: 'web.Request'):
-        d = await get_json(request)
-        data = None
-        if d is not None:
-            d = d['data'][0]
-            data = {
-                'id': d['id'],
-                'login': d['login'],
-                'display_name': d['display_name'],
-                'type': d['type'],
-                'broadcaster_type': d['broadcaster_type'],
-                'description': d['description'],
-                'profile_image_url': d['profile_image_url'],
-                'offline_image_url': d['offline_image_url'],
-                'view_count': int(d['view_count'])
-            }
+        data = await get_json(request)
+        if data is not None:
+            data = data['data'][0]
         return self._generic_handle_callback(request, data)
 
     async def __handle_extension_transaction_created(self, request: 'web.Request'):
@@ -355,7 +325,7 @@ class TwitchWebHook:
         data = d
         if data is not None:
             data = data['data'][0]
-            data['timestamp'] = datetime.fromisoformat(data['timestamp'])
+            data['timestamp'] = du_parser.isoparse(data['timestamp'])
         return self._generic_handle_callback(request, data)
 
     async def __handle_challenge(self, request: 'web.Request'):
@@ -369,19 +339,19 @@ class TwitchWebHook:
         data = await get_json(request)
         if data is not None:
             data = data['data'][0]
-            data['event_timestamp'] = datetime.fromisoformat(data['event_timestamp'])
+            data['event_timestamp'] = du_parser.isoparse(data['event_timestamp'])
             return self._generic_handle_callback(request, data)
 
     async def __handle_channel_ban_change_events(self, request: 'web.Request'):
         data = await get_json(request)
         if data is not None:
             data = data['data'][0]
-            data['event_timestamp'] = datetime.fromisoformat(data['event_timestamp'])
+            data['event_timestamp'] = du_parser.isoparse(data['event_timestamp'])
         return self._generic_handle_callback(request, data)
 
     async def __handle_subscription_events(self, request: 'web.Request'):
         data = await get_json(request)
         if data is not None:
             data = data['data'][0]
-            data['event_timestamp'] = datetime.fromisoformat(data['event_timestamp'])
+            data['event_timestamp'] = du_parser.isoparse(data['event_timestamp'])
         return self._generic_handle_callback(request, data)
