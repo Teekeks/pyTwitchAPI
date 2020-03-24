@@ -12,4 +12,4 @@ USER_READ_EMAIL = 'user:read:email'
 
 
 def build_scope(*scopes) -> str:
-    return '+'.join(scopes)
+    return ' '.join(scopes)
