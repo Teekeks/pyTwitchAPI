@@ -14,6 +14,7 @@ Install using pip:
 ### Basic API calls
 
 Setting up a Instance of the Twitch API and get your User ID:
+
 ```python
 from twitchAPI.twitch import Twitch
 import twitchAPI.scope as scope
