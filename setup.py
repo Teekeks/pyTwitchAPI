@@ -4,17 +4,18 @@ from distutils.core import setup
 setup(
   name = 'twitchAPI',
   packages = ['twitchAPI'],
-  version = '0.1',
+  version = '0.2',
   license='MIT',
   description = 'A Python 3.7 implementation of the Twitch API and its Webhook',
   author = 'Lena "Teekeks" During',
   author_email = 'info@teawork.de',
   url = 'https://github.com/Teekeks/pyTwitchAPI',
-  download_url = 'https://github.com/Teekeks/pyTwitchAPI/archive/v0.1.tar.gz',
-  keywords = ['twitch', 'webhook', 'helix'],
+  download_url = 'https://github.com/Teekeks/pyTwitchAPI/archive/v0.2.tar.gz',
+  keywords = ['twitch', 'webhook', 'helix', 'api', 'twitchAPI'],
   install_requires=[
           'aiohttp',
           'requests',
+          'python-dateutil'
       ],
   classifiers=[
     'Development Status :: 3 - Alpha',

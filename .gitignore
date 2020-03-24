@@ -3,3 +3,5 @@
 __pycache__/
 test_data.py
 example.py
+MANIFEST
+/dist/

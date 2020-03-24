@@ -28,8 +28,14 @@ user_id = user_info[0]['id']
 
 ### Webhook
 
-Authentication is off by default but you can choose to authenticate to use some Webhook Topics or to get more information.
-Please note that Your Endpoint URL has to be HTTPS if you choose to authenticate which means that you probably need a reverse proxy like nginx.
+#### Requirements
+
+You need to have a public IP with a port open. That port will be 80 by default.
+Authentication is off by default but you can choose to authenticate to use some Webhook Topics or to get more information.  
+**Please note that Your Endpoint URL has to be HTTPS if you choose to authenticate which means that you probably need a reverse proxy like nginx.**
+
+
+### Start Webhook
 
 Example on how to set up a webhook and start it:
 ````python
@@ -39,6 +45,7 @@ hook.secret = 'some_fancy_long_secret_string'
 hook.start()
 ````
 
+### Subscribing to Webhook Topics
 Define a callback function and subscribe to a event:
 ````python
 from uuid import UUID
@@ -56,6 +63,8 @@ To unsubscribe, just use that UUID from the subscription:
 ```python
 success = hook.unsubscribe_user_changed(sub_uuid)
 ```
+
+### Stopping the Webhook
 
 Stopping the webhook:
 ```python
