@@ -30,7 +30,7 @@ class Twitch:
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', params)
         result = requests.post(url)
         if result.status_code != 200:
-            raise Exception(f'Authentication failed with code {result.status_code}')
+            raise Exception(f'Authentication failed with code {result.status_code} ({result.text})')
         try:
             data = result.json()
             self.__auth_token = data['access_token']
