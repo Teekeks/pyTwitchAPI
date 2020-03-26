@@ -4,12 +4,11 @@ import uuid
 from typing import Union
 from json import JSONDecodeError
 from aiohttp.web import Request
+from dateutil import parser as du_parser
 
 
 TWITCH_API_BASE_URL = "https://api.twitch.tv/helix/"
 TWITCH_AUTH_BASE_URL = "https://id.twitch.tv/"
-
-
 
 
 def build_url(url: str, params: dict, remove_none=False, split_lists=False) -> str:
@@ -47,3 +46,25 @@ async def get_json(request: 'Request') -> Union[list, dict, None]:
         return data
     except JSONDecodeError:
         return None
+
+
+def make_dict_field_datetime(data: dict, fields: list) -> dict:
+    fd = data
+    for key, value in data.items():
+        if isinstance(value, str):
+            if key in fields:
+                fd[key] = du_parser.isoparse(value)
+        elif isinstance(value, dict):
+            fd[key] = make_dict_field_datetime(value, fields)
+        elif isinstance(value, list):
+            fd[key] = make_fields_datetime(value, fields)
+    return fd
+
+
+def make_fields_datetime(data: Union[dict, list], fields: list):
+    """itterate over dict or list recursivly to replace string fields with datetime"""
+    if isinstance(data, list):
+        return [make_dict_field_datetime(d, fields) for d in data]
+    else:
+        return make_dict_field_datetime(data, fields)
+
