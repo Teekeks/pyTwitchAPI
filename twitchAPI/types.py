@@ -18,3 +18,17 @@ class AuthScope(Enum):
     USER_EDIT_BROADCAST = 'user:edit:broadcast'
     USER_READ_BROADCAST = 'user:read:broadcast'
     USER_READ_EMAIL = 'user:read:email'
+
+
+class AuthType(Enum):
+    NONE = 0
+    USER = 1
+    APP = 2
+
+
+class UnauthorizedException(Exception):
+    pass
+
+
+class MissingScopeException(Exception):
+    pass

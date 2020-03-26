@@ -9,6 +9,7 @@ import asyncio
 from threading import Thread
 from time import sleep
 from os import path
+import requests
 
 
 class UserAuthenticator:
@@ -19,6 +20,8 @@ class UserAuthenticator:
     scopes: List[AuthScope] = []
     force_verify: bool = False
     __state: str = str(get_uuid())
+
+    __client_id: str = None
 
     __callback_func = None
 
@@ -34,6 +37,7 @@ class UserAuthenticator:
                  scopes: List[AuthScope],
                  force_verify: bool = False):
         self.__twitch = twitch
+        self.__client_id = twitch.app_id
         self.scopes = scopes
         self.force_verify = force_verify
 
@@ -86,9 +90,6 @@ class UserAuthenticator:
             return web.Response(status=400)
         if self.__callback_func is not None:
             self.__callback_func(self.__user_token)
-        else:
-            # stop the server lol
-            self.stop()
         fn = path.join(path.dirname(__file__), 'res/oauth.html')
         fd = ''
         with open(fn, 'r') as f:
@@ -105,8 +106,19 @@ class UserAuthenticator:
             sleep(0.01)
         # open in browser
         webbrowser.open(self.__build_auth_url(), new=2)
+        while self.__user_token is None:
+            sleep(0.01)
+        # now we need to actually get the correct token
+        param = {
+            'client_id': self.__client_id,
+            'client_secret': self.__twitch.app_secret,
+            'code': self.__user_token,
+            'grant_type': 'authorization_code',
+            'redirect_uri': f'http://{self.url}:{self.port}'
+        }
+        url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', param)
+        response = requests.post(url)
+        data = response.json()
         if callback_func is None:
-            # no callback_func is provided -> wait until auth is completed
-            while self.__user_token is None:
-                sleep(0.01)
-            return self.__user_token
+            self.stop()
+            return data['access_token'], data['refresh_token']
