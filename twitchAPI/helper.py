@@ -68,3 +68,6 @@ def make_fields_datetime(data: Union[dict, list], fields: list):
     else:
         return make_dict_field_datetime(data, fields)
 
+
+def build_scope(scopes: list) -> str:
+    return ' '.join([s.value for s in scopes])
