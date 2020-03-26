@@ -5,17 +5,17 @@ import requests
 from typing import Union
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime
 from datetime import datetime
-from .types import AnalyticsReportType
+from .types import AnalyticsReportType, AuthScope
 
 
 class Twitch:
-    __app_id: Union[str, None] = None
+    app_id: Union[str, None] = None
     __app_secret: Union[str, None] = None
     __auth_token: Union[str, None] = None
     __auth_scope: Union[str, None] = None
 
     def __init__(self, app_id: str, app_secret: str, auth_scope: Union[str, None] = None):
-        self.__app_id = app_id
+        self.app_id = app_id
         self.__app_secret = app_secret
         self.__auth_scope = auth_scope
 
@@ -24,7 +24,7 @@ class Twitch:
             return self.__auth_token
         # no token yet, lets get one...
         params = {
-            'client_id': self.__app_id,
+            'client_id': self.app_id,
             'client_secret': self.__app_secret,
             'grant_type': 'client_credentials',
             'scope': self.__auth_scope
@@ -55,14 +55,16 @@ class Twitch:
     def __api_get_request(self, url: str):
         """Make GET request with Client-ID authorization"""
         headers = {
+            "Client-ID": self.app_id,
             "Authorization": "Bearer " + self.get_auth_token()
         }
+        print(headers)
         return requests.get(url, headers=headers)
 
     def get_webhook(self, url: str, port: int, authenticate: bool = True) -> 'TwitchWebHook':
         """Returns a instance of TwitchWebHook"""
         return TwitchWebHook(url,
-                             self.__app_id,
+                             self.app_id,
                              port)
 
     def get_webhook_subscriptions(self, first: Union[str, None] = None, after: Union[str, None] = None):
@@ -105,7 +107,7 @@ class Twitch:
             'extension_id': extension_id,
             'first': first,
             'started_at': started_at,
-            'type': report_type.value
+            'type': report_type.value if report_type is not None else None
         }
         url = build_url(TWITCH_API_BASE_URL + 'analytics/extensions',
                         url_params,
