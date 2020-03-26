@@ -3,7 +3,9 @@
 from .webhook import TwitchWebHook
 import requests
 from typing import Union
-from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL
+from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime
+from datetime import datetime
+from .types import AnalyticsReportType
 
 
 class Twitch:
@@ -81,3 +83,34 @@ class Twitch:
         response = self.__api_get_request(url)
         data = response.json()
         return data['data']
+
+    def get_extension_analytics(self,
+                                after: Union[str, None] = None,
+                                extension_id: Union[str, None] = None,
+                                first: int = 20,
+                                ended_at: Union[datetime, None] = None,
+                                started_at: Union[datetime, None] = None,
+                                report_type: Union[AnalyticsReportType, None] = None):
+        if ended_at is not None or started_at is not None:
+            # you have to put in both:
+            if ended_at is None or started_at is None:
+                raise Exception('you must specify both ended_at and started_at')
+            if started_at > ended_at:
+                raise Exception('started_at must be before ended_at')
+        if first > 100 or first < 1:
+            raise Exception('first must be between 1 and 100')
+        url_params = {
+            'after': after,
+            'ended_at': ended_at,
+            'extension_id': extension_id,
+            'first': first,
+            'started_at': started_at,
+            'type': report_type.value
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'analytics/extensions',
+                        url_params,
+                        remove_none=True)
+        response = self.__api_get_request(url)
+        data = response.json()
+        return make_fields_datetime(data, ['started_at', 'ended_at'])
+
