@@ -9,6 +9,7 @@ class AnalyticsReportType(Enum):
 
 
 class AuthScope(Enum):
+    """Authentication scopes"""
     ANALYTICS_READ_EXTENSION = 'analytics:read:extensions'
     ANALYTICS_READ_GAMES = 'analytics:read:games'
     BITS_READ = 'bits:read'
@@ -29,9 +30,23 @@ class TimePeriod(Enum):
 
 
 class AuthType(Enum):
+    """Type of authentication required"""
     NONE = 0
     USER = 1
     APP = 2
+
+
+class CodeStatus(Enum):
+    """Code Status, see https://dev.twitch.tv/docs/api/reference#get-code-status for more documentation"""
+    SUCCESSFULLY_REDEEMED = 'SUCCESSFULLY_REDEEMED'
+    ALREADY_CLAIMED = 'ALREADY_CLAIMED'
+    EXPIRED = 'EXPIRED'
+    USER_NOT_ELIGIBLE = 'USER_NOT_ELIGIBLE'
+    NOT_FOUND = 'NOT_FOUND'
+    INACTIVE = 'INACTIVE'
+    UNUSED = 'UNUSED'
+    INCORRECT_FORMAT = 'INCORRECT_FORMAT'
+    INTERNAL_ERROR = 'INTERNAL_ERROR'
 
 
 class UnauthorizedException(Exception):
