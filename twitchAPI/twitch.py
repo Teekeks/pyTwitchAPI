@@ -442,3 +442,22 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.NONE, [])
         data = result.json()
         return make_fields_datetime(data, ['started_at'])
+
+    def get_stream_markers(self,
+                           user_id: str,
+                           video_id: str,
+                           after: Optional[str] = None,
+                           before: Optional[str] = None,
+                           first: int = 20):
+        if first > 100 or first < 1:
+            raise Exception('first must be between 1 and 100')
+        param = {
+            'user_id': user_id,
+            'video_id': video_id,
+            'after': after,
+            'before': before,
+            'first': first
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'streams/markers', param, remove_none=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
+        return make_fields_datetime(result.json(), ['created_at'])
