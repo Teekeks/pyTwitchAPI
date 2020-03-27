@@ -19,6 +19,12 @@ class AuthScope(Enum):
     USER_EDIT_BROADCAST = 'user:edit:broadcast'
     USER_READ_BROADCAST = 'user:read:broadcast'
     USER_READ_EMAIL = 'user:read:email'
+    CHANNEL_MODERATE = 'channel:moderate'
+    CHAT_EDIT = 'chat:edit'
+    CHAT_READ = 'chat:read'
+    WHISPERS_READ = 'whispers:read'
+    WHISPERS_EDIT = 'whispers:edit'
+    MODERATION_READ = 'moderation:read'
 
 
 class TimePeriod(Enum):
