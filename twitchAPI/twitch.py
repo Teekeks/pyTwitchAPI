@@ -6,6 +6,7 @@ from typing import Union, List
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope
 from datetime import datetime
 from .types import AnalyticsReportType, AuthScope, AuthType, UnauthorizedException, MissingScopeException
+from dateutil import parser as du_parser
 
 
 class Twitch:
@@ -135,10 +136,10 @@ class Twitch:
             raise Exception('first must be between 1 and 100')
         url_params = {
             'after': after,
-            'ended_at': ended_at,
+            'ended_at': ended_at.isoformat() if ended_at is not None else None,
             'extension_id': extension_id,
             'first': first,
-            'started_at': started_at,
+            'started_at': started_at.isoformat() if started_at is not None else None,
             'type': report_type.value if report_type is not None else None
         }
         url = build_url(TWITCH_API_BASE_URL + 'analytics/extensions',
@@ -148,3 +149,31 @@ class Twitch:
         data = response.json()
         return make_fields_datetime(data, ['started_at', 'ended_at'])
 
+    def get_game_analytics(self,
+                           after: Union[str, None] = None,
+                           first: int = 20,
+                           game_id: Union[str, None] = None,
+                           ended_at: Union[datetime, None] = None,
+                           started_at: Union[datetime, None] = None,
+                           report_type: Union[AnalyticsReportType, None] = None):
+        if ended_at is not None or started_at is not None:
+            if ended_at is None or started_at is None:
+                raise Exception('you must specify both ended_at and started_at')
+            if ended_at < started_at:
+                raise Exception('ended_at must be after started_at')
+        if first > 100 or first < 1:
+            raise Exception('first must be between 1 and 100')
+        url_params = {
+            'after': after,
+            'ended_at': ended_at.isoformat() if ended_at is not None else None,
+            'first': first,
+            'game_id': game_id,
+            'started_at': started_at.isoformat() if started_at is not None else None,
+            'type': report_type.value if report_type is not None else None
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'analytics/games',
+                        url_params,
+                        remove_none=True)
+        response = self.__api_get_request(url, AuthType.USER, [AuthScope.ANALYTICS_READ_GAMES])
+        data = response.json()
+        return make_fields_datetime(data, ['ended_at', 'started_at'])
