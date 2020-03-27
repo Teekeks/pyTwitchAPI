@@ -3,9 +3,11 @@
 from .webhook import TwitchWebHook
 import requests
 from typing import Union, List
-from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope
+from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
+    fields_to_enum
 from datetime import datetime
-from .types import AnalyticsReportType, AuthScope, AuthType, UnauthorizedException, MissingScopeException, TimePeriod
+from .types import AnalyticsReportType, AuthScope, AuthType, UnauthorizedException, MissingScopeException, \
+    TimePeriod, CodeStatus
 from dateutil import parser as du_parser
 
 
@@ -258,3 +260,17 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'entitlements/upload', param)
         result = self.__api_post_request(url, AuthType.APP, [])
         return result.json()
+
+    def get_code_status(self,
+                        code: List[str],
+                        user_id: int):
+        if code.count() > 20 or code.count() < 1:
+            raise Exception('only between 1 and 20 codes are allowed')
+        param = {
+            'code': code,
+            'user_id': user_id
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'entitlements/codes', param, split_lists=True)
+        result = self.__api_get_request(url, AuthType.APP, [])
+        data = result.json()
+        return fields_to_enum(data, ['status'], CodeStatus, CodeStatus.INTERNAL_ERROR)
