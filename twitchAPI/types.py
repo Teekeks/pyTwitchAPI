@@ -47,6 +47,7 @@ class CodeStatus(Enum):
     UNUSED = 'UNUSED'
     INCORRECT_FORMAT = 'INCORRECT_FORMAT'
     INTERNAL_ERROR = 'INTERNAL_ERROR'
+    UNKNOWN_VALUE = ''
 
 
 class UnauthorizedException(Exception):
