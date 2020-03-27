@@ -374,3 +374,16 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'moderation/banned', param, remove_none=True)
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
         return make_fields_datetime(result.json(), ['expires_at'])
+
+    def get_moderators(self,
+                       broadcaster_id: str,
+                       user_id: Optional[str] = None,
+                       after: Optional[str] = None):
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'user_id': user_id,
+            'after': after
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators', param, remove_none=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
+        return result.json()
