@@ -60,6 +60,18 @@ class Twitch:
         else:
             return requests.post(url, headers=headers, json=data)
 
+    def __api_put_request(self,
+                          url: str,
+                          auth_type: 'AuthType',
+                          required_scope: List[AuthScope],
+                          data: Union[dict, None] = None):
+        """Make PUT request with Client-ID authorization"""
+        headers = self.__generate_header(auth_type, required_scope)
+        if data is None:
+            return requests.put(url, headers=headers)
+        else:
+            return requests.put(url, headers=headers, json=data)
+
     def __api_get_request(self, url: str,
                           auth_type: 'AuthType',
                           required_scope: List[AuthScope]):
@@ -528,3 +540,13 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
         result = self.__api_get_request(url, AuthType.APP, [])
         return result.json()
+
+    def replace_stream_tags(self,
+                            broadcaster_id: str,
+                            tag_ids: List[str]):
+        if len(tag_ids) > 100:
+            raise Exception('tag_ids can not have more than 100 entries')
+        url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
+        self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], data={'tag_ids': tag_ids})
+        # this returns nothing
+        return {}
