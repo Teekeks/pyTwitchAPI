@@ -117,7 +117,7 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'users', url_params, remove_none=True, split_lists=True)
         response = self.__api_get_request(url, AuthType.NONE)
         data = response.json()
-        return data['data']
+        return data
 
     def get_extension_analytics(self,
                                 after: Union[str, None] = None,
@@ -195,3 +195,21 @@ class Twitch:
         response = self.__api_get_request(url, AuthType.USER, [AuthScope.BITS_READ])
         data = response.json()
         return make_fields_datetime(data, ['ended_at', 'started_at'])
+
+    def get_extension_transactions(self,
+                                   extension_id: str,
+                                   transaction_id: Union[str, None] = None,
+                                   after: Union[str, None] = None,
+                                   first: int = 20):
+        if first > 100 or first < 1:
+            raise Exception("first must be between 1 and 100")
+        url_param = {
+            'extension_id': extension_id,
+            'id': transaction_id,
+            'after': after,
+            first: first
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'extensions/transactions', url_param, remove_none=True)
+        result = self.__api_get_request(url, AuthType.APP, [])
+        data = result.json()
+        return make_fields_datetime(data, ['timestamp'])
