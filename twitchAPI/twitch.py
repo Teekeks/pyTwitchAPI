@@ -213,3 +213,36 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.APP, [])
         data = result.json()
         return make_fields_datetime(data, ['timestamp'])
+
+    def create_clip(self,
+                    broadcaster_id: str,
+                    has_delay: bool = False):
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'has_delay': str(has_delay).lower()
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'clips', param)
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CLIPS_EDIT])
+        return result.json()
+
+    def get_clips(self,
+                  broadcaster_id: str,
+                  game_id: str,
+                  clip_id: List[str],
+                  after: Union[str, None] = None,
+                  before: Union[str, None] = None,
+                  ended_at: Union[datetime, None] = None,
+                  started_at: Union[datetime, None] = None):
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'game_id': game_id,
+            'clip_id': clip_id,
+            'after': after,
+            'before': before,
+            'ended_at': ended_at.isoformat() if ended_at is not None else None,
+            'started_at': started_at.isoformat() if started_at is not None else None
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'clips', param, split_lists=True, remove_none=True)
+        result = self.__api_get_request(url, AuthType.NONE, [])
+        data = result.json()
+        return make_fields_datetime(data, ['created_at'])
