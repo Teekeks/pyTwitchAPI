@@ -288,3 +288,19 @@ class Twitch:
         result = self.__api_post_request(url, AuthType.APP, [])
         data = result.json()
         return fields_to_enum(data, ['status'], CodeStatus, CodeStatus.UNKNOWN_VALUE)
+
+    def get_top_games(self,
+                      after: Optional[str] = None,
+                      before: Optional[str] = None,
+                      first: int = 20):
+        if first < 1 or first > 100:
+            raise Exception('first must be between 1 and 100')
+        param = {
+            'after': after,
+            'before': before,
+            'first': first
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'games/top', param, remove_none=True)
+        result = self.__api_get_request(url, AuthType.NONE, [])
+        return result.json()
+
