@@ -304,3 +304,17 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.NONE, [])
         return result.json()
 
+    def get_games(self,
+                  game_ids: Optional[List[str]] = None,
+                  names: Optional[List[str]] = None):
+        if game_ids is None and names is None:
+            raise Exception('at least one of either game_ids and names has to be set')
+        if (len(game_ids) if game_ids is not None else 0) + (len(names) if names is not None else 0) > 100:
+            raise Exception('in total, only 100 game_ids and names can be passed')
+        param = {
+            'id': game_ids,
+            'name': names
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'games', param, remove_none=True, split_lists=True)
+        result = self.__api_get_request(url, AuthType.NONE, [])
+        return result.json()
