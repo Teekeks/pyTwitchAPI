@@ -38,7 +38,7 @@ class Twitch:
         elif auth_type == AuthType.USER:
             if not self.__has_user_auth:
                 raise UnauthorizedException('require user authentication!')
-            for s in self.__user_auth_scope:
+            for s in required_scope:
                 if s not in self.__user_auth_scope:
                     raise MissingScopeException('Require user auth scope ' + s.name)
             header['Authorization'] = f'Bearer {self.__user_auth_token}'
@@ -51,18 +51,18 @@ class Twitch:
     def __api_post_request(self,
                            url: str,
                            auth_type: 'AuthType',
-                           required_scope: List[AuthScope] = [],
+                           required_scope: List[AuthScope],
                            data: Union[dict, None] = None):
         """Make POST request with Client-ID authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         if data is None:
             return requests.post(url, headers=headers)
         else:
-            return requests.post(url, headers=headers, data=data)
+            return requests.post(url, headers=headers, json=data)
 
     def __api_get_request(self, url: str,
                           auth_type: 'AuthType',
-                          required_scope: List[AuthScope] = []):
+                          required_scope: List[AuthScope]):
         """Make GET request with Client-ID authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         return requests.get(url, headers=headers)
@@ -112,12 +112,13 @@ class Twitch:
     def get_users(self, user_ids=None, logins=None):
         if user_ids is None and logins is None:
             raise Exception('please either specify user_ids or logins')
+        # TODO max number of items check
         url_params = {
             'id': user_ids,
             'login': logins
         }
         url = build_url(TWITCH_API_BASE_URL + 'users', url_params, remove_none=True, split_lists=True)
-        response = self.__api_get_request(url, AuthType.NONE)
+        response = self.__api_get_request(url, AuthType.NONE, [])
         data = response.json()
         return data
 
@@ -317,4 +318,24 @@ class Twitch:
         }
         url = build_url(TWITCH_API_BASE_URL + 'games', param, remove_none=True, split_lists=True)
         result = self.__api_get_request(url, AuthType.NONE, [])
+        return result.json()
+
+    def check_automod_status(self,
+                             broadcaster_id: str,
+                             msg_id: str,
+                             msg_text: str,
+                             user_id: str):
+        # TODO you can pass multiple sets in the body, account for that
+        url_param = {
+            'broadcaster_id': broadcaster_id
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/enforcements/status', url_param)
+        body = {
+            'data': [{
+                'msg_id': msg_id,
+                'msg_text': msg_text,
+                'user_id': user_id}
+            ]
+        }
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATION_READ], data=body)
         return result.json()
