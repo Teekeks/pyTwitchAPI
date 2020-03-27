@@ -401,3 +401,16 @@ class Twitch:
         data = fields_to_enum(data, ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
         data = make_fields_datetime(data, ['event_timestamp'])
         return data
+
+    def create_stream_marker(self,
+                             user_id: str,
+                             description: Optional[str] = None):
+        if description is not None and len(description) > 140:
+            raise Exception('max length for description is 140')
+        url = build_url(TWITCH_API_BASE_URL + 'streams/markers', {})
+        body = {'user_id': user_id}
+        if description is not None:
+            body['description'] = description
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], data=body)
+        data = result.json()
+        return make_fields_datetime(data, ['created_at'])
