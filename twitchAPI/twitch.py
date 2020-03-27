@@ -7,7 +7,7 @@ from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_f
     fields_to_enum
 from datetime import datetime
 from .types import AnalyticsReportType, AuthScope, AuthType, UnauthorizedException, MissingScopeException, \
-    TimePeriod, CodeStatus, ModerationEventType
+    TimePeriod, CodeStatus, ModerationEventType, VideoType, SortMethod
 from dateutil import parser as du_parser
 
 
@@ -113,13 +113,6 @@ class Twitch:
         return TwitchWebHook(url,
                              self.app_id,
                              port)
-
-    def get_webhook_subscriptions(self, first: Union[str, None] = None, after: Union[str, None] = None):
-        url = build_url(TWITCH_API_BASE_URL + 'webhooks/subscriptions',
-                        {'first': first, 'after': after},
-                        remove_none=True)
-        response = self.__api_get_request(url, AuthType.APP)
-        return response.json()
 
     def get_extension_analytics(self,
                                 after: Union[str, None] = None,
@@ -583,3 +576,56 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
         return result.json()
 
+    def get_user_active_extensions(self,
+                                   user_id: Optional[str] = None):
+        url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {'user_id': user_id}, remove_none=True)
+        result = self.__api_get_request(url, AuthType.NONE, [])
+        return result.json()
+
+    def update_user_extensions(self):
+        url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {})
+        result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST])
+        return result.json()
+
+    def get_videos(self,
+                   ids: Optional[List[str]] = None,
+                   user_id: Optional[str] = None,
+                   game_id: Optional[str] = None,
+                   after: Optional[str] = None,
+                   before: Optional[str] = None,
+                   first: int = 20,
+                   language: Optional[str] = None,
+                   period: TimePeriod = TimePeriod.ALL,
+                   sort: SortMethod = SortMethod.TIME,
+                   video_type: VideoType = VideoType.ALL):
+        if ids is None and user_id is None and game_id is None:
+            raise Exception('you must use either ids, user_id or game_id')
+        if first < 1 or first > 100:
+            raise Exception('first must be between 1 and 100')
+        param = {
+            'id': ids,
+            'user_id': user_id,
+            'game_id': game_id,
+            'after': after,
+            'before': before,
+            'first': first,
+            'language': language,
+            'period': period.value,
+            'sort': sort.value,
+            'type': video_type.value
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'videos', param, remove_none=True, split_lists=True)
+        result = self.__api_get_request(url, AuthType.NONE, [])
+        data = result.json()
+        data = make_fields_datetime(data, ['created_at', 'published_at'])
+        data = fields_to_enum(data, ['type'], VideoType, VideoType.UNKNOWN)
+        return data
+
+    def get_webhook_subscriptions(self,
+                                  first: Union[str, None] = None,
+                                  after: Union[str, None] = None):
+        url = build_url(TWITCH_API_BASE_URL + 'webhooks/subscriptions',
+                        {'first': first, 'after': after},
+                        remove_none=True)
+        response = self.__api_get_request(url, AuthType.APP, [])
+        return response.json()

@@ -41,6 +41,20 @@ class TimePeriod(Enum):
     YEAR = 'year'
 
 
+class SortMethod(Enum):
+    TIME = 'time'
+    TRENDING = 'trending'
+    VIEWS = 'views'
+
+
+class VideoType(Enum):
+    ALL = 'all'
+    UPLOAD = 'upload',
+    ARCHIVE = 'archive',
+    HIGHLIGHT = 'highlight'
+    UNKNOWN = ''
+
+
 class AuthType(Enum):
     """Type of authentication required"""
     NONE = 0
