@@ -387,3 +387,17 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators', param, remove_none=True)
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
         return result.json()
+
+    def get_moderator_events(self,
+                             broadcaster_id: str,
+                             user_id: Optional[str] = None):
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'user_id': user_id
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators/events', param, remove_none=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
+        data = result.json()
+        data = fields_to_enum(data, ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
+        data = make_fields_datetime(data, ['event_timestamp'])
+        return data
