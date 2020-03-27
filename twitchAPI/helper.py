@@ -53,7 +53,10 @@ def make_dict_field_datetime(data: dict, fields: list) -> dict:
     for key, value in data.items():
         if isinstance(value, str):
             if key in fields:
-                fd[key] = du_parser.isoparse(value)
+                if value == "":
+                    fd[key] = None
+                else:
+                    fd[key] = du_parser.isoparse(value)
         elif isinstance(value, dict):
             fd[key] = make_dict_field_datetime(value, fields)
         elif isinstance(value, list):
