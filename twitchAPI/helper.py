@@ -52,15 +52,20 @@ async def get_json(request: 'Request') -> Union[list, dict, None]:
 def make_fields_datetime(data: Union[dict, list], fields: List[str]):
     """itterate over dict or list recursivly to replace string fields with datetime"""
 
+    def make_str_field_datetime(data, fields: list):
+        if isinstance(data, str):
+            if data in fields:
+                if data == "":
+                    return None
+                else:
+                    return du_parser.isoparse(data)
+        return data
+
     def make_dict_field_datetime(data: dict, fields: list) -> dict:
         fd = data
         for key, value in data.items():
             if isinstance(value, str):
-                if key in fields:
-                    if value == "":
-                        fd[key] = None
-                    else:
-                        fd[key] = du_parser.isoparse(value)
+                fd[key] = make_str_field_datetime(value, fields)
             elif isinstance(value, dict):
                 fd[key] = make_dict_field_datetime(value, fields)
             elif isinstance(value, list):
@@ -68,9 +73,11 @@ def make_fields_datetime(data: Union[dict, list], fields: List[str]):
         return fd
 
     if isinstance(data, list):
-        return [make_dict_field_datetime(d, fields) for d in data]
-    else:
+        return [make_fields_datetime(d, fields) for d in data]
+    elif isinstance(data, dict):
         return make_dict_field_datetime(data, fields)
+    else:
+        return make_str_field_datetime(data, fields)
 
 
 def build_scope(scopes: list) -> str:
