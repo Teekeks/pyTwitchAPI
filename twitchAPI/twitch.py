@@ -414,3 +414,31 @@ class Twitch:
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], data=body)
         data = result.json()
         return make_fields_datetime(data, ['created_at'])
+
+    def get_streams(self,
+                    after: Optional[str] = None,
+                    before: Optional[str] = None,
+                    first: int = 20,
+                    game_id: Optional[str] = None,
+                    language: Optional[List[str]] = None,
+                    user_id: Optional[List[str]] = None,
+                    user_login: Optional[List[str]] = None):
+        if user_id is not None and len(user_id) > 100:
+            raise Exception('a maximum of 100 user_ids are allowed')
+        if user_login is not None and len(user_login) > 100:
+            raise Exception('a maximum of 100 user_logins are allowed')
+        if first > 100 or first < 1:
+            raise Exception('first must be between 1 and 100')
+        param = {
+            'after': after,
+            'before': before,
+            'first': first,
+            'game_id': game_id,
+            'language': language,
+            'user_id': user_id,
+            'user_login': user_login
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'streams', param, remove_none=True, split_lists=True)
+        result = self.__api_get_request(url, AuthType.NONE, [])
+        data = result.json()
+        return make_fields_datetime(data, ['started_at'])
