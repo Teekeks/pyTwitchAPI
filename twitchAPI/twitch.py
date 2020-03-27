@@ -522,3 +522,9 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'tags/streams', param, remove_none=True, split_lists=True)
         result = self.__api_get_request(url, AuthType.APP, [])
         return result.json()
+
+    def get_stream_tags(self,
+                        broadcaster_id: str):
+        url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
+        result = self.__api_get_request(url, AuthType.APP, [])
+        return result.json()
