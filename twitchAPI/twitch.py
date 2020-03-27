@@ -571,3 +571,15 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'users/follows', param, remove_none=True)
         result = self.__api_get_request(url, AuthType.NONE, [])
         return make_fields_datetime(result.json(), ['followed_at'])
+
+    def update_user(self,
+                    description: str):
+        url = build_url(TWITCH_API_BASE_URL + 'users', {'description': description})
+        result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT])
+        return result.json()
+
+    def get_user_extensions(self):
+        url = build_url(TWITCH_API_BASE_URL + 'users/extensions/list', {})
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
+        return result.json()
+
