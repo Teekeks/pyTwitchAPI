@@ -10,6 +10,7 @@ from threading import Thread
 from time import sleep
 from os import path
 import requests
+from concurrent.futures._base import CancelledError
 
 
 class UserAuthenticator:
@@ -31,6 +32,8 @@ class UserAuthenticator:
     __thread: Union['threading.Thread', None] = None
 
     __user_token: Union[str, None] = None
+
+    __can_close: bool = False
 
     def __init__(self,
                  twitch: 'Twitch',
@@ -57,6 +60,12 @@ class UserAuthenticator:
         app.add_routes([web.get('/', self.__handle_callback)])
         return web.AppRunner(app)
 
+    async def __run_check(self):
+        while not self.__can_close:
+            await asyncio.sleep(1)
+        for task in asyncio.Task.all_tasks(self.__loop):
+            task.cancel()
+
     def __run(self, runner: 'web.AppRunner'):
         self.__runner = runner
         self.__loop = asyncio.new_event_loop()
@@ -65,19 +74,17 @@ class UserAuthenticator:
         site = web.TCPSite(runner, self.url, self.port)
         self.__loop.run_until_complete(site.start())
         self.__server_running = True
-        self.__loop.run_forever()
+        try:
+            self.__loop.run_until_complete(self.__run_check())
+        except CancelledError:
+            pass
 
     def __start(self):
         self.__thread = Thread(target=self.__run, args=(self.__build_runner(),))
         self.__thread.start()
 
     def stop(self):
-        if self.__loop is not None:
-            self.__loop.call_soon_threadsafe(self.__loop.stop)
-            self.__thread.join()
-            self.__loop = None
-            self.__thread = None
-            self.__runner = None
+        self.__can_close = True
 
     async def __handle_callback(self, request: 'web.Request'):
         val = request.rel_url.query.get('state')
