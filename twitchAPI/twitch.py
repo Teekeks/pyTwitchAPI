@@ -505,3 +505,20 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'subscriptions', param, remove_none=True, split_lists=True)
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_SUBSCRIPTIONS])
         return result.json()
+
+    def get_all_stream_tags(self,
+                            after: Optional[str] = None,
+                            first: int = 20,
+                            tag_ids: Optional[List[str]] = None):
+        if first < 1 or first > 100:
+            raise Exception('first must be between 1 and 100')
+        if tag_ids is not None and len(tag_ids) > 100:
+            raise Exception('tag_ids can not have more than 100 entries')
+        param = {
+            'after': after,
+            'first': first,
+            'tag_id': tag_ids
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'tags/streams', param, remove_none=True, split_lists=True)
+        result = self.__api_get_request(url, AuthType.APP, [])
+        return result.json()
