@@ -492,3 +492,16 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'streams/metadata', param, remove_none=True, split_lists=True)
         result = self.__api_get_request(url, AuthType.NONE, [])
         return result.json()
+
+    def get_broadcaster_subscriptions(self,
+                                      broadcaster_id: str,
+                                      user_ids: Optional[List[str]] = None):
+        if user_ids is not None and len(user_ids) > 100:
+            raise Exception('user_ids can have a maximum of 100 entries')
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'user_id': user_ids
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'subscriptions', param, remove_none=True, split_lists=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_SUBSCRIPTIONS])
+        return result.json()
