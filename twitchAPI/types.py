@@ -20,6 +20,14 @@ class AuthScope(Enum):
     USER_READ_EMAIL = 'user:read:email'
 
 
+class TimePeriod(Enum):
+    ALL = 'all'
+    DAY = 'day'
+    WEEK = 'week'
+    MONTH = 'month'
+    YEAR = 'year'
+
+
 class AuthType(Enum):
     NONE = 0
     USER = 1

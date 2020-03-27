@@ -5,7 +5,7 @@ import requests
 from typing import Union, List
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope
 from datetime import datetime
-from .types import AnalyticsReportType, AuthScope, AuthType, UnauthorizedException, MissingScopeException
+from .types import AnalyticsReportType, AuthScope, AuthType, UnauthorizedException, MissingScopeException, TimePeriod
 from dateutil import parser as du_parser
 
 
@@ -175,5 +175,23 @@ class Twitch:
                         url_params,
                         remove_none=True)
         response = self.__api_get_request(url, AuthType.USER, [AuthScope.ANALYTICS_READ_GAMES])
+        data = response.json()
+        return make_fields_datetime(data, ['ended_at', 'started_at'])
+
+    def get_bits_leaderboard(self,
+                             count: int = 10,
+                             period: TimePeriod = TimePeriod.ALL,
+                             started_at: Union[datetime, None] = None,
+                             user_id: Union[str, None] = None):
+        if count > 100 or count < 1:
+            raise Exception('count must be between 1 and 100')
+        url_params = {
+            'count': count,
+            'period': period.value,
+            'started_at': started_at.isoformat() if started_at is not None else None,
+            'user_id': user_id
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'bits/leaderboard', url_params, remove_none=True)
+        response = self.__api_get_request(url, AuthType.USER, [AuthScope.BITS_READ])
         data = response.json()
         return make_fields_datetime(data, ['ended_at', 'started_at'])
