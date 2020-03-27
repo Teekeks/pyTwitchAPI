@@ -461,3 +461,34 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'streams/markers', param, remove_none=True)
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
         return make_fields_datetime(result.json(), ['created_at'])
+
+    def get_streams_metadata(self,
+                             after: Optional[str] = None,
+                             before: Optional[str] = None,
+                             first: int = 20,
+                             game_id: Optional[List[str]] = None,
+                             language: Optional[List[str]] = None,
+                             user_id: Optional[List[str]] = None,
+                             user_login: Optional[List[str]] = None):
+        if first < 1 or first > 100:
+            raise Exception('first must be between 1 and 100')
+        if game_id is not None and len(game_id) > 100:
+            raise Exception('game_id can have a maximum of 100 entries')
+        if language is not None and len(language) > 100:
+            raise Exception('language can have a maximum of 100 entries')
+        if user_id is not None and len(user_id) > 100:
+            raise Exception('user_id can have a maximum of 100 entries')
+        if user_login is not None and len(user_login) > 100:
+            raise Exception('user_login can have a maximum of 100 entries')
+        param = {
+            'after': after,
+            'before': before,
+            'first': first,
+            'game_id': game_id,
+            'language': language,
+            'user_id': user_id,
+            'user_login': user_login
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'streams/metadata', param, remove_none=True, split_lists=True)
+        result = self.__api_get_request(url, AuthType.NONE, [])
+        return result.json()
