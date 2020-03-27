@@ -7,7 +7,7 @@ from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_f
     fields_to_enum
 from datetime import datetime
 from .types import AnalyticsReportType, AuthScope, AuthType, UnauthorizedException, MissingScopeException, \
-    TimePeriod, CodeStatus
+    TimePeriod, CodeStatus, ModerationEventType
 from dateutil import parser as du_parser
 
 
@@ -339,3 +339,23 @@ class Twitch:
         }
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATION_READ], data=body)
         return result.json()
+
+    def get_banned_events(self,
+                          broadcaster_id: str,
+                          user_id: Optional[str] = None,
+                          after: Optional[str] = None,
+                          first: int = 20):
+        if first > 100 or first < 1:
+            raise Exception('first must be between 1 and 100')
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'user_id': user_id,
+            'after': after,
+            'first': first
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/banned/events', param, remove_none=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
+        data = result.json()
+        data = fields_to_enum(data, ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
+        data = make_fields_datetime(data, ['event_timestamp', 'expires_at'])
+        return data

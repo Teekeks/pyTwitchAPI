@@ -27,6 +27,12 @@ class AuthScope(Enum):
     MODERATION_READ = 'moderation:read'
 
 
+class ModerationEventType(Enum):
+    BAN = 'moderation.user.ban'
+    UNBAN = 'moderation.user.unban'
+    UNKNOWN = ''
+
+
 class TimePeriod(Enum):
     ALL = 'all'
     DAY = 'day'
