@@ -13,6 +13,21 @@ import requests
 from concurrent.futures._base import CancelledError
 
 
+def refresh_access_token(refresh_token: str,
+                         app_id: str,
+                         app_secret: str):
+    param = {
+        'refresh_token': refresh_token,
+        'client_id': app_id,
+        'grant_type': 'refresh_token',
+        'client_secret': app_secret
+    }
+    url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', {})
+    result = requests.post(url, data=param)
+    data = result.json()
+    return data['access_token'], data['refresh_token']
+
+
 class UserAuthenticator:
 
     __twitch: 'Twitch' = None
