@@ -359,3 +359,18 @@ class Twitch:
         data = fields_to_enum(data, ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
         data = make_fields_datetime(data, ['event_timestamp', 'expires_at'])
         return data
+
+    def get_banned_users(self,
+                         broadcaster_id: str,
+                         user_id: Optional[str] = None,
+                         after: Optional[str] = None,
+                         before: Optional[str] = None):
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'user_id': user_id,
+            'after': after,
+            'before': before
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/banned', param, remove_none=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
+        return make_fields_datetime(result.json(), ['expires_at'])
