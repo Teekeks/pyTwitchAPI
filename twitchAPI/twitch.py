@@ -121,19 +121,6 @@ class Twitch:
         response = self.__api_get_request(url, AuthType.APP)
         return response.json()
 
-    def get_users(self, user_ids=None, logins=None):
-        if user_ids is None and logins is None:
-            raise Exception('please either specify user_ids or logins')
-        # TODO max number of items check
-        url_params = {
-            'id': user_ids,
-            'login': logins
-        }
-        url = build_url(TWITCH_API_BASE_URL + 'users', url_params, remove_none=True, split_lists=True)
-        response = self.__api_get_request(url, AuthType.NONE, [])
-        data = response.json()
-        return data
-
     def get_extension_analytics(self,
                                 after: Union[str, None] = None,
                                 extension_id: Union[str, None] = None,
@@ -550,3 +537,37 @@ class Twitch:
         self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], data={'tag_ids': tag_ids})
         # this returns nothing
         return {}
+
+    def get_users(self,
+                  user_ids: Optional[List[str]] = None,
+                  logins: Optional[List[str]] = None):
+        if user_ids is None and logins is None:
+            raise Exception('please either specify user_ids or logins')
+        if (len(user_ids) if user_ids is not None else 0) + (len(logins) if logins is not None else 0) > 100:
+            raise Exception('the total number of entries in user_ids and logins can not be more than 100')
+        url_params = {
+            'id': user_ids,
+            'login': logins
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'users', url_params, remove_none=True, split_lists=True)
+        response = self.__api_get_request(url, AuthType.NONE, [])
+        return response.json()
+
+    def get_users_follows(self,
+                          after: Optional[str] = None,
+                          first: int = 20,
+                          from_id: Optional[str] = None,
+                          to_id: Optional[str] = None):
+        if first > 100 or first < 1:
+            raise Exception('first must be between 1 and 100')
+        if from_id is None and to_id is None:
+            raise Exception('at least one of from_id and to_id needs to be set')
+        param = {
+            'after': after,
+            'first': first,
+            'from_id': from_id,
+            'to_id': to_id
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'users/follows', param, remove_none=True)
+        result = self.__api_get_request(url, AuthType.NONE, [])
+        return make_fields_datetime(result.json(), ['followed_at'])
