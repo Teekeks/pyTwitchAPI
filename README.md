@@ -1,7 +1,9 @@
 # Python Twitch API
 
-This is a python 3.7 implementation of the Twitch API and its Webhook.  
-**At the current time, only the Webhook is fully implemented!**
+[![PyPI verion](https://img.shields.io/pypi/v/twitchAPI.svg)](https://pypi.org/project/twitchAPI/) [![PyPI verion](https://img.shields.io/pypi/pyversions/twitchAPI)](https://pypi.org/project/twitchAPI/) [![Twitch API version](https://img.shields.io/badge/twitch%20API%20version-Helix-brightgreen)](https://dev.twitch.tv/docs/api)
+
+This is a full implementation of the Twitch API and its Webhook in python 3.7.  
+
 
 ## Installation
 
@@ -20,12 +22,55 @@ from twitchAPI.twitch import Twitch
 import twitchAPI.scope as scope
 
 # create instance of twitch API
-twitch = Twitch('my_app_id', 'my_app_secret', scope.build_scope(scope.USER_READ_EMAIL))
+twitch = Twitch('my_app_id', 'my_app_secret')
 
 # get ID of user
 user_info = twitch.get_users(logins=['my_username'])
 user_id = user_info[0]['id']
 ```
+
+### Authentication
+
+The Twitch API knows 2 different authentications. App and User Authentication.
+Which one you need (or if one at all) depends on what calls you want to use.
+
+Its always good to get at least App authentication even for calls where you dont need it since the rate limmits are way better for authenticated calls.
+
+#### App Authentication
+
+App authentication is super simple, just do the following:
+
+```python
+# add App authentication
+twitch.authenticate_app([])
+```
+### User Authentication
+
+To get a user auth token, the user has to explicitly click "Authorize" on the twitch website. You can use various online services to generate a token or use my build in authenticator.
+For my authenticator you have to add the following URL as a "OAuth Redirect URL": ```http://localhost:17563```
+You can set that [here in your twitch dev dashboard](https://dev.twitch.tv/console).
+
+
+```python
+from twitchAPI.oauth import UserAuthenticator
+from twitch.types import AuthScope
+
+target_scope = [AuthScope.READ_BITS]
+auth = UserAuthenticator(twitch, target_scope, force_verify=False)
+# this will open your default browser and prompt you with the twitch verification website
+token, refresh_token = auth.authenticate()
+# add User authentication
+twitch.set_user_authentication(token, target_scope)
+```
+
+You can reuse this token and use the refresh_token to renew it:
+
+```python
+from twitchAPI.oauth import refresh_access_token
+new_token, new_refresh_token = refresh_access_token('refresh_token', 'client_id', 'client_secret')
+```
+
+
 
 ### Webhook
 
