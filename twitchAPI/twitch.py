@@ -246,3 +246,15 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.NONE, [])
         data = result.json()
         return make_fields_datetime(data, ['created_at'])
+
+    def create_entitlement_grants_upload_url(self,
+                                             manifest_id: str):
+        if len(manifest_id) < 1 or len(manifest_id) > 64:
+            raise Exception('manifest_id must be between 1 and 64 characters long!')
+        param = {
+            'manifest_id': manifest_id,
+            'type': 'bulk_drops_grant'
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'entitlements/upload', param)
+        result = self.__api_post_request(url, AuthType.APP, [])
+        return result.json()
