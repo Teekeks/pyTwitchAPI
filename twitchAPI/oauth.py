@@ -16,6 +16,14 @@ from concurrent.futures._base import CancelledError
 def refresh_access_token(refresh_token: str,
                          app_id: str,
                          app_secret: str):
+    """Simple helper function for refreshing a user access token.
+
+    :param refresh_token: str, the current refresh_token
+    :param app_id: str, the id of your app
+    :param app_secret: str, the secret key of your app
+    :return: access_token, refresh_token
+    :rtype: str, str
+    """
     param = {
         'refresh_token': refresh_token,
         'client_id': app_id,
@@ -29,6 +37,11 @@ def refresh_access_token(refresh_token: str,
 
 
 class UserAuthenticator:
+    """Simple to use client for the Twitch User authentication flow.
+
+    :param twitch: :class:`twitchAPI.twitch.Twitch` instance
+    :param scopes: List of :class:`twitchAPI.types.AuthScope`, the desired Auth scopes
+    """
 
     __twitch: 'Twitch' = None
     port: int = 17563
@@ -99,6 +112,10 @@ class UserAuthenticator:
         self.__thread.start()
 
     def stop(self):
+        """Manually stop the flow
+
+        :rtype: None
+        """
         self.__can_close = True
 
     async def __handle_callback(self, request: 'web.Request'):
@@ -120,7 +137,13 @@ class UserAuthenticator:
 
     def authenticate(self,
                      callback_func=None):
-        """Main function to call?"""
+        """Start the user authentication flow\n
+        If callback_func is not set, authenticate will wait till the authentication process finnished and then return
+        the access_token and the refresh_token
+
+        :param callback_func: Function to call once the authentication finnished.
+        :return: None if callback_func is set, otherwise access_token and refresh_token
+        """
         self.__callback_func = callback_func
         self.__start()
         # wait for the server to start up
