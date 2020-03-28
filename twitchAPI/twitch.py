@@ -1,14 +1,11 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 
-from .webhook import TwitchWebHook
 import requests
 from typing import Union, List, Optional
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
     fields_to_enum
 from datetime import datetime
-from .types import AnalyticsReportType, AuthScope, AuthType, UnauthorizedException, MissingScopeException, \
-    TimePeriod, CodeStatus, ModerationEventType, VideoType, SortMethod
-from dateutil import parser as du_parser
+from .types import *
 
 
 class Twitch:
@@ -108,11 +105,8 @@ class Twitch:
         self.__user_auth_scope = scope
         self.__has_user_auth = True
 
-    def get_webhook(self, url: str, port: int) -> 'TwitchWebHook':
-        """Returns a instance of TwitchWebHook"""
-        return TwitchWebHook(url,
-                             self.app_id,
-                             port)
+    def get_app_token(self):
+        return self.__app_auth_token
 
     def get_extension_analytics(self,
                                 after: Union[str, None] = None,

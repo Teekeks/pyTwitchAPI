@@ -19,7 +19,6 @@ Setting up a Instance of the Twitch API and get your User ID:
 
 ```python
 from twitchAPI.twitch import Twitch
-import twitchAPI.scope as scope
 
 # create instance of twitch API
 twitch = Twitch('my_app_id', 'my_app_secret')
