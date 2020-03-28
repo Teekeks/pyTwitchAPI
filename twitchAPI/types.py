@@ -4,12 +4,34 @@ from enum import Enum
 
 
 class AnalyticsReportType(Enum):
+    """Enum of all Analytics report types
+
+    :var V1:
+    :var V2:
+    """
     V1 = 'overview_v1'
     V2 = 'overview_v2'
 
 
 class AuthScope(Enum):
-    """Authentication scopes"""
+    """Enum of Authentication scopes
+
+    :var ANALYTICS_READ_EXTENSION:
+    :var ANALYTICS_READ_GAMES:
+    :var BITS_READ:
+    :var CHANNEL_READ_SUBSCRIPTIONS:
+    :var CLIPS_EDIT:
+    :var USER_EDIT:
+    :var USER_EDIT_BROADCAST:
+    :var USER_READ_BROADCAST:
+    :var USER_READ_EMAIL:
+    :var CHANNEL_MODERATE:
+    :var CHAT_EDIT:
+    :var CHAT_READ:
+    :var WHISPERS_READ:
+    :var WHISPERS_EDIT:
+    :var MODERATION_READ:
+    """
     ANALYTICS_READ_EXTENSION = 'analytics:read:extensions'
     ANALYTICS_READ_GAMES = 'analytics:read:games'
     BITS_READ = 'bits:read'
@@ -28,12 +50,26 @@ class AuthScope(Enum):
 
 
 class ModerationEventType(Enum):
+    """Enum of moderation event types
+
+    :var BAN:
+    :var UNBAN:
+    :var UNKNOWN:
+    """
     BAN = 'moderation.user.ban'
     UNBAN = 'moderation.user.unban'
     UNKNOWN = ''
 
 
 class TimePeriod(Enum):
+    """Enum of valid Time periods
+
+    :var ALL:
+    :var DAY:
+    :var WEEK:
+    :var MONTH:
+    :var YEAR:
+    """
     ALL = 'all'
     DAY = 'day'
     WEEK = 'week'
@@ -42,12 +78,26 @@ class TimePeriod(Enum):
 
 
 class SortMethod(Enum):
+    """Enum of valid sort methods
+
+    :var TIME:
+    :var TRENDING:
+    :var VIEWS:
+    """
     TIME = 'time'
     TRENDING = 'trending'
     VIEWS = 'views'
 
 
 class VideoType(Enum):
+    """Enum of valid video types
+
+    :var ALL:
+    :var UPLOAD:
+    :var ARCHIVE:
+    :var HIGHLIGHT:
+    :var UNKNOWN:
+    """
     ALL = 'all'
     UPLOAD = 'upload',
     ARCHIVE = 'archive',
@@ -56,14 +106,31 @@ class VideoType(Enum):
 
 
 class AuthType(Enum):
-    """Type of authentication required"""
+    """Type of authentication required. Only internal use
+
+    :var NONE: No auth required
+    :var USER: User auth required
+    :var APP: app auth required
+    """
     NONE = 0
     USER = 1
     APP = 2
 
 
 class CodeStatus(Enum):
-    """Code Status, see https://dev.twitch.tv/docs/api/reference#get-code-status for more documentation"""
+    """Enum Code Status, see https://dev.twitch.tv/docs/api/reference#get-code-status for more documentation
+
+    :var SUCCESSFULLY_REDEEMED:
+    :var ALREADY_CLAIMED:
+    :var EXPIRED:
+    :var USER_NOT_ELIGIBLE:
+    :var NOT_FOUND:
+    :var INACTIVE:
+    :var UNUSED:
+    :var INCORRECT_FORMAT:
+    :var INTERNAL_ERROR:
+    :var UNKNOWN_VALUE:
+    """
     SUCCESSFULLY_REDEEMED = 'SUCCESSFULLY_REDEEMED'
     ALREADY_CLAIMED = 'ALREADY_CLAIMED'
     EXPIRED = 'EXPIRED'
@@ -77,8 +144,10 @@ class CodeStatus(Enum):
 
 
 class UnauthorizedException(Exception):
+    """Not authorized to use this"""
     pass
 
 
 class MissingScopeException(Exception):
+    """authorization is missing scope"""
     pass
