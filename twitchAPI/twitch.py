@@ -9,13 +9,13 @@ from .types import *
 
 
 class Twitch:
-    app_id: Union[str, None] = None
-    app_secret: Union[str, None] = None
-    __app_auth_token: Union[str, None] = None
+    app_id: Optional[str] = None
+    app_secret: Optional[str] = None
+    __app_auth_token: Optional[str] = None
     __app_auth_scope: List[AuthScope] = []
     __has_app_auth: bool = False
 
-    __user_auth_token: Union[str, None] = None
+    __user_auth_token: Optional[str] = None
     __user_auth_scope: List[AuthScope] = []
     __has_user_auth: bool = False
 
@@ -49,8 +49,8 @@ class Twitch:
                            url: str,
                            auth_type: 'AuthType',
                            required_scope: List[AuthScope],
-                           data: Union[dict, None] = None):
-        """Make POST request with Client-ID authorization"""
+                           data: Optional[dict] = None) -> requests.Response:
+        """Make POST request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         if data is None:
             return requests.post(url, headers=headers)
@@ -61,8 +61,8 @@ class Twitch:
                           url: str,
                           auth_type: 'AuthType',
                           required_scope: List[AuthScope],
-                          data: Union[dict, None] = None):
-        """Make PUT request with Client-ID authorization"""
+                          data: Optional[dict] = None) -> requests.Response:
+        """Make PUT request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         if data is None:
             return requests.put(url, headers=headers)
@@ -71,12 +71,12 @@ class Twitch:
 
     def __api_get_request(self, url: str,
                           auth_type: 'AuthType',
-                          required_scope: List[AuthScope]):
-        """Make GET request with Client-ID authorization"""
+                          required_scope: List[AuthScope]) -> requests.Response:
+        """Make GET request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         return requests.get(url, headers=headers)
 
-    def __generate_app_token(self):
+    def __generate_app_token(self) -> None:
         params = {
             'client_id': self.app_id,
             'client_secret': self.app_secret,
@@ -95,26 +95,30 @@ class Twitch:
         except KeyError:
             raise Exception('Authentication response did not contain access_token')
 
-    def authenticate_app(self, scope: List[AuthScope]):
+    def authenticate_app(self, scope: List[AuthScope]) -> None:
         self.__app_auth_scope = scope
         self.__generate_app_token()
         self.__has_app_auth = True
 
-    def set_user_authentication(self, token: str, scope: List[AuthScope]):
+    def set_user_authentication(self, token: str, scope: List[AuthScope]) -> None:
         self.__user_auth_token = token
         self.__user_auth_scope = scope
         self.__has_user_auth = True
 
-    def get_app_token(self):
+    def get_app_token(self) -> Union[str, None]:
         return self.__app_auth_token
 
+# ======================================================================================================================
+# API calls
+# ======================================================================================================================
+
     def get_extension_analytics(self,
-                                after: Union[str, None] = None,
-                                extension_id: Union[str, None] = None,
+                                after: Optional[str] = None,
+                                extension_id: Optional[str] = None,
                                 first: int = 20,
-                                ended_at: Union[datetime, None] = None,
-                                started_at: Union[datetime, None] = None,
-                                report_type: Union[AnalyticsReportType, None] = None):
+                                ended_at: Optional[datetime] = None,
+                                started_at: Optional[datetime] = None,
+                                report_type: Optional[AnalyticsReportType] = None) -> dict:
         if ended_at is not None or started_at is not None:
             # you have to put in both:
             if ended_at is None or started_at is None:
@@ -139,12 +143,12 @@ class Twitch:
         return make_fields_datetime(data, ['started_at', 'ended_at'])
 
     def get_game_analytics(self,
-                           after: Union[str, None] = None,
+                           after: Optional[str] = None,
                            first: int = 20,
-                           game_id: Union[str, None] = None,
-                           ended_at: Union[datetime, None] = None,
-                           started_at: Union[datetime, None] = None,
-                           report_type: Union[AnalyticsReportType, None] = None):
+                           game_id: Optional[str] = None,
+                           ended_at: Optional[datetime] = None,
+                           started_at: Optional[datetime] = None,
+                           report_type: Optional[AnalyticsReportType] = None) -> dict:
         if ended_at is not None or started_at is not None:
             if ended_at is None or started_at is None:
                 raise Exception('you must specify both ended_at and started_at')
@@ -170,8 +174,8 @@ class Twitch:
     def get_bits_leaderboard(self,
                              count: int = 10,
                              period: TimePeriod = TimePeriod.ALL,
-                             started_at: Union[datetime, None] = None,
-                             user_id: Union[str, None] = None):
+                             started_at: Optional[datetime] = None,
+                             user_id: Optional[str] = None) -> dict:
         if count > 100 or count < 1:
             raise Exception('count must be between 1 and 100')
         url_params = {
@@ -187,9 +191,9 @@ class Twitch:
 
     def get_extension_transactions(self,
                                    extension_id: str,
-                                   transaction_id: Union[str, None] = None,
-                                   after: Union[str, None] = None,
-                                   first: int = 20):
+                                   transaction_id: Optional[str] = None,
+                                   after: Optional[str] = None,
+                                   first: int = 20) -> dict:
         if first > 100 or first < 1:
             raise Exception("first must be between 1 and 100")
         url_param = {
@@ -205,7 +209,7 @@ class Twitch:
 
     def create_clip(self,
                     broadcaster_id: str,
-                    has_delay: bool = False):
+                    has_delay: bool = False) -> dict:
         param = {
             'broadcaster_id': broadcaster_id,
             'has_delay': str(has_delay).lower()
@@ -218,10 +222,10 @@ class Twitch:
                   broadcaster_id: str,
                   game_id: str,
                   clip_id: List[str],
-                  after: Union[str, None] = None,
-                  before: Union[str, None] = None,
-                  ended_at: Union[datetime, None] = None,
-                  started_at: Union[datetime, None] = None):
+                  after: Optional[str] = None,
+                  before: Optional[str] = None,
+                  ended_at: Optional[datetime] = None,
+                  started_at: Optional[datetime] = None) -> dict:
         param = {
             'broadcaster_id': broadcaster_id,
             'game_id': game_id,
@@ -237,7 +241,7 @@ class Twitch:
         return make_fields_datetime(data, ['created_at'])
 
     def create_entitlement_grants_upload_url(self,
-                                             manifest_id: str):
+                                             manifest_id: str) -> dict:
         if len(manifest_id) < 1 or len(manifest_id) > 64:
             raise Exception('manifest_id must be between 1 and 64 characters long!')
         param = {
@@ -250,8 +254,8 @@ class Twitch:
 
     def get_code_status(self,
                         code: List[str],
-                        user_id: int):
-        if code.count() > 20 or code.count() < 1:
+                        user_id: int) -> dict:
+        if len(code) > 20 or len(code) < 1:
             raise Exception('only between 1 and 20 codes are allowed')
         param = {
             'code': code,
@@ -264,8 +268,8 @@ class Twitch:
 
     def redeem_code(self,
                     code: List[str],
-                    user_id: int):
-        if code.count() > 20 or code.count() < 1:
+                    user_id: int) -> dict:
+        if len(code) > 20 or len(code) < 1:
             raise Exception('only between 1 and 20 codes are allowed')
         param = {
             'code': code,
@@ -279,7 +283,7 @@ class Twitch:
     def get_top_games(self,
                       after: Optional[str] = None,
                       before: Optional[str] = None,
-                      first: int = 20):
+                      first: int = 20) -> dict:
         if first < 1 or first > 100:
             raise Exception('first must be between 1 and 100')
         param = {
@@ -293,7 +297,7 @@ class Twitch:
 
     def get_games(self,
                   game_ids: Optional[List[str]] = None,
-                  names: Optional[List[str]] = None):
+                  names: Optional[List[str]] = None) -> dict:
         if game_ids is None and names is None:
             raise Exception('at least one of either game_ids and names has to be set')
         if (len(game_ids) if game_ids is not None else 0) + (len(names) if names is not None else 0) > 100:
@@ -310,7 +314,7 @@ class Twitch:
                              broadcaster_id: str,
                              msg_id: str,
                              msg_text: str,
-                             user_id: str):
+                             user_id: str) -> dict:
         # TODO you can pass multiple sets in the body, account for that
         url_param = {
             'broadcaster_id': broadcaster_id
@@ -330,7 +334,7 @@ class Twitch:
                           broadcaster_id: str,
                           user_id: Optional[str] = None,
                           after: Optional[str] = None,
-                          first: int = 20):
+                          first: int = 20) -> dict:
         if first > 100 or first < 1:
             raise Exception('first must be between 1 and 100')
         param = {
@@ -350,7 +354,7 @@ class Twitch:
                          broadcaster_id: str,
                          user_id: Optional[str] = None,
                          after: Optional[str] = None,
-                         before: Optional[str] = None):
+                         before: Optional[str] = None) -> dict:
         param = {
             'broadcaster_id': broadcaster_id,
             'user_id': user_id,
@@ -364,7 +368,7 @@ class Twitch:
     def get_moderators(self,
                        broadcaster_id: str,
                        user_id: Optional[str] = None,
-                       after: Optional[str] = None):
+                       after: Optional[str] = None) -> dict:
         param = {
             'broadcaster_id': broadcaster_id,
             'user_id': user_id,
@@ -376,7 +380,7 @@ class Twitch:
 
     def get_moderator_events(self,
                              broadcaster_id: str,
-                             user_id: Optional[str] = None):
+                             user_id: Optional[str] = None) -> dict:
         param = {
             'broadcaster_id': broadcaster_id,
             'user_id': user_id
@@ -390,7 +394,7 @@ class Twitch:
 
     def create_stream_marker(self,
                              user_id: str,
-                             description: Optional[str] = None):
+                             description: Optional[str] = None) -> dict:
         if description is not None and len(description) > 140:
             raise Exception('max length for description is 140')
         url = build_url(TWITCH_API_BASE_URL + 'streams/markers', {})
@@ -408,7 +412,7 @@ class Twitch:
                     game_id: Optional[str] = None,
                     language: Optional[List[str]] = None,
                     user_id: Optional[List[str]] = None,
-                    user_login: Optional[List[str]] = None):
+                    user_login: Optional[List[str]] = None) -> dict:
         if user_id is not None and len(user_id) > 100:
             raise Exception('a maximum of 100 user_ids are allowed')
         if user_login is not None and len(user_login) > 100:
@@ -434,7 +438,7 @@ class Twitch:
                            video_id: str,
                            after: Optional[str] = None,
                            before: Optional[str] = None,
-                           first: int = 20):
+                           first: int = 20) -> dict:
         if first > 100 or first < 1:
             raise Exception('first must be between 1 and 100')
         param = {
@@ -455,7 +459,7 @@ class Twitch:
                              game_id: Optional[List[str]] = None,
                              language: Optional[List[str]] = None,
                              user_id: Optional[List[str]] = None,
-                             user_login: Optional[List[str]] = None):
+                             user_login: Optional[List[str]] = None) -> dict:
         if first < 1 or first > 100:
             raise Exception('first must be between 1 and 100')
         if game_id is not None and len(game_id) > 100:
@@ -481,7 +485,7 @@ class Twitch:
 
     def get_broadcaster_subscriptions(self,
                                       broadcaster_id: str,
-                                      user_ids: Optional[List[str]] = None):
+                                      user_ids: Optional[List[str]] = None) -> dict:
         if user_ids is not None and len(user_ids) > 100:
             raise Exception('user_ids can have a maximum of 100 entries')
         param = {
@@ -495,7 +499,7 @@ class Twitch:
     def get_all_stream_tags(self,
                             after: Optional[str] = None,
                             first: int = 20,
-                            tag_ids: Optional[List[str]] = None):
+                            tag_ids: Optional[List[str]] = None) -> dict:
         if first < 1 or first > 100:
             raise Exception('first must be between 1 and 100')
         if tag_ids is not None and len(tag_ids) > 100:
@@ -510,14 +514,14 @@ class Twitch:
         return result.json()
 
     def get_stream_tags(self,
-                        broadcaster_id: str):
+                        broadcaster_id: str) -> dict:
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
         result = self.__api_get_request(url, AuthType.APP, [])
         return result.json()
 
     def replace_stream_tags(self,
                             broadcaster_id: str,
-                            tag_ids: List[str]):
+                            tag_ids: List[str]) -> dict:
         if len(tag_ids) > 100:
             raise Exception('tag_ids can not have more than 100 entries')
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
@@ -527,7 +531,7 @@ class Twitch:
 
     def get_users(self,
                   user_ids: Optional[List[str]] = None,
-                  logins: Optional[List[str]] = None):
+                  logins: Optional[List[str]] = None) -> dict:
         if user_ids is None and logins is None:
             raise Exception('please either specify user_ids or logins')
         if (len(user_ids) if user_ids is not None else 0) + (len(logins) if logins is not None else 0) > 100:
@@ -544,7 +548,7 @@ class Twitch:
                           after: Optional[str] = None,
                           first: int = 20,
                           from_id: Optional[str] = None,
-                          to_id: Optional[str] = None):
+                          to_id: Optional[str] = None) -> dict:
         if first > 100 or first < 1:
             raise Exception('first must be between 1 and 100')
         if from_id is None and to_id is None:
@@ -560,23 +564,23 @@ class Twitch:
         return make_fields_datetime(result.json(), ['followed_at'])
 
     def update_user(self,
-                    description: str):
+                    description: str) -> dict:
         url = build_url(TWITCH_API_BASE_URL + 'users', {'description': description})
         result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT])
         return result.json()
 
-    def get_user_extensions(self):
+    def get_user_extensions(self) -> dict:
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions/list', {})
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
         return result.json()
 
     def get_user_active_extensions(self,
-                                   user_id: Optional[str] = None):
+                                   user_id: Optional[str] = None) -> dict:
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {'user_id': user_id}, remove_none=True)
         result = self.__api_get_request(url, AuthType.NONE, [])
         return result.json()
 
-    def update_user_extensions(self):
+    def update_user_extensions(self) -> dict:
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {})
         result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST])
         return result.json()
@@ -591,7 +595,7 @@ class Twitch:
                    language: Optional[str] = None,
                    period: TimePeriod = TimePeriod.ALL,
                    sort: SortMethod = SortMethod.TIME,
-                   video_type: VideoType = VideoType.ALL):
+                   video_type: VideoType = VideoType.ALL) -> dict:
         if ids is None and user_id is None and game_id is None:
             raise Exception('you must use either ids, user_id or game_id')
         if first < 1 or first > 100:
@@ -617,7 +621,7 @@ class Twitch:
 
     def get_webhook_subscriptions(self,
                                   first: Union[str, None] = None,
-                                  after: Union[str, None] = None):
+                                  after: Union[str, None] = None) -> dict:
         url = build_url(TWITCH_API_BASE_URL + 'webhooks/subscriptions',
                         {'first': first, 'after': after},
                         remove_none=True)
