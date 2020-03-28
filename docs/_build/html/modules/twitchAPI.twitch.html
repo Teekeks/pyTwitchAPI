@@ -1,0 +1,761 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>twitchAPI.twitch &#8212; twitchAPI 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="twitchAPI.webhook" href="twitchAPI.webhook.html" />
+    <link rel="prev" title="Welcome to twitchAPI’s documentation!" href="../index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitchAPI.webhook.html" title="twitchAPI.webhook"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to twitchAPI’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">twitchAPI 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-twitchAPI.twitch">
+<span id="twitchapi-twitch"></span><h1>twitchAPI.twitch<a class="headerlink" href="#module-twitchAPI.twitch" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="twitchAPI.twitch.Twitch">
+<em class="property">class </em><code class="sig-prename descclassname">twitchAPI.twitch.</code><code class="sig-name descname">Twitch</code><span class="sig-paren">(</span><em class="sig-param">app_id: str</em>, <em class="sig-param">app_secret: str</em><span class="sig-paren">)</span><a class="headerlink" href="#twitchAPI.twitch.Twitch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Twitch API client</p>
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.authenticate_app">
+<code class="sig-name descname">authenticate_app</code><span class="sig-paren">(</span><em class="sig-param">scope: List[twitchAPI.types.AuthScope]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#twitchAPI.twitch.Twitch.authenticate_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authenticate with a fresh generated app token</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>scope</strong> – List of <cite>twitchAPI.types.AuthScope</cite> to use</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.check_automod_status">
+<code class="sig-name descname">check_automod_status</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str</em>, <em class="sig-param">msg_id: str</em>, <em class="sig-param">msg_text: str</em>, <em class="sig-param">user_id: str</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.check_automod_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">MODERATION_READ</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#check-automod-status">https://dev.twitch.tv/docs/api/reference#check-automod-status</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>msg_id</strong> – str</p></li>
+<li><p><strong>msg_text</strong> – str</p></li>
+<li><p><strong>user_id</strong> – str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.create_clip">
+<code class="sig-name descname">create_clip</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str</em>, <em class="sig-param">has_delay: bool = False</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.create_clip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">CLIPS_EDIT</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#create-clip">https://dev.twitch.tv/docs/api/reference#create-clip</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>has_delay</strong> – optional bool</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.create_entitlement_grants_upload_url">
+<code class="sig-name descname">create_entitlement_grants_upload_url</code><span class="sig-paren">(</span><em class="sig-param">manifest_id: str</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.create_entitlement_grants_upload_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires App authentication</p>
+<p>For detailed documentation, see here:
+<a class="reference external" href="https://dev.twitch.tv/docs/api/reference#create-entitlement-grants-upload-url">https://dev.twitch.tv/docs/api/reference#create-entitlement-grants-upload-url</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>manifest_id</strong> – str</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.create_stream_marker">
+<code class="sig-name descname">create_stream_marker</code><span class="sig-paren">(</span><em class="sig-param">user_id: str</em>, <em class="sig-param">description: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.create_stream_marker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">USER_EDIT_BROADCAST</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#create-stream-marker">https://dev.twitch.tv/docs/api/reference#create-stream-marker</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> – str</p></li>
+<li><p><strong>description</strong> – optional str with max length of 140</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_all_stream_tags">
+<code class="sig-name descname">get_all_stream_tags</code><span class="sig-paren">(</span><em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em>, <em class="sig-param">tag_ids: Optional[List[str]] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_all_stream_tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires App authentication</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-all-stream-tags">https://dev.twitch.tv/docs/api/reference#get-all-stream-tags</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int in range 1 to 100</p></li>
+<li><p><strong>tag_ids</strong> – optional list str with maximum 100 entries</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_app_token">
+<code class="sig-name descname">get_app_token</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[str]<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_app_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the app token that the api uses or None when not authenticated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>app token</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Union[str, None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_banned_events">
+<code class="sig-name descname">get_banned_events</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str</em>, <em class="sig-param">user_id: Optional[str] = None</em>, <em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_banned_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">MODERATION_READ</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-banned-events">https://dev.twitch.tv/docs/api/reference#get-banned-events</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>user_id</strong> – optional str</p></li>
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int in range 1 to 100</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_banned_users">
+<code class="sig-name descname">get_banned_users</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str</em>, <em class="sig-param">user_id: Optional[str] = None</em>, <em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">before: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_banned_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">MODERATION_READ</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-banned-users">https://dev.twitch.tv/docs/api/reference#get-banned-users</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>user_id</strong> – optional str</p></li>
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>before</strong> – optional str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_bits_leaderboard">
+<code class="sig-name descname">get_bits_leaderboard</code><span class="sig-paren">(</span><em class="sig-param">count: int = 10</em>, <em class="sig-param">period: twitchAPI.types.TimePeriod = &lt;TimePeriod.ALL: 'all'&gt;</em>, <em class="sig-param">started_at: Optional[datetime.datetime] = None</em>, <em class="sig-param">user_id: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_bits_leaderboard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">BITS_READ</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-bits-leaderboard">https://dev.twitch.tv/docs/api/reference#get-bits-leaderboard</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>count</strong> – optional int in range 1 to 100</p></li>
+<li><p><strong>period</strong> – optional <a class="reference internal" href="twitchAPI.types.html#twitchAPI.types.TimePeriod" title="twitchAPI.types.TimePeriod"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePeriod</span></code></a></p></li>
+<li><p><strong>started_at</strong> – optional <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p></li>
+<li><p><strong>user_id</strong> – optional str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_broadcaster_subscriptions">
+<code class="sig-name descname">get_broadcaster_subscriptions</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str</em>, <em class="sig-param">user_ids: Optional[List[str]] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_broadcaster_subscriptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">CHANNEL_READ_SUBSCRIPTIONS</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-broadcaster-subscriptions">https://dev.twitch.tv/docs/api/reference#get-broadcaster-subscriptions</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>user_ids</strong> – optional list of str with maximum 100 entries</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_clips">
+<code class="sig-name descname">get_clips</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str, game_id: str, clip_id: List[str], after: Optional[str] = None, before: Optional[str] = None, ended_at: Optional[datetime.datetime] = None, started_at: Optional[datetime.datetime] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_clips" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires no authentication</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-clips">https://dev.twitch.tv/docs/api/reference#get-clips</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>game_id</strong> – str</p></li>
+<li><p><strong>clip_id</strong> – list of str</p></li>
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>before</strong> – optional str</p></li>
+<li><p><strong>ended_at</strong> – optional <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p></li>
+<li><p><strong>started_at</strong> – optional <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_code_status">
+<code class="sig-name descname">get_code_status</code><span class="sig-paren">(</span><em class="sig-param">code: List[str], user_id: int</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_code_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires App authentication</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-code-status">https://dev.twitch.tv/docs/api/reference#get-code-status</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>code</strong> – list of str, maximum of 20 entries</p></li>
+<li><p><strong>user_id</strong> – int</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_extension_analytics">
+<code class="sig-name descname">get_extension_analytics</code><span class="sig-paren">(</span><em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">extension_id: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em>, <em class="sig-param">ended_at: Optional[datetime.datetime] = None</em>, <em class="sig-param">started_at: Optional[datetime.datetime] = None</em>, <em class="sig-param">report_type: Optional[twitchAPI.types.AnalyticsReportType] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_extension_analytics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">ANALYTICS_READ_EXTENSION</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-extension-analytics">https://dev.twitch.tv/docs/api/reference#get-extension-analytics</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>extension_id</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int range 1 to 100</p></li>
+<li><p><strong>ended_at</strong> – optional <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p></li>
+<li><p><strong>started_at</strong> – optional <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p></li>
+<li><p><strong>report_type</strong> – optional <a class="reference internal" href="twitchAPI.types.html#twitchAPI.types.AnalyticsReportType" title="twitchAPI.types.AnalyticsReportType"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalyticsReportType</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_extension_transactions">
+<code class="sig-name descname">get_extension_transactions</code><span class="sig-paren">(</span><em class="sig-param">extension_id: str</em>, <em class="sig-param">transaction_id: Optional[str] = None</em>, <em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_extension_transactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires App authentication</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-extension-transactions">https://dev.twitch.tv/docs/api/reference#get-extension-transactions</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extension_id</strong> – str</p></li>
+<li><p><strong>transaction_id</strong> – optional str</p></li>
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int in range 1 to 100</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_game_analytics">
+<code class="sig-name descname">get_game_analytics</code><span class="sig-paren">(</span><em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em>, <em class="sig-param">game_id: Optional[str] = None</em>, <em class="sig-param">ended_at: Optional[datetime.datetime] = None</em>, <em class="sig-param">started_at: Optional[datetime.datetime] = None</em>, <em class="sig-param">report_type: Optional[twitchAPI.types.AnalyticsReportType] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_game_analytics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">ANALYTICS_READ_GAMES</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-game-analytics">https://dev.twitch.tv/docs/api/reference#get-game-analytics</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int in range 1 to 100</p></li>
+<li><p><strong>game_id</strong> – optional str</p></li>
+<li><p><strong>ended_at</strong> – optional <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p></li>
+<li><p><strong>started_at</strong> – optional <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p></li>
+<li><p><strong>report_type</strong> – optional <a class="reference internal" href="twitchAPI.types.html#twitchAPI.types.AnalyticsReportType" title="twitchAPI.types.AnalyticsReportType"><code class="xref py py-class docutils literal notranslate"><span class="pre">twitchAPI.types.AnalyticsReportType</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_games">
+<code class="sig-name descname">get_games</code><span class="sig-paren">(</span><em class="sig-param">game_ids: Optional[List[str]] = None</em>, <em class="sig-param">names: Optional[List[str]] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_games" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires no authentication.
+In total, only 100 game ids and names can be fetched at once.</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-games">https://dev.twitch.tv/docs/api/reference#get-games</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>game_ids</strong> – optional list of str</p></li>
+<li><p><strong>names</strong> – optional list of str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_moderator_events">
+<code class="sig-name descname">get_moderator_events</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str</em>, <em class="sig-param">user_id: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_moderator_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">MODERATION_READ</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-moderator-events">https://dev.twitch.tv/docs/api/reference#get-moderator-events</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>user_id</strong> – optional str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_moderators">
+<code class="sig-name descname">get_moderators</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str</em>, <em class="sig-param">user_id: Optional[str] = None</em>, <em class="sig-param">after: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_moderators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">MODERATION_READ</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-moderators">https://dev.twitch.tv/docs/api/reference#get-moderators</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>user_id</strong> – optional str</p></li>
+<li><p><strong>after</strong> – optional str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_stream_markers">
+<code class="sig-name descname">get_stream_markers</code><span class="sig-paren">(</span><em class="sig-param">user_id: str</em>, <em class="sig-param">video_id: str</em>, <em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">before: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_stream_markers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">USER_READ_BROADCAST</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-stream-markers">https://dev.twitch.tv/docs/api/reference#get-stream-markers</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> – str</p></li>
+<li><p><strong>video_id</strong> – str</p></li>
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>before</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int in range 1 to 100</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_stream_tags">
+<code class="sig-name descname">get_stream_tags</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_stream_tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires App authentication</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-stream-tags">https://dev.twitch.tv/docs/api/reference#get-stream-tags</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>broadcaster_id</strong> – str, id of streamer</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_streams">
+<code class="sig-name descname">get_streams</code><span class="sig-paren">(</span><em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">before: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em>, <em class="sig-param">game_id: Optional[str] = None</em>, <em class="sig-param">language: Optional[List[str]] = None</em>, <em class="sig-param">user_id: Optional[List[str]] = None</em>, <em class="sig-param">user_login: Optional[List[str]] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_streams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires no authentication.</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-streams">https://dev.twitch.tv/docs/api/reference#get-streams</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>before</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int in range 1 to 100</p></li>
+<li><p><strong>game_id</strong> – optional str</p></li>
+<li><p><strong>language</strong> – optional list of str with max length of 100</p></li>
+<li><p><strong>user_id</strong> – optional list of str with max length of 100</p></li>
+<li><p><strong>user_login</strong> – optional list of str with max length of 100</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_streams_metadata">
+<code class="sig-name descname">get_streams_metadata</code><span class="sig-paren">(</span><em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">before: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em>, <em class="sig-param">game_id: Optional[List[str]] = None</em>, <em class="sig-param">language: Optional[List[str]] = None</em>, <em class="sig-param">user_id: Optional[List[str]] = None</em>, <em class="sig-param">user_login: Optional[List[str]] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_streams_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires no authentication.</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-streams-metadata">https://dev.twitch.tv/docs/api/reference#get-streams-metadata</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>before</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int in range between 1 and 100</p></li>
+<li><p><strong>game_id</strong> – optional list of str with maximum 100 entries</p></li>
+<li><p><strong>language</strong> – optional list of str with maximum 100 entries</p></li>
+<li><p><strong>user_id</strong> – optional list of str with maximum 100 entries</p></li>
+<li><p><strong>user_login</strong> – optional list str with maximum 100 entries</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_top_games">
+<code class="sig-name descname">get_top_games</code><span class="sig-paren">(</span><em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">before: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_top_games" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires no authentication</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-top-games">https://dev.twitch.tv/docs/api/reference#get-top-games</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>before</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int in range 1 to 100</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_user_active_extensions">
+<code class="sig-name descname">get_user_active_extensions</code><span class="sig-paren">(</span><em class="sig-param">user_id: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_user_active_extensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires no authentication.</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-user-active-extensions">https://dev.twitch.tv/docs/api/reference#get-user-active-extensions</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>user_id</strong> – optional str</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_user_extensions">
+<code class="sig-name descname">get_user_extensions</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_user_extensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">USER_READ_BROADCAST</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-user-extensions">https://dev.twitch.tv/docs/api/reference#get-user-extensions</a>
+:rtype: dict</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_users">
+<code class="sig-name descname">get_users</code><span class="sig-paren">(</span><em class="sig-param">user_ids: Optional[List[str]] = None</em>, <em class="sig-param">logins: Optional[List[str]] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires no authentication.</p>
+<p>You have to either provide user_ids or logins or both. The maximum combined entries should not exceed 100.</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-users">https://dev.twitch.tv/docs/api/reference#get-users</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_ids</strong> – optional list of str</p></li>
+<li><p><strong>logins</strong> – optional list of str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_users_follows">
+<code class="sig-name descname">get_users_follows</code><span class="sig-paren">(</span><em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em>, <em class="sig-param">from_id: Optional[str] = None</em>, <em class="sig-param">to_id: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_users_follows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires no authentication.</p>
+<p>You have to use at least one of the following fields: from_id, to_id
+For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-users-follows">https://dev.twitch.tv/docs/api/reference#get-users-follows</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int between 1 and 100</p></li>
+<li><p><strong>from_id</strong> – optional str</p></li>
+<li><p><strong>to_id</strong> – optional str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_videos">
+<code class="sig-name descname">get_videos</code><span class="sig-paren">(</span><em class="sig-param">ids: Optional[List[str]] = None</em>, <em class="sig-param">user_id: Optional[str] = None</em>, <em class="sig-param">game_id: Optional[str] = None</em>, <em class="sig-param">after: Optional[str] = None</em>, <em class="sig-param">before: Optional[str] = None</em>, <em class="sig-param">first: int = 20</em>, <em class="sig-param">language: Optional[str] = None</em>, <em class="sig-param">period: twitchAPI.types.TimePeriod = &lt;TimePeriod.ALL: 'all'&gt;</em>, <em class="sig-param">sort: twitchAPI.types.SortMethod = &lt;SortMethod.TIME: 'time'&gt;</em>, <em class="sig-param">video_type: twitchAPI.types.VideoType = &lt;VideoType.ALL: 'all'&gt;</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_videos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires no authentication.</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-videos">https://dev.twitch.tv/docs/api/reference#get-videos</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ids</strong> – optional list of str</p></li>
+<li><p><strong>user_id</strong> – optional str</p></li>
+<li><p><strong>game_id</strong> – optional str</p></li>
+<li><p><strong>after</strong> – optional str</p></li>
+<li><p><strong>before</strong> – optional str</p></li>
+<li><p><strong>first</strong> – optional int in range 1 to 100</p></li>
+<li><p><strong>language</strong> – optional str</p></li>
+<li><p><strong>period</strong> – optional <a class="reference internal" href="twitchAPI.types.html#twitchAPI.types.TimePeriod" title="twitchAPI.types.TimePeriod"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePeriod</span></code></a></p></li>
+<li><p><strong>sort</strong> – optional <a class="reference internal" href="twitchAPI.types.html#twitchAPI.types.SortMethod" title="twitchAPI.types.SortMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">SortMethod</span></code></a></p></li>
+<li><p><strong>video_type</strong> – optional <a class="reference internal" href="twitchAPI.types.html#twitchAPI.types.VideoType" title="twitchAPI.types.VideoType"><code class="xref py py-class docutils literal notranslate"><span class="pre">VideoType</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.get_webhook_subscriptions">
+<code class="sig-name descname">get_webhook_subscriptions</code><span class="sig-paren">(</span><em class="sig-param">first: Optional[str] = None</em>, <em class="sig-param">after: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.get_webhook_subscriptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires App authentication</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#get-webhook-subscriptions">https://dev.twitch.tv/docs/api/reference#get-webhook-subscriptions</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>first</strong> – optional str</p></li>
+<li><p><strong>after</strong> – optional str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.redeem_code">
+<code class="sig-name descname">redeem_code</code><span class="sig-paren">(</span><em class="sig-param">code: List[str], user_id: int</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.redeem_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires App authentication</p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#redeem-code">https://dev.twitch.tv/docs/api/reference#redeem-code</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>code</strong> – list of str, maximum of 20 entries</p></li>
+<li><p><strong>user_id</strong> – int</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.replace_stream_tags">
+<code class="sig-name descname">replace_stream_tags</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str, tag_ids: List[str]</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.replace_stream_tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">USER_EDIT_BROADCAST</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#replace-stream-tags">https://dev.twitch.tv/docs/api/reference#replace-stream-tags</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str, id of streamer</p></li>
+<li><p><strong>tag_ids</strong> – list of str, tag ids to be set</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>empty dict</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.set_user_authentication">
+<code class="sig-name descname">set_user_authentication</code><span class="sig-paren">(</span><em class="sig-param">token: str, scope: List[twitchAPI.types.AuthScope]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#twitchAPI.twitch.Twitch.set_user_authentication" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a user token to be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>token</strong> – the generated user token</p></li>
+<li><p><strong>scope</strong> – List of <cite>AuthScope</cite> that the given user token has</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.update_user">
+<code class="sig-name descname">update_user</code><span class="sig-paren">(</span><em class="sig-param">description: str</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.update_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">USER_EDIT</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#update-user">https://dev.twitch.tv/docs/api/reference#update-user</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>description</strong> – str</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.twitch.Twitch.update_user_extensions">
+<code class="sig-name descname">update_user_extensions</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#twitchAPI.twitch.Twitch.update_user_extensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Requires User authentication with scope <code class="xref py py-class docutils literal notranslate"><span class="pre">USER_EDIT_BROADCAST</span></code></p>
+<p>For detailed documentation, see here: <a class="reference external" href="https://dev.twitch.tv/docs/api/reference#update-user-extensions">https://dev.twitch.tv/docs/api/reference#update-user-extensions</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Welcome to twitchAPI’s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="twitchAPI.webhook.html"
+                        title="next chapter">twitchAPI.webhook</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/twitchAPI.twitch.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitchAPI.webhook.html" title="twitchAPI.webhook"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to twitchAPI’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">twitchAPI 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Lena &#34;Teekeks&#34; During.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+twitchAPI.webhook.TwitchWebHook
+===============================
+
+.. currentmodule:: twitchAPI.webhook
+
+.. autoclass:: TwitchWebHook
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TwitchWebHook.__init__
+      ~TwitchWebHook.authenticate
+      ~TwitchWebHook.start
+      ~TwitchWebHook.stop
+      ~TwitchWebHook.subscribe_channel_ban_change_events
+      ~TwitchWebHook.subscribe_extension_transaction_created
+      ~TwitchWebHook.subscribe_moderator_change_events
+      ~TwitchWebHook.subscribe_stream_changed
+      ~TwitchWebHook.subscribe_subscription_events
+      ~TwitchWebHook.subscribe_user_changed
+      ~TwitchWebHook.subscribe_user_follow
+      ~TwitchWebHook.unsubscribe_channel_ban_change_events
+      ~TwitchWebHook.unsubscribe_extension_transactions_created
+      ~TwitchWebHook.unsubscribe_moderator_change_events
+      ~TwitchWebHook.unsubscribe_stream_changed
+      ~TwitchWebHook.unsubscribe_subscription_events
+      ~TwitchWebHook.unsubscribe_user_changed
+      ~TwitchWebHook.unsubscribe_user_follow
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TwitchWebHook.callback_url
+      ~TwitchWebHook.secret
+      ~TwitchWebHook.subscribe_least_seconds
+   
+   

@@ -1,0 +1,406 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>twitchAPI.webhook &#8212; twitchAPI 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="twitchAPI.oauth" href="twitchAPI.oauth.html" />
+    <link rel="prev" title="twitchAPI.twitch" href="twitchAPI.twitch.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitchAPI.oauth.html" title="twitchAPI.oauth"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="twitchAPI.twitch.html" title="twitchAPI.twitch"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">twitchAPI 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-twitchAPI.webhook">
+<span id="twitchapi-webhook"></span><h1>twitchAPI.webhook<a class="headerlink" href="#module-twitchAPI.webhook" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="twitchAPI.webhook.TwitchWebHook">
+<em class="property">class </em><code class="sig-prename descclassname">twitchAPI.webhook.</code><code class="sig-name descname">TwitchWebHook</code><span class="sig-paren">(</span><em class="sig-param">callback_url: str</em>, <em class="sig-param">api_client_id: str</em>, <em class="sig-param">port: int</em><span class="sig-paren">)</span><a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Webhook integration for the Twitch Helix API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>callback_url</strong> – The full URL of the webhook.</p></li>
+<li><p><strong>api_client_id</strong> – The id of your API client</p></li>
+<li><p><strong>port</strong> – the port on which this webhook should run</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>secret</strong> – A random secret string. Set this for added security.</p></li>
+<li><p><strong>callback_url</strong> – The full URL of the webhook.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.authenticate">
+<code class="sig-name descname">authenticate</code><span class="sig-paren">(</span><em class="sig-param">auth_token: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set authentication for the Webhook. Can be either a app or user token.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>auth_token</strong> – str</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p>Exception</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the Webhook</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.stop">
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the Webhook</p>
+<p>Please make sure to unsubscribe from all subscriptions!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.subscribe_channel_ban_change_events">
+<code class="sig-name descname">subscribe_channel_ban_change_events</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str, user_id: Optional[str], callback_func: Callable[[uuid.UUID, dict], None]</em><span class="sig-paren">)</span> &#x2192; Tuple[bool, uuid.UUID]<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.subscribe_channel_ban_change_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subscribe to Channel Ban Change Events</p>
+<p>See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-channel-ban-change-events">https://dev.twitch.tv/docs/api/webhooks-reference#topic-channel-ban-change-events</a> for documentation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>user_id</strong> – str or None</p></li>
+<li><p><strong>callback_func</strong> – function for callback</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool, UUID</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.subscribe_extension_transaction_created">
+<code class="sig-name descname">subscribe_extension_transaction_created</code><span class="sig-paren">(</span><em class="sig-param">extension_id: str, callback_func: Optional[Callable[[uuid.UUID, dict], None]]</em><span class="sig-paren">)</span> &#x2192; Tuple[bool, uuid.UUID]<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.subscribe_extension_transaction_created" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subscribe to Extension transaction topic</p>
+<p>See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-extension-transaction-created">https://dev.twitch.tv/docs/api/webhooks-reference#topic-extension-transaction-created</a> for documentation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extension_id</strong> – str</p></li>
+<li><p><strong>callback_func</strong> – function for callback</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool, UUID</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="twitchAPI.webhook.TwitchWebHook.subscribe_least_seconds">
+<code class="sig-name descname">subscribe_least_seconds</code><em class="property">: int</em><em class="property"> = 864000</em><a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.subscribe_least_seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>The duration in seconds for how long you want to subscribe to webhhoks.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.subscribe_moderator_change_events">
+<code class="sig-name descname">subscribe_moderator_change_events</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str, user_id: Optional[str], callback_func: Callable[[uuid.UUID, dict], None]</em><span class="sig-paren">)</span> &#x2192; Tuple[bool, uuid.UUID]<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.subscribe_moderator_change_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subscribe to Moderator Change Events topic</p>
+<p>See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-moderator-change-events">https://dev.twitch.tv/docs/api/webhooks-reference#topic-moderator-change-events</a> for documentation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>user_id</strong> – str or None</p></li>
+<li><p><strong>callback_func</strong> – function for callback</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool, UUID</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.subscribe_stream_changed">
+<code class="sig-name descname">subscribe_stream_changed</code><span class="sig-paren">(</span><em class="sig-param">user_id: str, callback_func: Optional[Callable[[uuid.UUID, dict], None]]</em><span class="sig-paren">)</span> &#x2192; Tuple[bool, uuid.UUID]<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.subscribe_stream_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subscribe to stream changed topic</p>
+<p>See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-stream-changed">https://dev.twitch.tv/docs/api/webhooks-reference#topic-stream-changed</a> for documentation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> – str</p></li>
+<li><p><strong>callback_func</strong> – function for callback</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool, UUID</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.subscribe_subscription_events">
+<code class="sig-name descname">subscribe_subscription_events</code><span class="sig-paren">(</span><em class="sig-param">broadcaster_id: str, callback_func: Callable[[uuid.UUID, dict], None], user_id: Optional[str] = None, gifter_id: Optional[str] = None, gifter_name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[bool, uuid.UUID]<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.subscribe_subscription_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subscribe to Subscription Events Topic</p>
+<p>See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-subscription-events">https://dev.twitch.tv/docs/api/webhooks-reference#topic-subscription-events</a> for documentation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broadcaster_id</strong> – str</p></li>
+<li><p><strong>callback_func</strong> – function for callback</p></li>
+<li><p><strong>user_id</strong> – optional str</p></li>
+<li><p><strong>gifter_id</strong> – optional str</p></li>
+<li><p><strong>gifter_name</strong> – optional str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool, UUID</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.subscribe_user_changed">
+<code class="sig-name descname">subscribe_user_changed</code><span class="sig-paren">(</span><em class="sig-param">user_id: str, callback_func: Optional[Callable[[uuid.UUID, dict], None]]</em><span class="sig-paren">)</span> &#x2192; Tuple[bool, uuid.UUID]<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.subscribe_user_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subscribe to subscription event topic</p>
+<p>See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-user-changed">https://dev.twitch.tv/docs/api/webhooks-reference#topic-user-changed</a> for documentation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> – str</p></li>
+<li><p><strong>callback_func</strong> – function for callback</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool, UUID</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.subscribe_user_follow">
+<code class="sig-name descname">subscribe_user_follow</code><span class="sig-paren">(</span><em class="sig-param">from_id: Optional[str], to_id: Optional[str], callback_func: Optional[Callable[[uuid.UUID, dict], None]]</em><span class="sig-paren">)</span> &#x2192; Tuple[bool, uuid.UUID]<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.subscribe_user_follow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subscribe to user follow topic.</p>
+<p>Set only from_id if you want to know if User with that id follows someone.</p>
+<p>Set only to_id if you want to know if someone follows User with that id.</p>
+<p>Set both if you only want to know if from_id follows to_id.</p>
+<p>See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-user-follows">https://dev.twitch.tv/docs/api/webhooks-reference#topic-user-follows</a> for documentation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_id</strong> – str or None</p></li>
+<li><p><strong>to_id</strong> – str or None</p></li>
+<li><p><strong>callback_func</strong> – function for callback</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool, UUID</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.unsubscribe_channel_ban_change_events">
+<code class="sig-name descname">unsubscribe_channel_ban_change_events</code><span class="sig-paren">(</span><em class="sig-param">uuid: uuid.UUID</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.unsubscribe_channel_ban_change_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unsubscribe from Channel Ban Change Events Topic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> – UUID of the subscription</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.unsubscribe_extension_transactions_created">
+<code class="sig-name descname">unsubscribe_extension_transactions_created</code><span class="sig-paren">(</span><em class="sig-param">uuid: uuid.UUID</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.unsubscribe_extension_transactions_created" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unsubscribe from Extension transaction created Topic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> – UUID of the subscription</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.unsubscribe_moderator_change_events">
+<code class="sig-name descname">unsubscribe_moderator_change_events</code><span class="sig-paren">(</span><em class="sig-param">uuid: uuid.UUID</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.unsubscribe_moderator_change_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unsubscribe from Moderator Change Events Topic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> – UUID of the subscription</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.unsubscribe_stream_changed">
+<code class="sig-name descname">unsubscribe_stream_changed</code><span class="sig-paren">(</span><em class="sig-param">uuid: uuid.UUID</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.unsubscribe_stream_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unsubscribe from stream changed topic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> – UUID of the subscription</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.unsubscribe_subscription_events">
+<code class="sig-name descname">unsubscribe_subscription_events</code><span class="sig-paren">(</span><em class="sig-param">uuid: uuid.UUID</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.unsubscribe_subscription_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unsubscribe from Subscription Events Topic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> – UUID of the subscription</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.unsubscribe_user_changed">
+<code class="sig-name descname">unsubscribe_user_changed</code><span class="sig-paren">(</span><em class="sig-param">uuid: uuid.UUID</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.unsubscribe_user_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unsubscribe from subscription event topic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> – UUID of the subscription</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.unsubscribe_user_follow">
+<code class="sig-name descname">unsubscribe_user_follow</code><span class="sig-paren">(</span><em class="sig-param">uuid: uuid.UUID</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.unsubscribe_user_follow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unsubscribe from user follow topic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> – UUID of the subscription</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="twitchAPI.twitch.html"
+                        title="previous chapter">twitchAPI.twitch</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="twitchAPI.oauth.html"
+                        title="next chapter">twitchAPI.oauth</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/twitchAPI.webhook.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitchAPI.oauth.html" title="twitchAPI.oauth"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="twitchAPI.twitch.html" title="twitchAPI.twitch"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">twitchAPI 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Lena &#34;Teekeks&#34; During.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>twitchAPI.webhook.TwitchWebHook &#8212; twitchAPI 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="twitchapi-webhook-twitchwebhook">
+<h1>twitchAPI.webhook.TwitchWebHook<a class="headerlink" href="#twitchapi-webhook-twitchwebhook" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="twitchAPI.webhook.TwitchWebHook">
+<em class="property">class </em><code class="sig-prename descclassname">twitchAPI.webhook.</code><code class="sig-name descname">TwitchWebHook</code><span class="sig-paren">(</span><em class="sig-param">callback_url: str</em>, <em class="sig-param">api_client_id: str</em>, <em class="sig-param">port: int</em><span class="sig-paren">)</span><a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Webhook integration for the Twitch Helix API.</p>
+<dl class="method">
+<dt id="twitchAPI.webhook.TwitchWebHook.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">callback_url: str</em>, <em class="sig-param">api_client_id: str</em>, <em class="sig-param">port: int</em><span class="sig-paren">)</span><a class="headerlink" href="#twitchAPI.webhook.TwitchWebHook.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#twitchAPI.webhook.TwitchWebHook.__init__" title="twitchAPI.webhook.TwitchWebHook.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(callback_url, api_client_id, port)</p></td>
+<td><p>Initialize self.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">authenticate</span></code>(auth_token)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subscribe_channel_ban_change_events</span></code>(…)</p></td>
+<td><p>Subscribe to Channel Ban Change Events See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-channel-ban-change-events">https://dev.twitch.tv/docs/api/webhooks-reference#topic-channel-ban-change-events</a> for documentation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subscribe_extension_transaction_created</span></code>(…)</p></td>
+<td><p>Subscribe to Extension transaction topic See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-extension-transaction-created">https://dev.twitch.tv/docs/api/webhooks-reference#topic-extension-transaction-created</a> for documentation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subscribe_moderator_change_events</span></code>(…)</p></td>
+<td><p>Subscribe to Moderator Change Events Topic See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-moderator-change-events">https://dev.twitch.tv/docs/api/webhooks-reference#topic-moderator-change-events</a> for documentation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subscribe_stream_changed</span></code>(user_id, callback_func)</p></td>
+<td><p>Subscribe to stream changed topic   See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-stream-changed">https://dev.twitch.tv/docs/api/webhooks-reference#topic-stream-changed</a> for documentation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subscribe_subscription_events</span></code>(…[, …])</p></td>
+<td><p>Subscribe to Subscription Events Topic See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-subscription-events">https://dev.twitch.tv/docs/api/webhooks-reference#topic-subscription-events</a> for documentation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subscribe_user_changed</span></code>(user_id, callback_func)</p></td>
+<td><p>Subscribe to subscription event topic See <a class="reference external" href="https://dev.twitch.tv/docs/api/webhooks-reference#topic-user-changed">https://dev.twitch.tv/docs/api/webhooks-reference#topic-user-changed</a> for documentation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subscribe_user_follow</span></code>(from_id, to_id, …)</p></td>
+<td><p>Subscribe to user follow topic.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unsubscribe_channel_ban_change_events</span></code>(uuid)</p></td>
+<td><p>Unsubscribe from Channel Ban Change Events Topic</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unsubscribe_extension_transactions_created</span></code>(uuid)</p></td>
+<td><p>Unsubscribe from Extension transaction created Topic</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unsubscribe_moderator_change_events</span></code>(uuid)</p></td>
+<td><p>Unsubscribe from Moderator Change Events Topic</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unsubscribe_stream_changed</span></code>(uuid)</p></td>
+<td><p>Unsubscribe to stream changed topic</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unsubscribe_subscription_events</span></code>(uuid)</p></td>
+<td><p>Unsubscribe from Subscription Events Topic</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unsubscribe_user_changed</span></code>(uuid)</p></td>
+<td><p>Unsubscribe from subscription event topic</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unsubscribe_user_follow</span></code>(uuid)</p></td>
+<td><p>Unsubscribe to user follow topic</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">callback_url</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">secret</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subscribe_least_seconds</span></code></p></td>
+<td><p>The duration in seconds for how long you want to subscribe to webhhoks.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">twitchAPI</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Lena "Teekeks" During.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/modules/twitchAPI.webhook.TwitchWebHook.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

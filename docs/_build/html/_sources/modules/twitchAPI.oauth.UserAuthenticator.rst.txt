@@ -1,0 +1,33 @@
+twitchAPI.oauth.UserAuthenticator
+=================================
+
+.. currentmodule:: twitchAPI.oauth
+
+.. autoclass:: UserAuthenticator
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UserAuthenticator.__init__
+      ~UserAuthenticator.authenticate
+      ~UserAuthenticator.stop
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UserAuthenticator.force_verify
+      ~UserAuthenticator.port
+      ~UserAuthenticator.scopes
+      ~UserAuthenticator.url
+   
+   
