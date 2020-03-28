@@ -13,7 +13,15 @@ TWITCH_AUTH_BASE_URL = "https://id.twitch.tv/"
 
 
 def build_url(url: str, params: dict, remove_none=False, split_lists=False) -> str:
-    """Build a valid url string"""
+    """Build a valid url string
+
+    :param url: base URL
+    :param params: dictionary of URL parameter
+    :param remove_none: optional bool, if set all params that have a None value get removed
+    :param split_lists: optional bool, if set all params that are a list will be split over multiple url parameter with the same name
+    :return: URL
+    :rtype: str
+    """
     def add_param(res, k, v):
         if len(res) > 0:
             res += "&"
@@ -34,12 +42,18 @@ def build_url(url: str, params: dict, remove_none=False, split_lists=False) -> s
 
 
 def get_uuid():
-    """Returns a random UUID"""
+    """Returns a random UUID
+
+    :rtype: :class:`~uuid.UUID`"""
     return uuid.uuid4()
 
 
 async def get_json(request: 'Request') -> Union[list, dict, None]:
-    """Tries to retrieve the json object from the body"""
+    """Tries to retrieve the json object from the body
+
+    :param request: the request
+    :return: the object in the body or None
+    """
     if not request.can_read_body:
         return None
     try:
@@ -50,7 +64,12 @@ async def get_json(request: 'Request') -> Union[list, dict, None]:
 
 
 def make_fields_datetime(data: Union[dict, list], fields: List[str]):
-    """itterate over dict or list recursivly to replace string fields with datetime"""
+    """Itterates over dict or list recursivly to replace string fields with datetime
+
+    :param data: dict or list
+    :param fields: list of keys to be replaced
+    :rtype: dict or list
+    """
 
     def make_str_field_datetime(data, fields: list):
         if isinstance(data, str):
@@ -81,6 +100,11 @@ def make_fields_datetime(data: Union[dict, list], fields: List[str]):
 
 
 def build_scope(scopes: list) -> str:
+    """Builds a valid scope string from list
+
+    :param scopes: list of :class:`~twitchAPI.types.AuthScope`
+    :rtype: str
+    """
     return ' '.join([s.value for s in scopes])
 
 
@@ -88,6 +112,14 @@ def fields_to_enum(data: Union[dict, list],
                    fields: List[str],
                    _enum: Type[Enum],
                    default: Optional[Enum]) -> Union[dict, list]:
+    """Itterates a dict or list and tries to replace every dict entry with key in fields with the correct Enum value
+
+    :param data: dict or list
+    :param fields: list of keys to be replaced
+    :param _enum: Type of Enum to be replaced
+    :param default: The default value if _enum does not contain the field value
+    :rtype: dict or list
+    """
     _enum_vals = [e.value for e in _enum.__members__.values()]
     def make_dict_field_enum(data: dict,
                              fields: List[str],
