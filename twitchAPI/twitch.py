@@ -9,6 +9,9 @@ from .types import *
 
 
 class Twitch:
+    """
+    Twitch API client
+    """
     app_id: Optional[str] = None
     app_secret: Optional[str] = None
     __app_auth_token: Optional[str] = None
@@ -96,16 +99,32 @@ class Twitch:
             raise Exception('Authentication response did not contain access_token')
 
     def authenticate_app(self, scope: List[AuthScope]) -> None:
+        """Authenticate with a fresh generated app token
+
+        :param scope: List of `twitchAPI.types.AuthScope` to use
+        :return: None
+        """
         self.__app_auth_scope = scope
         self.__generate_app_token()
         self.__has_app_auth = True
 
     def set_user_authentication(self, token: str, scope: List[AuthScope]) -> None:
+        """Set a user token to be used.
+
+        :param token: the generated user token
+        :param scope: List of `AuthScope` that the given user token has
+        :return: None
+        """
         self.__user_auth_token = token
         self.__user_auth_scope = scope
         self.__has_user_auth = True
 
     def get_app_token(self) -> Union[str, None]:
+        """Returns the app token that the api uses or None when not authenticated.
+
+        :return: app token
+        :rtype: Union[str, None]
+        """
         return self.__app_auth_token
 
 # ======================================================================================================================
@@ -119,6 +138,17 @@ class Twitch:
                                 ended_at: Optional[datetime] = None,
                                 started_at: Optional[datetime] = None,
                                 report_type: Optional[AnalyticsReportType] = None) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.ANALYTICS_READ_EXTENSION`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-analytics
+
+        :param after: optional str
+        :param extension_id: optional str
+        :param first: optional int range 1 to 100
+        :param ended_at: optional :class:`datetime`
+        :param started_at: optional :class:`datetime`
+        :param report_type: optional :class:`~twitchAPI.types.AnalyticsReportType`
+        :rtype: dict
+        """
         if ended_at is not None or started_at is not None:
             # you have to put in both:
             if ended_at is None or started_at is None:
@@ -149,6 +179,17 @@ class Twitch:
                            ended_at: Optional[datetime] = None,
                            started_at: Optional[datetime] = None,
                            report_type: Optional[AnalyticsReportType] = None) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.ANALYTICS_READ_GAMES`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-game-analytics
+
+        :param after: optional str
+        :param first: optional int in range 1 to 100
+        :param game_id: optional str
+        :param ended_at: optional :class:`~datetime.datetime`
+        :param started_at: optional :class:`~datetime.datetime`
+        :param report_type: optional :class:`twitchAPI.types.AnalyticsReportType`
+        :rtype: dict
+        """
         if ended_at is not None or started_at is not None:
             if ended_at is None or started_at is None:
                 raise Exception('you must specify both ended_at and started_at')
@@ -176,6 +217,15 @@ class Twitch:
                              period: TimePeriod = TimePeriod.ALL,
                              started_at: Optional[datetime] = None,
                              user_id: Optional[str] = None) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.BITS_READ`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-bits-leaderboard
+
+        :param count: optional int in range 1 to 100
+        :param period: optional :class:`~twitchAPI.types.TimePeriod`
+        :param started_at: optional :class:`~datetime.datetime`
+        :param user_id: optional str
+        :rtype: dict
+        """
         if count > 100 or count < 1:
             raise Exception('count must be between 1 and 100')
         url_params = {
@@ -194,6 +244,15 @@ class Twitch:
                                    transaction_id: Optional[str] = None,
                                    after: Optional[str] = None,
                                    first: int = 20) -> dict:
+        """Requires App authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-transactions
+
+        :param extension_id: str
+        :param transaction_id: optional str
+        :param after: optional str
+        :param first: optional int in range 1 to 100
+        :rtype: dict
+        """
         if first > 100 or first < 1:
             raise Exception("first must be between 1 and 100")
         url_param = {
@@ -210,6 +269,13 @@ class Twitch:
     def create_clip(self,
                     broadcaster_id: str,
                     has_delay: bool = False) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.CLIPS_EDIT`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-clip
+
+        :param broadcaster_id: str
+        :param has_delay: optional bool
+        :rtype: dict
+        """
         param = {
             'broadcaster_id': broadcaster_id,
             'has_delay': str(has_delay).lower()
@@ -226,6 +292,18 @@ class Twitch:
                   before: Optional[str] = None,
                   ended_at: Optional[datetime] = None,
                   started_at: Optional[datetime] = None) -> dict:
+        """Requires no authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-clips
+
+        :param broadcaster_id: str
+        :param game_id: str
+        :param clip_id: list of str
+        :param after: optional str
+        :param before: optional str
+        :param ended_at: optional :class:`~datetime.datetime`
+        :param started_at: optional :class:`~datetime.datetime`
+        :rtype: dict
+        """
         param = {
             'broadcaster_id': broadcaster_id,
             'game_id': game_id,
@@ -242,6 +320,13 @@ class Twitch:
 
     def create_entitlement_grants_upload_url(self,
                                              manifest_id: str) -> dict:
+        """Requires App authentication\n
+        For detailed documentation, see here:
+        https://dev.twitch.tv/docs/api/reference#create-entitlement-grants-upload-url
+
+        :param manifest_id: str
+        :rtype: dict
+        """
         if len(manifest_id) < 1 or len(manifest_id) > 64:
             raise Exception('manifest_id must be between 1 and 64 characters long!')
         param = {
@@ -255,6 +340,13 @@ class Twitch:
     def get_code_status(self,
                         code: List[str],
                         user_id: int) -> dict:
+        """Requires App authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-code-status
+
+        :param code: list of str, maximum of 20 entries
+        :param user_id: int
+        :rtype: dict
+        """
         if len(code) > 20 or len(code) < 1:
             raise Exception('only between 1 and 20 codes are allowed')
         param = {
@@ -269,6 +361,13 @@ class Twitch:
     def redeem_code(self,
                     code: List[str],
                     user_id: int) -> dict:
+        """Requires App authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#redeem-code
+
+        :param code: list of str, maximum of 20 entries
+        :param user_id: int
+        :rtype: dict
+        """
         if len(code) > 20 or len(code) < 1:
             raise Exception('only between 1 and 20 codes are allowed')
         param = {
@@ -284,6 +383,14 @@ class Twitch:
                       after: Optional[str] = None,
                       before: Optional[str] = None,
                       first: int = 20) -> dict:
+        """Requires no authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-top-games
+
+        :param after: optional str
+        :param before: optional str
+        :param first: optional int in range 1 to 100
+        :rtype: dict
+        """
         if first < 1 or first > 100:
             raise Exception('first must be between 1 and 100')
         param = {
@@ -298,6 +405,15 @@ class Twitch:
     def get_games(self,
                   game_ids: Optional[List[str]] = None,
                   names: Optional[List[str]] = None) -> dict:
+        """Requires no authentication.
+        In total, only 100 game ids and names can be fetched at once.
+
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-games
+
+        :param game_ids: optional list of str
+        :param names: optional list of str
+        :rtype: dict
+        """
         if game_ids is None and names is None:
             raise Exception('at least one of either game_ids and names has to be set')
         if (len(game_ids) if game_ids is not None else 0) + (len(names) if names is not None else 0) > 100:
@@ -315,6 +431,15 @@ class Twitch:
                              msg_id: str,
                              msg_text: str,
                              user_id: str) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.MODERATION_READ`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#check-automod-status
+
+        :param broadcaster_id: str
+        :param msg_id: str
+        :param msg_text: str
+        :param user_id: str
+        :rtype: dict
+        """
         # TODO you can pass multiple sets in the body, account for that
         url_param = {
             'broadcaster_id': broadcaster_id
@@ -335,6 +460,15 @@ class Twitch:
                           user_id: Optional[str] = None,
                           after: Optional[str] = None,
                           first: int = 20) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.MODERATION_READ`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-banned-events
+
+        :param broadcaster_id: str
+        :param user_id: optional str
+        :param after: optional str
+        :param first: optional int in range 1 to 100
+        :rtype: dict
+        """
         if first > 100 or first < 1:
             raise Exception('first must be between 1 and 100')
         param = {
@@ -355,6 +489,15 @@ class Twitch:
                          user_id: Optional[str] = None,
                          after: Optional[str] = None,
                          before: Optional[str] = None) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.MODERATION_READ`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-banned-users
+
+        :param broadcaster_id: str
+        :param user_id: optional str
+        :param after: optional str
+        :param before: optional str
+        :rtype: dict
+        """
         param = {
             'broadcaster_id': broadcaster_id,
             'user_id': user_id,
@@ -369,6 +512,14 @@ class Twitch:
                        broadcaster_id: str,
                        user_id: Optional[str] = None,
                        after: Optional[str] = None) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.MODERATION_READ`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-moderators
+
+        :param broadcaster_id: str
+        :param user_id: optional str
+        :param after: optional str
+        :rtype: dict
+        """
         param = {
             'broadcaster_id': broadcaster_id,
             'user_id': user_id,
@@ -381,6 +532,13 @@ class Twitch:
     def get_moderator_events(self,
                              broadcaster_id: str,
                              user_id: Optional[str] = None) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.MODERATION_READ`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-moderator-events
+
+        :param broadcaster_id: str
+        :param user_id: optional str
+        :rtype: dict
+        """
         param = {
             'broadcaster_id': broadcaster_id,
             'user_id': user_id
@@ -395,6 +553,13 @@ class Twitch:
     def create_stream_marker(self,
                              user_id: str,
                              description: Optional[str] = None) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.USER_EDIT_BROADCAST`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-stream-marker
+
+        :param user_id: str
+        :param description: optional str with max length of 140
+        :rtype: dict
+        """
         if description is not None and len(description) > 140:
             raise Exception('max length for description is 140')
         url = build_url(TWITCH_API_BASE_URL + 'streams/markers', {})
@@ -413,6 +578,18 @@ class Twitch:
                     language: Optional[List[str]] = None,
                     user_id: Optional[List[str]] = None,
                     user_login: Optional[List[str]] = None) -> dict:
+        """Requires no authentication.\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-streams
+
+        :param after: optional str
+        :param before: optional str
+        :param first: optional int in range 1 to 100
+        :param game_id: optional str
+        :param language: optional list of str with max length of 100
+        :param user_id: optional list of str with max length of 100
+        :param user_login: optional list of str with max length of 100
+        :rtype: dict
+        """
         if user_id is not None and len(user_id) > 100:
             raise Exception('a maximum of 100 user_ids are allowed')
         if user_login is not None and len(user_login) > 100:
@@ -439,6 +616,16 @@ class Twitch:
                            after: Optional[str] = None,
                            before: Optional[str] = None,
                            first: int = 20) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.USER_READ_BROADCAST`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-markers
+
+        :param user_id: str
+        :param video_id: str
+        :param after: optional str
+        :param before: optional str
+        :param first: optional int in range 1 to 100
+        :rtype: dict
+        """
         if first > 100 or first < 1:
             raise Exception('first must be between 1 and 100')
         param = {
@@ -460,6 +647,18 @@ class Twitch:
                              language: Optional[List[str]] = None,
                              user_id: Optional[List[str]] = None,
                              user_login: Optional[List[str]] = None) -> dict:
+        """Requires no authentication.\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-streams-metadata
+
+        :param after: optional str
+        :param before: optional str
+        :param first: optional int in range between 1 and 100
+        :param game_id: optional list of str with maximum 100 entries
+        :param language: optional list of str with maximum 100 entries
+        :param user_id: optional list of str with maximum 100 entries
+        :param user_login: optional list str with maximum 100 entries
+        :rtype: dict
+        """
         if first < 1 or first > 100:
             raise Exception('first must be between 1 and 100')
         if game_id is not None and len(game_id) > 100:
@@ -486,6 +685,13 @@ class Twitch:
     def get_broadcaster_subscriptions(self,
                                       broadcaster_id: str,
                                       user_ids: Optional[List[str]] = None) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.CHANNEL_READ_SUBSCRIPTIONS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-broadcaster-subscriptions
+
+        :param broadcaster_id: str
+        :param user_ids: optional list of str with maximum 100 entries
+        :rtype: dict
+        """
         if user_ids is not None and len(user_ids) > 100:
             raise Exception('user_ids can have a maximum of 100 entries')
         param = {
@@ -500,6 +706,14 @@ class Twitch:
                             after: Optional[str] = None,
                             first: int = 20,
                             tag_ids: Optional[List[str]] = None) -> dict:
+        """Requires App authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-all-stream-tags
+
+        :param after: optional str
+        :param first: optional int in range 1 to 100
+        :param tag_ids: optional list str with maximum 100 entries
+        :rtype: dict
+        """
         if first < 1 or first > 100:
             raise Exception('first must be between 1 and 100')
         if tag_ids is not None and len(tag_ids) > 100:
@@ -515,6 +729,12 @@ class Twitch:
 
     def get_stream_tags(self,
                         broadcaster_id: str) -> dict:
+        """Requires App authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-tags
+
+        :param broadcaster_id: str, id of streamer
+        :rtype: dict
+        """
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
         result = self.__api_get_request(url, AuthType.APP, [])
         return result.json()
@@ -522,6 +742,14 @@ class Twitch:
     def replace_stream_tags(self,
                             broadcaster_id: str,
                             tag_ids: List[str]) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.USER_EDIT_BROADCAST`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#replace-stream-tags
+
+        :param broadcaster_id: str, id of streamer
+        :param tag_ids: list of str, tag ids to be set
+        :return: empty dict
+        :rtype: dict
+        """
         if len(tag_ids) > 100:
             raise Exception('tag_ids can not have more than 100 entries')
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
@@ -532,6 +760,15 @@ class Twitch:
     def get_users(self,
                   user_ids: Optional[List[str]] = None,
                   logins: Optional[List[str]] = None) -> dict:
+        """Requires no authentication.\n
+        You have to either provide user_ids or logins or both. The maximum combined entries should not exceed 100.
+
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users
+
+        :param user_ids: optional list of str
+        :param logins: optional list of str
+        :rtype: dict
+        """
         if user_ids is None and logins is None:
             raise Exception('please either specify user_ids or logins')
         if (len(user_ids) if user_ids is not None else 0) + (len(logins) if logins is not None else 0) > 100:
@@ -549,6 +786,16 @@ class Twitch:
                           first: int = 20,
                           from_id: Optional[str] = None,
                           to_id: Optional[str] = None) -> dict:
+        """Requires no authentication.\n
+        You have to use at least one of the following fields: from_id, to_id
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users-follows
+
+        :param after: optional str
+        :param first: optional int between 1 and 100
+        :param from_id: optional str
+        :param to_id: optional str
+        :rtype: dict
+        """
         if first > 100 or first < 1:
             raise Exception('first must be between 1 and 100')
         if from_id is None and to_id is None:
@@ -565,22 +812,43 @@ class Twitch:
 
     def update_user(self,
                     description: str) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.USER_EDIT`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-user
+
+        :param description: str
+        :rtype: dict
+        """
         url = build_url(TWITCH_API_BASE_URL + 'users', {'description': description})
         result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT])
         return result.json()
 
     def get_user_extensions(self) -> dict:
+        """Requires User authentication with scope :class:`~AuthScope.USER_READ_BROADCAST`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-extensions
+        :rtype: dict
+        """
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions/list', {})
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
         return result.json()
 
     def get_user_active_extensions(self,
                                    user_id: Optional[str] = None) -> dict:
+        """Requires no authentication.\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-active-extensions
+
+        :param user_id: optional str
+        :rtype: dict
+        """
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {'user_id': user_id}, remove_none=True)
         result = self.__api_get_request(url, AuthType.NONE, [])
         return result.json()
 
     def update_user_extensions(self) -> dict:
+        """"Requires User authentication with scope :class:`~AuthScope.USER_EDIT_BROADCAST`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-user-extensions
+
+        :rtype: dict
+        """
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {})
         result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST])
         return result.json()
@@ -596,6 +864,21 @@ class Twitch:
                    period: TimePeriod = TimePeriod.ALL,
                    sort: SortMethod = SortMethod.TIME,
                    video_type: VideoType = VideoType.ALL) -> dict:
+        """Requires no authentication.\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-videos
+
+        :param ids: optional list of str
+        :param user_id: optional str
+        :param game_id: optional str
+        :param after: optional str
+        :param before: optional str
+        :param first: optional int in range 1 to 100
+        :param language: optional str
+        :param period: optional :class:`~twitchAPI.types.TimePeriod`
+        :param sort: optional :class:`~twitchAPI.types.SortMethod`
+        :param video_type: optional :class:`~twitchAPI.types.VideoType`
+        :rtype: dict
+        """
         if ids is None and user_id is None and game_id is None:
             raise Exception('you must use either ids, user_id or game_id')
         if first < 1 or first > 100:
@@ -620,8 +903,15 @@ class Twitch:
         return data
 
     def get_webhook_subscriptions(self,
-                                  first: Union[str, None] = None,
-                                  after: Union[str, None] = None) -> dict:
+                                  first: Optional[str] = None,
+                                  after: Optional[str] = None) -> dict:
+        """Requires App authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-webhook-subscriptions
+
+        :param first: optional str
+        :param after: optional str
+        :rtype: dict
+        """
         url = build_url(TWITCH_API_BASE_URL + 'webhooks/subscriptions',
                         {'first': first, 'after': after},
                         remove_none=True)
