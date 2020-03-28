@@ -12,12 +12,23 @@ from dateutil import parser as du_parser
 
 
 class TwitchWebHook:
+    """Webhook integration for the Twitch Helix API.
+
+    :param callback_url: The full URL of the webhook.
+    :param api_client_id: The id of your API client
+    :param port: the port on which this webhook should run
+    :var secret: A random secret string. Set this for added security.
+    :var callback_url: The full URL of the webhook.
+    """
 
     secret = None
     __client_id = None
     __auth_token = None
     callback_url = None
+
     subscribe_least_seconds: int = 864000
+    """The duration in seconds for how long you want to subscribe to webhhoks."""
+
     _port: int = 80
     _host: str = '0.0.0.0'
 
@@ -36,6 +47,12 @@ class TwitchWebHook:
         self._port = port
 
     def authenticate(self, auth_token: str) -> None:
+        """Set authentication for the Webhook. Can be either a app or user token.
+
+        :param auth_token: str
+        :rtype: None
+        :raises: Exception
+        """
         self.__authenticate = True
         self.__auth_token = auth_token
         if not self.callback_url.startswith('https'):
@@ -72,10 +89,20 @@ class TwitchWebHook:
         self.__hook_loop.run_forever()
 
     def start(self):
+        """Starts the Webhook
+
+        :rtype: None
+        """
         self.__hook_thread = threading.Thread(target=self.__run_hook, args=(self.__build_runner(),))
         self.__hook_thread.start()
 
     def stop(self):
+        """Stops the Webhook
+
+        Please make sure to unsubscribe from all subscriptions!
+
+        :rtype: None
+        """
         if self.__hook_runner is not None:
             self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
             self.__hook_runner = None
@@ -161,11 +188,18 @@ class TwitchWebHook:
                               from_id: Union[str, None],
                               to_id: Union[str, None],
                               callback_func: Union[Callable[[UUID, dict], None], None]) -> Tuple[bool, UUID]:
-        """Subscribe to user follow topic
-        Set only from_id if you want to know if User with that id follows someone.
-        Set only to_id if you want to know if someone follows User with that id.
-        Set both if you only want to know if from_id follows to_id.
-        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-user-follows for documentation"""
+        """Subscribe to user follow topic.
+
+        Set only from_id if you want to know if User with that id follows someone.\n
+        Set only to_id if you want to know if someone follows User with that id.\n
+        Set both if you only want to know if from_id follows to_id.\n
+        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-user-follows for documentation
+
+        :param from_id: str or None
+        :param to_id: str or None
+        :param callback_func: function for callback
+        :rtype: bool, UUID
+        """
         param_dict = {"first": 1,
                       "from_id": from_id,
                       "to_id": to_id}
@@ -174,43 +208,70 @@ class TwitchWebHook:
         return self._generic_subscribe('/users/follows', url, uuid, callback_func), uuid
 
     def unsubscribe_user_follow(self, uuid: UUID) -> bool:
-        """Unsubscribe to user follow topic"""
+        """Unsubscribe from user follow topic
+
+        :param uuid: UUID of the subscription
+        :rtype: bool
+        """
         return self._generic_unsubscribe('/users/follows', uuid)
 
     def subscribe_stream_changed(self,
                                  user_id: str,
                                  callback_func: Union[Callable[[UUID, dict], None], None]) -> Tuple[bool, UUID]:
-        """Subscribe to stream changed topic
-        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-stream-changed for documentation"""
+        """Subscribe to stream changed topic\n
+        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-stream-changed for documentation
+
+        :param user_id: str
+        :param callback_func: function for callback
+        :rtype: bool, UUID
+        """
         param_dict = {"user_id": user_id}
         url = build_url(TWITCH_API_BASE_URL + "streams", param_dict)
         uuid = get_uuid()
         return self._generic_subscribe('/streams', url, uuid, callback_func), uuid
 
     def unsubscribe_stream_changed(self, uuid: UUID) -> bool:
-        """Unsubscribe to stream changed topic"""
+        """Unsubscribe from stream changed topic
+
+        :param uuid: UUID of the subscription
+        :return: bool
+        """
         return self._generic_unsubscribe('/streams', uuid)
 
     def subscribe_user_changed(self,
                                user_id: str,
                                callback_func: Union[Callable[[UUID, dict], None], None]) -> Tuple[bool, UUID]:
-        """Subscribe to subscription event topic
-        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-user-changed for documentation"""
+        """Subscribe to subscription event topic\n
+        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-user-changed for documentation
+
+        :param user_id: str
+        :param callback_func: function for callback
+        :rtype: bool, UUID
+        """
         param_dict = {"id": user_id}
         url = build_url(TWITCH_API_BASE_URL + "users", param_dict)
         uuid = get_uuid()
         return self._generic_subscribe('/users/changed', url, uuid, callback_func), uuid
 
     def unsubscribe_user_changed(self, uuid: UUID) -> bool:
-        """Unsubscribe from subscription event topic"""
+        """Unsubscribe from subscription event topic
+
+        :param uuid: UUID of the subscription
+        :rtype: bool
+        """
         return self._generic_unsubscribe("/users/changed", uuid)
 
     def subscribe_extension_transaction_created(self,
                                                 extension_id: str,
                                                 callback_func: Union[Callable[[UUID, dict], None], None]) \
             -> Tuple[bool, UUID]:
-        """Subscribe to Extension transaction topic
-        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-extension-transaction-created for documentation"""
+        """Subscribe to Extension transaction topic\n
+        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-extension-transaction-created for documentation
+
+        :param extension_id: str
+        :param callback_func: function for callback
+        :rtype: bool, UUID
+        """
         if not self.__authenticate:
             # this requires authentication!
             raise Exception('This subscription requires authentication!')
@@ -223,15 +284,25 @@ class TwitchWebHook:
         return self._generic_subscribe('/extensions/transactions', url, uuid, callback_func), uuid
 
     def unsubscribe_extension_transactions_created(self, uuid: UUID) -> bool:
-        """Unsubscribe from Extension transaction created Topic"""
+        """Unsubscribe from Extension transaction created Topic
+
+        :param uuid: UUID of the subscription
+        :rtype: bool
+        """
         return self._generic_unsubscribe('/extensions/transactions', uuid)
 
     def subscribe_moderator_change_events(self,
                                           broadcaster_id: str,
                                           user_id: Union[str, None],
                                           callback_func: Union[Callable[[UUID, dict], None]]) -> Tuple[bool, UUID]:
-        """Subscribe to Moderator Change Events Topic
-        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-moderator-change-events for documentation"""
+        """Subscribe to Moderator Change Events topic\n
+        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-moderator-change-events for documentation
+
+        :param broadcaster_id: str
+        :param user_id: str or None
+        :param callback_func: function for callback
+        :rtype: bool, UUID
+        """
         params = {
             'broadcaster_id': broadcaster_id,
             'first': 1,
@@ -242,15 +313,25 @@ class TwitchWebHook:
         return self._generic_subscribe('/moderation/moderators/events', url, uuid, callback_func), uuid
 
     def unsubscribe_moderator_change_events(self, uuid: UUID) -> bool:
-        """Unsubscribe from Moderator Change Events Topic"""
+        """Unsubscribe from Moderator Change Events Topic
+
+        :param uuid: UUID of the subscription
+        :rtype: bool
+        """
         return self._generic_unsubscribe('/moderation/moderators/events', uuid)
 
     def subscribe_channel_ban_change_events(self,
                                             broadcaster_id: str,
                                             user_id: Union[str, None],
                                             callback_func: Union[Callable[[UUID, dict], None]]) -> Tuple[bool, UUID]:
-        """Subscribe to Channel Ban Change Events
-        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-channel-ban-change-events for documentation"""
+        """Subscribe to Channel Ban Change Events\n
+        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-channel-ban-change-events for documentation
+
+        :param broadcaster_id: str
+        :param user_id: str or None
+        :param callback_func: function for callback
+        :rtype: bool, UUID
+        """
         params = {
             'broadcaster_id': broadcaster_id,
             'first': 1,
@@ -261,7 +342,11 @@ class TwitchWebHook:
         return self._generic_subscribe('/moderation/banned/events', url, uuid, callback_func), uuid
 
     def unsubscribe_channel_ban_change_events(self, uuid: UUID) -> bool:
-        """Unsubscribe from Channel Ban Change Events Topic"""
+        """Unsubscribe from Channel Ban Change Events Topic
+
+        :param uuid: UUID of the subscription
+        :rtype: bool
+        """
         return self._generic_unsubscribe('/moderation/banned/events', uuid)
 
     def subscribe_subscription_events(self,
@@ -270,8 +355,16 @@ class TwitchWebHook:
                                       user_id: Union[str, None] = None,
                                       gifter_id: Union[str, None] = None,
                                       gifter_name: Union[str, None] = None) -> Tuple[bool, UUID]:
-        """Subscribe to Subscription Events Topic
-        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-subscription-events for documentation"""
+        """Subscribe to Subscription Events Topic\n
+        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-subscription-events for documentation
+
+        :param broadcaster_id: str
+        :param callback_func: function for callback
+        :param user_id: optional str
+        :param gifter_id: optional str
+        :param gifter_name: optional str
+        :rtype: bool, UUID
+        """
         params = {
             'broadcaster_id': broadcaster_id,
             'first': 1,
@@ -284,7 +377,11 @@ class TwitchWebHook:
         return self._generic_subscribe('/subscriptions/events', url, uuid, callback_func), uuid
 
     def unsubscribe_subscription_events(self, uuid: UUID) -> bool:
-        """Unsubscribe from Subscription Events Topic"""
+        """Unsubscribe from Subscription Events Topic
+
+        :param uuid: UUID of the subscription
+        :rtype: bool
+        """
         return self._generic_unsubscribe('/subscriptions/events', uuid)
 
     # ==================================================================================================================
