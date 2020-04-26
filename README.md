@@ -30,7 +30,7 @@ twitch = Twitch('my_app_id', 'my_app_secret')
 
 # get ID of user
 user_info = twitch.get_users(logins=['my_username'])
-user_id = user_info[0]['id']
+user_id = user_info['data'][0]['id']
 ```
 
 ### Authentication
