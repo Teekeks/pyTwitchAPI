@@ -78,7 +78,7 @@ new_token, new_refresh_token = refresh_access_token('refresh_token', 'client_id'
 
 ### Webhook
 
-See [webhook_example.py](../blob/master/webhook_example.py) for a full example usage. 
+See [webhook_example.py](../master/webhook_example.py) for a full example usage. 
 
 #### Requirements
 
