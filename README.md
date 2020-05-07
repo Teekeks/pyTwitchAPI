@@ -78,6 +78,8 @@ new_token, new_refresh_token = refresh_access_token('refresh_token', 'client_id'
 
 ### Webhook
 
+See [webhook_example.py](../blob/master/webhook_example.py) for a full example usage. 
+
 #### Requirements
 
 You need to have a public IP with a port open. That port will be 80 by default.
@@ -89,9 +91,13 @@ Authentication is off by default but you can choose to authenticate to use some 
 
 Example on how to set up a webhook and start it:
 ````python
-hook = twitch.get_webhook('https://my.url.com', port=80)
-hook.authenticate(twitch.get_auth_token())
-hook.secret = 'some_fancy_long_secret_string'
+from twitchAPI.webhook import TwitchWebHook
+# Note that you have to 
+hook = TwitchWebHook("https://my.cool.ip:8080", 'your app id', 8080)
+# some hooks dont require any authentication, which would remove the requirement to set up a https reverse proxy
+# if you dont require authentication just dont call authenticate()
+# should your webhook require user authentication, pass that user oauth token to authenticate() instead of the twitch.get_app_token()
+hook.authenticate(twitch.get_app_token())
 hook.start()
 ````
 
