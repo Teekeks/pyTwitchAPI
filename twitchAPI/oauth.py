@@ -129,7 +129,7 @@ class UserAuthenticator:
             return web.Response(status=400)
         if self.__callback_func is not None:
             self.__callback_func(self.__user_token)
-        fn = path.join(path.dirname(__file__), 'res/oauth.html')
+        fn = path.join(path.dirname(__file__), 'oauth.html')
         fd = ''
         with open(fn, 'r') as f:
             fd = f.read()

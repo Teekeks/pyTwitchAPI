@@ -27,6 +27,7 @@ from twitchAPI.twitch import Twitch
 
 # create instance of twitch API
 twitch = Twitch('my_app_id', 'my_app_secret')
+twitch.authenticate_app([])
 
 # get ID of user
 user_info = twitch.get_users(logins=['my_username'])
@@ -59,7 +60,7 @@ You can set that [here in your twitch dev dashboard](https://dev.twitch.tv/conso
 from twitchAPI.oauth import UserAuthenticator
 from twitch.types import AuthScope
 
-target_scope = [AuthScope.READ_BITS]
+target_scope = [AuthScope.BITS_READ]
 auth = UserAuthenticator(twitch, target_scope, force_verify=False)
 # this will open your default browser and prompt you with the twitch verification website
 token, refresh_token = auth.authenticate()
