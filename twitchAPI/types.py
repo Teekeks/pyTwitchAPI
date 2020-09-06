@@ -22,6 +22,7 @@ class AuthScope(Enum):
     :var CHANNEL_READ_SUBSCRIPTIONS:
     :var CHANNEL_READ_STREAM_KEY:
     :var CHANNEL_EDIT_COMMERCIAL:
+    :var CHANNEL_READ_HYPE_TRAIN:
     :var CLIPS_EDIT:
     :var USER_EDIT:
     :var USER_EDIT_BROADCAST:
@@ -41,6 +42,7 @@ class AuthScope(Enum):
     CHANNEL_READ_SUBSCRIPTIONS = 'channel:read:subscriptions'
     CHANNEL_READ_STREAM_KEY = 'channel:read:stream_key'
     CHANNEL_EDIT_COMMERCIAL = 'channel:edit:commercial'
+    CHANNEL_READ_HYPE_TRAIN = 'channel:read:hype_train'
     CLIPS_EDIT = 'clips:edit'
     USER_EDIT = 'user:edit'
     USER_EDIT_BROADCAST = 'user:edit:broadcast'
@@ -95,6 +97,19 @@ class SortMethod(Enum):
     VIEWS = 'views'
 
 
+class HypeTrainContributionMethod(Enum):
+    """Enum of valid Hype Train contribution types
+
+    :var BITS:
+    :var SUBS:
+    :var UNKNOWN:
+    """
+
+    BITS = 'BITS'
+    SUBS = 'SUBS'
+    UNKNOWN = ''
+
+
 class VideoType(Enum):
     """Enum of valid video types
 
@@ -105,8 +120,8 @@ class VideoType(Enum):
     :var UNKNOWN:
     """
     ALL = 'all'
-    UPLOAD = 'upload',
-    ARCHIVE = 'archive',
+    UPLOAD = 'upload'
+    ARCHIVE = 'archive'
     HIGHLIGHT = 'highlight'
     UNKNOWN = ''
 

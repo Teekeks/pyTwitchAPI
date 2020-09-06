@@ -1100,3 +1100,33 @@ class Twitch:
                         {'broadcaster_id': broadcaster_id})
         response = self.__api_get_request(url, AuthType.APP, [])
         return make_fields_datetime(response.json(), ['last_updated'])
+
+    def get_hype_train_events(self,
+                              broadcaster_id: str,
+                              first: Optional[int] = 1,
+                              id: Optional[str] = None,
+                              cursor: Optional[str] = None) -> dict:
+        """Requires App or User authentication with AuthScope.CHANNEL_READ_HYPE_TRAIN\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-hype-train-events
+
+        :param broadcaster_id: str
+        :param first: optional int, default 1, max 100
+        :param id: optional str
+        :param cursor: optional str
+        :rtype: dict
+        """
+        if first < 1 or first > 100:
+            raise Exception('first must be between 1 and 100')
+        url = build_url(TWITCH_API_BASE_URL + 'hypetrain/events',
+                        {'broadcaster_id': broadcaster_id,
+                         'first': first,
+                         'id': id,
+                         'cursor': cursor}, remove_none=True)
+        response = self.__api_get_request(url, AuthType.APP, [AuthScope.CHANNEL_READ_HYPE_TRAIN])
+        data = make_fields_datetime(response.json(), ['event_timestamp',
+                                                      'started_at',
+                                                      'expires_at',
+                                                      'cooldown_end_time'])
+        data = fields_to_enum(data, [], HypeTrainContributionMethod, HypeTrainContributionMethod.UNKNOWN)
+        return data
+
