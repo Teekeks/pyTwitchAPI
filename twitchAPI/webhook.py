@@ -7,9 +7,7 @@ from aiohttp import web
 import threading
 import asyncio
 from uuid import UUID
-from datetime import datetime
 import logging
-from dateutil import parser as du_parser
 
 
 class TwitchWebHook:
@@ -426,7 +424,7 @@ class TwitchWebHook:
         if d is not None:
             if len(d['data']) > 0:
                 data = d['data'][0]
-                data['started_at'] = datetime.fromisoformat(data['started_at'])
+                data = make_fields_datetime(data, ['started_at'])
             else:
                 data = {
                     'type': 'offline'
@@ -437,7 +435,7 @@ class TwitchWebHook:
         data = await get_json(request)
         if data is not None:
             data = data['data'][0]
-            data['followed_at'] = du_parser.isoparse(data['followed_at'])
+            data = make_fields_datetime(data, ['followed_at'])
         return self._generic_handle_callback(request, data)
 
     async def __handle_user_changed(self, request: 'web.Request'):
@@ -451,7 +449,7 @@ class TwitchWebHook:
         data = d
         if data is not None:
             data = data['data'][0]
-            data['timestamp'] = du_parser.isoparse(data['timestamp'])
+            data = make_fields_datetime(data, ['timestamp'])
         return self._generic_handle_callback(request, data)
 
     async def __handle_challenge(self, request: 'web.Request'):
@@ -465,21 +463,21 @@ class TwitchWebHook:
         data = await get_json(request)
         if data is not None:
             data = data['data'][0]
-            data['event_timestamp'] = du_parser.isoparse(data['event_timestamp'])
+            data = make_fields_datetime(data, ['event_timestamp'])
             return self._generic_handle_callback(request, data)
 
     async def __handle_channel_ban_change_events(self, request: 'web.Request'):
         data = await get_json(request)
         if data is not None:
             data = data['data'][0]
-            data['event_timestamp'] = du_parser.isoparse(data['event_timestamp'])
+            data = make_fields_datetime(data, ['event_timestamp'])
         return self._generic_handle_callback(request, data)
 
     async def __handle_subscription_events(self, request: 'web.Request'):
         data = await get_json(request)
         if data is not None:
             data = data['data'][0]
-            data['event_timestamp'] = du_parser.isoparse(data['event_timestamp'])
+            data = make_fields_datetime(data, 'event_timestamp')
         return self._generic_handle_callback(request, data)
 
     async def __handle_hypetrain_events(self, request: 'web.Request'):
