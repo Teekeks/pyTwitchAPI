@@ -980,6 +980,8 @@ class Twitch:
         :param live_only: optional bool, default false
         :rtype: dict
         """
+        if first < 1 or first > 100:
+            raise Exception('first must be between 1 and 100')
         url = build_url(TWITCH_API_BASE_URL + 'search/channels',
                         {'query': query,
                          'first': first,
@@ -1000,6 +1002,8 @@ class Twitch:
         :param after: optional str
         :rtype: dict
         """
+        if first < 1 or first > 100:
+            raise Exception('first must be between 1 and 100')
         url = build_url(TWITCH_API_BASE_URL + 'search/categories',
                         {'query': query,
                          'first': first,
