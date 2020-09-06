@@ -1,6 +1,7 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 from typing import Union, Tuple, Callable
-from .helper import build_url, TWITCH_API_BASE_URL, get_uuid, get_json
+from .helper import build_url, TWITCH_API_BASE_URL, get_uuid, get_json, make_fields_datetime, fields_to_enum
+from .types import *
 import requests
 from aiohttp import web
 import threading
@@ -73,6 +74,8 @@ class TwitchWebHook:
                              web.post('/moderation/moderators/events', self.__handle_moderator_change_events),
                              web.get('/moderation/banned/events', self.__handle_challenge),
                              web.post('/moderation/banned/events', self.__handle_channel_ban_change_events),
+                             web.get('/hypetrain/events', self.__handle_challenge),
+                             web.post('/hypetrain/events', self.__handle_hypetrain_events),
                              web.get('/subscriptions/events', self.__handle_challenge),
                              web.post('/subscriptions/events', self.__handle_subscription_events)])
         hook_runner = web.AppRunner(hook_app)
@@ -384,6 +387,32 @@ class TwitchWebHook:
         """
         return self._generic_unsubscribe('/subscriptions/events', uuid)
 
+    def subscribe_hype_train_events(self,
+                                    broadcaster_id: str,
+                                    callback_func: Union[Callable[[UUID, dict], None]]) -> Tuple[bool, UUID]:
+        """Subscribe to Hype Train Events\n
+        See https://dev.twitch.tv/docs/api/webhooks-reference#topic-hype-train-event for documentation
+
+        :param broadcaster_id: str
+        :param callback_func: function for callback
+        :rtype: bool, UUID
+        """
+        params = {
+            'broadcaster_id': broadcaster_id,
+            'first': 1
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'hypetrain/events', params)
+        uuid = get_uuid()
+        return self._generic_subscribe('/hypetrain/events', url, uuid, callback_func), uuid
+
+    def unsubscribe_hype_train_events(self, uuid: UUID) -> bool:
+        """Unsubscribe from Hype Train Events Topic
+
+        :param uuid: UUID of the subscription
+        :rtype: bool
+        """
+        return self._generic_unsubscribe('/hypetrain/events', uuid)
+
     # ==================================================================================================================
     # HANDLERS
     # ==================================================================================================================
@@ -451,4 +480,15 @@ class TwitchWebHook:
         if data is not None:
             data = data['data'][0]
             data['event_timestamp'] = du_parser.isoparse(data['event_timestamp'])
+        return self._generic_handle_callback(request, data)
+
+    async def __handle_hypetrain_events(self, request: 'web.Request'):
+        data = await get_json(request)
+        if data is not None:
+            data = data['data'][0]
+            data = make_fields_datetime(data, ['event_timestamp',
+                                               'cooldown_end_time',
+                                               'expires_at',
+                                               'started_at'])
+            data = fields_to_enum(data, ['type'], HypeTrainContributionMethod, HypeTrainContributionMethod.UNKNOWN)
         return self._generic_handle_callback(request, data)

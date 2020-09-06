@@ -1127,6 +1127,6 @@ class Twitch:
                                                       'started_at',
                                                       'expires_at',
                                                       'cooldown_end_time'])
-        data = fields_to_enum(data, [], HypeTrainContributionMethod, HypeTrainContributionMethod.UNKNOWN)
+        data = fields_to_enum(data, ['type'], HypeTrainContributionMethod, HypeTrainContributionMethod.UNKNOWN)
         return data
 
