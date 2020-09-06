@@ -72,6 +72,18 @@ class Twitch:
         else:
             return requests.put(url, headers=headers, json=data)
 
+    def __api_patch_request(self,
+                            url: str,
+                            auth_type: 'AuthType',
+                            required_scope: List[AuthScope],
+                            data: Optional[dict] = None) -> requests.Response:
+        """Make PUT request with authorization"""
+        headers = self.__generate_header(auth_type, required_scope)
+        if data is None:
+            return requests.patch(url, headers=headers)
+        else:
+            return requests.patch(url, headers=headers, json=data)
+
     def __api_get_request(self, url: str,
                           auth_type: 'AuthType',
                           required_scope: List[AuthScope]) -> requests.Response:
@@ -127,9 +139,9 @@ class Twitch:
         """
         return self.__app_auth_token
 
-# ======================================================================================================================
-# API calls
-# ======================================================================================================================
+    # ======================================================================================================================
+    # API calls
+    # ======================================================================================================================
 
     def get_extension_analytics(self,
                                 after: Optional[str] = None,
@@ -916,4 +928,40 @@ class Twitch:
                         {'first': first, 'after': after},
                         remove_none=True)
         response = self.__api_get_request(url, AuthType.APP, [])
+        return response.json()
+
+    def get_channel_information(self,
+                                broadcaster_id: str) -> dict:
+        """Requires App or user authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-information
+
+        :param broadcaster_id: str
+        :rtype dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'channels', {'broadcaster_id': broadcaster_id})
+        response = self.__api_get_request(url, AuthType.APP, [])
+        return response.json()
+
+    def modify_channel_information(self,
+                                   broadcaster_id: str,
+                                   game_id: Optional[str] = None,
+                                   broadcaster_language: Optional[str] = None,
+                                   title: Optional[str] = None) -> dict:
+        """Requires User authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#modify-channel-information
+
+        :param broadcaster_id: str
+        :param game_id: optional str
+        :param broadcaster_language: optional str
+        :param title: optional str
+        :rtype: dict
+        """
+        if game_id is None and broadcaster_language is None and title is None:
+            raise Exception('You need to specify at least one of the optional parameter')
+        url = build_url(TWITCH_API_BASE_URL + 'channels',
+                        {'broadcaster_id': broadcaster_id,
+                         'game_id': game_id,
+                         'broadcaster_language': broadcaster_language,
+                         'title': title}, remove_none=True)
+        response = self.__api_patch_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST])
         return response.json()
