@@ -104,7 +104,7 @@ class UserAuthenticator:
         self.__server_running = True
         try:
             self.__loop.run_until_complete(self.__run_check())
-        except CancelledError:
+        except (CancelledError, asyncio.CancelledError):
             pass
 
     def __start(self):
