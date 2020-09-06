@@ -46,6 +46,8 @@ Its always good to get at least App authentication even for calls where you dont
 App authentication is super simple, just do the following:
 
 ```python
+from twitchAPI.twitch import Twitch
+twitch = Twitch('my_app_id', 'my_app_secret')
 # add App authentication
 twitch.authenticate_app([])
 ```
@@ -57,8 +59,11 @@ You can set that [here in your twitch dev dashboard](https://dev.twitch.tv/conso
 
 
 ```python
+from twitchAPI.twitch import Twitch
 from twitchAPI.oauth import UserAuthenticator
-from twitch.types import AuthScope
+from twitchAPI.types import AuthScope
+
+twitch = Twitch('my_app_id', 'my_app_secret')
 
 target_scope = [AuthScope.BITS_READ]
 auth = UserAuthenticator(twitch, target_scope, force_verify=False)
@@ -92,8 +97,14 @@ Authentication is off by default but you can choose to authenticate to use some 
 
 Example on how to set up a webhook and start it:
 ````python
+from twitchAPI.twitch import Twitch
 from twitchAPI.webhook import TwitchWebHook
-# Note that you have to 
+
+twitch = Twitch('my_app_id', 'my_app_secret')
+# add App authentication
+twitch.authenticate_app([])
+
+# Note that you have to use https as soon as you use functions that require authentication (most of them)
 hook = TwitchWebHook("https://my.cool.ip:8080", 'your app id', 8080)
 # some hooks dont require any authentication, which would remove the requirement to set up a https reverse proxy
 # if you dont require authentication just dont call authenticate()
