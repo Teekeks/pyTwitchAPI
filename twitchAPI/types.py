@@ -20,11 +20,14 @@ class AuthScope(Enum):
     :var ANALYTICS_READ_GAMES:
     :var BITS_READ:
     :var CHANNEL_READ_SUBSCRIPTIONS:
+    :var CHANNEL_READ_STREAM_KEY:
+    :var CHANNEL_EDIT_COMMERCIAL:
     :var CLIPS_EDIT:
     :var USER_EDIT:
     :var USER_EDIT_BROADCAST:
     :var USER_READ_BROADCAST:
     :var USER_READ_EMAIL:
+    :var USER_EDIT_FOLLOWS:
     :var CHANNEL_MODERATE:
     :var CHAT_EDIT:
     :var CHAT_READ:
@@ -36,11 +39,14 @@ class AuthScope(Enum):
     ANALYTICS_READ_GAMES = 'analytics:read:games'
     BITS_READ = 'bits:read'
     CHANNEL_READ_SUBSCRIPTIONS = 'channel:read:subscriptions'
+    CHANNEL_READ_STREAM_KEY = 'channel:read:stream_key'
+    CHANNEL_EDIT_COMMERCIAL = 'channel:edit:commercial'
     CLIPS_EDIT = 'clips:edit'
     USER_EDIT = 'user:edit'
     USER_EDIT_BROADCAST = 'user:edit:broadcast'
     USER_READ_BROADCAST = 'user:read:broadcast'
     USER_READ_EMAIL = 'user:read:email'
+    USER_EDIT_FOLLOWS = 'user:edit:follows'
     CHANNEL_MODERATE = 'channel:moderate'
     CHAT_EDIT = 'chat:edit'
     CHAT_READ = 'chat:read'

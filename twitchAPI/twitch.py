@@ -84,6 +84,18 @@ class Twitch:
         else:
             return requests.patch(url, headers=headers, json=data)
 
+    def __api_delete_request(self,
+                             url: str,
+                             auth_type: 'AuthType',
+                             required_scope: List[AuthScope],
+                             data: Optional[dict] = None) -> requests.Response:
+        """Make PUT request with authorization"""
+        headers = self.__generate_header(auth_type, required_scope)
+        if data is None:
+            return requests.delete(url, headers=headers)
+        else:
+            return requests.delete(url, headers=headers, json=data)
+
     def __api_get_request(self, url: str,
                           auth_type: 'AuthType',
                           required_scope: List[AuthScope]) -> requests.Response:
@@ -946,7 +958,7 @@ class Twitch:
                                    broadcaster_id: str,
                                    game_id: Optional[str] = None,
                                    broadcaster_language: Optional[str] = None,
-                                   title: Optional[str] = None) -> dict:
+                                   title: Optional[str] = None) -> bool:
         """Requires User authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#modify-channel-information
 
@@ -954,7 +966,7 @@ class Twitch:
         :param game_id: optional str
         :param broadcaster_language: optional str
         :param title: optional str
-        :rtype: dict
+        :rtype: bool
         """
         if game_id is None and broadcaster_language is None and title is None:
             raise Exception('You need to specify at least one of the optional parameter')
@@ -964,7 +976,7 @@ class Twitch:
                          'broadcaster_language': broadcaster_language,
                          'title': title}, remove_none=True)
         response = self.__api_patch_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST])
-        return response.json()
+        return response.status_code == 204
 
     def search_channels(self,
                         query: str,
@@ -1010,3 +1022,81 @@ class Twitch:
                          'after': after}, remove_none=True)
         response = self.__api_get_request(url, AuthType.APP, [])
         return response.json()
+
+    def get_stream_key(self,
+                       broadcaster_id: str) -> dict:
+        """Requires User authentication with AuthScope.CHANNEL_READ_STREAM_KEY\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-key
+
+        :param broadcaster_id: str
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'streams/key', {'broadcaster_id': broadcaster_id})
+        response = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_STREAM_KEY])
+        return response.json()
+
+    def start_commercial(self,
+                         broadcaster_id: str,
+                         length: int) -> dict:
+        """Requires User authentication with AuthScope.CHANNEL_EDIT_COMMERCIAL\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#start-commercial
+
+        :param broadcaster_id: str
+        :param length: int, one of these: [30, 60, 90, 120, 150, 180]
+        :rtype: dict
+        """
+        if length not in [30, 60, 90, 120, 150, 180]:
+            raise Exception('length needs to be one of these: [30, 60, 90, 120, 150, 180]')
+        url = build_url(TWITCH_API_BASE_URL + 'channels/commercial',
+                        {'broadcaster_id': broadcaster_id,
+                         'length': length})
+        response = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_EDIT_COMMERCIAL])
+        return response.json()
+
+    def create_user_follows(self,
+                            from_id: str,
+                            to_id: str,
+                            allow_notifications: Optional[bool] = False) -> bool:
+        """Requires User authentication with AuthScope.USER_EDIT_FOLLOWS\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-user-follows
+
+        :param from_id: str
+        :param to_id: str
+        :param allow_notifications: optional bool
+        :rtype: bool
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'users/follows',
+                        {'from_id': from_id,
+                         'to_id': to_id,
+                         'allow_notifications': allow_notifications}, remove_none=True)
+        response = self.__api_post_request(url, AuthType.USER, [AuthScope.USER_EDIT_FOLLOWS])
+        return response.status_code == 204
+
+    def delete_user_follows(self,
+                            from_id: str,
+                            to_id: str) -> bool:
+        """Requires User authentication with AuthScope.USER_EDIT_FOLLOWS\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-user-follows
+
+        :param from_id: str
+        :param to_id: str
+        :rtype: bool
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'users/follows',
+                        {'from_id': from_id,
+                         'to_id': to_id})
+        response = self.__api_delete_request(url, AuthType.USER, [AuthScope.USER_EDIT_FOLLOWS])
+        return response.status_code == 204
+
+    def get_cheermotes(self,
+                       broadcaster_id: str) -> dict:
+        """Requires App or User authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-cheermotes
+
+        :param broadcaster_id: str
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'bits/cheermotes',
+                        {'broadcaster_id': broadcaster_id})
+        response = self.__api_get_request(url, AuthType.APP, [])
+        return make_fields_datetime(response.json(), ['last_updated'])
