@@ -965,3 +965,44 @@ class Twitch:
                          'title': title}, remove_none=True)
         response = self.__api_patch_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST])
         return response.json()
+
+    def search_channels(self,
+                        query: str,
+                        first: Optional[int] = None,
+                        after: Optional[str] = None,
+                        live_only: Optional[bool] = False) -> dict:
+        """Requires App or User authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#search-channels
+
+        :param query: str, does NOT need to be URI encoded
+        :param first: optional int
+        :param after: optional str
+        :param live_only: optional bool, default false
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'search/channels',
+                        {'query': query,
+                         'first': first,
+                         'after': after,
+                         'live_only': live_only}, remove_none=True)
+        response = self.__api_get_request(url, AuthType.APP, [])
+        return make_fields_datetime(response.json(), ['started_at'])
+
+    def search_categories(self,
+                          query: str,
+                          first: Optional[int] = None,
+                          after: Optional[str] = None) -> dict:
+        """Requires App or User authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#search-categories
+
+        :param query: str, does NOT need to be URI encoded
+        :param first: optional int
+        :param after: optional str
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'search/categories',
+                        {'query': query,
+                         'first': first,
+                         'after': after}, remove_none=True)
+        response = self.__api_get_request(url, AuthType.APP, [])
+        return response.json()
