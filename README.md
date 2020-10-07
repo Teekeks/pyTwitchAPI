@@ -138,3 +138,13 @@ Stopping the webhook:
 ```python
 hook.stop()
 ```
+
+### Unsubscribing from any remaining active Webhook topic
+
+Should your management of webhook subscriptions fail (due to a crash or something else) and there is a active webhook remaining after your program closed, you may use the following:
+
+```python
+hook.unsubscribe_all(twitch)
+```
+
+The parameter is a ``twitchAPI.twitch.Twitch`` instance with app authentication.

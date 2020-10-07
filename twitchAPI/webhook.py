@@ -113,6 +113,16 @@ class TwitchWebHook:
     # HELPER
     # ==================================================================================================================
 
+    def unsubscribe_all(self, twitch: 'twitchAPI.twitch.Twitch') -> None:
+        """Unsubscribe from all active Webhooks
+
+        :param twitch: App authorized instance of twitchAPI.twitch.Twitch
+        :rtype None
+        """
+        data = twitch.get_webhook_subscriptions()
+        for d in data.get('data', []):
+            self._subscribe(d.get('callback'), d.get('topic'), mode="unsubscribe", callback_full=False)
+
     def __build_request_header(self):
         headers = {
             "Client-ID": self.__client_id
@@ -140,12 +150,14 @@ class TwitchWebHook:
             arr.append(callback_func)
         self.__callbacks[uuid] = arr
 
-    def _subscribe(self, callback_path: str, topic_url: str, mode: str = "subscribe"):
+    def _subscribe(self, callback_path: str, topic_url: str, mode: str = "subscribe", callback_full=True):
         """"Subscribe to Twitch Topic"""
         data = {'hub.callback': self.callback_url + callback_path,
                 'hub.mode': mode,
                 'hub.topic': topic_url,
                 'hub.lease_seconds': self.subscribe_least_seconds}
+        if not callback_full:
+            data['hub.callback'] = callback_path
         if self.secret is not None:
             data['hub.secret'] = self.secret
         result = self.__api_post_request(TWITCH_API_BASE_URL + "webhooks/hub", data=data)

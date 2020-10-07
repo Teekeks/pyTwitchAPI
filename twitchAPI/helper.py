@@ -143,4 +143,3 @@ def fields_to_enum(data: Union[dict, list],
         return [make_dict_field_enum(d, fields, _enum, default) for d in data]
     else:
         return make_dict_field_enum(data, fields, _enum, default)
-
