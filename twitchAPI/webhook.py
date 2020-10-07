@@ -28,11 +28,20 @@ class TwitchWebHook:
     subscribe_least_seconds: int = 864000
     """The duration in seconds for how long you want to subscribe to webhhoks."""
 
+    wait_for_subscription_confirm: bool = True
+    """Set this to false if you dont want to wait for a subscription confirm."""
+
+    wait_for_subscription_confirm_timeout: int = 30
+    """Max time in seconds to wait for a subscription confirmation.
+    Only used if ``wait_for_subscription_confirm`` is set to True"""
+
     _port: int = 80
     _host: str = '0.0.0.0'
 
     __callbacks = {}
-    __urls = {}
+    # __urls = {}
+
+    __active_webhooks = {}
 
     __authenticate: bool = False
 
@@ -113,16 +122,6 @@ class TwitchWebHook:
     # HELPER
     # ==================================================================================================================
 
-    def unsubscribe_all(self, twitch: 'twitchAPI.twitch.Twitch') -> None:
-        """Unsubscribe from all active Webhooks
-
-        :param twitch: App authorized instance of twitchAPI.twitch.Twitch
-        :rtype None
-        """
-        data = twitch.get_webhook_subscriptions()
-        for d in data.get('data', []):
-            self._subscribe(d.get('callback'), d.get('topic'), mode="unsubscribe", callback_full=False)
-
     def __build_request_header(self):
         headers = {
             "Client-ID": self.__client_id
@@ -169,16 +168,24 @@ class TwitchWebHook:
         success = self._subscribe(callback_path+"?uuid=" + str(uuid), url)
         if success:
             self.__add_callable(uuid, callback_func)
-            self.__urls[uuid] = url
+            # self.__urls[uuid] = url
+            self.__active_webhooks[uuid] = {
+                'url': url,
+                'callback': callback_func,
+                'callback_path': callback_path + "?uuid=" + str(uuid),
+                'confirmed_subscribe': False,
+                'confirmed_unsubscribe': False,
+                'active': False
+            }
         return success
 
     def _generic_unsubscribe(self, callback_path: str, uuid: UUID) -> bool:
-        url = self.__urls.get(uuid)
+        url = self.__active_webhooks.get(uuid)
         if url is None:
             raise Exception(f'no subscription found for UUID {str(uuid)}')
-        success = self._subscribe(callback_path + "?uuid=" + str(uuid), url, mode="unsubscribe")
+        success = self._subscribe(url.get('callback_path'), url.get('url'), mode="unsubscribe")
         if success:
-            self.__urls.pop(uuid, None)
+            # self.__urls.pop(uuid, None)
             self.__callbacks.pop(uuid, None)
         return success
 
@@ -193,6 +200,35 @@ class TwitchWebHook:
         for cf in callbacks:
             cf(uuid, data)
         return web.Response(text="")
+    # ==================================================================================================================
+    # SUBSCRIPTION HELPER
+    # ==================================================================================================================
+
+    def unsubscribe_all(self,
+                        twitch: 'twitchAPI.twitch.Twitch') -> None:
+        """Unsubscribe from all active Webhooks
+
+        :param twitch: App authorized instance of twitchAPI.twitch.Twitch
+        :rtype: None
+        """
+        data = twitch.get_webhook_subscriptions()
+        for d in data.get('data', []):
+            self._subscribe(d.get('callback'), d.get('topic'), mode="unsubscribe", callback_full=False)
+
+    def renew_subscription(self,
+                           uuid: UUID) -> bool:
+        """Renew existing topic subscription
+
+        :param uuid: UUID of the subscription to renew
+        :rtype: bool
+        :returns: True if renewal worked. Note that you still need to wait for the handshake to make sure its renewed.
+        """
+        url = self.__active_webhooks.get(uuid)
+        if url is None:
+            raise Exception(f'no subscription found for UUID {str(uuid)}')
+        from pprint import pprint
+        pprint(url)
+
     # ==================================================================================================================
     # SUBSCRIPTIONS
     # ==================================================================================================================
@@ -466,8 +502,18 @@ class TwitchWebHook:
 
     async def __handle_challenge(self, request: 'web.Request'):
         challenge = request.rel_url.query.get('hub.challenge')
+        from pprint import pprint
+        print('in challenge:')
+        pprint(request.rel_url.query.items())
         if challenge is not None:
             # found challenge, lets answer it
+            if request.rel_url.query.get('hub.mode') == 'subscribe':
+                # we treat this as active as soon as we answer the challenge
+                self.__active_webhooks.get(UUID(request.rel_url.query.get('uuid')))['active'] = True
+                self.__active_webhooks.get(UUID(request.rel_url.query.get('uuid')))['confirmed_subscribe'] = True
+            if request.rel_url.query.get('hub.mode') == 'unsubscribe':
+                # we treat this as invalid as soon as we answer the challenge
+                self.__active_webhooks.pop(UUID(request.rel_url.query.get('uuid')))
             return web.Response(text=challenge)
         return web.Response(status=500)
 
