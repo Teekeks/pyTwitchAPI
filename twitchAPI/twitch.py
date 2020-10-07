@@ -19,8 +19,12 @@ class Twitch:
     __has_app_auth: bool = False
 
     __user_auth_token: Optional[str] = None
+    __user_auth_refresh_token: Optional[str] = None
     __user_auth_scope: List[AuthScope] = []
     __has_user_auth: bool = False
+
+    auto_refresh_user_auth: bool = True
+    """If set to true, auto refresh the user auth token once it expires"""
 
     def __init__(self, app_id: str, app_secret: str):
         self.app_id = app_id
@@ -132,14 +136,19 @@ class Twitch:
         self.__generate_app_token()
         self.__has_app_auth = True
 
-    def set_user_authentication(self, token: str, scope: List[AuthScope]) -> None:
+    def set_user_authentication(self, token: str, scope: List[AuthScope], refresh_token: Optional[str] = None) -> None:
         """Set a user token to be used.
 
         :param token: the generated user token
         :param scope: List of `AuthScope` that the given user token has
+        :param refresh_token: str, has to be provided if ``auto_refresh_user_auth`` is True
         :return: None
+        :raises: ValueError
         """
+        if refresh_token is None and self.auto_refresh_user_auth:
+            raise ValueError('refresh_token has to be provided when auto_refresh_user_auth is True')
         self.__user_auth_token = token
+        self.__user_auth_refresh_token = refresh_token
         self.__user_auth_scope = scope
         self.__has_user_auth = True
 
