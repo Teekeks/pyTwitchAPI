@@ -8,6 +8,7 @@ import threading
 import asyncio
 from uuid import UUID
 import logging
+import time
 
 
 class TwitchWebHook:
@@ -177,17 +178,15 @@ class TwitchWebHook:
                 'confirmed_unsubscribe': False,
                 'active': False
             }
+            if self.wait_for_subscription_confirm:
+                timeout = time.time() + self.wait_for_subscription_confirm_timeout
+                while timeout > time.time() and not self.__active_webhooks.get(uuid)['confirmed_subscribe']:
+                    time.sleep(0.1)
+                return self.__active_webhooks.get(uuid)['confirmed_subscribe']
         return success
 
-    def _generic_unsubscribe(self, callback_path: str, uuid: UUID) -> bool:
-        url = self.__active_webhooks.get(uuid)
-        if url is None:
-            raise Exception(f'no subscription found for UUID {str(uuid)}')
-        success = self._subscribe(url.get('callback_path'), url.get('url'), mode="unsubscribe")
-        if success:
-            # self.__urls.pop(uuid, None)
-            self.__callbacks.pop(uuid, None)
-        return success
+    def _generic_unsubscribe(self, callback_path: str, url: str, callback_full: bool = True) -> bool:
+        return self._subscribe(callback_path, url, mode="unsubscribe", callback_full=callback_full)
 
     def _generic_handle_callback(self, request: 'web.Request', data: Union[dict, list, None]) -> 'web.Response':
         uuid_str = request.rel_url.query.get('uuid')
@@ -211,9 +210,10 @@ class TwitchWebHook:
         :param twitch: App authorized instance of twitchAPI.twitch.Twitch
         :rtype: None
         """
+        from pprint import pprint
         data = twitch.get_webhook_subscriptions()
         for d in data.get('data', []):
-            self._subscribe(d.get('callback'), d.get('topic'), mode="unsubscribe", callback_full=False)
+            pprint(self._generic_unsubscribe(d.get('callback'), d.get('topic'), callback_full=False))
 
     def renew_subscription(self,
                            uuid: UUID) -> bool:
@@ -228,6 +228,27 @@ class TwitchWebHook:
             raise Exception(f'no subscription found for UUID {str(uuid)}')
         from pprint import pprint
         pprint(url)
+
+    def unsubscribe(self,
+                    uuid: UUID) -> bool:
+        url = self.__active_webhooks.get(uuid)
+        if url is None:
+            raise Exception(f'no subscription found for UUID {str(uuid)}')
+        success = self._generic_unsubscribe(url.get('callback_path'), url.get('url'))
+        if success:
+            self.__callbacks.pop(uuid, None)
+            if self.wait_for_subscription_confirm:
+                timeout = time.time() + self.wait_for_subscription_confirm_timeout
+                while timeout > time.time() and not self.__active_webhooks.get(uuid)['confirmed_unsubscribe']:
+                    time.sleep(0.1)
+                if self.__active_webhooks.get(uuid)['confirmed_unsubscribe']:
+                    self.__active_webhooks.pop(uuid)
+                else:
+                    # unsubscribe failed!
+                    return False
+
+
+        return success
 
     # ==================================================================================================================
     # SUBSCRIPTIONS
@@ -256,14 +277,6 @@ class TwitchWebHook:
         uuid = get_uuid()
         return self._generic_subscribe('/users/follows', url, uuid, callback_func), uuid
 
-    def unsubscribe_user_follow(self, uuid: UUID) -> bool:
-        """Unsubscribe from user follow topic
-
-        :param uuid: UUID of the subscription
-        :rtype: bool
-        """
-        return self._generic_unsubscribe('/users/follows', uuid)
-
     def subscribe_stream_changed(self,
                                  user_id: str,
                                  callback_func: Union[Callable[[UUID, dict], None], None]) -> Tuple[bool, UUID]:
@@ -279,14 +292,6 @@ class TwitchWebHook:
         uuid = get_uuid()
         return self._generic_subscribe('/streams', url, uuid, callback_func), uuid
 
-    def unsubscribe_stream_changed(self, uuid: UUID) -> bool:
-        """Unsubscribe from stream changed topic
-
-        :param uuid: UUID of the subscription
-        :return: bool
-        """
-        return self._generic_unsubscribe('/streams', uuid)
-
     def subscribe_user_changed(self,
                                user_id: str,
                                callback_func: Union[Callable[[UUID, dict], None], None]) -> Tuple[bool, UUID]:
@@ -301,14 +306,6 @@ class TwitchWebHook:
         url = build_url(TWITCH_API_BASE_URL + "users", param_dict)
         uuid = get_uuid()
         return self._generic_subscribe('/users/changed', url, uuid, callback_func), uuid
-
-    def unsubscribe_user_changed(self, uuid: UUID) -> bool:
-        """Unsubscribe from subscription event topic
-
-        :param uuid: UUID of the subscription
-        :rtype: bool
-        """
-        return self._generic_unsubscribe("/users/changed", uuid)
 
     def subscribe_extension_transaction_created(self,
                                                 extension_id: str,
@@ -332,14 +329,6 @@ class TwitchWebHook:
         uuid = get_uuid()
         return self._generic_subscribe('/extensions/transactions', url, uuid, callback_func), uuid
 
-    def unsubscribe_extension_transactions_created(self, uuid: UUID) -> bool:
-        """Unsubscribe from Extension transaction created Topic
-
-        :param uuid: UUID of the subscription
-        :rtype: bool
-        """
-        return self._generic_unsubscribe('/extensions/transactions', uuid)
-
     def subscribe_moderator_change_events(self,
                                           broadcaster_id: str,
                                           user_id: Union[str, None],
@@ -361,14 +350,6 @@ class TwitchWebHook:
         uuid = get_uuid()
         return self._generic_subscribe('/moderation/moderators/events', url, uuid, callback_func), uuid
 
-    def unsubscribe_moderator_change_events(self, uuid: UUID) -> bool:
-        """Unsubscribe from Moderator Change Events Topic
-
-        :param uuid: UUID of the subscription
-        :rtype: bool
-        """
-        return self._generic_unsubscribe('/moderation/moderators/events', uuid)
-
     def subscribe_channel_ban_change_events(self,
                                             broadcaster_id: str,
                                             user_id: Union[str, None],
@@ -389,14 +370,6 @@ class TwitchWebHook:
         url = build_url(TWITCH_API_BASE_URL + 'moderation/banned/events', params, remove_none=True)
         uuid = get_uuid()
         return self._generic_subscribe('/moderation/banned/events', url, uuid, callback_func), uuid
-
-    def unsubscribe_channel_ban_change_events(self, uuid: UUID) -> bool:
-        """Unsubscribe from Channel Ban Change Events Topic
-
-        :param uuid: UUID of the subscription
-        :rtype: bool
-        """
-        return self._generic_unsubscribe('/moderation/banned/events', uuid)
 
     def subscribe_subscription_events(self,
                                       broadcaster_id: str,
@@ -425,14 +398,6 @@ class TwitchWebHook:
         uuid = get_uuid()
         return self._generic_subscribe('/subscriptions/events', url, uuid, callback_func), uuid
 
-    def unsubscribe_subscription_events(self, uuid: UUID) -> bool:
-        """Unsubscribe from Subscription Events Topic
-
-        :param uuid: UUID of the subscription
-        :rtype: bool
-        """
-        return self._generic_unsubscribe('/subscriptions/events', uuid)
-
     def subscribe_hype_train_events(self,
                                     broadcaster_id: str,
                                     callback_func: Union[Callable[[UUID, dict], None]]) -> Tuple[bool, UUID]:
@@ -450,14 +415,6 @@ class TwitchWebHook:
         url = build_url(TWITCH_API_BASE_URL + 'hypetrain/events', params)
         uuid = get_uuid()
         return self._generic_subscribe('/hypetrain/events', url, uuid, callback_func), uuid
-
-    def unsubscribe_hype_train_events(self, uuid: UUID) -> bool:
-        """Unsubscribe from Hype Train Events Topic
-
-        :param uuid: UUID of the subscription
-        :rtype: bool
-        """
-        return self._generic_unsubscribe('/hypetrain/events', uuid)
 
     # ==================================================================================================================
     # HANDLERS
@@ -512,8 +469,12 @@ class TwitchWebHook:
                 self.__active_webhooks.get(UUID(request.rel_url.query.get('uuid')))['active'] = True
                 self.__active_webhooks.get(UUID(request.rel_url.query.get('uuid')))['confirmed_subscribe'] = True
             if request.rel_url.query.get('hub.mode') == 'unsubscribe':
-                # we treat this as invalid as soon as we answer the challenge
-                self.__active_webhooks.pop(UUID(request.rel_url.query.get('uuid')))
+                if UUID(request.rel_url.query.get('uuid')) in self.__active_webhooks.keys():
+                    # we treat this as invalid as soon as we answer the challenge
+                    if self.wait_for_subscription_confirm:
+                        self.__active_webhooks.get(UUID(request.rel_url.query.get('uuid')))['confirmed_unsubscribe'] = True
+                    else:
+                        self.__active_webhooks.pop(UUID(request.rel_url.query.get('uuid')))
             return web.Response(text=challenge)
         return web.Response(status=500)
 
