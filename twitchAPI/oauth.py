@@ -1,4 +1,7 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
+"""
+User OAuth Authenticator and helper functions
+"""
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL
 from .types import AuthScope
@@ -18,9 +21,12 @@ def refresh_access_token(refresh_token: str,
                          app_secret: str):
     """Simple helper function for refreshing a user access token.
 
-    :param refresh_token: str, the current refresh_token
-    :param app_id: str, the id of your app
-    :param app_secret: str, the secret key of your app
+    :param refresh_token: the current refresh_token
+    :type refresh_token: str
+    :param app_id: the id of your app
+    :type app_id: str
+    :param app_secret: the secret key of your app
+    :type app_secret: str
     :return: access_token, refresh_token
     :rtype: str, str
     """
