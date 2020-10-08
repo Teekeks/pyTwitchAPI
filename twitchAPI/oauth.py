@@ -152,6 +152,7 @@ class UserAuthenticator:
 
         :param callback_func: Function to call once the authentication finnished.
         :return: None if callback_func is set, otherwise access_token and refresh_token
+        :rtype: None or (str, str)
         """
         self.__callback_func = callback_func
         self.__start()
