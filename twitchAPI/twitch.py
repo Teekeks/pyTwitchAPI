@@ -1,5 +1,7 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
-
+"""
+The Twitch API client.
+"""
 import requests
 from typing import Union, List, Optional
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
@@ -7,9 +9,15 @@ from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_f
 from datetime import datetime
 from .types import *
 
+
 class Twitch:
     """
     Twitch API client
+
+    :param app_id: Your app id
+    :type app_id: str
+    :param app_secret: Your app secret
+    :type app_secret: str
     """
     app_id: Optional[str] = None
     app_secret: Optional[str] = None
@@ -246,22 +254,33 @@ class Twitch:
         """Requires User authentication with scope :class:`~AuthScope.ANALYTICS_READ_EXTENSION`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-analytics
 
-        :param after: optional str
-        :param extension_id: optional str
-        :param first: optional int range 1 to 100
-        :param ended_at: optional :class:`datetime`
-        :param started_at: optional :class:`datetime`
-        :param report_type: optional :class:`~twitchAPI.types.AnalyticsReportType`
+        :param after: cursor for forward pagination
+        :type after: str
+        :param extension_id: If this is specified, the returned URL points to an analytics report for just the specified
+                            extension.
+        :type extension_id: str
+        :param first: Maximum number of objects returned, range 1 to 100, default 20
+        :type first: int
+        :param ended_at: Ending date/time for returned reports, if this is provided, `started_at` must also be
+                            specified.
+        :type ended_at: :class:`datetime.datetime`
+        :param started_at: Starting date/time for returned reports, if this is provided, `ended_at` must also be
+                            specified.
+        :type started_at: :class:`datetime.datetime`
+        :param report_type: Type of analytics report that is returned
+        :type report_type: :class:`~twitchAPI.types.AnalyticsReportType`
         :rtype: dict
+        :raises: :class:`twitchAPI.types.UnauthorizedException`,:class:`twitchAPI.types.MissingScopeException`,
+                ValueError
         """
         if ended_at is not None or started_at is not None:
             # you have to put in both:
             if ended_at is None or started_at is None:
-                raise Exception('you must specify both ended_at and started_at')
+                raise ValueError('you must specify both ended_at and started_at')
             if started_at > ended_at:
-                raise Exception('started_at must be before ended_at')
+                raise ValueError('started_at must be before ended_at')
         if first > 100 or first < 1:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
         url_params = {
             'after': after,
             'ended_at': ended_at.isoformat() if ended_at is not None else None,
