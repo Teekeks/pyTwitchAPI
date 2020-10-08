@@ -1,4 +1,7 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
+"""
+User OAuth Authenticator and helper functions
+"""
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL
 from .types import AuthScope
@@ -18,11 +21,14 @@ def refresh_access_token(refresh_token: str,
                          app_secret: str):
     """Simple helper function for refreshing a user access token.
 
-    :param refresh_token: str, the current refresh_token
-    :param app_id: str, the id of your app
-    :param app_secret: str, the secret key of your app
+    :param refresh_token: the current refresh_token
+    :type refresh_token: str
+    :param app_id: the id of your app
+    :type app_id: str
+    :param app_secret: the secret key of your app
+    :type app_secret: str
     :return: access_token, refresh_token
-    :rtype: str, str
+    :rtype: (str, str)
     """
     param = {
         'refresh_token': refresh_token,
@@ -39,9 +45,12 @@ def refresh_access_token(refresh_token: str,
 class UserAuthenticator:
     """Simple to use client for the Twitch User authentication flow.
 
-    :param twitch: :class:`twitchAPI.twitch.Twitch` instance
-    :param scopes: List of :class:`twitchAPI.types.AuthScope`, the desired Auth scopes
-    """
+       :param twitch: A twitch instance
+       :type twitch: :class:`twitchAPI.twitch.Twitch`
+       :param scopes: List of the desired Auth scopes
+       :type scopes: [:class:`twitchAPI.types.AuthScope`]
+       :param force_verify: If this is true, the user will always be prompted for authorization by twitch, default False
+       :type force_verify: bool"""
 
     __twitch: 'Twitch' = None
     port: int = 17563
@@ -143,6 +152,7 @@ class UserAuthenticator:
 
         :param callback_func: Function to call once the authentication finnished.
         :return: None if callback_func is set, otherwise access_token and refresh_token
+        :rtype: None or (str, str)
         """
         self.__callback_func = callback_func
         self.__start()
