@@ -43,6 +43,14 @@ def refresh_access_token(refresh_token: str,
 
 
 class UserAuthenticator:
+    """Simple to use client for the Twitch User authentication flow.
+
+       :param twitch: A twitch instance
+       :type twitch: :class:`twitchAPI.twitch.Twitch`
+       :param scopes: List of the desired Auth scopes
+       :type scopes: [:class:`twitchAPI.types.AuthScope`]
+       :param force_verify: If this is true, the user will always be prompted for authorization by twitch, default False
+       :type force_verify: bool"""
 
     __twitch: 'Twitch' = None
     port: int = 17563
@@ -68,15 +76,6 @@ class UserAuthenticator:
                  twitch: 'Twitch',
                  scopes: List[AuthScope],
                  force_verify: bool = False):
-        """Simple to use client for the Twitch User authentication flow.
-
-        :param twitch: A twitch instance
-        :type twitch: :class:`twitchAPI.twitch.Twitch`
-        :param scopes: List of the desired Auth scopes
-        :type scopes: [:class:`twitchAPI.types.AuthScope`]
-        :param force_verify: If this is true, the user will always be prompted for authorization by twitch, default False
-        :type force_verify: bool
-        """
         self.__twitch = twitch
         self.__client_id = twitch.app_id
         self.scopes = scopes
