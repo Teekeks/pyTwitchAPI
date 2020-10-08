@@ -7,7 +7,6 @@ from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_f
 from datetime import datetime
 from .types import *
 
-
 class Twitch:
     """
     Twitch API client
@@ -23,8 +22,8 @@ class Twitch:
     __user_auth_scope: List[AuthScope] = []
     __has_user_auth: bool = False
 
-    auto_refresh_user_auth: bool = True
-    """If set to true, auto refresh the user auth token once it expires"""
+    auto_refresh_auth: bool = True
+    """If set to true, auto refresh the auth token once it expires"""
 
     def __init__(self, app_id: str, app_secret: str):
         self.app_id = app_id
@@ -52,60 +51,125 @@ class Twitch:
                 f'Bearer {self.__user_auth_token if self.__has_user_auth else self.__app_auth_token}'
         return header
 
+    def __refresh_used_token(self):
+        """Refreshes the currently used token"""
+        if self.__has_user_auth:
+            from .oauth import refresh_access_token
+            self.__user_auth_token,\
+                self.__user_auth_refresh_token = refresh_access_token(self.__user_auth_refresh_token,
+                                                                      self.app_id,
+                                                                      self.app_secret)
+        else:
+            self.__generate_app_token()
+
     def __api_post_request(self,
                            url: str,
                            auth_type: 'AuthType',
                            required_scope: List[AuthScope],
-                           data: Optional[dict] = None) -> requests.Response:
+                           data: Optional[dict] = None,
+                           retries: int = 1) -> requests.Response:
         """Make POST request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
+        req = None
         if data is None:
-            return requests.post(url, headers=headers)
+            req = requests.post(url, headers=headers)
         else:
-            return requests.post(url, headers=headers, json=data)
+            req = requests.post(url, headers=headers, json=data)
+        if not auth_type == AuthType.NONE and self.auto_refresh_auth and retries > 0:
+            if req.status_code == 401:
+                # unauthorized, lets try to refresh the token once
+                self.__refresh_used_token()
+                return self.__api_post_request(url, auth_type, required_scope, data=data, retries=retries - 1)
+            elif req.status_code == 503:
+                # service unavailable, retry exactly once as recommended by twitch documentation
+                return self.__api_post_request(url, auth_type, required_scope, data=data, retries=0)
+        return req
 
     def __api_put_request(self,
                           url: str,
                           auth_type: 'AuthType',
                           required_scope: List[AuthScope],
-                          data: Optional[dict] = None) -> requests.Response:
+                          data: Optional[dict] = None,
+                          retries: int = 1) -> requests.Response:
         """Make PUT request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
+        req = None
         if data is None:
-            return requests.put(url, headers=headers)
+            req = requests.put(url, headers=headers)
         else:
-            return requests.put(url, headers=headers, json=data)
+            req = requests.put(url, headers=headers, json=data)
+        if not auth_type == AuthType.NONE and self.auto_refresh_auth and retries > 0:
+            if req.status_code == 401:
+                # unauthorized, lets try to refresh the token once
+                self.__refresh_used_token()
+                return self.__api_put_request(url, auth_type, required_scope, data=data, retries=retries - 1)
+            elif req.status_code == 503:
+                # service unavailable, retry exactly once as recommended by twitch documentation
+                return self.__api_put_request(url, auth_type, required_scope, data=data, retries=0)
+        return req
 
     def __api_patch_request(self,
                             url: str,
                             auth_type: 'AuthType',
                             required_scope: List[AuthScope],
-                            data: Optional[dict] = None) -> requests.Response:
+                            data: Optional[dict] = None,
+                            retries: int = 1) -> requests.Response:
         """Make PUT request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
+        req = None
         if data is None:
-            return requests.patch(url, headers=headers)
+            req = requests.patch(url, headers=headers)
         else:
-            return requests.patch(url, headers=headers, json=data)
+            req = requests.patch(url, headers=headers, json=data)
+        if not auth_type == AuthType.NONE and self.auto_refresh_auth and retries > 0:
+            if req.status_code == 401:
+                # unauthorized, lets try to refresh the token once
+                self.__refresh_used_token()
+                return self.__api_patch_request(url, auth_type, required_scope, data=data, retries=retries - 1)
+            elif req.status_code == 503:
+                # service unavailable, retry exactly once as recommended by twitch documentation
+                return self.__api_patch_request(url, auth_type, required_scope, data=data, retries=0)
+        return req
 
     def __api_delete_request(self,
                              url: str,
                              auth_type: 'AuthType',
                              required_scope: List[AuthScope],
-                             data: Optional[dict] = None) -> requests.Response:
+                             data: Optional[dict] = None,
+                             retries: int = 1) -> requests.Response:
         """Make PUT request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
+        req = None
         if data is None:
-            return requests.delete(url, headers=headers)
+            req = requests.delete(url, headers=headers)
         else:
-            return requests.delete(url, headers=headers, json=data)
+            req = requests.delete(url, headers=headers, json=data)
+        if not auth_type == AuthType.NONE and self.auto_refresh_auth and retries > 0:
+            if req.status_code == 401:
+                # unauthorized, lets try to refresh the token once
+                self.__refresh_used_token()
+                return self.__api_delete_request(url, auth_type, required_scope, data=data, retries=retries - 1)
+            elif req.status_code == 503:
+                # service unavailable, retry exactly once as recommended by twitch documentation
+                return self.__api_delete_request(url, auth_type, required_scope, data=data, retries=0)
+        return req
 
     def __api_get_request(self, url: str,
                           auth_type: 'AuthType',
-                          required_scope: List[AuthScope]) -> requests.Response:
+                          required_scope: List[AuthScope],
+                          retries: int = 1) -> requests.Response:
         """Make GET request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
-        return requests.get(url, headers=headers)
+        req = requests.get(url, headers=headers)
+        if not auth_type == AuthType.NONE and self.auto_refresh_auth and retries > 0:
+            if req.status_code == 401:
+                # unauthorized, lets try to refresh the token once
+                self.__refresh_used_token()
+                return self.__api_get_request(url,  auth_type, required_scope, retries - 1)
+            elif req.status_code == 503:
+                # service unavailable, retry exactly once as recommended by twitch documentation
+                return self.__api_get_request(url, auth_type, required_scope, 0)
+        return req
 
     def __generate_app_token(self) -> None:
         params = {
@@ -159,6 +223,14 @@ class Twitch:
         :rtype: Union[str, None]
         """
         return self.__app_auth_token
+
+    def get_user_auth_token(self) -> Union[str, None]:
+        """Returns the current user auth token, None if no user Authentication is set
+
+        :return: current user auth token
+        :rtype: str, None
+        """
+        return self.__user_auth_token
 
     # ======================================================================================================================
     # API calls
