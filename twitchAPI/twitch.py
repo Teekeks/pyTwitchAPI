@@ -251,7 +251,7 @@ class Twitch:
                                 ended_at: Optional[datetime] = None,
                                 started_at: Optional[datetime] = None,
                                 report_type: Optional[AnalyticsReportType] = None) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.ANALYTICS_READ_EXTENSION`\n
+        """Requires User authentication with scope :class:`twitchAPI.types.AuthScope.ANALYTICS_READ_EXTENSION`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-analytics
 
         :param after: cursor for forward pagination
@@ -270,7 +270,7 @@ class Twitch:
         :param report_type: Type of analytics report that is returned
         :type report_type: :class:`~twitchAPI.types.AnalyticsReportType`
         :rtype: dict
-        :raises: :class:`twitchAPI.types.UnauthorizedException`,:class:`twitchAPI.types.MissingScopeException`,
+        :raises: :class:`twitchAPI.types.UnauthorizedException`, :class:`twitchAPI.types.MissingScopeException`,
                 ValueError
         """
         if ended_at is not None or started_at is not None:
