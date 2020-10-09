@@ -266,15 +266,15 @@ class Twitch:
         :param str extension_id: If this is specified, the returned URL points to an analytics report for just the specified
                             extension.
         :param int first: Maximum number of objects returned, range 1 to 100, default 20
-        :param :class:`datetime.datetime` ended_at: Ending date/time for returned reports, if this is provided,
+        :param datetime.datetime ended_at: Ending date/time for returned reports, if this is provided,
                         `started_at` must also be specified.
-        :param :class:`datetime.datetime` started_at: Starting date/time for returned reports, if this is provided,
+        :param datetime.datetime started_at: Starting date/time for returned reports, if this is provided,
                         `ended_at` must also be specified.
-        :param :class:`~twitchAPI.types.AnalyticsReportType` report_type: Type of analytics report that is returned
+        :param twitchAPI.types.AnalyticsReportType report_type: Type of analytics report that is returned
         :rtype: dict
-        :raises: :class:`twitchAPI.types.UnauthorizedException`: if user authentication is not set
-        :raises :class:`twitchAPI.types.MissingScopeException`: if the user authentication is missing the required scope
-        :raises :class:`twitchAPI.types.TwitchAuthorizationException`: if the user authentication token became invalid
+        :raises twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
                         and a re authentication failed
         :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in
                         range 1 to 100
