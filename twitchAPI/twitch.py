@@ -960,15 +960,23 @@ class Twitch:
     def get_broadcaster_subscriptions(self,
                                       broadcaster_id: str,
                                       user_ids: Optional[List[str]] = None) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.CHANNEL_READ_SUBSCRIPTIONS`\n
+        """Get all of a broadcaster’s subscriptions.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-broadcaster-subscriptions
 
-        :param broadcaster_id: str
-        :param user_ids: optional list of str with maximum 100 entries
+        :param str broadcaster_id: User ID of the broadcaster. Must match the User ID in the Bearer token.
+        :param list[str] user_ids: Unique identifier of account to get subscription status of. Maximum 100 entries
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if user_ids has more than 100 entries
         :rtype: dict
         """
         if user_ids is not None and len(user_ids) > 100:
-            raise Exception('user_ids can have a maximum of 100 entries')
+            raise ValueError('user_ids can have a maximum of 100 entries')
         param = {
             'broadcaster_id': broadcaster_id,
             'user_id': user_ids
