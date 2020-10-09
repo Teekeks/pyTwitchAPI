@@ -122,7 +122,7 @@ class Twitch:
                             required_scope: List[AuthScope],
                             data: Optional[dict] = None,
                             retries: int = 1) -> requests.Response:
-        """Make PUT request with authorization"""
+        """Make PATCH request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         req = None
         if data is None:
@@ -145,7 +145,7 @@ class Twitch:
                              required_scope: List[AuthScope],
                              data: Optional[dict] = None,
                              retries: int = 1) -> requests.Response:
-        """Make PUT request with authorization"""
+        """Make DELETE request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         req = None
         if data is None:
@@ -189,19 +189,21 @@ class Twitch:
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', params)
         result = requests.post(url)
         if result.status_code != 200:
-            raise Exception(f'Authentication failed with code {result.status_code} ({result.text})')
+            raise TwitchAuthorizationException(f'Authentication failed with code {result.status_code} ({result.text})')
         try:
             data = result.json()
             self.__app_auth_token = data['access_token']
         except ValueError:
-            raise Exception('Authentication response did not have a valid json body')
+            raise TwitchAuthorizationException('Authentication response did not have a valid json body')
         except KeyError:
-            raise Exception('Authentication response did not contain access_token')
+            raise TwitchAuthorizationException('Authentication response did not contain access_token')
 
     def authenticate_app(self, scope: List[AuthScope]) -> None:
         """Authenticate with a fresh generated app token
 
-        :param scope: List of `twitchAPI.types.AuthScope` to use
+        :param scope: List of Authorization scopes to use
+        :type scope: [ :class:`twitchAPI.types.AuthScope`]
+        :raises: :class:`twitchAPI.types.TwitchAuthorizationException`
         :return: None
         """
         self.__app_auth_scope = scope
@@ -212,8 +214,11 @@ class Twitch:
         """Set a user token to be used.
 
         :param token: the generated user token
-        :param scope: List of `AuthScope` that the given user token has
-        :param refresh_token: str, has to be provided if ``auto_refresh_user_auth`` is True
+        :type token: str
+        :param scope: List of Authorization Scopes that the given user token has
+        :type scope: [ :class:`twitchAPI.types.AuthScope`]
+        :param refresh_token: The generated refresh token, has to be provided if ``auto_refresh_user_auth`` is True
+        :type refresh_token: str
         :return: None
         :raises: ValueError
         """
@@ -251,7 +256,10 @@ class Twitch:
                                 ended_at: Optional[datetime] = None,
                                 started_at: Optional[datetime] = None,
                                 report_type: Optional[AnalyticsReportType] = None) -> dict:
-        """Requires User authentication with scope :class:`twitchAPI.types.AuthScope.ANALYTICS_READ_EXTENSION`\n
+        """Gets a URL that extension developers can use to download analytics reports (CSV files) for their extensions.
+        The URL is valid for 5 minutes.\n\n
+
+        Requires User authentication with scope :class:`twitchAPI.types.AuthScope.ANALYTICS_READ_EXTENSION`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-analytics
 
         :param after: cursor for forward pagination
@@ -271,7 +279,7 @@ class Twitch:
         :type report_type: :class:`~twitchAPI.types.AnalyticsReportType`
         :rtype: dict
         :raises: :class:`twitchAPI.types.UnauthorizedException`, :class:`twitchAPI.types.MissingScopeException`,
-                ValueError
+                ValueError, :class:`twitchAPI.types.TwitchAuthorizationException`
         """
         if ended_at is not None or started_at is not None:
             # you have to put in both:
