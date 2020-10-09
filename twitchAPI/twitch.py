@@ -633,19 +633,26 @@ class Twitch:
     def get_games(self,
                   game_ids: Optional[List[str]] = None,
                   names: Optional[List[str]] = None) -> dict:
-        """Requires no authentication.
+        """Gets game information by game ID or name.\n\n
+
+        Requires no authentication.
         In total, only 100 game ids and names can be fetched at once.
 
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-games
 
-        :param game_ids: optional list of str
-        :param names: optional list of str
+        :param list[str] game_ids: Game ID
+        :param list[str] names: Game Name
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if neither game_ids nor names are given or if game_ids and names are more than 100 entries
+                        combined.
         :rtype: dict
         """
         if game_ids is None and names is None:
-            raise Exception('at least one of either game_ids and names has to be set')
+            raise ValueError('at least one of either game_ids and names has to be set')
         if (len(game_ids) if game_ids is not None else 0) + (len(names) if names is not None else 0) > 100:
-            raise Exception('in total, only 100 game_ids and names can be passed')
+            raise ValueError('in total, only 100 game_ids and names can be passed')
         param = {
             'id': game_ids,
             'name': names
