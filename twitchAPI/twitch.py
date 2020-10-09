@@ -287,7 +287,7 @@ class Twitch:
         :rtype: dict
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in
@@ -339,7 +339,7 @@ class Twitch:
         :param ~twitchAPI.types.AnalyticsReportType report_type: Type of analytics report that is returned.
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in
@@ -385,7 +385,7 @@ class Twitch:
         :param str user_id: ID of the user whose results are returned; i.e., the person who paid for the Bits.
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if first is not in range 1 to 100
@@ -421,7 +421,7 @@ class Twitch:
         :param str after: cursor for forward pagination
         :param int first: Maximum number of objects returned, range 1 to 100, default 20
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the app authentication token became invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if first is not in range 1 to 100
@@ -454,7 +454,7 @@ class Twitch:
                 stream and the viewer’s experience of that stream). Default: False.
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
@@ -490,6 +490,8 @@ class Twitch:
         :param str before: Cursor for backward pagination
         :param ~datetime.datetime ended_at: Ending date/time for returned clips
         :param ~datetime.datetime started_at: Starting date/time for returned clips
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if you try to query more than 100 clips in one call or if first is not in range 1 to 100
         :rtype: dict
@@ -525,7 +527,7 @@ class Twitch:
 
         :param str manifest_id: Unique identifier of the manifest file to be uploaded. Must be 1-64 characters.
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the app authentication token became invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the the authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if length of manifest_id is not in range 1 to 64
@@ -553,7 +555,7 @@ class Twitch:
         :param int user_id: Represents the numeric Twitch user ID of the account which is going to receive the
                         entitlement associated with the code.
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the app authentication token became invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if length of code is not in range 1 to 20
@@ -582,7 +584,7 @@ class Twitch:
         :param int user_id: Represents the numeric Twitch user ID of the account which  is going to receive the
                         entitlement associated with the code.
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the app authentication token became invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if length of code is not in range 1 to 20
@@ -608,16 +610,17 @@ class Twitch:
         Requires no authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-top-games
 
-        :param str after: optional str
-        :param str before: optional str
-        :param int first: optional int in range 1 to 100
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if any used authentication token became invalid
+        :param str after: Cursor for forward pagination
+        :param str before: Cursor for backward pagination
+        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100
         :rtype: dict
         """
         if first < 1 or first > 100:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
         param = {
             'after': after,
             'before': before,
