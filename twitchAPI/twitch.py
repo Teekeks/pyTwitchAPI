@@ -997,7 +997,7 @@ class Twitch:
         :param str after: Cursor for forward pagination
         :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
         :param list[str] tag_ids: IDs of tags. Maximum 100 entries
-         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1019,10 +1019,16 @@ class Twitch:
 
     def get_stream_tags(self,
                         broadcaster_id: str) -> dict:
-        """Requires App authentication\n
+        """Gets the list of tags for a specified stream (channel).\n\n
+
+        Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-tags
 
-        :param broadcaster_id: str, id of streamer
+        :param str broadcaster_id: ID of the stream thats tags are going to be fetched
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
