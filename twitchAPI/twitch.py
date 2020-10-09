@@ -504,6 +504,7 @@ class Twitch:
             'clip_id': clip_id,
             'after': after,
             'before': before,
+            'first': first,
             'ended_at': ended_at.isoformat() if ended_at is not None else None,
             'started_at': started_at.isoformat() if started_at is not None else None
         }
