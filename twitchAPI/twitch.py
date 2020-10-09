@@ -834,15 +834,23 @@ class Twitch:
     def create_stream_marker(self,
                              user_id: str,
                              description: Optional[str] = None) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.USER_EDIT_BROADCAST`\n
+        """Creates a marker in the stream of a user specified by user ID.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-stream-marker
 
-        :param user_id: str
-        :param description: optional str with max length of 140
+        :param str user_id: ID of the broadcaster in whose live stream the marker is created.
+        :param str description: Description of or comments on the marker. Max length is 140 characters.
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if description has more than 140 characters
         :rtype: dict
         """
         if description is not None and len(description) > 140:
-            raise Exception('max length for description is 140')
+            raise ValueError('max length for description is 140')
         url = build_url(TWITCH_API_BASE_URL + 'streams/markers', {})
         body = {'user_id': user_id}
         if description is not None:
