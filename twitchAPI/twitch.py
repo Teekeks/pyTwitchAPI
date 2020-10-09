@@ -989,18 +989,25 @@ class Twitch:
                             after: Optional[str] = None,
                             first: int = 20,
                             tag_ids: Optional[List[str]] = None) -> dict:
-        """Requires App authentication\n
+        """Gets the list of all stream tags defined by Twitch, optionally filtered by tag ID(s).\n\n
+
+        Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-all-stream-tags
 
-        :param after: optional str
-        :param first: optional int in range 1 to 100
-        :param tag_ids: optional list str with maximum 100 entries
+        :param str after: Cursor for forward pagination
+        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :param list[str] tag_ids: IDs of tags. Maximum 100 entries
+         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100 or tag_ids has more than 100 entries
         :rtype: dict
         """
         if first < 1 or first > 100:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
         if tag_ids is not None and len(tag_ids) > 100:
-            raise Exception('tag_ids can not have more than 100 entries')
+            raise ValueError('tag_ids can not have more than 100 entries')
         param = {
             'after': after,
             'first': first,
