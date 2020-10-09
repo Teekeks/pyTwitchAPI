@@ -702,17 +702,26 @@ class Twitch:
                           user_id: Optional[str] = None,
                           after: Optional[str] = None,
                           first: int = 20) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.MODERATION_READ`\n
+        """Returns all user bans and un-bans in a channel.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-banned-events
 
-        :param broadcaster_id: str
-        :param user_id: optional str
-        :param after: optional str
-        :param first: optional int in range 1 to 100
+        :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
+        :param str user_id: Filters the results and only returns a status object for users who are banned in
+                        this channel and have a matching user_id
+        :param str after: Cursor for forward pagination
+        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 ot 100
         :rtype: dict
         """
         if first > 100 or first < 1:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
         param = {
             'broadcaster_id': broadcaster_id,
             'user_id': user_id,
