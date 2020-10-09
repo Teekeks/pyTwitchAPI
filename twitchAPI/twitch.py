@@ -262,24 +262,22 @@ class Twitch:
         Requires User authentication with scope :class:`twitchAPI.types.AuthScope.ANALYTICS_READ_EXTENSION`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-analytics
 
-        :param after: cursor for forward pagination
-        :type after: str
-        :param extension_id: If this is specified, the returned URL points to an analytics report for just the specified
+        :param str after: cursor for forward pagination
+        :param str extension_id: If this is specified, the returned URL points to an analytics report for just the specified
                             extension.
-        :type extension_id: str
-        :param first: Maximum number of objects returned, range 1 to 100, default 20
-        :type first: int
-        :param ended_at: Ending date/time for returned reports, if this is provided, `started_at` must also be
-                            specified.
-        :type ended_at: :class:`datetime.datetime`
-        :param started_at: Starting date/time for returned reports, if this is provided, `ended_at` must also be
-                            specified.
-        :type started_at: :class:`datetime.datetime`
-        :param report_type: Type of analytics report that is returned
-        :type report_type: :class:`~twitchAPI.types.AnalyticsReportType`
+        :param int first: Maximum number of objects returned, range 1 to 100, default 20
+        :param :class:`datetime.datetime` ended_at: Ending date/time for returned reports, if this is provided,
+                        `started_at` must also be specified.
+        :param :class:`datetime.datetime` started_at: Starting date/time for returned reports, if this is provided,
+                        `ended_at` must also be specified.
+        :param :class:`~twitchAPI.types.AnalyticsReportType` report_type: Type of analytics report that is returned
         :rtype: dict
-        :raises: :class:`twitchAPI.types.UnauthorizedException`, :class:`twitchAPI.types.MissingScopeException`,
-                ValueError, :class:`twitchAPI.types.TwitchAuthorizationException`
+        :raises: :class:`twitchAPI.types.UnauthorizedException`: if user authentication is not set
+        :raises :class:`twitchAPI.types.MissingScopeException`: if the user authentication is missing the required scope
+        :raises :class:`twitchAPI.types.TwitchAuthorizationException`: if the user authentication token became invalid
+                        and a re authentication failed
+        :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in
+                        range 1 to 100
         """
         if ended_at is not None or started_at is not None:
             # you have to put in both:
