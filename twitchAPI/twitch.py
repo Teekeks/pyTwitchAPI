@@ -863,28 +863,43 @@ class Twitch:
                     after: Optional[str] = None,
                     before: Optional[str] = None,
                     first: int = 20,
-                    game_id: Optional[str] = None,
+                    game_id: Optional[List[str]] = None,
                     language: Optional[List[str]] = None,
                     user_id: Optional[List[str]] = None,
                     user_login: Optional[List[str]] = None) -> dict:
-        """Requires no authentication.\n
+        """Gets information about active streams. Streams are returned sorted by number of current viewers, in
+        descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join
+        and leave streams.\n\n
+
+        Requires no authentication.\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-streams
 
-        :param after: optional str
-        :param before: optional str
-        :param first: optional int in range 1 to 100
-        :param game_id: optional str
-        :param language: optional list of str with max length of 100
-        :param user_id: optional list of str with max length of 100
-        :param user_login: optional list of str with max length of 100
+        :param str after: Cursor for forward pagination
+        :param str before: Cursor for backward pagination
+        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :param list[str] game_id: Returns streams broadcasting a specified game ID. You can specify up to 100 IDs.
+        :param list[str] language: Stream language. You can specify up to 100 languages.
+        :param list[str] user_id: Returns streams broadcast by one or more specified user IDs. You can specify up
+                        to 100 IDs.
+        :param list[str] user_login: Returns streams broadcast by one or more specified user login names.
+                        You can specify up to 100 names.
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100 or one of the following fields have more than 100 entries:
+                        `user_id, game_id, language, user_login`
         :rtype: dict
         """
         if user_id is not None and len(user_id) > 100:
-            raise Exception('a maximum of 100 user_ids are allowed')
+            raise ValueError('a maximum of 100 user_id entries are allowed')
         if user_login is not None and len(user_login) > 100:
-            raise Exception('a maximum of 100 user_logins are allowed')
+            raise ValueError('a maximum of 100 user_login entries are allowed')
+        if language is not None and len(language) > 100:
+            raise ValueError('a maximum of 100 languages are allowed')
+        if game_id is not None and len(game_id) > 100:
+            raise ValueError('a maximum of 100 game_id entries are allowed')
         if first > 100 or first < 1:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
         param = {
             'after': after,
             'before': before,
