@@ -443,11 +443,20 @@ class Twitch:
     def create_clip(self,
                     broadcaster_id: str,
                     has_delay: bool = False) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.CLIPS_EDIT`\n
+        """Creates a clip programmatically. This returns both an ID and an edit URL for the new clip.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CLIPS_EDIT`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-clip
 
-        :param broadcaster_id: str
-        :param has_delay: optional bool
+        :param str broadcaster_id: Broadcaster ID of the stream from which the clip will be made.
+        :param bool has_delay: If False, the clip is captured from the live stream when the API is called; otherwise,
+                a delay is added before the clip is captured (to account for the brief delay between the broadcaster’s
+                stream and the viewer’s experience of that stream). Default: False.
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
         param = {
@@ -465,19 +474,30 @@ class Twitch:
                   after: Optional[str] = None,
                   before: Optional[str] = None,
                   ended_at: Optional[datetime] = None,
-                  started_at: Optional[datetime] = None) -> dict:
-        """Requires no authentication\n
+                  started_at: Optional[datetime] = None,
+                  first: int = 20) -> dict:
+        """Gets clip information by clip ID (one or more), broadcaster ID (one only), or game ID (one only).
+        Clips are returned sorted by view count, in descending order.\n\n
+
+        Requires no authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-clips
 
-        :param broadcaster_id: str
-        :param game_id: str
-        :param clip_id: list of str
-        :param after: optional str
-        :param before: optional str
-        :param ended_at: optional :class:`~datetime.datetime`
-        :param started_at: optional :class:`~datetime.datetime`
+        :param str broadcaster_id: ID of the broadcaster for whom clips are returned.
+        :param str game_id: ID of the game for which clips are returned.
+        :param list[str] clip_id: ID of the clip being queried. Limit: 100.
+        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :param str after: Cursor for forward pagination
+        :param str before: Cursor for backward pagination
+        :param ~datetime.datetime ended_at: Ending date/time for returned clips
+        :param ~datetime.datetime started_at: Starting date/time for returned clips
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if you try to query more than 100 clips in one call or if first is not in range 1 to 100
         :rtype: dict
         """
+        if len(clip_id) > 100:
+            raise ValueError('A maximum of 100 clips can be querried in one call')
+        if first < 1 or first > 100:
+            raise ValueError('first must be in range 1 to 100')
         param = {
             'broadcaster_id': broadcaster_id,
             'game_id': game_id,
@@ -494,15 +514,24 @@ class Twitch:
 
     def create_entitlement_grants_upload_url(self,
                                              manifest_id: str) -> dict:
-        """Requires App authentication\n
+        """Creates a URL where you can upload a manifest file and notify users that they have an entitlement.
+        Entitlements are digital items that users are entitled to use.
+        Twitch entitlements are granted to users gratis or as part of a purchase on Twitch.\n\n
+
+        Requires App authentication\n
         For detailed documentation, see here:
         https://dev.twitch.tv/docs/api/reference#create-entitlement-grants-upload-url
 
-        :param manifest_id: str
+        :param str manifest_id: Unique identifier of the manifest file to be uploaded. Must be 1-64 characters.
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the app authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if length of manifest_id is not in range 1 to 64
         :rtype: dict
         """
         if len(manifest_id) < 1 or len(manifest_id) > 64:
-            raise Exception('manifest_id must be between 1 and 64 characters long!')
+            raise ValueError('manifest_id must be between 1 and 64 characters long!')
         param = {
             'manifest_id': manifest_id,
             'type': 'bulk_drops_grant'
@@ -514,15 +543,23 @@ class Twitch:
     def get_code_status(self,
                         code: List[str],
                         user_id: int) -> dict:
-        """Requires App authentication\n
+        """Gets the status of one or more provided Bits codes.\n\n
+
+        Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-code-status
 
-        :param code: list of str, maximum of 20 entries
-        :param user_id: int
+        :param list[str] code: The code to get the status of. Maximum of 20 entries
+        :param int user_id: Represents the numeric Twitch user ID of the account which is going to receive the
+                        entitlement associated with the code.
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the app authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if length of code is not in range 1 to 20
         :rtype: dict
         """
         if len(code) > 20 or len(code) < 1:
-            raise Exception('only between 1 and 20 codes are allowed')
+            raise ValueError('only between 1 and 20 codes are allowed')
         param = {
             'code': code,
             'user_id': user_id
@@ -535,7 +572,9 @@ class Twitch:
     def redeem_code(self,
                     code: List[str],
                     user_id: int) -> dict:
-        """Requires App authentication\n
+        """Redeems one or more provided Bits codes to the authenticated Twitch user.\n\n
+
+        Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#redeem-code
 
         :param code: list of str, maximum of 20 entries
