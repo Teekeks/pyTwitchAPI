@@ -578,12 +578,18 @@ class Twitch:
         Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#redeem-code
 
-        :param code: list of str, maximum of 20 entries
-        :param user_id: int
+        :param list[str] code: The code to redeem to the authenticated user’s account. Maximum of 20 entries
+        :param int user_id: Represents the numeric Twitch user ID of the account which  is going to receive the
+                        entitlement associated with the code.
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the app authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if length of code is not in range 1 to 20
         :rtype: dict
         """
         if len(code) > 20 or len(code) < 1:
-            raise Exception('only between 1 and 20 codes are allowed')
+            raise ValueError('only between 1 and 20 codes are allowed')
         param = {
             'code': code,
             'user_id': user_id
