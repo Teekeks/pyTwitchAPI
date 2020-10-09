@@ -83,7 +83,7 @@ class Twitch:
             req = requests.post(url, headers=headers)
         else:
             req = requests.post(url, headers=headers, json=data)
-        if not auth_type == AuthType.NONE and self.auto_refresh_auth and retries > 0:
+        if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
                 self.__refresh_used_token()
@@ -91,7 +91,7 @@ class Twitch:
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_post_request(url, auth_type, required_scope, data=data, retries=0)
-        elif not auth_type == AuthType.NONE and self.auto_refresh_auth and retries <= 0:
+        elif self.auto_refresh_auth and retries <= 0:
             if req.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
         return req
@@ -109,7 +109,7 @@ class Twitch:
             req = requests.put(url, headers=headers)
         else:
             req = requests.put(url, headers=headers, json=data)
-        if not auth_type == AuthType.NONE and self.auto_refresh_auth and retries > 0:
+        if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
                 self.__refresh_used_token()
@@ -117,7 +117,7 @@ class Twitch:
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_put_request(url, auth_type, required_scope, data=data, retries=0)
-        elif not auth_type == AuthType.NONE and self.auto_refresh_auth and retries <= 0:
+        elif self.auto_refresh_auth and retries <= 0:
             if req.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
         return req
@@ -135,7 +135,7 @@ class Twitch:
             req = requests.patch(url, headers=headers)
         else:
             req = requests.patch(url, headers=headers, json=data)
-        if not auth_type == AuthType.NONE and self.auto_refresh_auth and retries > 0:
+        if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
                 self.__refresh_used_token()
@@ -143,7 +143,7 @@ class Twitch:
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_patch_request(url, auth_type, required_scope, data=data, retries=0)
-        elif not auth_type == AuthType.NONE and self.auto_refresh_auth and retries <= 0:
+        elif self.auto_refresh_auth and retries <= 0:
             if req.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
         return req
@@ -161,7 +161,7 @@ class Twitch:
             req = requests.delete(url, headers=headers)
         else:
             req = requests.delete(url, headers=headers, json=data)
-        if not auth_type == AuthType.NONE and self.auto_refresh_auth and retries > 0:
+        if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
                 self.__refresh_used_token()
@@ -169,7 +169,7 @@ class Twitch:
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_delete_request(url, auth_type, required_scope, data=data, retries=0)
-        elif not auth_type == AuthType.NONE and self.auto_refresh_auth and retries <= 0:
+        elif self.auto_refresh_auth and retries <= 0:
             if req.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
         return req
@@ -181,7 +181,7 @@ class Twitch:
         """Make GET request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         req = requests.get(url, headers=headers)
-        if not auth_type == AuthType.NONE and self.auto_refresh_auth and retries > 0:
+        if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
                 self.__refresh_used_token()
@@ -189,7 +189,7 @@ class Twitch:
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_get_request(url, auth_type, required_scope, 0)
-        elif not auth_type == AuthType.NONE and self.auto_refresh_auth and retries <= 0:
+        elif self.auto_refresh_auth and retries <= 0:
             if req.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
         return req
@@ -603,12 +603,17 @@ class Twitch:
                       after: Optional[str] = None,
                       before: Optional[str] = None,
                       first: int = 20) -> dict:
-        """Requires no authentication\n
+        """Gets games sorted by number of current viewers on Twitch, most popular first.\n\n
+
+        Requires no authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-top-games
 
-        :param after: optional str
-        :param before: optional str
-        :param first: optional int in range 1 to 100
+        :param str after: optional str
+        :param str before: optional str
+        :param int first: optional int in range 1 to 100
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if any used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
         if first < 1 or first > 100:
