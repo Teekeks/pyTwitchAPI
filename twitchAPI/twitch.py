@@ -279,17 +279,17 @@ class Twitch:
         :param str extension_id: If this is specified, the returned URL points to an analytics report for just the specified
                             extension.
         :param int first: Maximum number of objects returned, range 1 to 100, default 20
-        :param datetime.datetime ended_at: Ending date/time for returned reports, if this is provided,
+        :param ~datetime.datetime ended_at: Ending date/time for returned reports, if this is provided,
                         `started_at` must also be specified.
-        :param datetime.datetime started_at: Starting date/time for returned reports, if this is provided,
+        :param ~datetime.datetime started_at: Starting date/time for returned reports, if this is provided,
                         `ended_at` must also be specified.
-        :param twitchAPI.types.AnalyticsReportType report_type: Type of analytics report that is returned
+        :param ~twitchAPI.types.AnalyticsReportType report_type: Type of analytics report that is returned
         :rtype: dict
-        :raises twitchAPI.types.UnauthorizedException: if user authentication is not set
-        :raises twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
-        :raises twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
                         and a re authentication failed
-        :raises twitchAPI.types.TwitchBackendException: if the twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in
                         range 1 to 100
         """
@@ -323,28 +323,36 @@ class Twitch:
                            ended_at: Optional[datetime] = None,
                            started_at: Optional[datetime] = None,
                            report_type: Optional[AnalyticsReportType] = None) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.ANALYTICS_READ_GAMES`\n
+        """Gets a URL that game developers can use to download analytics reports (CSV files) for their games.
+        The URL is valid for 5 minutes.\n\n
+
+        Requires User authentication with scope :py:const:`twitchAPI.types.AuthScope.ANALYTICS_READ_GAMES`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-game-analytics
 
-        :param after: optional str
-        :param first: optional int in range 1 to 100
-        :param game_id: optional str
-        :param ended_at: optional :class:`~datetime.datetime`
-        :param started_at: optional :class:`~datetime.datetime`
-        :param report_type: optional :class:`twitchAPI.types.AnalyticsReportType`
-        :raises twitchAPI.types.UnauthorizedException: if user authentication is not set
-        :raises twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
-        :raises twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
+        :param str after: cursor for forward pagination
+        :param int first: Maximum number of objects returned, range 1 to 100, default 20
+        :param str game_id: Game ID
+        :param ~datetime.datetime ended_at: Ending date/time for returned reports, if this is provided,
+                        `started_at` must also be specified.
+        :param ~datetime.datetime started_at: Starting date/time for returned reports, if this is provided,
+                        `ended_at` must also be specified.
+        :param ~twitchAPI.types.AnalyticsReportType report_type: Type of analytics report that is returned.
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
                         and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in
+                        range 1 to 100
         :rtype: dict
         """
         if ended_at is not None or started_at is not None:
             if ended_at is None or started_at is None:
-                raise Exception('you must specify both ended_at and started_at')
+                raise ValueError('you must specify both ended_at and started_at')
             if ended_at < started_at:
-                raise Exception('ended_at must be after started_at')
+                raise ValueError('ended_at must be after started_at')
         if first > 100 or first < 1:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
         url_params = {
             'after': after,
             'ended_at': ended_at.isoformat() if ended_at is not None else None,
@@ -365,17 +373,26 @@ class Twitch:
                              period: TimePeriod = TimePeriod.ALL,
                              started_at: Optional[datetime] = None,
                              user_id: Optional[str] = None) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.BITS_READ`\n
+        """Gets a ranked list of Bits leaderboard information for an authorized broadcaster.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.BITS_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-bits-leaderboard
 
-        :param count: optional int in range 1 to 100
-        :param period: optional :class:`~twitchAPI.types.TimePeriod`
-        :param started_at: optional :class:`~datetime.datetime`
-        :param user_id: optional str
+        :param int count: Number of results to be returned. In range 1 to 100, default 10
+        :param ~twitchAPI.types.TimePeriod period: Time period over which data is aggregated, default
+                :const:`twitchAPI.types.TimePeriod.ALL`
+        :param ~datetime.datetime started_at: Timestamp for the period over which the returned data is aggregated.
+        :param str user_id: ID of the user whose results are returned; i.e., the person who paid for the Bits.
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100
         :rtype: dict
         """
         if count > 100 or count < 1:
-            raise Exception('count must be between 1 and 100')
+            raise ValueError('count must be between 1 and 100')
         url_params = {
             'count': count,
             'period': period.value,
@@ -392,17 +409,26 @@ class Twitch:
                                    transaction_id: Optional[str] = None,
                                    after: Optional[str] = None,
                                    first: int = 20) -> dict:
-        """Requires App authentication\n
+        """Get Extension Transactions allows extension back end servers to fetch a list of transactions that have
+        occurred for their extension across all of Twitch.
+        A transaction is a record of a user exchanging Bits for an in-Extension digital good.\n\n
+
+        Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-transactions
 
-        :param extension_id: str
-        :param transaction_id: optional str
-        :param after: optional str
-        :param first: optional int in range 1 to 100
+        :param str extension_id: ID of the extension to list transactions for.
+        :param str transaction_id: Transaction IDs to look up.
+        :param str after: cursor for forward pagination
+        :param int first: Maximum number of objects returned, range 1 to 100, default 20
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the app authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100
         :rtype: dict
         """
         if first > 100 or first < 1:
-            raise Exception("first must be between 1 and 100")
+            raise ValueError("first must be between 1 and 100")
         url_param = {
             'extension_id': extension_id,
             'id': transaction_id,
@@ -1072,7 +1098,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-information
 
         :param broadcaster_id: str
-        :rtype dict
+        :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'channels', {'broadcaster_id': broadcaster_id})
         response = self.__api_get_request(url, AuthType.APP, [])
