@@ -1,7 +1,0 @@
-twitchAPI.twitch.Twitch
-=======================
-
-.. currentmodule:: twitchAPI.twitch
-
-.. autoclass:: Twitch
-   :members:

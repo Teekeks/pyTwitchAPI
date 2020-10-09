@@ -6,3 +6,4 @@ example.py
 MANIFEST
 /dist/
 /twitchAPI.egg-info/
+/docs/_build/
