@@ -920,18 +920,32 @@ class Twitch:
                            after: Optional[str] = None,
                            before: Optional[str] = None,
                            first: int = 20) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.USER_READ_BROADCAST`\n
+        """Gets a list of markers for either a specified user’s most recent stream or a specified VOD/video (stream),
+        ordered by recency.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-markers
 
-        :param user_id: str
-        :param video_id: str
-        :param after: optional str
-        :param before: optional str
-        :param first: optional int in range 1 to 100
+        Only one of user_id and video_id must be specified.
+
+        :param str user_id: ID of the broadcaster from whose stream markers are returned.
+        :param str video_id: ID of the VOD/video whose stream markers are returned.
+        :param str after: Cursor for forward pagination
+        :param str before: Cursor for backward pagination
+        :param int first: Number of values to be returned when getting videos by user or game ID. Limit: 100.
+                        Default: 20.
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100 or neither user_id nor video_id is provided
         :rtype: dict
         """
         if first > 100 or first < 1:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
+        if user_id is None and video_id is None:
+            raise ValueError('you must specify either user_id and/or video_id')
         param = {
             'user_id': user_id,
             'video_id': video_id,
