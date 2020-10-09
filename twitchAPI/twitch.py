@@ -666,13 +666,20 @@ class Twitch:
                              msg_id: str,
                              msg_text: str,
                              user_id: str) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.MODERATION_READ`\n
+        """Determines whether a string message meets the channel’s AutoMod requirements.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#check-automod-status
 
-        :param broadcaster_id: str
-        :param msg_id: str
-        :param msg_text: str
-        :param user_id: str
+        :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
+        :param str msg_id: Developer-generated identifier for mapping messages to results.
+        :param str msg_text: Message text.
+        :param str user_id: User ID of the sender.
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
         # TODO you can pass multiple sets in the body, account for that
