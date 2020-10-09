@@ -164,11 +164,21 @@ class CodeStatus(Enum):
     UNKNOWN_VALUE = ''
 
 
-class UnauthorizedException(Exception):
+class TwitchAPIException(Exception):
+    """Base Twitch API Exception"""
+    pass
+
+
+class TwitchAuthorizationException(TwitchAPIException):
+    """Exception in the Twitch Authorization"""
+    pass
+
+
+class UnauthorizedException(TwitchAuthorizationException):
     """Not authorized to use this"""
     pass
 
 
-class MissingScopeException(Exception):
+class MissingScopeException(TwitchAuthorizationException):
     """authorization is missing scope"""
     pass
