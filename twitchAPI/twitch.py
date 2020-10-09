@@ -769,7 +769,7 @@ class Twitch:
 
     def get_moderators(self,
                        broadcaster_id: str,
-                       user_ids: Optional[str] = None,
+                       user_ids: Optional[List[str]] = None,
                        after: Optional[str] = None) -> dict:
         """Returns all moderators in a channel.\n\n
 
@@ -801,19 +801,30 @@ class Twitch:
 
     def get_moderator_events(self,
                              broadcaster_id: str,
-                             user_id: Optional[str] = None) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.MODERATION_READ`\n
+                             user_ids: Optional[List[str]] = None) -> dict:
+        """Returns a list of moderators or users added and removed as moderators from a channel.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-moderator-events
 
-        :param broadcaster_id: str
-        :param user_id: optional str
+        :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
+        :param list[str] user_ids: Filters the results and only returns a status object for users who are moderator in
+                        this channel and have a matching user_id. Maximum 100
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if user_ids has more than 100 entries
         :rtype: dict
         """
+        if user_ids is not None and len(user_ids) > 100:
+            raise ValueError('user_ids can only be 100 entries long')
         param = {
             'broadcaster_id': broadcaster_id,
-            'user_id': user_id
+            'user_id': user_ids
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators/events', param, remove_none=True)
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators/events', param, remove_none=True, split_lists=True)
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
         data = result.json()
         data = fields_to_enum(data, ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
