@@ -91,6 +91,9 @@ class Twitch:
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_post_request(url, auth_type, required_scope, data=data, retries=0)
+        elif not auth_type == AuthType.NONE and self.auto_refresh_auth and retries <= 0:
+            if req.status_code == 503:
+                raise TwitchBackendException('The Twitch API returns a server error')
         return req
 
     def __api_put_request(self,
@@ -114,6 +117,9 @@ class Twitch:
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_put_request(url, auth_type, required_scope, data=data, retries=0)
+        elif not auth_type == AuthType.NONE and self.auto_refresh_auth and retries <= 0:
+            if req.status_code == 503:
+                raise TwitchBackendException('The Twitch API returns a server error')
         return req
 
     def __api_patch_request(self,
@@ -137,6 +143,9 @@ class Twitch:
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_patch_request(url, auth_type, required_scope, data=data, retries=0)
+        elif not auth_type == AuthType.NONE and self.auto_refresh_auth and retries <= 0:
+            if req.status_code == 503:
+                raise TwitchBackendException('The Twitch API returns a server error')
         return req
 
     def __api_delete_request(self,
@@ -160,6 +169,9 @@ class Twitch:
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_delete_request(url, auth_type, required_scope, data=data, retries=0)
+        elif not auth_type == AuthType.NONE and self.auto_refresh_auth and retries <= 0:
+            if req.status_code == 503:
+                raise TwitchBackendException('The Twitch API returns a server error')
         return req
 
     def __api_get_request(self, url: str,
@@ -177,6 +189,9 @@ class Twitch:
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_get_request(url, auth_type, required_scope, 0)
+        elif not auth_type == AuthType.NONE and self.auto_refresh_auth and retries <= 0:
+            if req.status_code == 503:
+                raise TwitchBackendException('The Twitch API returns a server error')
         return req
 
     def __generate_app_token(self) -> None:
@@ -215,14 +230,12 @@ class Twitch:
 
         :param token: the generated user token
         :type token: str
-        :param scope: List of Authorization Scopes that the given user token has
-        :type scope: [ :class:`twitchAPI.types.AuthScope`]
-        :param refresh_token: The generated refresh token, has to be provided if ``auto_refresh_user_auth`` is True
-        :type refresh_token: str
+        :param list[twitchAPI.types.AuthScope] scope: List of Authorization Scopes that the given user token has
+        :param str refresh_token: The generated refresh token, has to be provided if :attr:`auto_refresh_auth` is True
         :return: None
-        :raises: ValueError
+        :raises ValueError: if :attr:`auto_refresh_auth` is True but refresh_token is not set
         """
-        if refresh_token is None and self.auto_refresh_user_auth:
+        if refresh_token is None and self.auto_refresh_auth:
             raise ValueError('refresh_token has to be provided when auto_refresh_user_auth is True')
         self.__user_auth_token = token
         self.__user_auth_refresh_token = refresh_token
@@ -241,7 +254,7 @@ class Twitch:
         """Returns the current user auth token, None if no user Authentication is set
 
         :return: current user auth token
-        :rtype: str, None
+        :rtype: str or None
         """
         return self.__user_auth_token
 
@@ -259,7 +272,7 @@ class Twitch:
         """Gets a URL that extension developers can use to download analytics reports (CSV files) for their extensions.
         The URL is valid for 5 minutes.\n\n
 
-        Requires User authentication with scope :class:`twitchAPI.types.AuthScope.ANALYTICS_READ_EXTENSION`\n
+        Requires User authentication with scope :py:const:`twitchAPI.types.AuthScope.ANALYTICS_READ_EXTENSION`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-analytics
 
         :param str after: cursor for forward pagination
@@ -276,6 +289,7 @@ class Twitch:
         :raises twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
                         and a re authentication failed
+        :raises twitchAPI.types.TwitchBackendException: if the twitch API itself runs into problems
         :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in
                         range 1 to 100
         """
@@ -318,6 +332,10 @@ class Twitch:
         :param ended_at: optional :class:`~datetime.datetime`
         :param started_at: optional :class:`~datetime.datetime`
         :param report_type: optional :class:`twitchAPI.types.AnalyticsReportType`
+        :raises twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises twitchAPI.types.TwitchAuthorizationException: if the user authentication token became invalid
+                        and a re authentication failed
         :rtype: dict
         """
         if ended_at is not None or started_at is not None:

@@ -182,3 +182,8 @@ class UnauthorizedException(TwitchAuthorizationException):
 class MissingScopeException(TwitchAuthorizationException):
     """authorization is missing scope"""
     pass
+
+
+class TwitchBackendException(TwitchAPIException):
+    """when the Twitch API itself is down"""
+    pass
