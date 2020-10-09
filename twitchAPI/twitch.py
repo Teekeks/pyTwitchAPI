@@ -740,13 +740,21 @@ class Twitch:
                          user_id: Optional[str] = None,
                          after: Optional[str] = None,
                          before: Optional[str] = None) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.MODERATION_READ`\n
+        """Returns all banned and timed-out users in a channel.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-banned-users
 
-        :param broadcaster_id: str
-        :param user_id: optional str
-        :param after: optional str
-        :param before: optional str
+        :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
+        :param str user_id: Filters the results and only returns a status object for users who are banned in this
+                        channel and have a matching user_id.
+        :param str after: Cursor for forward pagination
+        :param str before: Cursor for backward pagination
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
         param = {
