@@ -1227,25 +1227,36 @@ class Twitch:
                    period: TimePeriod = TimePeriod.ALL,
                    sort: SortMethod = SortMethod.TIME,
                    video_type: VideoType = VideoType.ALL) -> dict:
-        """Requires no authentication.\n
+        """Gets video information by video ID (one or more), user ID (one only), or game ID (one only).\n\n
+
+        Requires App authentication.\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-videos
 
-        :param ids: optional list of str
-        :param user_id: optional str
-        :param game_id: optional str
-        :param after: optional str
-        :param before: optional str
-        :param first: optional int in range 1 to 100
-        :param language: optional str
-        :param period: optional :class:`~twitchAPI.types.TimePeriod`
-        :param sort: optional :class:`~twitchAPI.types.SortMethod`
-        :param video_type: optional :class:`~twitchAPI.types.VideoType`
+        :param list[str] ids: ID of the video being queried. Limit: 100.
+        :param str user_id: ID of the user who owns the video.
+        :param str game_id: ID of the game the video is of.
+        :param str after: Cursor for forward pagination
+        :param str before: Cursor for backward pagination
+        :param int first: Number of values to be returned when getting videos by user or game ID.
+                        Limit: 100. Default: 20.
+        :param str language: Language of the video being queried.
+        :param ~twitchAPI.types.TimePeriod period: Period during which the video was created.
+        :param ~twitchAPI.types.SortMethod sort: Sort order of the videos.
+        :param ~twitchAPI.types.VideoType video_type: Type of video.
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100, ids has more than 100 entries or none of ids, user_id
+                        nor game_id is provided.
         :rtype: dict
         """
         if ids is None and user_id is None and game_id is None:
-            raise Exception('you must use either ids, user_id or game_id')
+            raise ValueError('you must use either ids, user_id or game_id')
         if first < 1 or first > 100:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
+        if ids is not None and len(ids) > 100:
+            raise ValueError('ids can only have a maximum of 100 entries')
         param = {
             'id': ids,
             'user_id': user_id,
@@ -1259,7 +1270,7 @@ class Twitch:
             'type': video_type.value
         }
         url = build_url(TWITCH_API_BASE_URL + 'videos', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.NONE, [])
+        result = self.__api_get_request(url, AuthType.APP, [])
         data = result.json()
         data = make_fields_datetime(data, ['created_at', 'published_at'])
         data = fields_to_enum(data, ['type'], VideoType, VideoType.UNKNOWN)
