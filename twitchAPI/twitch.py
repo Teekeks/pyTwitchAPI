@@ -1324,13 +1324,20 @@ class Twitch:
                                    game_id: Optional[str] = None,
                                    broadcaster_language: Optional[str] = None,
                                    title: Optional[str] = None) -> bool:
-        """Requires User authentication\n
+        """Modifies channel information for users.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#modify-channel-information
 
-        :param broadcaster_id: str
-        :param game_id: optional str
-        :param broadcaster_language: optional str
-        :param title: optional str
+        :param str broadcaster_id: ID of the channel to be updated
+        :param str game_id: The current game ID being played on the channel
+        :param str broadcaster_language: The language of the channel
+        :param str title: The title of the stream
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: bool
         """
         if game_id is None and broadcaster_language is None and title is None:
