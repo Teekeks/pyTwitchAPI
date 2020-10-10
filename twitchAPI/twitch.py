@@ -1385,18 +1385,25 @@ class Twitch:
 
     def search_categories(self,
                           query: str,
-                          first: Optional[int] = None,
+                          first: Optional[int] = 20,
                           after: Optional[str] = None) -> dict:
-        """Requires App or User authentication\n
+        """Returns a list of games or categories that match the query via name either entirely or partially.\n\n
+
+        Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#search-categories
 
-        :param query: str, does NOT need to be URI encoded
-        :param first: optional int
-        :param after: optional str
+        :param str query: search query
+        :param int first: Maximum number of objects to return. Maximum: 100, Default: 20
+        :param str after: Cursor for forward pagination
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100
         :rtype: dict
         """
         if first < 1 or first > 100:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
         url = build_url(TWITCH_API_BASE_URL + 'search/categories',
                         {'query': query,
                          'first': first,
