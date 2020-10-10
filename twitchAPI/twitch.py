@@ -1433,15 +1433,23 @@ class Twitch:
     def start_commercial(self,
                          broadcaster_id: str,
                          length: int) -> dict:
-        """Requires User authentication with AuthScope.CHANNEL_EDIT_COMMERCIAL\n
+        """Starts a commercial on a specified channel.\n\n
+
+        Requires User authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_EDIT_COMMERCIAL`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#start-commercial
 
-        :param broadcaster_id: str
-        :param length: int, one of these: [30, 60, 90, 120, 150, 180]
+        :param str broadcaster_id: ID of the channel requesting a commercial
+        :param int length: Desired length of the commercial in seconds. , one of these: [30, 60, 90, 120, 150, 180]
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if length is not one of these: `30, 60, 90, 120, 150, 180`
         :rtype: dict
         """
         if length not in [30, 60, 90, 120, 150, 180]:
-            raise Exception('length needs to be one of these: [30, 60, 90, 120, 150, 180]')
+            raise ValueError('length needs to be one of these: [30, 60, 90, 120, 150, 180]')
         url = build_url(TWITCH_API_BASE_URL + 'channels/commercial',
                         {'broadcaster_id': broadcaster_id,
                          'length': length})
