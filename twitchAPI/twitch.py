@@ -1104,20 +1104,29 @@ class Twitch:
                           first: int = 20,
                           from_id: Optional[str] = None,
                           to_id: Optional[str] = None) -> dict:
-        """Requires no authentication.\n
+        """Gets information on follow relationships between two Twitch users.
+        Information returned is sorted in order, most recent follow first.\n\n
+
+        Requires App authentication.\n
         You have to use at least one of the following fields: from_id, to_id
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users-follows
 
-        :param after: optional str
-        :param first: optional int between 1 and 100
-        :param from_id: optional str
-        :param to_id: optional str
+        :param str after: Cursor for forward pagination
+        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :param str from_id: User ID. The request returns information about users who are being followed by
+                        the from_id user.
+        :param str to_id: User ID. The request returns information about users who are following the to_id user.
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100 or neither from_id nor to_id is provided
         :rtype: dict
         """
         if first > 100 or first < 1:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
         if from_id is None and to_id is None:
-            raise Exception('at least one of from_id and to_id needs to be set')
+            raise ValueError('at least one of from_id and to_id needs to be set')
         param = {
             'after': after,
             'first': first,
@@ -1125,7 +1134,7 @@ class Twitch:
             'to_id': to_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'users/follows', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.NONE, [])
+        result = self.__api_get_request(url, AuthType.APP, [])
         return make_fields_datetime(result.json(), ['followed_at'])
 
     def update_user(self,
