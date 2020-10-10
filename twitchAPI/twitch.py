@@ -1038,16 +1038,26 @@ class Twitch:
     def replace_stream_tags(self,
                             broadcaster_id: str,
                             tag_ids: List[str]) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.USER_EDIT_BROADCAST`\n
+        """Applies specified tags to a specified stream, overwriting any existing tags applied to that stream.
+        If no tags are specified, all tags previously applied to the stream are removed.
+        Automated tags are not affected by this operation.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#replace-stream-tags
 
-        :param broadcaster_id: str, id of streamer
-        :param tag_ids: list of str, tag ids to be set
-        :return: empty dict
+        :param str broadcaster_id: ID of the stream for which tags are to be replaced.
+        :param list[str] tag_ids: IDs of tags to be applied to the stream. Maximum of 100 supported.
+        :return: {}
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if more than 100 tag_ids where provided
         :rtype: dict
         """
         if len(tag_ids) > 100:
-            raise Exception('tag_ids can not have more than 100 entries')
+            raise ValueError('tag_ids can not have more than 100 entries')
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
         self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], data={'tag_ids': tag_ids})
         # this returns nothing
