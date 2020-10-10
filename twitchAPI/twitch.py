@@ -1486,11 +1486,18 @@ class Twitch:
     def delete_user_follows(self,
                             from_id: str,
                             to_id: str) -> bool:
-        """Requires User authentication with AuthScope.USER_EDIT_FOLLOWS\n
+        """Deletes a specified user from the followers of a specified channel.\n\n
+
+        Requires User authentication with :const:`twitchAPI.types.AuthScope.USER_EDIT_FOLLOWS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-user-follows
 
-        :param from_id: str
-        :param to_id: str
+        :param str from_id: User ID of the follower
+        :param str to_id: Channel to be unfollowed by the user
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: bool
         """
         url = build_url(TWITCH_API_BASE_URL + 'users/follows',
