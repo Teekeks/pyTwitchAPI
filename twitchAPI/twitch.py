@@ -1066,25 +1066,37 @@ class Twitch:
     def get_users(self,
                   user_ids: Optional[List[str]] = None,
                   logins: Optional[List[str]] = None) -> dict:
-        """Requires no authentication.\n
-        You have to either provide user_ids or logins or both. The maximum combined entries should not exceed 100.
+        """Gets information about one or more specified Twitch users.
+        Users are identified by optional user IDs and/or login name.
+        If neither a user ID nor a login name is specified, the user is the one authenticated.\n\n
+
+        Requires App authentication if either user_ids or logins is provided, otherwise requires a User authentication.
+        If you have user Authentication and want to get your email info, you also need the authentication scope
+        :const:`twitchAPI.types.AuthScope.USER_READ_EMAIL`\n
+        If you provide user_ids and/or logins, the maximum combined entries should not exceed 100.
 
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users
 
-        :param user_ids: optional list of str
-        :param logins: optional list of str
+        :param list[str] user_ids: User ID. Multiple user IDs can be specified. Limit: 100.
+        :param list[str] logins: User login name. Multiple login names can be specified. Limit: 100.
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if more than 100 combined user_ids and logins where provided
         :rtype: dict
         """
-        if user_ids is None and logins is None:
-            raise Exception('please either specify user_ids or logins')
         if (len(user_ids) if user_ids is not None else 0) + (len(logins) if logins is not None else 0) > 100:
-            raise Exception('the total number of entries in user_ids and logins can not be more than 100')
+            raise ValueError('the total number of entries in user_ids and logins can not be more than 100')
         url_params = {
             'id': user_ids,
             'login': logins
         }
         url = build_url(TWITCH_API_BASE_URL + 'users', url_params, remove_none=True, split_lists=True)
-        response = self.__api_get_request(url, AuthType.NONE, [])
+        response = self.__api_get_request(url,
+                                          AuthType.USER if user_ids is None and logins is None else AuthType.APP,
+                                          [])
         return response.json()
 
     def get_users_follows(self,
