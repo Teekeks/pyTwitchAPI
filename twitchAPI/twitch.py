@@ -1413,10 +1413,17 @@ class Twitch:
 
     def get_stream_key(self,
                        broadcaster_id: str) -> dict:
-        """Requires User authentication with AuthScope.CHANNEL_READ_STREAM_KEY\n
+        """Gets the channel stream key for a user.\n\n
+
+        Requires User authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_STREAM_KEY`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-key
 
-        :param broadcaster_id: str
+        :param str broadcaster_id: User ID of the broadcaster
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'streams/key', {'broadcaster_id': broadcaster_id})
