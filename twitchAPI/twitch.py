@@ -1303,10 +1303,16 @@ class Twitch:
 
     def get_channel_information(self,
                                 broadcaster_id: str) -> dict:
-        """Requires App or user authentication\n
+        """Gets channel information for users.\n\n
+
+        Requires App or user authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-information
 
-        :param broadcaster_id: str
+        :param str broadcaster_id: ID of the channel to be updated
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'channels', {'broadcaster_id': broadcaster_id})
