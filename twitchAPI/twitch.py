@@ -1531,17 +1531,28 @@ class Twitch:
                               first: Optional[int] = 1,
                               id: Optional[str] = None,
                               cursor: Optional[str] = None) -> dict:
-        """Requires App or User authentication with AuthScope.CHANNEL_READ_HYPE_TRAIN\n
+        """Gets the information of the most recent Hype Train of the given channel ID.
+        When there is currently an active Hype Train, it returns information about that Hype Train.
+        When there is currently no active Hype Train, it returns information about the most recent Hype Train.
+        After 5 days, if no Hype Train has been active, the endpoint will return an empty response.\n\n
+
+        Requires App or User authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_HYPE_TRAIN`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-hype-train-events
 
-        :param broadcaster_id: str
-        :param first: optional int, default 1, max 100
-        :param id: optional str
-        :param cursor: optional str
+        :param str broadcaster_id: User ID of the broadcaster.
+        :param int first: Maximum number of objects to return. Maximum: 100. Default: 1.
+        :param str id: The id of the wanted event, if known
+        :param str cursor: Cursor for forward pagination
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user or app authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100
         :rtype: dict
         """
         if first < 1 or first > 100:
-            raise Exception('first must be between 1 and 100')
+            raise ValueError('first must be between 1 and 100')
         url = build_url(TWITCH_API_BASE_URL + 'hypetrain/events',
                         {'broadcaster_id': broadcaster_id,
                          'first': first,
