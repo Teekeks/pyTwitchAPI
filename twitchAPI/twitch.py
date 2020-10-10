@@ -1566,3 +1566,43 @@ class Twitch:
         data = fields_to_enum(data, ['type'], HypeTrainContributionMethod, HypeTrainContributionMethod.UNKNOWN)
         return data
 
+    def get_drops_entitlements(self,
+                               id: Optional[str] = None,
+                               user_id: Optional[str] = None,
+                               game_id: Optional[str] = None,
+                               after: Optional[str] = None,
+                               first: Optional[int] = 20) -> dict:
+        """Gets a list of entitlements for a given organization that have been granted to a game, user, or both.
+
+        OAuth Token Client ID must have ownership of Game\n\n
+
+        Requires App authentication\n
+        See Twitch documentation for valid parameter combinations!\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-drops-entitlements
+
+        :param str id: Unique Identifier of the entitlement
+        :param str user_id: A Twitch User ID
+        :param str game_id: A Twitch Game ID
+        :param str after: The cursor used to fetch the next page of data.
+        :param int first: Maximum number of entitlements to return. Maximum: 100, Default 20.
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100
+        :rtype: dict
+        """
+        if first < 1 or first > 100:
+            raise ValueError('first must be between 1 and 100')
+        url = build_url(TWITCH_API_BASE_URL + 'entitlements/drops',
+                        {
+                            'id': id,
+                            'user_id': user_id,
+                            'game_id': game_id,
+                            'after': after,
+                            'first': first
+                        }, remove_none=True)
+        response = self.__api_get_request(url, AuthType.APP, [])
+        data = make_fields_datetime(response.json(), ['timestamp'])
+        return data
+
