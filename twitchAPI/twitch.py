@@ -1139,10 +1139,17 @@ class Twitch:
 
     def update_user(self,
                     description: str) -> dict:
-        """Requires User authentication with scope :class:`~AuthScope.USER_EDIT`\n
+        """Updates the description of the Authenticated user.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-user
 
-        :param description: str
+        :param str description: User’s account description
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'users', {'description': description})
