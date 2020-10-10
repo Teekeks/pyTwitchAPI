@@ -17,8 +17,6 @@ Example Usage:
     # lets create a simple app authentication:
     twitch.authenticate_app([])
     pprint(twitch.get_users(logins=['your_twitch_username']))
-
- :annotation: The Twitch API client
 """
 import requests
 from typing import Union, List, Optional
@@ -234,9 +232,8 @@ class Twitch:
     def authenticate_app(self, scope: List[AuthScope]) -> None:
         """Authenticate with a fresh generated app token
 
-        :param scope: List of Authorization scopes to use
-        :type scope: [ :class:`twitchAPI.types.AuthScope`]
-        :raises: :class:`twitchAPI.types.TwitchAuthorizationException`
+        :param list[~twitchAPI.types.AuthScope] scope: List of Authorization scopes to use
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the authentication fails
         :return: None
         """
         self.__app_auth_scope = scope
@@ -246,9 +243,8 @@ class Twitch:
     def set_user_authentication(self, token: str, scope: List[AuthScope], refresh_token: Optional[str] = None) -> None:
         """Set a user token to be used.
 
-        :param token: the generated user token
-        :type token: str
-        :param list[twitchAPI.types.AuthScope] scope: List of Authorization Scopes that the given user token has
+        :param str token: the generated user token
+        :param list[~twitchAPI.types.AuthScope] scope: List of Authorization Scopes that the given user token has
         :param str refresh_token: The generated refresh token, has to be provided if :attr:`auto_refresh_auth` is True
         :return: None
         :raises ValueError: if :attr:`auto_refresh_auth` is True but refresh_token is not set
