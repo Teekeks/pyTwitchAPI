@@ -1,6 +1,24 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 """
-The Twitch API client.
+The Twitch API client
+---------------------
+
+This is the base of this library, it handles authentication renewal, error handling and permission management.
+
+**************
+Example Usage:
+**************
+
+.. code-block:: python
+
+    from twitchAPI.twitch import Twitch
+    from pprint import pprint
+    twitch = Twitch('my_app_key', 'my_app_secret')
+    # lets create a simple app authentication:
+    twitch.authenticate_app([])
+    pprint(twitch.get_users(logins=['your_twitch_username']))
+
+ :annotation: The Twitch API client
 """
 import requests
 from typing import Union, List, Optional
