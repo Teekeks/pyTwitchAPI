@@ -1338,10 +1338,11 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if none of the following fiends are specified: `game_id, broadcaster_language, title`
         :rtype: bool
         """
         if game_id is None and broadcaster_language is None and title is None:
-            raise Exception('You need to specify at least one of the optional parameter')
+            raise ValueError('You need to specify at least one of the optional parameter')
         url = build_url(TWITCH_API_BASE_URL + 'channels',
                         {'broadcaster_id': broadcaster_id,
                          'game_id': game_id,
