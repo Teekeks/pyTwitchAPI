@@ -1193,14 +1193,27 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
         return result.json()
 
-    def update_user_extensions(self) -> dict:
-        """"Requires User authentication with scope :class:`~AuthScope.USER_EDIT_BROADCAST`\n
+    def update_user_extensions(self,
+                               data: dict) -> dict:
+        """"Updates the activation state, extension ID, and/or version number of installed extensions
+        for the authenticated user.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-user-extensions
 
+        :param dict data: The user extension data to be written
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {})
-        result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST])
+        result = self.__api_put_request(url,
+                                        AuthType.USER,
+                                        [AuthScope.USER_EDIT_BROADCAST],
+                                        data=data)
         return result.json()
 
     def get_videos(self,
