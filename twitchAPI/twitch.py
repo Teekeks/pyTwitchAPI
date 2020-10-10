@@ -1175,14 +1175,22 @@ class Twitch:
 
     def get_user_active_extensions(self,
                                    user_id: Optional[str] = None) -> dict:
-        """Requires no authentication.\n
+        """Gets information about active extensions installed by a specified user, identified by a user ID or the
+        authenticated user.\n\n
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-active-extensions
 
-        :param user_id: optional str
+        :param str user_id: ID of the user whose installed extensions will be returned.
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {'user_id': user_id}, remove_none=True)
-        result = self.__api_get_request(url, AuthType.NONE, [])
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
         return result.json()
 
     def update_user_extensions(self) -> dict:
