@@ -10,6 +10,7 @@ from uuid import UUID
 import logging
 import time
 from .twitch import Twitch
+from concurrent.futures._base import CancelledError
 
 
 class TwitchWebHook:
@@ -27,6 +28,7 @@ class TwitchWebHook:
     __running = False
     callback_url = None
     __twitch: Twitch = None
+    __task_refresh = None
 
     subscribe_least_seconds: int = 600
     """The duration in seconds for how long you want to subscribe to webhhoks.
@@ -109,11 +111,14 @@ class TwitchWebHook:
         self.__hook_loop.run_until_complete(runner.setup())
         site = web.TCPSite(runner, str(self._host), self._port)
         self.__hook_loop.run_until_complete(site.start())
-        print('started twitch API hook on port ' + str(self._port))
+        logging.info('started twitch API hook on port ' + str(self._port))
         # add refresh task
         if self.auto_renew_subscription:
-            self.__hook_loop.create_task(self.__refresh_task())
-        self.__hook_loop.run_forever()
+            self.__task_refresh = self.__hook_loop.create_task(self.__refresh_task())
+        try:
+            self.__hook_loop.run_forever()
+        except (CancelledError, asyncio.CancelledError):
+            pass
 
     async def __refresh_task(self):
         while True:
@@ -149,6 +154,8 @@ class TwitchWebHook:
         :rtype: None
         """
         if self.__hook_runner is not None:
+            if self.auto_renew_subscription:
+                self.__task_refresh.cancel()
             self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
             self.__hook_runner = None
             self.__hook_thread.join()
