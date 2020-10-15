@@ -45,12 +45,11 @@ def refresh_access_token(refresh_token: str,
 class UserAuthenticator:
     """Simple to use client for the Twitch User authentication flow.
 
-       :param twitch: A twitch instance
-       :type twitch: :class:`twitchAPI.twitch.Twitch`
-       :param scopes: List of the desired Auth scopes
-       :type scopes: [:class:`twitchAPI.types.AuthScope`]
-       :param force_verify: If this is true, the user will always be prompted for authorization by twitch, default False
-       :type force_verify: bool"""
+       :param ~twitchAPI.twitch.Twitch twitch: A twitch instance
+       :param list[~twitchAPI.types.AuthScope] scopes: List of the desired Auth scopes
+       :param bool force_verify: If this is true, the user will always be prompted for authorization by twitch,
+                    default False
+       """
 
     __twitch: 'Twitch' = None
     port: int = 17563
