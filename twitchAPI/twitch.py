@@ -75,7 +75,7 @@ class Twitch:
                 f'Bearer {self.__user_auth_token if self.__has_user_auth else self.__app_auth_token}'
         return header
 
-    def __refresh_used_token(self):
+    def refresh_used_token(self):
         """Refreshes the currently used token"""
         if self.__has_user_auth:
             from .oauth import refresh_access_token
@@ -102,7 +102,7 @@ class Twitch:
         if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
-                self.__refresh_used_token()
+                self.refresh_used_token()
                 return self.__api_post_request(url, auth_type, required_scope, data=data, retries=retries - 1)
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
@@ -128,7 +128,7 @@ class Twitch:
         if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
-                self.__refresh_used_token()
+                self.refresh_used_token()
                 return self.__api_put_request(url, auth_type, required_scope, data=data, retries=retries - 1)
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
@@ -154,7 +154,7 @@ class Twitch:
         if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
-                self.__refresh_used_token()
+                self.refresh_used_token()
                 return self.__api_patch_request(url, auth_type, required_scope, data=data, retries=retries - 1)
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
@@ -180,7 +180,7 @@ class Twitch:
         if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
-                self.__refresh_used_token()
+                self.refresh_used_token()
                 return self.__api_delete_request(url, auth_type, required_scope, data=data, retries=retries - 1)
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
@@ -200,7 +200,7 @@ class Twitch:
         if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
-                self.__refresh_used_token()
+                self.refresh_used_token()
                 return self.__api_get_request(url,  auth_type, required_scope, retries - 1)
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation

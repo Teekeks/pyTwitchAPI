@@ -119,6 +119,9 @@ class TwitchWebHook:
         while True:
             # renew 1 Min before timer runs out:
             await asyncio.sleep(self.subscribe_least_seconds - 60)
+            # make sure that the auth token is still valid:
+            if self.__authenticate:
+                self.__twitch.refresh_used_token()
             for key in self.__active_webhooks.keys():
                 self.renew_subscription(key)
 
