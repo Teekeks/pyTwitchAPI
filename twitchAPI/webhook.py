@@ -24,6 +24,7 @@ class TwitchWebHook:
     secret = None
     __client_id = None
     __auth_token = None
+    __running = False
     callback_url = None
 
     subscribe_least_seconds: int = 864000
@@ -58,15 +59,15 @@ class TwitchWebHook:
     def authenticate(self, auth_token: str) -> None:
         """Set authentication for the Webhook. Can be either a app or user token.
 
-        :param auth_token: str
+        :param str auth_token: the auth token to use
         :rtype: None
-        :raises: Exception
+        :raises RuntimeError: if the callback URL does not use HTTPS
         """
         self.__authenticate = True
         self.__auth_token = auth_token
         if not self.callback_url.startswith('https'):
-            raise Exception('HTTPS is required for authenticated webhook.\n'
-                            + 'Either use non authenticated webhook or use a HTTPS proxy!')
+            raise RuntimeError('HTTPS is required for authenticated webhook.\n'
+                               + 'Either use non authenticated webhook or use a HTTPS proxy!')
 
     def __build_runner(self):
         hook_app = web.Application()
@@ -97,14 +98,29 @@ class TwitchWebHook:
         site = web.TCPSite(runner, str(self._host), self._port)
         self.__hook_loop.run_until_complete(site.start())
         print('started twitch API hook on port ' + str(self._port))
+        # add refresh task
+        self.__hook_loop.create_task(self.__refresh_task())
         self.__hook_loop.run_forever()
+
+    async def __refresh_task(self):
+        while True:
+            
+            await asyncio.sleep(10)
 
     def start(self):
         """Starts the Webhook
 
         :rtype: None
+        :raises ValueError: if subscribe_least_seconds is not in range 300 to 864000
+        :raises RuntimeError: if webhook is already running
         """
+        if self.subscribe_least_seconds < 60 * 5 or self.subscribe_least_seconds > 864000:
+            # at least 5 min, max 864000 seconds
+            raise ValueError('subscribe_least_second has to be in range 300 to 864000')
+        if self.__running:
+            raise RuntimeError('already started')
         self.__hook_thread = threading.Thread(target=self.__run_hook, args=(self.__build_runner(),))
+        self.__running = True
         self.__hook_thread.start()
 
     def stop(self):
@@ -118,6 +134,7 @@ class TwitchWebHook:
             self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
             self.__hook_runner = None
             self.__hook_thread.join()
+            self.__running = False
 
     # ==================================================================================================================
     # HELPER
