@@ -272,6 +272,13 @@ class Twitch:
         """
         return self.__user_auth_token
 
+    def get_used_token(self) -> Union[str, None]:
+        """Returns the currently used token, can be either the app or user auth Token or None if no auth is set
+
+        :return: the currently used auth token or None if no Authentication is set
+        """
+        # if no auth is set, self.__app_auth_token will be None
+        return self.__user_auth_token if self.__has_user_auth else self.__app_auth_token
     # ======================================================================================================================
     # API calls
     # ======================================================================================================================

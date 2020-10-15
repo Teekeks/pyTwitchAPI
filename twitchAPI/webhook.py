@@ -9,6 +9,7 @@ import asyncio
 from uuid import UUID
 import logging
 import time
+from .twitch import Twitch
 
 
 class TwitchWebHook:
@@ -23,19 +24,30 @@ class TwitchWebHook:
 
     secret = None
     __client_id = None
-    __auth_token = None
     __running = False
     callback_url = None
+    __twitch: Twitch = None
 
-    subscribe_least_seconds: int = 864000
-    """The duration in seconds for how long you want to subscribe to webhhoks."""
+    subscribe_least_seconds: int = 600
+    """The duration in seconds for how long you want to subscribe to webhhoks.
+    Min 300 Seconds, Max 864000 Seconds. Default 600 Seconds."""
+
+    auto_renew_subscription: bool = True
+    """If True, automatically renew all webhooks once they get close to running out.
+    **Only disable this if you know what you are doing.**
+    
+    Default: `True`"""
 
     wait_for_subscription_confirm: bool = True
-    """Set this to false if you dont want to wait for a subscription confirm."""
+    """Set this to false if you dont want to wait for a subscription confirm.
+    
+    Default: `True`"""
 
     wait_for_subscription_confirm_timeout: int = 30
     """Max time in seconds to wait for a subscription confirmation.
-    Only used if ``wait_for_subscription_confirm`` is set to True"""
+    Only used if ``wait_for_subscription_confirm`` is set to True.
+    
+    Default: `30`"""
 
     _port: int = 80
     _host: str = '0.0.0.0'
@@ -56,15 +68,15 @@ class TwitchWebHook:
         self.__client_id = api_client_id
         self._port = port
 
-    def authenticate(self, auth_token: str) -> None:
+    def authenticate(self, twitch: Twitch) -> None:
         """Set authentication for the Webhook. Can be either a app or user token.
 
-        :param str auth_token: the auth token to use
+        :param ~twitchAPI.twitch.Twitch twitch: a authenticated instance of :class:`~twitchAPI.twitch.Twitch`
         :rtype: None
         :raises RuntimeError: if the callback URL does not use HTTPS
         """
         self.__authenticate = True
-        self.__auth_token = auth_token
+        self.__twitch = twitch
         if not self.callback_url.startswith('https'):
             raise RuntimeError('HTTPS is required for authenticated webhook.\n'
                                + 'Either use non authenticated webhook or use a HTTPS proxy!')
@@ -99,13 +111,16 @@ class TwitchWebHook:
         self.__hook_loop.run_until_complete(site.start())
         print('started twitch API hook on port ' + str(self._port))
         # add refresh task
-        self.__hook_loop.create_task(self.__refresh_task())
+        if self.auto_renew_subscription:
+            self.__hook_loop.create_task(self.__refresh_task())
         self.__hook_loop.run_forever()
 
     async def __refresh_task(self):
         while True:
-            
-            await asyncio.sleep(10)
+            # renew 1 Min before timer runs out:
+            await asyncio.sleep(self.subscribe_least_seconds - 60)
+            for key in self.__active_webhooks.keys():
+                self.renew_subscription(key)
 
     def start(self):
         """Starts the Webhook
@@ -145,7 +160,10 @@ class TwitchWebHook:
             "Client-ID": self.__client_id
         }
         if self.__authenticate:
-            headers['Authorization'] = "Bearer " + self.__auth_token
+            token = self.__twitch.get_used_token()
+            if token is None:
+                raise TwitchAuthorizationException('no Authorization set!')
+            headers['Authorization'] = "Bearer " + token
         return headers
 
     def __api_post_request(self, url: str, data: Union[dict, None] = None):
@@ -243,8 +261,8 @@ class TwitchWebHook:
         url = self.__active_webhooks.get(uuid)
         if url is None:
             raise Exception(f'no subscription found for UUID {str(uuid)}')
-        from pprint import pprint
-        pprint(url)
+        logging.info('renewing webhook ' + str(uuid))
+        return self._subscribe(url.get('callback_path'), url.get('url'))
 
     def unsubscribe(self,
                     uuid: UUID) -> bool:
@@ -257,7 +275,7 @@ class TwitchWebHook:
             if self.wait_for_subscription_confirm:
                 timeout = time.time() + self.wait_for_subscription_confirm_timeout
                 while timeout > time.time() and not self.__active_webhooks.get(uuid)['confirmed_unsubscribe']:
-                    time.sleep(0.1)
+                    time.sleep(0.05)
                 if self.__active_webhooks.get(uuid)['confirmed_unsubscribe']:
                     self.__active_webhooks.pop(uuid)
                 else:
