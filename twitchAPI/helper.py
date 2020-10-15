@@ -6,6 +6,7 @@ from json import JSONDecodeError
 from aiohttp.web import Request
 from dateutil import parser as du_parser
 from enum import Enum
+from .types import AuthScope
 
 
 TWITCH_API_BASE_URL = "https://api.twitch.tv/helix/"
@@ -66,9 +67,9 @@ async def get_json(request: 'Request') -> Union[list, dict, None]:
 def make_fields_datetime(data: Union[dict, list], fields: List[str]):
     """Itterates over dict or list recursivly to replace string fields with datetime
 
-    :param data: dict or list
-    :param fields: list of keys to be replaced
-    :rtype: dict or list
+    :param union[dict, list] data: dict or list
+    :param list[str] fields: list of keys to be replaced
+    :rtype: union[dict, list]
     """
 
     def make_str_field_datetime(data, fields: list):
@@ -99,11 +100,12 @@ def make_fields_datetime(data: Union[dict, list], fields: List[str]):
         return make_str_field_datetime(data, fields)
 
 
-def build_scope(scopes: list) -> str:
+def build_scope(scopes: List[AuthScope]) -> str:
     """Builds a valid scope string from list
 
-    :param scopes: list of :class:`~twitchAPI.types.AuthScope`
+    :param list[~twitchAPI.types.AuthScope] scopes: list of :class:`~twitchAPI.types.AuthScope`
     :rtype: str
+    :returns: the valid auth scope string
     """
     return ' '.join([s.value for s in scopes])
 
@@ -114,13 +116,14 @@ def fields_to_enum(data: Union[dict, list],
                    default: Optional[Enum]) -> Union[dict, list]:
     """Itterates a dict or list and tries to replace every dict entry with key in fields with the correct Enum value
 
-    :param data: dict or list
-    :param fields: list of keys to be replaced
+    :param Union[dict, list] data: dict or list
+    :param list[str] fields: list of keys to be replaced
     :param _enum: Type of Enum to be replaced
     :param default: The default value if _enum does not contain the field value
     :rtype: dict or list
     """
     _enum_vals = [e.value for e in _enum.__members__.values()]
+
     def make_dict_field_enum(data: dict,
                              fields: List[str],
                              _enum: Type[Enum],
