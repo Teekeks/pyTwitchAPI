@@ -521,9 +521,6 @@ class TwitchWebHook:
 
     async def __handle_challenge(self, request: 'web.Request'):
         challenge = request.rel_url.query.get('hub.challenge')
-        from pprint import pprint
-        print('in challenge:')
-        pprint(request.rel_url.query.items())
         if challenge is not None:
             # found challenge, lets answer it
             if request.rel_url.query.get('hub.mode') == 'subscribe':
