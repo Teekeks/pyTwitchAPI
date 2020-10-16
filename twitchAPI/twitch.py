@@ -769,7 +769,7 @@ class Twitch:
         :param str user_id: Filters the results and only returns a status object for users who are banned in
                         this channel and have a matching user_id
         :param str after: Cursor for forward pagination
-        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -934,7 +934,7 @@ class Twitch:
 
         :param str after: Cursor for forward pagination
         :param str before: Cursor for backward pagination
-        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :param list[str] game_id: Returns streams broadcasting a specified game ID. You can specify up to 100 IDs.
         :param list[str] language: Stream language. You can specify up to 100 languages.
         :param list[str] user_id: Returns streams broadcast by one or more specified user IDs. You can specify up
@@ -991,7 +991,7 @@ class Twitch:
         :param str after: Cursor for forward pagination
         :param str before: Cursor for backward pagination
         :param int first: Number of values to be returned when getting videos by user or game ID. Limit: 100.
-                        Default: 20.
+                        |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1053,7 +1053,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-all-stream-tags
 
         :param str after: Cursor for forward pagination
-        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :param list[str] tag_ids: IDs of tags. Maximum 100 entries
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1170,7 +1170,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users-follows
 
         :param str after: Cursor for forward pagination
-        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :param str from_id: User ID. The request returns information about users who are being followed by
                         the from_id user.
         :param str to_id: User ID. The request returns information about users who are following the to_id user.
@@ -1342,7 +1342,7 @@ class Twitch:
         Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-webhook-subscriptions
 
-        :param int first: Number of values to be returned per page. Limit: 100. Default: 20.
+        :param int first: Number of values to be returned per page. Limit: 100. |default| :code:`20`
         :param str after: Cursor for forward pagination
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1421,7 +1421,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#search-channels
 
         :param str query: search query
-        :param int first: Maximum number of objects to return. Maximum: 100, Default: 20
+        :param int first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
         :param str after: Cursor for forward pagination
         :param bool live_only: Filter results for live streams only. Default: False
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
@@ -1451,7 +1451,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#search-categories
 
         :param str query: search query
-        :param int first: Maximum number of objects to return. Maximum: 100, Default: 20
+        :param int first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
         :param str after: Cursor for forward pagination
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1598,7 +1598,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-hype-train-events
 
         :param str broadcaster_id: User ID of the broadcaster.
-        :param int first: Maximum number of objects to return. Maximum: 100. Default: 1.
+        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`1`
         :param str id: The id of the wanted event, if known
         :param str cursor: Cursor for forward pagination
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
@@ -1642,7 +1642,7 @@ class Twitch:
         :param str user_id: A Twitch User ID
         :param str game_id: A Twitch Game ID
         :param str after: The cursor used to fetch the next page of data.
-        :param int first: Maximum number of entitlements to return. Maximum: 100, Default 20.
+        :param int first: Maximum number of entitlements to return. Maximum: 100 |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
