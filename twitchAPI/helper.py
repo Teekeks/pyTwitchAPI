@@ -1,4 +1,6 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
+"""Helper functions"""
+
 import urllib.parse
 import uuid
 from typing import Union, List, Type, Optional

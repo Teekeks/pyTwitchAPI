@@ -1,4 +1,5 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
+"""Type Definitions"""
 
 from enum import Enum
 
