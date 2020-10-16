@@ -30,10 +30,9 @@ class Twitch:
     """
     Twitch API client
 
-    :param app_id: Your app id
-    :type app_id: str
-    :param app_secret: Your app secret
-    :type app_secret: str
+    :param str app_id: Your app id
+    :param str app_secret: Your app secret
+    :var bool auto_refresh_auth: If set to true, auto refresh the auth token once it expires. |default| :code:`True`
     """
     app_id: Optional[str] = None
     app_secret: Optional[str] = None
@@ -47,7 +46,6 @@ class Twitch:
     __has_user_auth: bool = False
 
     auto_refresh_auth: bool = True
-    """If set to true, auto refresh the auth token once it expires"""
 
     def __init__(self, app_id: str, app_secret: str):
         self.app_id = app_id

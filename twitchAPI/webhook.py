@@ -1,4 +1,45 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
+"""
+Full Implementation of the Twitch Webhook
+-----------------------------------------
+
+The Webhook runs in its own thread, calling the given callback function whenever an webhook event happens.
+
+*******************
+Short code example:
+*******************
+
+.. code-block:: python
+
+    from twitchAPI.twitch import Twitch
+    from twitchAPI.webhook import TwitchWebHook
+    from pprint import pprint
+
+    def callback_stream_changed(uuid, data):
+        print('Callback for UUID ' + str(uuid))
+        pprint(data)
+
+    twitch = Twitch(td['app_id'], td['secret'])
+    twitch.authenticate_app([])
+
+    user_info = twitch.get_users(logins=['my_twitch_user'])
+    user_id = user_info['data'][0]['id']
+    # basic setup
+    hook = TwitchWebHook("https://my.cool.domain.net:8080", 'my_app_id', 8080)
+    hook.authenticate(twitch)
+    hook.start()
+    print('subscribing to hook:')
+    success, uuid = hook.subscribe_stream_changed(user_id, callback_stream_changed)
+    pprint(success)
+    pprint(twitch.get_webhook_subscriptions())
+    # the webhook is now running and you are subscribed to the topic you want to listen to. lets idle a bit...
+    input('press Enter to shut down...\\n')
+    hook.stop()
+    print('done')
+
+"""
+
+
 from typing import Union, Tuple, Callable
 from .helper import build_url, TWITCH_API_BASE_URL, get_uuid, get_json, make_fields_datetime, fields_to_enum
 from .helper import extract_uuid_str_from_url
@@ -17,56 +58,39 @@ from concurrent.futures._base import CancelledError
 class TwitchWebHook:
     """Webhook integration for the Twitch Helix API.
 
-    :param callback_url: The full URL of the webhook.
-    :param api_client_id: The id of your API client
-    :param port: the port on which this webhook should run
-    :var secret: A random secret string. Set this for added security.
-    :var callback_url: The full URL of the webhook.
+    :param str callback_url: The full URL of the webhook.
+    :param str api_client_id: The id of your API client
+    :param int port: the port on which this webhook should run
+    :var str secret: A random secret string. Set this for added security.
+    :var str callback_url: The full URL of the webhook.
+    :var int subscribe_least_seconds: The duration in seconds for how long you want to subscribe to webhhoks.
+                    Min 300 Seconds, Max 864000 Seconds. |default| :code:`600`
+    :var bool auto_renew_subscription: If True, automatically renew all webhooks once they get close to running out.
+                    **Only disable this if you know what you are doing.** |default| :code:`True`
+    :var bool wait_for_subscription_confirm: Set this to false if you dont want to wait for a subscription confirm.
+                    |default| :code:`True`
+    :var int wait_for_subscription_confirm_timeout: Max time in seconds to wait for a subscription confirmation.
+                    Only used if ``wait_for_subscription_confirm`` is set to True. |default| :code:`30`
+    :var bool unsubscribe_on_stop: Unsubscribe all currently active Webhooks on calling `stop()`
+                    |default| :code:`True`
     """
 
     secret = None
-    __client_id = None
-    __running = False
     callback_url = None
-    __twitch: Twitch = None
-    __task_refresh = None
-
     subscribe_least_seconds: int = 600
-    """The duration in seconds for how long you want to subscribe to webhhoks.
-    Min 300 Seconds, Max 864000 Seconds. Default 600 Seconds."""
-
     auto_renew_subscription: bool = True
-    """If True, automatically renew all webhooks once they get close to running out.
-    **Only disable this if you know what you are doing.**
-    
-    Default: `True`"""
-
     wait_for_subscription_confirm: bool = True
-    """Set this to false if you dont want to wait for a subscription confirm.
-    
-    Default: `True`"""
-
     wait_for_subscription_confirm_timeout: int = 30
-    """Max time in seconds to wait for a subscription confirmation.
-    Only used if ``wait_for_subscription_confirm`` is set to True.
-    
-    Default: `30`"""
-
     unsubscribe_on_stop: bool = True
-    """Unsubscribe all currently active Webhooks on calling `stop()`
-    
-    Default: True"""
-
     _port: int = 80
     _host: str = '0.0.0.0'
-
+    __twitch: Twitch = None
+    __task_refresh = None
+    __client_id = None
+    __running = False
     __callbacks = {}
-    # __urls = {}
-
     __active_webhooks = {}
-
     __authenticate: bool = False
-
     __hook_thread: Union['threading.Thread', None] = None
     __hook_loop: Union['asyncio.AbstractEventLoop', None] = None
     __hook_runner: Union['web.AppRunner', None] = None
@@ -262,7 +286,7 @@ class TwitchWebHook:
 
     def unsubscribe_all(self,
                         twitch: Twitch) -> bool:
-        """Unsubscribe from all Webhooks that use the callback URL set in :param:`callback_url`\n
+        """Unsubscribe from all Webhooks that use the callback URL set in `callback_url`\n
         **If `wait_for_subscription_confirm` is False, the response might be
         True even tho the unsubscribe action failed.**
 

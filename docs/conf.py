@@ -22,7 +22,7 @@ copyright = '2020, Lena "Teekeks" During'
 author = 'Lena "Teekeks" During'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+release = '2.0'
 
 master_doc = 'index'
 
@@ -49,6 +49,16 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None)
 }
+
+rst_prolog = """
+.. |default| raw:: html
+
+    <div class="default-value-section"> <span class="default-value-label">Default:</span>
+"""
+
+
+def setup(app):
+    app.add_css_file('css/custom.css')
 
 # -- Options for HTML output -------------------------------------------------
 
