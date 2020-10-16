@@ -12,6 +12,7 @@ On Github: https://github.com/Teekeks/pyTwitchAPI
 
 On PyPi: https://pypi.org/project/twitchAPI/
 
+Visit the :doc:`changelog` to see what has changed.
 
 Installation
 ============
@@ -19,6 +20,22 @@ Installation
 Install using pip:
 
 ```pip install twitchAPI```
+
+
+Usage
+=====
+
+For more detailed usage examples, see the links below
+
+.. code-block:: python
+
+    from twitchAPI.twitch import Twitch
+    from pprint import pprint
+    twitch = Twitch('my_app_key', 'my_app_secret')
+    # lets create a simple app authentication:
+    twitch.authenticate_app([])
+    pprint(twitch.get_users(logins=['your_twitch_username']))
+
 
 .. toctree::
    :maxdepth: 2
@@ -31,7 +48,8 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
+* :ref:`changelog`
+
 
 .. autosummary::
    :toctree: modules

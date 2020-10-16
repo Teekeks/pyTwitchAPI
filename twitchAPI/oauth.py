@@ -1,6 +1,42 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 """
 User OAuth Authenticator and helper functions
+---------------------------------------------
+
+This tool is an alternative to various online services that give you a user auth token.
+
+************
+Requirements
+************
+
+Since this tool opens a browser tab for the Twitch authentication, you can only use this tool on enviroments that can
+open a browser window and render the `<twitch.tv>`__ website.
+
+For my authenticator you have to add the following URL as a "OAuth Redirect URL": :code:`http://localhost:17563`
+You can set that `here in your twitch dev dashboard <https://dev.twitch.tv/console>`__.
+
+************
+Code example
+************
+
+.. code-block:: python
+
+    from twitchAPI.twitch import Twitch
+    from twitchAPI.oauth import UserAuthenticator
+    from twitchAPI.types import AuthScope
+
+    twitch = Twitch('my_app_id', 'my_app_secret')
+
+    target_scope = [AuthScope.BITS_READ]
+    auth = UserAuthenticator(twitch, target_scope, force_verify=False)
+    # this will open your default browser and prompt you with the twitch verification website
+    token, refresh_token = auth.authenticate()
+    # add User authentication
+    twitch.set_user_authentication(token, target_scope, refresh_token)
+
+********************
+Class Documentation:
+********************
 """
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL
@@ -48,7 +84,7 @@ class UserAuthenticator:
        :param ~twitchAPI.twitch.Twitch twitch: A twitch instance
        :param list[~twitchAPI.types.AuthScope] scopes: List of the desired Auth scopes
        :param bool force_verify: If this is true, the user will always be prompted for authorization by twitch,
-                    default False
+                    |default| :code:`False`
        """
 
     __twitch: 'Twitch' = None

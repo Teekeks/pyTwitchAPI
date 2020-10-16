@@ -70,7 +70,7 @@ auth = UserAuthenticator(twitch, target_scope, force_verify=False)
 # this will open your default browser and prompt you with the twitch verification website
 token, refresh_token = auth.authenticate()
 # add User authentication
-twitch.set_user_authentication(token, target_scope)
+twitch.set_user_authentication(token, target_scope, refresh_token)
 ```
 
 You can reuse this token and use the refresh_token to renew it:
@@ -85,6 +85,8 @@ new_token, new_refresh_token = refresh_access_token('refresh_token', 'client_id'
 ### Webhook
 
 See [webhook_example.py](../master/webhook_example.py) for a full example usage. 
+
+A more detailed documentation can be found [here on readthedocs](https://pytwitchapi.readthedocs.io/en/latest/modules/twitchAPI.webhook.html).
 
 #### Requirements
 
@@ -108,8 +110,7 @@ twitch.authenticate_app([])
 hook = TwitchWebHook("https://my.cool.ip:8080", 'your app id', 8080)
 # some hooks dont require any authentication, which would remove the requirement to set up a https reverse proxy
 # if you dont require authentication just dont call authenticate()
-# should your webhook require user authentication, pass that user oauth token to authenticate() instead of the twitch.get_app_token()
-hook.authenticate(twitch.get_app_token())
+hook.authenticate(twitch)
 hook.start()
 ````
 
@@ -126,6 +127,8 @@ def callback_user_changed(uuid: UUID, data: dict) -> None:
 success, sub_uuid = hook.subscribe_user_changed(user_id, callback_user_changed)
 ````
 The subscription function returns a UUID that identifies this subscription. This means you can use the same callback function for multiple subscriptions.
+
+### Unsubscribing
 
 To unsubscribe, just use that UUID from the subscription:
 ```python

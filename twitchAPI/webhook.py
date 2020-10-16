@@ -5,6 +5,20 @@ Full Implementation of the Twitch Webhook
 
 The Webhook runs in its own thread, calling the given callback function whenever an webhook event happens.
 
+Look at the `Twitch Webhook reference <https://dev.twitch.tv/docs/api/webhooks-reference>`__ to find the topics you are
+interested in.
+
+************
+Requirements
+************
+
+You need to have a public IP with a port open. That port will be 80 by default.
+Authentication is off by default but you can choose to authenticate to use some Webhook Topics or to get more information.
+
+.. note:: Please note that Your Endpoint URL has to be HTTPS if you need authentication which means that you probably
+            need a reverse proxy like nginx. This lib currently does not provide any way to add https on its own.
+
+
 *******************
 Short code example:
 *******************
@@ -37,6 +51,29 @@ Short code example:
     hook.stop()
     print('done')
 
+*********************
+Subscription handling
+*********************
+
+You can subscribe to webhook topics using the :code:`subscribe_` prefixed methods.
+
+If :attr:`~.TwitchWebHook.wait_for_subscription_confirm` is True (default), this will wait for the full handshake and
+confirmation to happen, otherwise the returned success value  might be inaccurate in case the subscription itself
+succeeded but the final handshake failed.
+
+You can unsubscribe from a webhook subscription at any time by using :meth:`~twitchAPI.webhook.TwitchWebHook.unsubscribe`
+
+If :attr:`~.TwitchWebHook.unsubscribe_on_stop` is True (default), you dont need to manually unsubscribe from topics.
+
+By deafult, subscriptions will be automatically renewed one minute before they run out for as long as the
+webhook is running.
+
+You can also use :meth:`~twitchAPI.webhook.TwitchWebHook.unsubscribe_all` to unsubscribe from all topic subscriptions at
+once. This will also unsubscribe from topics that where left over from a previous run.
+
+********************
+Class Documentation:
+********************
 """
 
 

@@ -5,6 +5,9 @@ The Twitch API client
 
 This is the base of this library, it handles authentication renewal, error handling and permission management.
 
+Look at the `Twitch API reference <https://dev.twitch.tv/docs/api/reference>`__ for a more detailed documentation on
+what each endpoint does.
+
 **************
 Example Usage:
 **************
@@ -17,6 +20,42 @@ Example Usage:
     # lets create a simple app authentication:
     twitch.authenticate_app([])
     pprint(twitch.get_users(logins=['your_twitch_username']))
+
+
+**************
+Authentication
+**************
+
+The Twitch API knows 2 different authentications. App and User Authentication.
+Which one you need (or if one at all) depends on what calls you want to use.
+
+Its always good to get at least App authentication even for calls where you dont need it since the rate limmits are way better for authenticated calls.
+
+
+App Authentication
+==================
+
+App authentication is super simple, just do the following:
+
+.. code-block:: python
+
+    from twitchAPI.twitch import Twitch
+    twitch = Twitch('my_app_id', 'my_app_secret')
+    # add App authentication
+    twitch.authenticate_app([])
+
+
+User Authentication
+===================
+
+To get a user auth token, the user has to explicitly click "Authorize" on the twitch website. You can use various online
+services to generate a token or use my build in authenticator.
+
+See :obj:`twitchAPI.oauth` for more info.
+
+********************
+Class Documentation:
+********************
 """
 import requests
 from typing import Union, List, Optional
@@ -297,7 +336,7 @@ class Twitch:
         :param str after: cursor for forward pagination
         :param str extension_id: If this is specified, the returned URL points to an analytics report for just the specified
                             extension.
-        :param int first: Maximum number of objects returned, range 1 to 100, default 20
+        :param int first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
         :param ~datetime.datetime ended_at: Ending date/time for returned reports, if this is provided,
                         `started_at` must also be specified.
         :param ~datetime.datetime started_at: Starting date/time for returned reports, if this is provided,
@@ -349,7 +388,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-game-analytics
 
         :param str after: cursor for forward pagination
-        :param int first: Maximum number of objects returned, range 1 to 100, default 20
+        :param int first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
         :param str game_id: Game ID
         :param ~datetime.datetime ended_at: Ending date/time for returned reports, if this is provided,
                         `started_at` must also be specified.
@@ -397,7 +436,7 @@ class Twitch:
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.BITS_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-bits-leaderboard
 
-        :param int count: Number of results to be returned. In range 1 to 100, default 10
+        :param int count: Number of results to be returned. In range 1 to 100, |default| :code:`10`
         :param ~twitchAPI.types.TimePeriod period: Time period over which data is aggregated, default
                 :const:`twitchAPI.types.TimePeriod.ALL`
         :param ~datetime.datetime started_at: Timestamp for the period over which the returned data is aggregated.
@@ -438,7 +477,7 @@ class Twitch:
         :param str extension_id: ID of the extension to list transactions for.
         :param str transaction_id: Transaction IDs to look up.
         :param str after: cursor for forward pagination
-        :param int first: Maximum number of objects returned, range 1 to 100, default 20
+        :param int first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -470,7 +509,7 @@ class Twitch:
         :param str broadcaster_id: Broadcaster ID of the stream from which the clip will be made.
         :param bool has_delay: If False, the clip is captured from the live stream when the API is called; otherwise,
                 a delay is added before the clip is captured (to account for the brief delay between the broadcaster’s
-                stream and the viewer’s experience of that stream). Default: False.
+                stream and the viewer’s experience of that stream). |default| :code:`False`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -504,7 +543,7 @@ class Twitch:
         :param str broadcaster_id: ID of the broadcaster for whom clips are returned.
         :param str game_id: ID of the game for which clips are returned.
         :param list[str] clip_id: ID of the clip being queried. Limit: 100.
-        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :param str after: Cursor for forward pagination
         :param str before: Cursor for backward pagination
         :param ~datetime.datetime ended_at: Ending date/time for returned clips
@@ -631,7 +670,7 @@ class Twitch:
 
         :param str after: Cursor for forward pagination
         :param str before: Cursor for backward pagination
-        :param int first: Maximum number of objects to return. Maximum: 100. Default: 20.
+        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems

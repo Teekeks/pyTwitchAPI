@@ -24,10 +24,10 @@ twitch.authenticate_app([])
 # please note that you have to add http://localhost:17563 as a OAuth redirect URL for your app, see the above link for more information
 auth = UserAuthenticator(twitch, [AuthScope.USER_READ_EMAIL])
 token, refresh_token = auth.authenticate()  # this will open a webpage
-twitch.set_user_authentication(token, [AuthScope.USER_READ_EMAIL])  # setting the user authentication so any api call will also use it
+twitch.set_user_authentication(token, [AuthScope.USER_READ_EMAIL], refresh_token)  # setting the user authentication so any api call will also use it
 # setting up the Webhook itself
 hook = TwitchWebHook("https://my.cool.ip:8080", 'your app id', 8080)
-hook.authenticate(token)  # if you dont require user authentication you can also pass the app token with this: twitch.get_app_token()
+hook.authenticate(twitch)  # this will use the highest authentication set, which is the user authentication.
 # some hooks don't require any authentication, which would remove the requirement to set up a https reverse proxy
 # if you don't require authentication just dont call authenticate()
 hook.start()
@@ -42,8 +42,7 @@ print(f'was subscription successfull?: {success}')
 input('Press enter to stop...')
 
 # lets unsubscribe again
-success = hook.unsubscribe_user_changed(uuid_user)
+success = hook.unsubscribe(uuid_user)
 print(f'was unsubscription successfull?: {success}')
-success = hook.unsubscribe_stream_changed(uuid_stream)
-print(f'was unsubscription successfull?: {success}')
+# since hook.unsubscribe_on_stop is true, we dont need to unsubscribe manually, so lets just stop
 hook.stop()
