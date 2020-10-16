@@ -1,6 +1,7 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 from typing import Union, Tuple, Callable
 from .helper import build_url, TWITCH_API_BASE_URL, get_uuid, get_json, make_fields_datetime, fields_to_enum
+from .helper import extract_uuid_str_from_url
 from .types import *
 import requests
 from aiohttp import web
@@ -248,17 +249,33 @@ class TwitchWebHook:
     # SUBSCRIPTION HELPER
     # ==================================================================================================================
 
-    def unsubscribe_all(self,
-                        twitch: 'twitchAPI.twitch.Twitch') -> None:
-        """Unsubscribe from all active Webhooks
+    __unsubscribe_all_helper = {}
 
-        :param twitch: App authorized instance of twitchAPI.twitch.Twitch
-        :rtype: None
+    def unsubscribe_all(self,
+                        twitch: Twitch) -> bool:
+        """Unsubscribe from all Webhooks that use the callback URL set in :param:`callback_url`\n
+        **If `wait_for_subscription_confirm` is False, the response might be
+        True even tho the unsubscribe action failed.**
+
+        :param ~twitchAPI.twitch.Twitch twitch: App authorized instance of :class:`~twitchAPI.twitch.Twitch`
+        :rtype: bool
+        :returns: True if all webhooks could be unsubscribed, otherwise False.
         """
-        from pprint import pprint
+        self.__unsubscribe_all_helper = {}
         data = twitch.get_webhook_subscriptions()
+        sub_responses = []
         for d in data.get('data', []):
-            pprint(self._generic_unsubscribe(d.get('callback'), d.get('topic'), callback_full=False))
+            uuid = extract_uuid_str_from_url(d.get('callback'))
+            if uuid is not None and d.get('callback').startswith(self.callback_url):
+                self.__unsubscribe_all_helper[uuid] = False
+                sub_responses.append(self._generic_unsubscribe(d.get('callback'), d.get('topic'), callback_full=False))
+        if self.wait_for_subscription_confirm:
+            timeout = time.time() + self.wait_for_subscription_confirm_timeout
+            while timeout > time.time() and not all(self.__unsubscribe_all_helper.values()):
+                time.sleep(0.05)
+            return all(self.__unsubscribe_all_helper.values()) and all(sub_responses)
+        else:
+            return all(sub_responses)
 
     def renew_subscription(self,
                            uuid: UUID) -> bool:
@@ -514,12 +531,16 @@ class TwitchWebHook:
                 self.__active_webhooks.get(UUID(request.rel_url.query.get('uuid')))['active'] = True
                 self.__active_webhooks.get(UUID(request.rel_url.query.get('uuid')))['confirmed_subscribe'] = True
             if request.rel_url.query.get('hub.mode') == 'unsubscribe':
-                if UUID(request.rel_url.query.get('uuid')) in self.__active_webhooks.keys():
+                uuid_str = request.rel_url.query.get('uuid')
+                if uuid_str in self.__unsubscribe_all_helper.keys():
+                    self.__unsubscribe_all_helper[uuid_str] = True
+                if UUID(uuid_str) in self.__active_webhooks.keys():
                     # we treat this as invalid as soon as we answer the challenge
                     if self.wait_for_subscription_confirm:
                         self.__active_webhooks.get(UUID(request.rel_url.query.get('uuid')))['confirmed_unsubscribe'] = True
                     else:
                         self.__active_webhooks.pop(UUID(request.rel_url.query.get('uuid')))
+
             return web.Response(text=challenge)
         return web.Response(status=500)
 

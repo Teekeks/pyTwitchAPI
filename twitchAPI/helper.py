@@ -7,10 +7,22 @@ from aiohttp.web import Request
 from dateutil import parser as du_parser
 from enum import Enum
 from .types import AuthScope
+from urllib.parse import urlparse, parse_qs
 
 
 TWITCH_API_BASE_URL = "https://api.twitch.tv/helix/"
 TWITCH_AUTH_BASE_URL = "https://id.twitch.tv/"
+
+
+def extract_uuid_str_from_url(url: str) -> Union[str, None]:
+    """Extracts a UUID string from a URL
+
+    :param str url: The URL to parse
+    :return: UUID string extracted from given URL or None if no UUID found
+    :rtype: Union[str, None]
+    """
+    uuids = parse_qs(urlparse(url).query).get('uuid', [])
+    return uuids[0] if len(uuids) > 0 else None
 
 
 def build_url(url: str, params: dict, remove_none=False, split_lists=False) -> str:
