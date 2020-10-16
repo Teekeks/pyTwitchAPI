@@ -52,6 +52,11 @@ class TwitchWebHook:
     
     Default: `30`"""
 
+    unsubscribe_on_stop: bool = True
+    """Unsubscribe all currently active Webhooks on calling `stop()`
+    
+    Default: True"""
+
     _port: int = 80
     _host: str = '0.0.0.0'
 
@@ -155,6 +160,10 @@ class TwitchWebHook:
         :rtype: None
         """
         if self.__hook_runner is not None:
+            if self.unsubscribe_on_stop:
+                all_keys = list(self.__active_webhooks.keys())
+                for uuid in all_keys:
+                    self.unsubscribe(uuid)
             if self.auto_renew_subscription:
                 self.__task_refresh.cancel()
             self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
@@ -272,7 +281,7 @@ class TwitchWebHook:
         if self.wait_for_subscription_confirm:
             timeout = time.time() + self.wait_for_subscription_confirm_timeout
             while timeout > time.time() and not all(self.__unsubscribe_all_helper.values()):
-                time.sleep(0.05)
+                time.sleep(0.1)
             return all(self.__unsubscribe_all_helper.values()) and all(sub_responses)
         else:
             return all(sub_responses)
