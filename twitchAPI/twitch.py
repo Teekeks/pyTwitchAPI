@@ -526,9 +526,9 @@ class Twitch:
         return result.json()
 
     def get_clips(self,
-                  broadcaster_id: str,
-                  game_id: str,
-                  clip_id: List[str],
+                  broadcaster_id: Optional[str] = None,
+                  game_id: Optional[str] = None,
+                  clip_id: Optional[List[str]] = None,
                   after: Optional[str] = None,
                   before: Optional[str] = None,
                   ended_at: Optional[datetime] = None,
@@ -537,7 +537,7 @@ class Twitch:
         """Gets clip information by clip ID (one or more), broadcaster ID (one only), or game ID (one only).
         Clips are returned sorted by view count, in descending order.\n\n
 
-        Requires no authentication\n
+        Requires App or User authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-clips
 
         :param str broadcaster_id: ID of the broadcaster for whom clips are returned.
@@ -548,14 +548,19 @@ class Twitch:
         :param str before: Cursor for backward pagination
         :param ~datetime.datetime ended_at: Ending date/time for returned clips
         :param ~datetime.datetime started_at: Starting date/time for returned clips
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if you try to query more than 100 clips in one call or if first is not in range 1 to 100
+        :raises ValueError: if you try to query more than 100 clips in one call
+        :raises ValueError: if not exactly one of clip_id, broadcaster_id or game_id is given
+        :raises ValueError: if first is not in range 1 to 100
         :rtype: dict
         """
-        if len(clip_id) > 100:
-            raise ValueError('A maximum of 100 clips can be querried in one call')
+        if clip_id is not None and len(clip_id) > 100:
+            raise ValueError('A maximum of 100 clips can be queried in one call')
+        if not (sum([clip_id is not None, broadcaster_id is not None, game_id is not None]) == 1):
+            raise ValueError('You need to specify exactly one of clip_id, broadcaster_id or game_id')
         if first < 1 or first > 100:
             raise ValueError('first must be in range 1 to 100')
         param = {
@@ -565,11 +570,11 @@ class Twitch:
             'after': after,
             'before': before,
             'first': first,
-            'ended_at': ended_at.isoformat() if ended_at is not None else None,
-            'started_at': started_at.isoformat() if started_at is not None else None
+            'ended_at': ended_at.astimezone().isoformat() if ended_at is not None else None,
+            'started_at': started_at.astimezone().isoformat() if started_at is not None else None
         }
         url = build_url(TWITCH_API_BASE_URL + 'clips', param, split_lists=True, remove_none=True)
-        result = self.__api_get_request(url, AuthType.NONE, [])
+        result = self.__api_get_request(url, AuthType.APP, [])
         data = result.json()
         return make_fields_datetime(data, ['created_at'])
 
