@@ -134,7 +134,10 @@ class UserAuthenticator:
 
     async def __run_check(self):
         while not self.__can_close:
-            await asyncio.sleep(1)
+            try:
+                await asyncio.sleep(1)
+            except (CancelledError, asyncio.CancelledError):
+                pass
         for task in asyncio.Task.all_tasks(self.__loop):
             task.cancel()
 
