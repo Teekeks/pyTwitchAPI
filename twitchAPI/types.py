@@ -24,6 +24,8 @@ class AuthScope(Enum):
     :var CHANNEL_READ_STREAM_KEY:
     :var CHANNEL_EDIT_COMMERCIAL:
     :var CHANNEL_READ_HYPE_TRAIN:
+    :var CHANNEL_MANAGE_BROADCAST:
+    :var CHANNEL_READ_REDEMPTIONS:
     :var CLIPS_EDIT:
     :var USER_EDIT:
     :var USER_EDIT_BROADCAST:
@@ -44,6 +46,8 @@ class AuthScope(Enum):
     CHANNEL_READ_STREAM_KEY = 'channel:read:stream_key'
     CHANNEL_EDIT_COMMERCIAL = 'channel:edit:commercial'
     CHANNEL_READ_HYPE_TRAIN = 'channel:read:hype_train'
+    CHANNEL_MANAGE_BROADCAST = 'channel:manage:broadcast'
+    CHANNEL_READ_REDEMPTIONS = 'channel:read:redemptions'
     CLIPS_EDIT = 'clips:edit'
     USER_EDIT = 'user:edit'
     USER_EDIT_BROADCAST = 'user:edit:broadcast'
