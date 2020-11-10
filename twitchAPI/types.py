@@ -38,6 +38,7 @@ class AuthScope(Enum):
     :var WHISPERS_READ:
     :var WHISPERS_EDIT:
     :var MODERATION_READ:
+    :var CHANNEL_SUBSCRIPTIONS:
     """
     ANALYTICS_READ_EXTENSION = 'analytics:read:extensions'
     ANALYTICS_READ_GAMES = 'analytics:read:games'
@@ -60,6 +61,7 @@ class AuthScope(Enum):
     WHISPERS_READ = 'whispers:read'
     WHISPERS_EDIT = 'whispers:edit'
     MODERATION_READ = 'moderation:read'
+    CHANNEL_SUBSCRIPTIONS = 'channel_subscriptions'
 
 
 class ModerationEventType(Enum):
