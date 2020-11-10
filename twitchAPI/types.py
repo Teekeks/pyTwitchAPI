@@ -169,6 +169,15 @@ class CodeStatus(Enum):
     UNKNOWN_VALUE = ''
 
 
+class PubSubResponseError(Enum):
+    BAD_MESSAGE = 'ERR_BADMESSAGE'
+    BAD_AUTH = 'ERR_BADAUTH'
+    SERVER = 'ERR_SERVER'
+    BAD_TOPIC = 'ERR_BADTOPIC'
+    NONE = ''
+    UNKNOWN = 'unknown error'
+
+
 class TwitchAPIException(Exception):
     """Base Twitch API Exception"""
     pass
@@ -191,4 +200,8 @@ class MissingScopeException(TwitchAuthorizationException):
 
 class TwitchBackendException(TwitchAPIException):
     """when the Twitch API itself is down"""
+    pass
+
+
+class PubSubListenTimeoutException(TwitchAPIException):
     pass

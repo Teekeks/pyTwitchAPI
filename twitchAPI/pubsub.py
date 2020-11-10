@@ -1,7 +1,7 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 from .twitch import Twitch
 from .types import *
-from .helper import get_uuid
+from .helper import get_uuid, make_enum
 import asyncio
 import websockets
 import threading
@@ -10,8 +10,9 @@ import json
 import random
 import datetime
 import logging
-from typing import Union, Tuple, Callable, Any
+from typing import Union, Tuple, Callable, List
 from uuid import UUID
+import time
 
 
 class PubSub:
@@ -27,31 +28,60 @@ class PubSub:
                              You probably dont want to change this.
                              Default: 4"""
 
+    listen_confirm_timeout: int = 30
+    """:var int listen_confirm_timeout: maximum time in seconds waited for a listen confirm.
+                                        Default: 30"""
+
     __twitch: Twitch = None
     __connection = None
     __socket_thread: threading.Thread = None
     __running: bool = False
     __socket_loop = None
     __topics: dict = {}
+    __startup_complete: bool = False
 
     __waiting_for_pong: bool = False
+    __nonce_waiting_confirm: dict = {}
 
     def __init__(self, twitch: Twitch):
         self.__twitch = twitch
 
-    async def __connect(self):
+    async def __connect(self, is_startup=False):
         if self.__connection is not None and self.__connection.open:
             await self.__connection.close()
         self.__connection = await websockets.connect(TWITCH_PUB_SUB_URL)
-        if self.__connection.open:
-            listen_msg = {
-                'type': 'LISTEN',
-                'data': {
-                    'topics': list(self.__topics.keys()),
-                    'auth_token': self.__twitch.get_user_auth_token()
-                }
+        if self.__connection.open and not is_startup:
+            uuid = str(get_uuid())
+            await self.__send_listen(uuid, list(self.__topics.keys()))
+
+    async def __send_listen(self, nonce: str, topics: List[str]):
+        listen_msg = {
+            'type': 'LISTEN',
+            'nonce': nonce,
+            'data': {
+                'topics': topics,
+                'auth_token': self.__twitch.get_user_auth_token()
             }
-            await self.__send_message(listen_msg)
+        }
+        self.__nonce_waiting_confirm[nonce] = {'received': False,
+                                               'error': PubSubResponseError.NONE}
+        timeout = datetime.datetime.utcnow() + datetime.timedelta(seconds=self.listen_confirm_timeout)
+        confirmed = False
+        await self.__send_message(listen_msg)
+        # wait for confirm
+        while not confirmed and datetime.datetime.utcnow() < timeout:
+            await asyncio.sleep(0.01)
+            confirmed = self.__nonce_waiting_confirm[nonce]['received']
+        if not confirmed:
+            raise PubSubListenTimeoutException()
+        else:
+            error = self.__nonce_waiting_confirm[nonce]['error']
+            if error is not PubSubResponseError.NONE:
+                if error is PubSubResponseError.BAD_AUTH:
+                    raise TwitchAuthorizationException()
+                if error is PubSubResponseError.SERVER:
+                    raise TwitchBackendException()
+                raise TwitchAPIException(error)
 
     async def __send_message(self, msg_data):
         await self.__connection.send(json.dumps(msg_data))
@@ -61,16 +91,23 @@ class PubSub:
         asyncio.set_event_loop(self.__socket_loop)
 
         # startup
-        self.__socket_loop.run_until_complete(self.__connect())
+        self.__socket_loop.run_until_complete(self.__connect(is_startup=True))
 
         tasks = [
             asyncio.ensure_future(self.__task_heartbeat(), loop=self.__socket_loop),
-            asyncio.ensure_future(self.__task_receive(), loop=self.__socket_loop)
+            asyncio.ensure_future(self.__task_receive(), loop=self.__socket_loop),
+            asyncio.ensure_future(self.__task_initial_listen(), loop=self.__socket_loop)
         ]
         try:
             self.__socket_loop.run_forever()
         except asyncio.CancelledError:
             pass
+
+    async def __task_initial_listen(self):
+        self.__startup_complete = True
+        if len(list(self.__topics.keys())) > 0:
+            uuid = str(get_uuid())
+            await self.__send_listen(uuid, list(self.__topics.keys()))
 
     async def __task_heartbeat(self):
         while True:
@@ -100,6 +137,17 @@ class PubSub:
         logging.info('received reconnect command, reconnecting now...')
         await self.__connect()
 
+    async def __handle_response(self, data):
+        self.__nonce_waiting_confirm[data.get('nonce')]['error'] = make_enum(data.get('error'),
+                                                                             PubSubResponseError,
+                                                                             PubSubResponseError.UNKNOWN)
+        self.__nonce_waiting_confirm[data.get('nonce')]['received'] = True
+
+    async def __handle_message(self, data):
+        from pprint import pprint
+        pprint(data)
+        pass
+
     async def __handle_unknown(self, data):
         from pprint import pprint
         pprint(data)
@@ -109,24 +157,31 @@ class PubSub:
             data = json.loads(message)
             switcher = {
                 'pong': self.__handle_pong,
-                'reconnect': self.__handle_reconnect
+                'reconnect': self.__handle_reconnect,
+                'response': self.__handle_response,
+                'message': self.__handle_message
             }
             handler = switcher.get(data.get('type', '').lower(),
                                    self.__handle_unknown)
             await handler(data)
 
     def start(self):
+        self.__startup_complete = False
         self.__socket_thread = threading.Thread(target=self.__run_socket)
         self.__running = True
         self.__socket_thread.start()
+        while not self.__startup_complete:
+            time.sleep(0.01)
 
     def listen_whispers(self,
                         user_id: str,
-                        callback_func: Callable[[UUID, dict], None]):
+                        callback_func: Callable[[UUID, dict], None]) -> UUID:
         key = f'whispers.{user_id}'
         uuid = get_uuid()
         if key not in self.__topics.keys():
             self.__topics[key] = {'subs': {}}
         self.__topics[key]['subs'][uuid] = callback_func
+        if self.__running:
+            asyncio.get_event_loop().run_until_complete(self.__send_listen(str(uuid), [key]))
         return uuid
 
