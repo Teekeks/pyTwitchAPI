@@ -6,9 +6,21 @@ import websockets
 import threading
 from .helper import TWITCH_PUB_SUB_URL
 import json
+import random
+import datetime
+import logging
 
 
 class PubSub:
+
+    ping_frequency: int = 120
+    """:var int ping_frequency: with which frequency in seconds a ping command is send.
+                                You probably dont want to change this.
+                                Default: 120"""
+    ping_jitter: int = 4
+    """:var int ping_jitter: time in seconds added or subtracted from ping_frequency.
+                             You probably dont want to change this.
+                             Default: 4"""
 
     __twitch: Twitch = None
     __connection = None
@@ -43,7 +55,8 @@ class PubSub:
         self.__socket_loop.run_until_complete(self.__connect())
 
         tasks = [
-            asyncio.ensure_future(self.__task_heartbeat(), loop=self.__socket_loop)
+            asyncio.ensure_future(self.__task_heartbeat(), loop=self.__socket_loop),
+            asyncio.ensure_future(self.__task_receive(), loop=self.__socket_loop)
         ]
         try:
             self.__socket_loop.run_forever()
@@ -52,9 +65,27 @@ class PubSub:
 
     async def __task_heartbeat(self):
         while True:
-            pass
+            next_heartbeat = datetime.datetime.utcnow() + \
+                             datetime.timedelta(seconds=random.randrange(self.ping_frequency - self.ping_jitter,
+                                                                         self.ping_frequency + self.ping_jitter,
+                                                                         1))
+            while datetime.datetime.utcnow() < next_heartbeat:
+                await asyncio.sleep(1)
+            logging.debug('send ping...')
+            await self.__send_message({'type': 'PING'})
+
+    async def __task_receive(self):
+        async for message in self.__connection:
+            data = json.loads(message)
+            from pprint import pprint
+            pprint(data)
 
     def start(self):
         self.__socket_thread = threading.Thread(target=self.__run_socket)
         self.__running = True
         self.__socket_thread.start()
+
+    def listen_whispers(self,
+                        user_id: str):
+        self.__topics[f'whispers.{user_id}'] = {}
+
