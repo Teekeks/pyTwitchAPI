@@ -62,6 +62,7 @@ from typing import Union, List, Optional
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
     fields_to_enum
 from datetime import datetime
+from logging import getLogger, Logger
 from .types import *
 
 
@@ -84,11 +85,14 @@ class Twitch:
     __user_auth_scope: List[AuthScope] = []
     __has_user_auth: bool = False
 
+    __logger: Logger = None
+
     auto_refresh_auth: bool = True
 
     def __init__(self, app_id: str, app_secret: str):
         self.app_id = app_id
         self.app_secret = app_secret
+        self.__logger = getLogger('twitchAPI.twitch')
 
     def __generate_header(self, auth_type: 'AuthType', required_scope: List[AuthScope]) -> dict:
         header = {"Client-ID": self.app_id}
@@ -119,6 +123,7 @@ class Twitch:
     def refresh_used_token(self):
         """Refreshes the currently used token"""
         if self.__has_user_auth:
+            self.__logger.debug('refreshing user token')
             from .oauth import refresh_access_token
             self.__user_auth_token,\
                 self.__user_auth_refresh_token = refresh_access_token(self.__user_auth_refresh_token,
@@ -135,6 +140,7 @@ class Twitch:
                            retries: int = 1) -> requests.Response:
         """Make POST request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
+        self.__logger.debug(f'making POST request to {url}')
         req = None
         if data is None:
             req = requests.post(url, headers=headers)
@@ -161,6 +167,7 @@ class Twitch:
                           retries: int = 1) -> requests.Response:
         """Make PUT request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
+        self.__logger.debug(f'making PUT request to {url}')
         req = None
         if data is None:
             req = requests.put(url, headers=headers)
@@ -187,6 +194,7 @@ class Twitch:
                             retries: int = 1) -> requests.Response:
         """Make PATCH request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
+        self.__logger.debug(f'making PATCH request to {url}')
         req = None
         if data is None:
             req = requests.patch(url, headers=headers)
@@ -213,6 +221,7 @@ class Twitch:
                              retries: int = 1) -> requests.Response:
         """Make DELETE request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
+        self.__logger.debug(f'making DELETE request to {url}')
         req = None
         if data is None:
             req = requests.delete(url, headers=headers)
@@ -237,6 +246,7 @@ class Twitch:
                           retries: int = 1) -> requests.Response:
         """Make GET request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
+        self.__logger.debug(f'making GET request to {url}')
         req = requests.get(url, headers=headers)
         if self.auto_refresh_auth and retries > 0:
             if req.status_code == 401:
@@ -258,6 +268,7 @@ class Twitch:
             'grant_type': 'client_credentials',
             'scope': build_scope(self.__app_auth_scope)
         }
+        self.__logger.debug('generating fresh app token')
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', params)
         result = requests.post(url)
         if result.status_code != 200:
