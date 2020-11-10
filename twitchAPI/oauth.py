@@ -57,12 +57,9 @@ def refresh_access_token(refresh_token: str,
                          app_secret: str):
     """Simple helper function for refreshing a user access token.
 
-    :param refresh_token: the current refresh_token
-    :type refresh_token: str
-    :param app_id: the id of your app
-    :type app_id: str
-    :param app_secret: the secret key of your app
-    :type app_secret: str
+    :param str refresh_token: the current refresh_token
+    :param str app_id: the id of your app
+    :param str app_secret: the secret key of your app
     :return: access_token, refresh_token
     :rtype: (str, str)
     """

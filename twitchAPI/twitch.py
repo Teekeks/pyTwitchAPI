@@ -437,7 +437,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-bits-leaderboard
 
         :param int count: Number of results to be returned. In range 1 to 100, |default| :code:`10`
-        :param ~twitchAPI.types.TimePeriod period: Time period over which data is aggregated, default
+        :param ~twitchAPI.types.TimePeriod period: Time period over which data is aggregated, |default|
                 :const:`twitchAPI.types.TimePeriod.ALL`
         :param ~datetime.datetime started_at: Timestamp for the period over which the returned data is aggregated.
         :param str user_id: ID of the user whose results are returned; i.e., the person who paid for the Bits.
@@ -1304,7 +1304,7 @@ class Twitch:
         :param str after: Cursor for forward pagination
         :param str before: Cursor for backward pagination
         :param int first: Number of values to be returned when getting videos by user or game ID.
-                        Limit: 100. Default: 20.
+                        Limit: 100. |default| :code:`20`
         :param str language: Language of the video being queried.
         :param ~twitchAPI.types.TimePeriod period: Period during which the video was created.
         :param ~twitchAPI.types.SortMethod sort: Sort order of the videos.
@@ -1431,7 +1431,7 @@ class Twitch:
         :param str query: search query
         :param int first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
         :param str after: Cursor for forward pagination
-        :param bool live_only: Filter results for live streams only. Default: False
+        :param bool live_only: Filter results for live streams only. |default| :code:`False`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1534,7 +1534,7 @@ class Twitch:
         :param str from_id: User ID of the follower
         :param str to_id: ID of the channel to be followed by the user
         :param bool allow_notifications: If true, the user gets email or push notifications (depending on the user’s
-                        notification settings) when the channel goes live. Default value is false.
+                        notification settings) when the channel goes live. |default| :code:`false`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid

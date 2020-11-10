@@ -26,12 +26,12 @@ class PubSub:
                                 You probably dont want to change this.
                                 This should never be shorter than 12 + ping_jitter seconds to avoid problems
                                 with the pong timeout.
-                                Default: 120
+                                |default| :code:`120`
     :var int ping_jitter: time in seconds added or subtracted from ping_frequency.
                              You probably dont want to change this.
-                             Default: 4
+                             |default| :code:`4`
     :var int listen_confirm_timeout: maximum time in seconds waited for a listen confirm.
-                                        Default: 30
+                                        |default| :code:`30`
     """
 
     ping_frequency: int = 120
