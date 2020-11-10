@@ -1,7 +1,48 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 """
 Pubsub client
--------------"""
+-------------
+
+This is a full implementation of the PubSub API of twitch.
+PubSub enables you to subscribe to a topic, for updates (e.g., when a user cheers in a channel).
+
+Read more about i on `the Twitch API Documentation <https://dev.twitch.tv/docs/pubsub>`__.
+
+.. note:: You **always** need User Authentication while using this!
+
+*******************
+Short code example:
+*******************
+
+.. code-block:: python
+
+    from twitchAPI.pubsub import PubSub
+    from twitchAPI.twitch import Twitch
+    from pprint import pprint
+    from uuid import UUID
+
+    def callback_whisper(uuid: UUID, data: dict) -> None:
+        print('got callback for UUID ' + str(uuid))
+        pprint(data)
+
+    twitch = Twitch('my_app_id', 'my_app_secret')
+    twitch.authenticate_app([])
+    twitch.set_user_authentication('my_user_auth_token', [AuthScope.WHISPERS_READ], 'my_user_auth_refresh_token')
+    user_id = twitch.get_users(logins=['my_username'])['data'][0]['id']
+
+    pubsub = PubSub(twitch)
+    pubsub.start()
+    # you can either start listening before or after you started pubsub.
+    uuid = pubsub.listen_whispers(user_id, callback_whisper)
+    input('press ENTER to close...')
+    # you do not need to unlisten to topics before stopping but you can listen and unlisten at any moment you want
+    pubsub.unlisten(uuid)
+    pubsub.stop()
+
+********************
+Class Documentation:
+********************
+"""
 
 from .twitch import Twitch
 from .types import *
@@ -24,10 +65,10 @@ class PubSub:
 
     :var int ping_frequency: with which frequency in seconds a ping command is send.
                                 You probably dont want to change this.
-                                This should never be shorter than 12 + ping_jitter seconds to avoid problems
+                                This should never be shorter than 12 + `ping_jitter` seconds to avoid problems
                                 with the pong timeout.
                                 |default| :code:`120`
-    :var int ping_jitter: time in seconds added or subtracted from ping_frequency.
+    :var int ping_jitter: time in seconds added or subtracted from `ping_frequency`.
                              You probably dont want to change this.
                              |default| :code:`4`
     :var int listen_confirm_timeout: maximum time in seconds waited for a listen confirm.
@@ -55,6 +96,32 @@ class PubSub:
     def __init__(self, twitch: Twitch):
         self.__twitch = twitch
         self.__logger = logging.getLogger('twitchAPI.pubsub')
+
+    def start(self) -> None:
+        """
+        Start the PubSub Client
+        """
+        self.__startup_complete = False
+        self.__socket_thread = threading.Thread(target=self.__run_socket)
+        self.__running = True
+        self.__socket_thread.start()
+        while not self.__startup_complete:
+            time.sleep(0.01)
+
+    def stop(self) -> None:
+        """
+        Stop the PubSub Client
+        """
+        self.__startup_complete = False
+        self.__running = False
+        for task in self.__tasks:
+            task.cancel()
+        self.__socket_loop.call_soon_threadsafe(self.__socket_loop.stop)
+        self.__socket_thread.join()
+
+###########################################################################################
+# Internal
+###########################################################################################
 
     async def __connect(self, is_startup=False):
         if self.__connection is not None and self.__connection.open:
@@ -117,6 +184,19 @@ class PubSub:
         if self.__connection.open:
             self.__socket_loop.run_until_complete(self.__connection.close())
 
+    def __generic_listen(self, key, callback_func) -> UUID:
+        uuid = get_uuid()
+        if key not in self.__topics.keys():
+            self.__topics[key] = {'subs': {}}
+        self.__topics[key]['subs'][uuid] = callback_func
+        if self.__startup_complete:
+            asyncio.get_event_loop().run_until_complete(self.__send_listen(str(uuid), [key]))
+        return uuid
+
+###########################################################################################
+# Asyncio Tasks
+###########################################################################################
+
     async def __task_initial_listen(self):
         self.__startup_complete = True
         if len(list(self.__topics.keys())) > 0:
@@ -142,6 +222,23 @@ class PubSub:
                     await self.__connect()
                     self.__waiting_for_pong = False
                 await asyncio.sleep(1)
+
+    async def __task_receive(self):
+        async for message in self.__connection:
+            data = json.loads(message)
+            switcher = {
+                'pong': self.__handle_pong,
+                'reconnect': self.__handle_reconnect,
+                'response': self.__handle_response,
+                'message': self.__handle_message
+            }
+            handler = switcher.get(data.get('type', '').lower(),
+                                   self.__handle_unknown)
+            await handler(data)
+
+###########################################################################################
+# Handler
+###########################################################################################
 
     async def __handle_pong(self, data):
         self.__waiting_for_pong = False
@@ -169,49 +266,19 @@ class PubSub:
     async def __handle_unknown(self, data):
         self.__logger.warning('got message of unknown type: ' + str(data))
 
-    async def __task_receive(self):
-        async for message in self.__connection:
-            data = json.loads(message)
-            switcher = {
-                'pong': self.__handle_pong,
-                'reconnect': self.__handle_reconnect,
-                'response': self.__handle_response,
-                'message': self.__handle_message
-            }
-            handler = switcher.get(data.get('type', '').lower(),
-                                   self.__handle_unknown)
-            await handler(data)
+###########################################################################################
+# Listener
+###########################################################################################
 
-    def __ask_exit(self):
-        for task in asyncio.Task.all_tasks(loop=self.__socket_loop):
-            task.cancel()
-
-    def start(self):
-        self.__startup_complete = False
-        self.__socket_thread = threading.Thread(target=self.__run_socket)
-        self.__running = True
-        self.__socket_thread.start()
-        while not self.__startup_complete:
-            time.sleep(0.01)
-
-    def stop(self):
-        self.__startup_complete = False
-        self.__running = False
-        for task in self.__tasks:
-            task.cancel()
-        self.__socket_loop.call_soon_threadsafe(self.__socket_loop.stop)
-        self.__socket_thread.join()
-
-    def __generic_listen(self, key, callback_func) -> UUID:
-        uuid = get_uuid()
-        if key not in self.__topics.keys():
-            self.__topics[key] = {'subs': {}}
-        self.__topics[key]['subs'][uuid] = callback_func
-        if self.__startup_complete:
-            asyncio.get_event_loop().run_until_complete(self.__send_listen(str(uuid), [key]))
-        return uuid
-
-    def unlisten(self, uuid: UUID):
+    def unlisten(self, uuid: UUID) -> None:
+        """
+        Unlisten to Topic subscription
+        :param ~uuid.UUID uuid: The UUID of the subscription you want to stop listening to
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the server response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the unsubscription is not confirmed in the time set by
+                `listen_confirm_timeout`
+        """
         clear_topics = []
         for topic, topic_data in self.__topics.items():
             if uuid in topic_data['subs'].keys():
@@ -227,35 +294,138 @@ class PubSub:
     def listen_whispers(self,
                         user_id: str,
                         callback_func: Callable[[UUID, dict], None]) -> UUID:
+        """
+        You are notified when anyone whispers the specified user or the specified user whispers to anyone.\n
+        Requires the :const:`twitchAPI.types.AuthScope.WHISPERS_READ` AuthScope.\n
+
+        :param str user_id: ID of the User
+        :param Callable[[~uuid.UUID,dict],None] callback_func: Function called on event
+        :return: UUID of this subscription
+        :rtype: ~uuid.UUID
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if required AuthScope is missing from Token
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by
+                `listen_confirm_timeout`
+        """
         return self.__generic_listen(f'whispers.{user_id}', callback_func)
 
     def listen_bits_v1(self,
                        channel_id: str,
                        callback_func: Callable[[UUID, dict], None]) -> UUID:
+        """
+        You are notified when anyone cheers in the specified channel.\n
+        Requires the :const:`twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
+
+        :param str channel_id: ID of the Channel
+        :param Callable[[~uuid.UUID,dict],None] callback_func: Function called on event
+        :return: UUID of this subscription
+        :rtype: ~uuid.UUID
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if required AuthScope is missing from Token
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by
+                `listen_confirm_timeout`
+        """
         return self.__generic_listen(f'channel-bits-events-v1.{channel_id}', callback_func)
 
     def listen_bits(self,
                     channel_id: str,
                     callback_func: Callable[[UUID, dict], None]) -> UUID:
+        """
+        You are notified when anyone cheers in the specified channel.\n
+        Requires the :const:`twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
+
+        :param str channel_id: ID of the Channel
+        :param Callable[[~uuid.UUID,dict],None] callback_func: Function called on event
+        :return: UUID of this subscription
+        :rtype: ~uuid.UUID
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if required AuthScope is missing from Token
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by
+                `listen_confirm_timeout`
+        """
         return self.__generic_listen(f'channel-bits-events-v2.{channel_id}', callback_func)
 
     def listen_bits_badge_notification(self,
                                        channel_id: str,
                                        callback_func: Callable[[UUID, dict], None]) -> UUID:
+        """
+        You are notified when a user earns a new Bits badge in the given channel,
+        and chooses to share the notification with chat.\n
+        Requires the :const:`twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
+
+        :param str channel_id: ID of the Channel
+        :param Callable[[~uuid.UUID,dict],None] callback_func: Function called on event
+        :return: UUID of this subscription
+        :rtype: ~uuid.UUID
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if required AuthScope is missing from Token
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by
+                `listen_confirm_timeout`
+        """
         return self.__generic_listen(f'channel-bits-badge-unlocks.{channel_id}', callback_func)
 
     def listen_channel_points(self,
                               channel_id: str,
                               callback_func: Callable[[UUID, dict], None]) -> UUID:
+        """
+        You are notified when a custom reward is redeemed in the channel.\n
+        Requires the :const:`twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` AuthScope.\n
+
+        :param str channel_id: ID of the Channel
+        :param Callable[[~uuid.UUID,dict],None] callback_func: Function called on event
+        :return: UUID of this subscription
+        :rtype: ~uuid.UUID
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if required AuthScope is missing from Token
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by
+                `listen_confirm_timeout`
+        """
         return self.__generic_listen(f'channel-points-channel-v1.{channel_id}', callback_func)
 
     def listen_channel_subscriptions(self,
                                      channel_id: str,
                                      callback_func: Callable[[UUID, dict], None]) -> UUID:
+        """
+        You are notified when anyone subscribes (first month), resubscribes (subsequent months),
+        or gifts a subscription to a channel. Subgift subscription messages contain recipient information.\n
+        Requires the :const:`twitchAPI.types.AuthScope.CHANNEL_SUBSCRIPTIONS` AuthScope.\n
+
+        :param str channel_id: ID of the Channel
+        :param Callable[[~uuid.UUID,dict],None] callback_func: Function called on event
+        :return: UUID of this subscription
+        :rtype: ~uuid.UUID
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if required AuthScope is missing from Token
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by
+                `listen_confirm_timeout`
+        """
         return self.__generic_listen(f'channel-subscribe-events-v1.{channel_id}', callback_func)
 
     def listen_chat_moderator_actions(self,
                                       user_id: str,
                                       channel_id: str,
                                       callback_func: Callable[[UUID, dict], None]) -> UUID:
+        """
+        Supports moderators listening to the topic, as well as users listening to the topic to receive their own events.
+        Examples of moderator actions are bans, unbans, timeouts, deleting messages,
+        changing chat mode (followers-only, subs-only), changing AutoMod levels, and adding a mod.\n
+        Requires the :const:`twitchAPI.types.AuthScope.CHANNEL_MODERATE` AuthScope.\n
+
+        :param str user_id: ID of the User
+        :param str channel_id: ID of the Channel
+        :param Callable[[~uuid.UUID,dict],None] callback_func: Function called on event
+        :return: UUID of this subscription
+        :rtype: ~uuid.UUID
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if required AuthScope is missing from Token
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by
+                `listen_confirm_timeout`
+        """
         return self.__generic_listen(f'chat_moderator_actions.{user_id}.{channel_id}', callback_func)
