@@ -191,6 +191,9 @@ class PubSub:
                     clear_topics.append(topic)
         if self.__startup_complete and len(clear_topics) > 0:
             asyncio.get_event_loop().run_until_complete(self.__send_listen(str(uuid), clear_topics, subscribe=False))
+        if len(clear_topics) > 0:
+            for topic in clear_topics:
+                self.__topics.pop(topic)
 
     def listen_whispers(self,
                         user_id: str,
