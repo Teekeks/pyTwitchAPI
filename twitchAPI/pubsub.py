@@ -19,6 +19,8 @@ class PubSub:
     ping_frequency: int = 120
     """:var int ping_frequency: with which frequency in seconds a ping command is send.
                                 You probably dont want to change this.
+                                This should never be shorter than 12 + ping_jitter seconds to avoid problems 
+                                with the pong timeout.
                                 Default: 120"""
     ping_jitter: int = 4
     """:var int ping_jitter: time in seconds added or subtracted from ping_frequency.
@@ -32,10 +34,14 @@ class PubSub:
     __socket_loop = None
     __topics: dict = {}
 
+    __waiting_for_pong: bool = False
+
     def __init__(self, twitch: Twitch):
         self.__twitch = twitch
 
     async def __connect(self):
+        if self.__connection is not None and self.__connection.open:
+            await self.__connection.close()
         self.__connection = await websockets.connect(TWITCH_PUB_SUB_URL)
         if self.__connection.open:
             listen_msg = {
@@ -72,13 +78,27 @@ class PubSub:
                              datetime.timedelta(seconds=random.randrange(self.ping_frequency - self.ping_jitter,
                                                                          self.ping_frequency + self.ping_jitter,
                                                                          1))
+
             while datetime.datetime.utcnow() < next_heartbeat:
                 await asyncio.sleep(1)
             logging.debug('send ping...')
+            pong_timeout = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
+            self.__waiting_for_pong = True
             await self.__send_message({'type': 'PING'})
+            while self.__waiting_for_pong:
+                if datetime.datetime.utcnow() > pong_timeout:
+                    logging.info('did not receive pong in time, reconnecting...')
+                    await self.__connect()
+                    self.__waiting_for_pong = False
+                await asyncio.sleep(1)
 
     async def __handle_pong(self, data):
+        self.__waiting_for_pong = False
         logging.debug('received pong')
+
+    async def __handle_reconnect(self, data):
+        logging.info('received reconnect command, reconnecting now...')
+        await self.__connect()
 
     async def __handle_unknown(self, data):
         from pprint import pprint
@@ -88,7 +108,8 @@ class PubSub:
         async for message in self.__connection:
             data = json.loads(message)
             switcher = {
-                'pong': self.__handle_pong
+                'pong': self.__handle_pong,
+                'reconnect': self.__handle_reconnect
             }
             handler = switcher.get(data.get('type', '').lower(),
                                    self.__handle_unknown)
