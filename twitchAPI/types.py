@@ -172,6 +172,14 @@ class CodeStatus(Enum):
 
 
 class PubSubResponseError(Enum):
+    """
+    :var BAD_MESSAGE: message is malformed
+    :var BAD_AUTH: user auth token is invalid
+    :var SERVER: server error
+    :var BAD_TOPIC: topic is invalid
+    :var NONE: no Error
+    :var UNKNOWN: a unknown error
+    """
     BAD_MESSAGE = 'ERR_BADMESSAGE'
     BAD_AUTH = 'ERR_BADAUTH'
     SERVER = 'ERR_SERVER'
@@ -206,4 +214,5 @@ class TwitchBackendException(TwitchAPIException):
 
 
 class PubSubListenTimeoutException(TwitchAPIException):
+    """when a a PubSub listen command times out"""
     pass
