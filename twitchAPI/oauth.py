@@ -82,11 +82,15 @@ class UserAuthenticator:
        :param list[~twitchAPI.types.AuthScope] scopes: List of the desired Auth scopes
        :param bool force_verify: If this is true, the user will always be prompted for authorization by twitch,
                     |default| :code:`False`
+
+        :var str url: The reachable URL that will be opened in the browser.
+                    |default| :code:`http://localhost:17563`
+        :var int port: The port that will be used. |default| :code:`17653`
        """
 
     __twitch: 'Twitch' = None
     port: int = 17563
-    url: str = 'localhost'
+    url: str = 'http://localhost:17563'
     scopes: List[AuthScope] = []
     force_verify: bool = False
     __state: str = str(get_uuid())
@@ -116,7 +120,7 @@ class UserAuthenticator:
     def __build_auth_url(self):
         params = {
             'client_id': self.__twitch.app_id,
-            'redirect_uri': f'http://{self.url}:{self.port}',
+            'redirect_uri': self.url,
             'response_type': 'code',
             'scope': build_scope(self.scopes),
             'force_verify': str(self.force_verify).lower(),
