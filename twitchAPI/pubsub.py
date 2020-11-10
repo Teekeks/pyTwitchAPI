@@ -149,9 +149,11 @@ class PubSub:
         self.__nonce_waiting_confirm[data.get('nonce')]['received'] = True
 
     async def __handle_message(self, data):
-        from pprint import pprint
-        pprint(data)
-        pass
+        topic_data = self.__topics.get(data.get('data', {}).get('topic', ''), None)
+        msg_data = json.loads(data.get('data', {}).get('message', '{}'))
+        if topic_data is not None:
+            for uuid, sub in topic_data.get('subs', {}).items():
+                sub(uuid, msg_data)
 
     async def __handle_unknown(self, data):
         self.__logger.warning('got message of unknown type: ' + str(data))
