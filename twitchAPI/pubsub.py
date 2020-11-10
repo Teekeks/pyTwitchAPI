@@ -100,7 +100,11 @@ class PubSub:
     def start(self) -> None:
         """
         Start the PubSub Client
+
+        :raises RuntimeError: if already started
         """
+        if self.__running:
+            raise RuntimeError('already started')
         self.__startup_complete = False
         self.__socket_thread = threading.Thread(target=self.__run_socket)
         self.__running = True
@@ -111,7 +115,12 @@ class PubSub:
     def stop(self) -> None:
         """
         Stop the PubSub Client
+
+        :raises RuntimeError: if the client is not running
         """
+
+        if not self.__running:
+            raise RuntimeError('not running')
         self.__startup_complete = False
         self.__running = False
         for task in self.__tasks:
