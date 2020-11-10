@@ -41,10 +41,12 @@ class PubSub:
     __startup_complete: bool = False
 
     __waiting_for_pong: bool = False
+    __logger: logging.Logger = None
     __nonce_waiting_confirm: dict = {}
 
     def __init__(self, twitch: Twitch):
         self.__twitch = twitch
+        self.__logger = logging.getLogger('twitchAPI.pubsub')
 
     async def __connect(self, is_startup=False):
         if self.__connection is not None and self.__connection.open:
@@ -67,6 +69,7 @@ class PubSub:
                                                'error': PubSubResponseError.NONE}
         timeout = datetime.datetime.utcnow() + datetime.timedelta(seconds=self.listen_confirm_timeout)
         confirmed = False
+        self.__logger.debug(f'sending {"" if subscribe else "un"}listen for topics {str(topics)} with nonce {nonce}')
         await self.__send_message(listen_msg)
         # wait for confirm
         while not confirmed and datetime.datetime.utcnow() < timeout:
@@ -118,29 +121,31 @@ class PubSub:
 
             while datetime.datetime.utcnow() < next_heartbeat:
                 await asyncio.sleep(1)
-            logging.debug('send ping...')
+            self.__logger.debug('send ping...')
             pong_timeout = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
             self.__waiting_for_pong = True
             await self.__send_message({'type': 'PING'})
             while self.__waiting_for_pong:
                 if datetime.datetime.utcnow() > pong_timeout:
-                    logging.info('did not receive pong in time, reconnecting...')
+                    self.__logger.info('did not receive pong in time, reconnecting...')
                     await self.__connect()
                     self.__waiting_for_pong = False
                 await asyncio.sleep(1)
 
     async def __handle_pong(self, data):
         self.__waiting_for_pong = False
-        logging.debug('received pong')
+        self.__logger.debug('received pong')
 
     async def __handle_reconnect(self, data):
-        logging.info('received reconnect command, reconnecting now...')
+        self.__logger.info('received reconnect command, reconnecting now...')
         await self.__connect()
 
     async def __handle_response(self, data):
-        self.__nonce_waiting_confirm[data.get('nonce')]['error'] = make_enum(data.get('error'),
-                                                                             PubSubResponseError,
-                                                                             PubSubResponseError.UNKNOWN)
+        error = make_enum(data.get('error'),
+                          PubSubResponseError,
+                          PubSubResponseError.UNKNOWN)
+        self.__logger.debug(f'got response for nonce {data.get("nonce")}: {str(error)}')
+        self.__nonce_waiting_confirm[data.get('nonce')]['error'] = error
         self.__nonce_waiting_confirm[data.get('nonce')]['received'] = True
 
     async def __handle_message(self, data):
@@ -149,8 +154,7 @@ class PubSub:
         pass
 
     async def __handle_unknown(self, data):
-        from pprint import pprint
-        pprint(data)
+        self.__logger.warning('got message of unknown type: ' + str(data))
 
     async def __task_receive(self):
         async for message in self.__connection:
