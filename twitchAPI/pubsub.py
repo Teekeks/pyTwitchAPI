@@ -10,7 +10,7 @@ import json
 import random
 import datetime
 import logging
-from typing import Union, Tuple, Callable, List
+from typing import Callable, List
 from uuid import UUID
 import time
 
@@ -40,6 +40,8 @@ class PubSub:
     __topics: dict = {}
     __startup_complete: bool = False
 
+    __tasks = None
+
     __waiting_for_pong: bool = False
     __logger: logging.Logger = None
     __nonce_waiting_confirm: dict = {}
@@ -51,7 +53,7 @@ class PubSub:
     async def __connect(self, is_startup=False):
         if self.__connection is not None and self.__connection.open:
             await self.__connection.close()
-        self.__connection = await websockets.connect(TWITCH_PUB_SUB_URL)
+        self.__connection = await websockets.connect(TWITCH_PUB_SUB_URL, loop=self.__socket_loop)
         if self.__connection.open and not is_startup:
             uuid = str(get_uuid())
             await self.__send_listen(uuid, list(self.__topics.keys()))
@@ -96,15 +98,18 @@ class PubSub:
         # startup
         self.__socket_loop.run_until_complete(self.__connect(is_startup=True))
 
-        tasks = [
+        self.__tasks = [
             asyncio.ensure_future(self.__task_heartbeat(), loop=self.__socket_loop),
             asyncio.ensure_future(self.__task_receive(), loop=self.__socket_loop),
             asyncio.ensure_future(self.__task_initial_listen(), loop=self.__socket_loop)
         ]
+
         try:
             self.__socket_loop.run_forever()
         except asyncio.CancelledError:
             pass
+        if self.__connection.open:
+            self.__socket_loop.run_until_complete(self.__connection.close())
 
     async def __task_initial_listen(self):
         self.__startup_complete = True
@@ -171,6 +176,10 @@ class PubSub:
                                    self.__handle_unknown)
             await handler(data)
 
+    def __ask_exit(self):
+        for task in asyncio.Task.all_tasks(loop=self.__socket_loop):
+            task.cancel()
+
     def start(self):
         self.__startup_complete = False
         self.__socket_thread = threading.Thread(target=self.__run_socket)
@@ -178,6 +187,14 @@ class PubSub:
         self.__socket_thread.start()
         while not self.__startup_complete:
             time.sleep(0.01)
+
+    def stop(self):
+        self.__startup_complete = False
+        self.__running = False
+        for task in self.__tasks:
+            task.cancel()
+        self.__socket_loop.call_soon_threadsafe(self.__socket_loop.stop)
+        self.__socket_thread.join()
 
     def __generic_listen(self, key, callback_func) -> UUID:
         uuid = get_uuid()
