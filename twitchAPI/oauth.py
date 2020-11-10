@@ -86,11 +86,13 @@ class UserAuthenticator:
         :var str url: The reachable URL that will be opened in the browser.
                     |default| :code:`http://localhost:17563`
         :var int port: The port that will be used. |default| :code:`17653`
+        :var str host: the host the webserver will bind to. |default| :code:`0.0.0.0`
        """
 
     __twitch: 'Twitch' = None
     port: int = 17563
     url: str = 'http://localhost:17563'
+    host: str = '0.0.0.0'
     scopes: List[AuthScope] = []
     force_verify: bool = False
     __state: str = str(get_uuid())
@@ -147,7 +149,7 @@ class UserAuthenticator:
         self.__loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.__loop)
         self.__loop.run_until_complete(runner.setup())
-        site = web.TCPSite(runner, self.url, self.port)
+        site = web.TCPSite(runner, self.host, self.port)
         self.__loop.run_until_complete(site.start())
         self.__server_running = True
         try:
@@ -208,7 +210,7 @@ class UserAuthenticator:
             'client_secret': self.__twitch.app_secret,
             'code': self.__user_token,
             'grant_type': 'authorization_code',
-            'redirect_uri': f'http://{self.url}:{self.port}'
+            'redirect_uri': self.url
         }
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', param)
         response = requests.post(url)
