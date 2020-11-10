@@ -1,4 +1,8 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
+"""
+Pubsub client
+-------------"""
+
 from .twitch import Twitch
 from .types import *
 from .helper import get_uuid, make_enum
@@ -16,21 +20,23 @@ import time
 
 
 class PubSub:
+    """The Pubsub client
+
+    :var int ping_frequency: with which frequency in seconds a ping command is send.
+                                You probably dont want to change this.
+                                This should never be shorter than 12 + ping_jitter seconds to avoid problems
+                                with the pong timeout.
+                                Default: 120
+    :var int ping_jitter: time in seconds added or subtracted from ping_frequency.
+                             You probably dont want to change this.
+                             Default: 4
+    :var int listen_confirm_timeout: maximum time in seconds waited for a listen confirm.
+                                        Default: 30
+    """
 
     ping_frequency: int = 120
-    """:var int ping_frequency: with which frequency in seconds a ping command is send.
-                                You probably dont want to change this.
-                                This should never be shorter than 12 + ping_jitter seconds to avoid problems 
-                                with the pong timeout.
-                                Default: 120"""
     ping_jitter: int = 4
-    """:var int ping_jitter: time in seconds added or subtracted from ping_frequency.
-                             You probably dont want to change this.
-                             Default: 4"""
-
     listen_confirm_timeout: int = 30
-    """:var int listen_confirm_timeout: maximum time in seconds waited for a listen confirm.
-                                        Default: 30"""
 
     __twitch: Twitch = None
     __connection = None
