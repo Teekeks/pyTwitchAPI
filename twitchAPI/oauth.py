@@ -50,6 +50,7 @@ from time import sleep
 from os import path
 import requests
 from concurrent.futures._base import CancelledError
+from logging import getLogger, Logger
 
 
 def refresh_access_token(refresh_token: str,
@@ -96,6 +97,7 @@ class UserAuthenticator:
     scopes: List[AuthScope] = []
     force_verify: bool = False
     __state: str = str(get_uuid())
+    __logger: Logger = None
 
     __client_id: str = None
 
@@ -118,6 +120,7 @@ class UserAuthenticator:
         self.__client_id = twitch.app_id
         self.scopes = scopes
         self.force_verify = force_verify
+        self.__logger = getLogger('twitchAPI.oauth')
 
     def __build_auth_url(self):
         params = {
@@ -152,6 +155,7 @@ class UserAuthenticator:
         site = web.TCPSite(runner, self.host, self.port)
         self.__loop.run_until_complete(site.start())
         self.__server_running = True
+        self.__logger.info('running oauth Webserver')
         try:
             self.__loop.run_until_complete(self.__run_check())
         except (CancelledError, asyncio.CancelledError):
@@ -170,6 +174,7 @@ class UserAuthenticator:
 
     async def __handle_callback(self, request: 'web.Request'):
         val = request.rel_url.query.get('state')
+        self.__logger.debug(f'got callback with state {val}')
         # invalid state!
         if val != self.__state:
             return web.Response(status=401)
