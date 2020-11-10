@@ -185,6 +185,35 @@ class PubSub:
     def listen_whispers(self,
                         user_id: str,
                         callback_func: Callable[[UUID, dict], None]) -> UUID:
-        key = f'whispers.{user_id}'
-        return self.__generic_listen(key, callback_func)
+        return self.__generic_listen(f'whispers.{user_id}', callback_func)
 
+    def listen_bits_v1(self,
+                       channel_id: str,
+                       callback_func: Callable[[UUID, dict], None]) -> UUID:
+        return self.__generic_listen(f'channel-bits-events-v1.{channel_id}', callback_func)
+
+    def listen_bits(self,
+                    channel_id: str,
+                    callback_func: Callable[[UUID, dict], None]) -> UUID:
+        return self.__generic_listen(f'channel-bits-events-v2.{channel_id}', callback_func)
+
+    def listen_bits_badge_notification(self,
+                                       channel_id: str,
+                                       callback_func: Callable[[UUID, dict], None]) -> UUID:
+        return self.__generic_listen(f'channel-bits-badge-unlocks.{channel_id}', callback_func)
+
+    def listen_channel_points(self,
+                              channel_id: str,
+                              callback_func: Callable[[UUID, dict], None]) -> UUID:
+        return self.__generic_listen(f'channel-points-channel-v1.{channel_id}', callback_func)
+
+    def listen_channel_subscriptions(self,
+                                     channel_id: str,
+                                     callback_func: Callable[[UUID, dict], None]) -> UUID:
+        return self.__generic_listen(f'channel-subscribe-events-v1.{channel_id}', callback_func)
+
+    def listen_chat_moderator_actions(self,
+                                      user_id: str,
+                                      channel_id: str,
+                                      callback_func: Callable[[UUID, dict], None]) -> UUID:
+        return self.__generic_listen(f'chat_moderator_actions.{user_id}.{channel_id}', callback_func)
