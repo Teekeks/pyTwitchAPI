@@ -275,6 +275,7 @@ class PubSub:
     def unlisten(self, uuid: UUID) -> None:
         """
         Stop listening to a specific Topic subscription.
+
         :param ~uuid.UUID uuid: The UUID of the subscription you want to stop listening to
         :raises ~twitchAPI.types.TwitchAuthorizationException: if Token is not valid
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
