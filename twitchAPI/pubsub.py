@@ -1,6 +1,7 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 from .twitch import Twitch
 from .types import *
+from .helper import get_uuid
 import asyncio
 import websockets
 import threading
@@ -9,6 +10,8 @@ import json
 import random
 import datetime
 import logging
+from typing import Union, Tuple, Callable, Any
+from uuid import UUID
 
 
 class PubSub:
@@ -74,11 +77,22 @@ class PubSub:
             logging.debug('send ping...')
             await self.__send_message({'type': 'PING'})
 
+    async def __handle_pong(self, data):
+        logging.debug('received pong')
+
+    async def __handle_unknown(self, data):
+        from pprint import pprint
+        pprint(data)
+
     async def __task_receive(self):
         async for message in self.__connection:
             data = json.loads(message)
-            from pprint import pprint
-            pprint(data)
+            switcher = {
+                'pong': self.__handle_pong
+            }
+            handler = switcher.get(data.get('type', '').lower(),
+                                   self.__handle_unknown)
+            await handler(data)
 
     def start(self):
         self.__socket_thread = threading.Thread(target=self.__run_socket)
@@ -86,6 +100,12 @@ class PubSub:
         self.__socket_thread.start()
 
     def listen_whispers(self,
-                        user_id: str):
-        self.__topics[f'whispers.{user_id}'] = {}
+                        user_id: str,
+                        callback_func: Callable[[UUID, dict], None]):
+        key = f'whispers.{user_id}'
+        uuid = get_uuid()
+        if key not in self.__topics.keys():
+            self.__topics[key] = {'subs': {}}
+        self.__topics[key]['subs'][uuid] = callback_func
+        return uuid
 
