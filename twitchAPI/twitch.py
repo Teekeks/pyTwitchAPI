@@ -112,6 +112,10 @@ class Twitch:
                 f'Bearer {self.__user_auth_token if self.__has_user_auth else self.__app_auth_token}'
         return header
 
+    def get_user_auth_scope(self) -> List[AuthScope]:
+        """Returns the set User auth Scope"""
+        return self.__user_auth_scope
+
     def refresh_used_token(self):
         """Refreshes the currently used token"""
         if self.__has_user_auth:
