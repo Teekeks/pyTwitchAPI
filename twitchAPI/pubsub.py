@@ -173,10 +173,7 @@ class PubSub:
         while not self.__startup_complete:
             time.sleep(0.01)
 
-    def listen_whispers(self,
-                        user_id: str,
-                        callback_func: Callable[[UUID, dict], None]) -> UUID:
-        key = f'whispers.{user_id}'
+    def __generic_listen(self, key, callback_func) -> UUID:
         uuid = get_uuid()
         if key not in self.__topics.keys():
             self.__topics[key] = {'subs': {}}
@@ -184,4 +181,10 @@ class PubSub:
         if self.__running:
             asyncio.get_event_loop().run_until_complete(self.__send_listen(str(uuid), [key]))
         return uuid
+
+    def listen_whispers(self,
+                        user_id: str,
+                        callback_func: Callable[[UUID, dict], None]) -> UUID:
+        key = f'whispers.{user_id}'
+        return self.__generic_listen(key, callback_func)
 
