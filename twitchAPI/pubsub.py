@@ -54,9 +54,9 @@ class PubSub:
             uuid = str(get_uuid())
             await self.__send_listen(uuid, list(self.__topics.keys()))
 
-    async def __send_listen(self, nonce: str, topics: List[str]):
+    async def __send_listen(self, nonce: str, topics: List[str], subscribe: bool = True):
         listen_msg = {
-            'type': 'LISTEN',
+            'type': 'LISTEN' if subscribe else 'UNLISTEN',
             'nonce': nonce,
             'data': {
                 'topics': topics,
@@ -178,9 +178,19 @@ class PubSub:
         if key not in self.__topics.keys():
             self.__topics[key] = {'subs': {}}
         self.__topics[key]['subs'][uuid] = callback_func
-        if self.__running:
+        if self.__startup_complete:
             asyncio.get_event_loop().run_until_complete(self.__send_listen(str(uuid), [key]))
         return uuid
+
+    def unlisten(self, uuid: UUID):
+        clear_topics = []
+        for topic, topic_data in self.__topics.items():
+            if uuid in topic_data['subs'].keys():
+                topic_data['subs'].pop(uuid)
+                if len(topic_data['subs'].keys()) == 0:
+                    clear_topics.append(topic)
+        if self.__startup_complete and len(clear_topics) > 0:
+            asyncio.get_event_loop().run_until_complete(self.__send_listen(str(uuid), clear_topics, subscribe=False))
 
     def listen_whispers(self,
                         user_id: str,
