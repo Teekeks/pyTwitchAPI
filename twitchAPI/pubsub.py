@@ -46,30 +46,29 @@ Class Documentation:
 
 from .twitch import Twitch
 from .types import *
-from .helper import get_uuid, make_enum
+from .helper import get_uuid, make_enum, TWITCH_PUB_SUB_URL
 import asyncio
 import websockets
 import threading
-from .helper import TWITCH_PUB_SUB_URL
 import json
-import random
+from random import randrange
 import datetime
-import logging
+from logging import getLogger, Logger
 from typing import Callable, List
 from uuid import UUID
-import time
+from time import sleep
 
 
 class PubSub:
-    """The Pubsub client
+    """The PubSub client
 
     :var int ping_frequency: with which frequency in seconds a ping command is send.
-                                You probably dont want to change this.
+                                You probably don't want to change this.
                                 This should never be shorter than 12 + `ping_jitter` seconds to avoid problems
                                 with the pong timeout.
                                 |default| :code:`120`
     :var int ping_jitter: time in seconds added or subtracted from `ping_frequency`.
-                             You probably dont want to change this.
+                             You probably don't want to change this.
                              |default| :code:`4`
     :var int listen_confirm_timeout: maximum time in seconds waited for a listen confirm.
                                         |default| :code:`30`
@@ -90,12 +89,12 @@ class PubSub:
     __tasks = None
 
     __waiting_for_pong: bool = False
-    __logger: logging.Logger = None
+    __logger: Logger = None
     __nonce_waiting_confirm: dict = {}
 
     def __init__(self, twitch: Twitch):
         self.__twitch = twitch
-        self.__logger = logging.getLogger('twitchAPI.pubsub')
+        self.__logger = getLogger('twitchAPI.pubsub')
 
     def start(self) -> None:
         """
@@ -106,7 +105,7 @@ class PubSub:
         self.__running = True
         self.__socket_thread.start()
         while not self.__startup_complete:
-            time.sleep(0.01)
+            sleep(0.01)
 
     def stop(self) -> None:
         """
@@ -206,9 +205,9 @@ class PubSub:
     async def __task_heartbeat(self):
         while True:
             next_heartbeat = datetime.datetime.utcnow() + \
-                             datetime.timedelta(seconds=random.randrange(self.ping_frequency - self.ping_jitter,
-                                                                         self.ping_frequency + self.ping_jitter,
-                                                                         1))
+                             datetime.timedelta(seconds=randrange(self.ping_frequency - self.ping_jitter,
+                                                                  self.ping_frequency + self.ping_jitter,
+                                                                  1))
 
             while datetime.datetime.utcnow() < next_heartbeat:
                 await asyncio.sleep(1)
@@ -272,7 +271,7 @@ class PubSub:
 
     def unlisten(self, uuid: UUID) -> None:
         """
-        Unlisten to Topic subscription
+        Stop listening to a specific Topic subscription.
         :param ~uuid.UUID uuid: The UUID of the subscription you want to stop listening to
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
         :raises ~twitchAPI.types.TwitchAPIException: if the server response is something else than suspected
