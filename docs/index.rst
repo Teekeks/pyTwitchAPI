@@ -56,6 +56,7 @@ Indices and tables
 
    twitchAPI.twitch
    twitchAPI.webhook
+   twitchAPI.pubsub
    twitchAPI.oauth
    twitchAPI.types
    twitchAPI.helper
