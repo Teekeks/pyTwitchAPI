@@ -77,6 +77,7 @@ class PubSub:
     ping_frequency: int = 120
     ping_jitter: int = 4
     listen_confirm_timeout: int = 30
+    reconnect_delay_steps: List[int] = [1, 2, 4, 8, 16, 32, 64, 128]
 
     __twitch: Twitch = None
     __connection = None
@@ -125,7 +126,20 @@ class PubSub:
     async def __connect(self, is_startup=False):
         if self.__connection is not None and self.__connection.open:
             await self.__connection.close()
-        self.__connection = await websockets.connect(TWITCH_PUB_SUB_URL, loop=self.__socket_loop)
+        retry = 0
+        need_retry = True
+        while need_retry and retry < len(self.reconnect_delay_steps):
+            need_retry = False
+            try:
+                self.__connection = await websockets.connect(TWITCH_PUB_SUB_URL, loop=self.__socket_loop)
+            except websockets.InvalidHandshake:
+                self.__logger.warning(f'connection attempt failed, retry in {self.reconnect_delay_steps[retry]}s...')
+                await asyncio.sleep(self.reconnect_delay_steps[retry])
+                retry += 1
+                need_retry = True
+        if retry >= len(self.reconnect_delay_steps):
+            raise TwitchBackendException('cant connect')
+
         if self.__connection.open and not is_startup:
             uuid = str(get_uuid())
             await self.__send_listen(uuid, list(self.__topics.keys()))
