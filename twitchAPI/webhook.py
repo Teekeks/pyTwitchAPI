@@ -86,7 +86,7 @@ from aiohttp import web
 import threading
 import asyncio
 from uuid import UUID
-import logging
+from logging import getLogger, Logger
 import time
 from .twitch import Twitch
 from concurrent.futures._base import CancelledError
@@ -131,11 +131,13 @@ class TwitchWebHook:
     __hook_thread: Union['threading.Thread', None] = None
     __hook_loop: Union['asyncio.AbstractEventLoop', None] = None
     __hook_runner: Union['web.AppRunner', None] = None
+    __logger: Logger = None
 
     def __init__(self, callback_url: str, api_client_id: str, port: int):
         self.callback_url = callback_url
         self.__client_id = api_client_id
         self._port = port
+        self.__logger = getLogger('twitchAPI.webhook')
 
     def authenticate(self, twitch: Twitch) -> None:
         """Set authentication for the Webhook. Can be either a app or user token.
@@ -178,7 +180,7 @@ class TwitchWebHook:
         self.__hook_loop.run_until_complete(runner.setup())
         site = web.TCPSite(runner, str(self._host), self._port)
         self.__hook_loop.run_until_complete(site.start())
-        logging.info('started twitch API hook on port ' + str(self._port))
+        self.__logger.info('started twitch API hook on port ' + str(self._port))
         # add refresh task
         if self.auto_renew_subscription:
             self.__task_refresh = self.__hook_loop.create_task(self.__refresh_task())
@@ -268,6 +270,7 @@ class TwitchWebHook:
 
     def _subscribe(self, callback_path: str, topic_url: str, mode: str = "subscribe", callback_full=True):
         """"Subscribe to Twitch Topic"""
+        self.__logger.debug(f'{mode} to topic {topic_url} for {callback_path}')
         data = {'hub.callback': self.callback_url + callback_path,
                 'hub.mode': mode,
                 'hub.topic': topic_url,
@@ -278,7 +281,7 @@ class TwitchWebHook:
             data['hub.secret'] = self.secret
         result = self.__api_post_request(TWITCH_API_BASE_URL + "webhooks/hub", data=data)
         if result.status_code != 202:
-            logging.error(f'Subscription failed! status code: {result.status_code}, body: {result.text}')
+            self.__logger.error(f'Subscription failed! status code: {result.status_code}, body: {result.text}')
         return result.status_code == 202
 
     def _generic_subscribe(self, callback_path: str, url: str, uuid: UUID, callback_func) -> bool:
@@ -306,6 +309,7 @@ class TwitchWebHook:
 
     def _generic_handle_callback(self, request: 'web.Request', data: Union[dict, list, None]) -> 'web.Response':
         uuid_str = request.rel_url.query.get('uuid')
+        self.__logger.debug(f'handle callback for uuid {uuid_str}')
         if data is None or uuid_str is None:
             return web.Response(text="")
         uuid = UUID(uuid_str)
@@ -358,7 +362,7 @@ class TwitchWebHook:
         url = self.__active_webhooks.get(uuid)
         if url is None:
             raise Exception(f'no subscription found for UUID {str(uuid)}')
-        logging.info('renewing webhook ' + str(uuid))
+        self.__logger.info('renewing webhook ' + str(uuid))
         return self._subscribe(url.get('callback_path'), url.get('url'))
 
     def unsubscribe(self,
@@ -378,7 +382,6 @@ class TwitchWebHook:
                 else:
                     # unsubscribe failed!
                     return False
-
 
         return success
 
@@ -592,6 +595,7 @@ class TwitchWebHook:
     async def __handle_challenge(self, request: 'web.Request'):
         challenge = request.rel_url.query.get('hub.challenge')
         if challenge is not None:
+            self.__logger.debug(f'received challenge for {request.rel_url.query.get("uuid")}')
             # found challenge, lets answer it
             if request.rel_url.query.get('hub.mode') == 'subscribe':
                 # we treat this as active as soon as we answer the challenge
@@ -629,7 +633,7 @@ class TwitchWebHook:
         data = await get_json(request)
         if data is not None:
             data = data['data'][0]
-            data = make_fields_datetime(data, 'event_timestamp')
+            data = make_fields_datetime(data, ['event_timestamp'])
         return self._generic_handle_callback(request, data)
 
     async def __handle_hypetrain_events(self, request: 'web.Request'):
