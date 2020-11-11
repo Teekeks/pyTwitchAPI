@@ -4,11 +4,11 @@ from setuptools import setup, find_packages
 setup(
     packages=find_packages(),
     name="twitchAPI",
-    version="2.0.1",
+    version="2.1",
     url="https://github.com/Teekeks/pyTwitchAPI",
     author="Lena \"Teekeks\" During",
     author_email="info@teawork.de",
-    description="A Python 3.7+ implementation of the Twitch Helix API and its Webhook",
+    description="A Python 3.7+ implementation of the Twitch Helix API, its Webhook and PubSub",
     license="MIT",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
