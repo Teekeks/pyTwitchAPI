@@ -50,6 +50,7 @@ from time import sleep
 from os import path
 import requests
 from concurrent.futures._base import CancelledError
+from logging import getLogger, Logger
 
 
 def refresh_access_token(refresh_token: str,
@@ -57,12 +58,9 @@ def refresh_access_token(refresh_token: str,
                          app_secret: str):
     """Simple helper function for refreshing a user access token.
 
-    :param refresh_token: the current refresh_token
-    :type refresh_token: str
-    :param app_id: the id of your app
-    :type app_id: str
-    :param app_secret: the secret key of your app
-    :type app_secret: str
+    :param str refresh_token: the current refresh_token
+    :param str app_id: the id of your app
+    :param str app_secret: the secret key of your app
     :return: access_token, refresh_token
     :rtype: (str, str)
     """
@@ -85,14 +83,21 @@ class UserAuthenticator:
        :param list[~twitchAPI.types.AuthScope] scopes: List of the desired Auth scopes
        :param bool force_verify: If this is true, the user will always be prompted for authorization by twitch,
                     |default| :code:`False`
+
+        :var str url: The reachable URL that will be opened in the browser.
+                    |default| :code:`http://localhost:17563`
+        :var int port: The port that will be used. |default| :code:`17653`
+        :var str host: the host the webserver will bind to. |default| :code:`0.0.0.0`
        """
 
     __twitch: 'Twitch' = None
     port: int = 17563
-    url: str = 'localhost'
+    url: str = 'http://localhost:17563'
+    host: str = '0.0.0.0'
     scopes: List[AuthScope] = []
     force_verify: bool = False
     __state: str = str(get_uuid())
+    __logger: Logger = None
 
     __client_id: str = None
 
@@ -115,11 +120,12 @@ class UserAuthenticator:
         self.__client_id = twitch.app_id
         self.scopes = scopes
         self.force_verify = force_verify
+        self.__logger = getLogger('twitchAPI.oauth')
 
     def __build_auth_url(self):
         params = {
             'client_id': self.__twitch.app_id,
-            'redirect_uri': f'http://{self.url}:{self.port}',
+            'redirect_uri': self.url,
             'response_type': 'code',
             'scope': build_scope(self.scopes),
             'force_verify': str(self.force_verify).lower(),
@@ -146,9 +152,10 @@ class UserAuthenticator:
         self.__loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.__loop)
         self.__loop.run_until_complete(runner.setup())
-        site = web.TCPSite(runner, self.url, self.port)
+        site = web.TCPSite(runner, self.host, self.port)
         self.__loop.run_until_complete(site.start())
         self.__server_running = True
+        self.__logger.info('running oauth Webserver')
         try:
             self.__loop.run_until_complete(self.__run_check())
         except (CancelledError, asyncio.CancelledError):
@@ -167,6 +174,7 @@ class UserAuthenticator:
 
     async def __handle_callback(self, request: 'web.Request'):
         val = request.rel_url.query.get('state')
+        self.__logger.debug(f'got callback with state {val}')
         # invalid state!
         if val != self.__state:
             return web.Response(status=401)
@@ -207,7 +215,7 @@ class UserAuthenticator:
             'client_secret': self.__twitch.app_secret,
             'code': self.__user_token,
             'grant_type': 'authorization_code',
-            'redirect_uri': f'http://{self.url}:{self.port}'
+            'redirect_uri': self.url
         }
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', param)
         response = requests.post(url)

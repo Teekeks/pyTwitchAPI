@@ -37,6 +37,17 @@ For more detailed usage examples, see the links below
     pprint(twitch.get_users(logins=['your_twitch_username']))
 
 
+Logging
+=======
+
+This module uses the `logging` module for creating Logs.
+Valid loggers are:
+
+* `twitchAPI.twitch`
+* `twitchAPI.pubsub`
+* `twitchAPI.oauth`
+* `twitchAPI.webhook`
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -48,7 +59,7 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`changelog`
+* :doc:`changelog`
 
 
 .. autosummary::
@@ -56,6 +67,7 @@ Indices and tables
 
    twitchAPI.twitch
    twitchAPI.webhook
+   twitchAPI.pubsub
    twitchAPI.oauth
    twitchAPI.types
    twitchAPI.helper

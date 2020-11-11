@@ -4,6 +4,26 @@ Changelog
 =====================================
 
 ****************
+Version 2.1
+****************
+
+Added a Twitch PubSub client implementation.
+
+See :doc:`modules/twitchAPI.pubsub` for more Info!
+
+* added PubSub client
+* made UserAuthenticator URL dynamic
+* added named loggers for all modules
+* fixed bug in Webhook.subscribe_subscription_events
+* added Twitch.get_user_auth_scope
+
+****************
+Version 2.0.1
+****************
+
+Fixed some bugs and implemented changes made to the Twitch API
+
+****************
 Version 2.0
 ****************
 

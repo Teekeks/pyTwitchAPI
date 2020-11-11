@@ -38,6 +38,7 @@ class AuthScope(Enum):
     :var WHISPERS_READ:
     :var WHISPERS_EDIT:
     :var MODERATION_READ:
+    :var CHANNEL_SUBSCRIPTIONS:
     """
     ANALYTICS_READ_EXTENSION = 'analytics:read:extensions'
     ANALYTICS_READ_GAMES = 'analytics:read:games'
@@ -60,6 +61,7 @@ class AuthScope(Enum):
     WHISPERS_READ = 'whispers:read'
     WHISPERS_EDIT = 'whispers:edit'
     MODERATION_READ = 'moderation:read'
+    CHANNEL_SUBSCRIPTIONS = 'channel_subscriptions'
 
 
 class ModerationEventType(Enum):
@@ -169,6 +171,23 @@ class CodeStatus(Enum):
     UNKNOWN_VALUE = ''
 
 
+class PubSubResponseError(Enum):
+    """
+    :var BAD_MESSAGE: message is malformed
+    :var BAD_AUTH: user auth token is invalid
+    :var SERVER: server error
+    :var BAD_TOPIC: topic is invalid
+    :var NONE: no Error
+    :var UNKNOWN: a unknown error
+    """
+    BAD_MESSAGE = 'ERR_BADMESSAGE'
+    BAD_AUTH = 'ERR_BADAUTH'
+    SERVER = 'ERR_SERVER'
+    BAD_TOPIC = 'ERR_BADTOPIC'
+    NONE = ''
+    UNKNOWN = 'unknown error'
+
+
 class TwitchAPIException(Exception):
     """Base Twitch API Exception"""
     pass
@@ -191,4 +210,9 @@ class MissingScopeException(TwitchAuthorizationException):
 
 class TwitchBackendException(TwitchAPIException):
     """when the Twitch API itself is down"""
+    pass
+
+
+class PubSubListenTimeoutException(TwitchAPIException):
+    """when a a PubSub listen command times out"""
     pass
