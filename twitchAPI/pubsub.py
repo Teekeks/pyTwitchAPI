@@ -6,7 +6,7 @@ PubSub client
 This is a full implementation of the PubSub API of twitch.
 PubSub enables you to subscribe to a topic, for updates (e.g., when a user cheers in a channel).
 
-Read more about i on `the Twitch API Documentation <https://dev.twitch.tv/docs/pubsub>`__.
+Read more about it on `the Twitch API Documentation <https://dev.twitch.tv/docs/pubsub>`__.
 
 .. note:: You **always** need User Authentication while using this!
 
