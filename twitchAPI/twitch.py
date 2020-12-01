@@ -1687,3 +1687,88 @@ class Twitch:
         data = make_fields_datetime(response.json(), ['timestamp'])
         return data
 
+    def create_custom_reward(self,
+                             broadcaster_id: str,
+                             title: str,
+                             prompt: str,
+                             cost: int,
+                             is_enabled: Optional[bool] = True,
+                             background_color: Optional[str] = None,
+                             is_user_input_required: Optional[bool] = False,
+                             is_max_per_stream_enabled: Optional[bool] = False,
+                             max_per_stream: Optional[int] = None,
+                             is_max_per_user_per_stream_enabled: Optional[bool] = False,
+                             max_per_user_per_stream: Optional[int] = None,
+                             is_global_cooldown_enabled: Optional[bool] = False,
+                             global_cooldown_seconds: Optional[int] = None,
+                             should_redemptions_skip_request_queue: Optional[bool] = False) -> dict:
+        """Creates a Custom Reward on a channel.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-custom-rewards
+
+        :param str broadcaster_id: ID of the broadcatser, must be same as user_id of auth token
+        :param str title: The title of the reward
+        :param str prompt: The prompt for the viewer when they are redeeming the reward
+        :param int cost: The cost of the reward
+        :param is_enabled: Is the reward currently enabled, if false the reward won’t show up to viewers.
+                    |default| :code:`true`
+        :param str background_color: Custom background color for the reward.
+                    Format: Hex with # prefix. Example: :code:`#00E5CB`.
+        :param bool is_user_input_required: Does the user need to enter information when redeeming the reward.
+                    |default| :code:`false`
+        :param bool is_max_per_stream_enabled: Whether a maximum per stream is enabled. |default| :code:`false`
+        :param int max_per_stream: The maximum number per stream if enabled
+        :param bool is_max_per_user_per_stream_enabled: Whether a maximum per user per stream is enabled.
+                    |default| :code:`false`
+        :param int max_per_user_per_stream: The maximum number per user per stream if enabled
+        :param bool is_global_cooldown_enabled: Whether a cooldown is enabled. |default| :code:`false`
+        :param int global_cooldown_seconds: The cooldown in seconds if enabled
+        :param bool should_redemptions_skip_request_queue: Should redemptions be set to FULFILLED status immediately
+                    when redeemed and skip the request queue instead of the normal UNFULFILLED status.
+                    |default| :code:`false`
+        :raises ValueError: if is_global_cooldown_enabled is True but global_cooldown_seconds is not specified
+        :raises ValueError: if is_max_per_stream_enabled is True but max_per_stream is not specified
+        :raises ValueError: if is_max_per_user_per_stream_enabled is True but max_per_user_per_stream is not specified
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchAPIException: if Channel Points are not available for the broadcaster
+        :rtype: dict
+        """
+
+        if is_global_cooldown_enabled and global_cooldown_seconds is None:
+            raise ValueError('please specify global_cooldown_seconds')
+        if is_max_per_stream_enabled and max_per_stream is None:
+            raise ValueError('please specify max_per_stream')
+        if is_max_per_user_per_stream_enabled and max_per_user_per_stream is None:
+            raise ValueError('please specify max_per_user_per_stream')
+
+        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
+                        {'broadcaster_id': broadcaster_id})
+        body = {x: y for x, y in {
+                                    'title': title,
+                                    'prompt': prompt,
+                                    'cost': cost,
+                                    'is_enabled': is_enabled,
+                                    'background_color': background_color,
+                                    'is_user_input_required': is_user_input_required,
+                                    'is_max_per_stream_enabled': is_max_per_stream_enabled,
+                                    'max_per_stream': max_per_stream,
+                                    'is_max_per_user_per_stream_enabled': is_max_per_user_per_stream_enabled,
+                                    'max_per_user_per_stream': max_per_user_per_stream,
+                                    'is_global_cooldown_enabled': is_global_cooldown_enabled,
+                                    'global_cooldown_seconds': global_cooldown_seconds,
+                                    'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
+                                 }.items() if y is not None}
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
+        if result.status_code == 400:
+            raise TwitchAPIException('Bad Request: Query Parameter missing or invalid')
+        elif result.status_code == 403:
+            raise TwitchAPIException('Forbidden: Channel Points are not available for the broadcaster')
+        data = result.json()
+        return make_fields_datetime(data, ['cooldown_expires_at'])
+
