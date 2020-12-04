@@ -1798,11 +1798,17 @@ class Twitch:
         """Deletes a Custom Reward on a channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-custom-rewards
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-custom-rewards
 
         :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
         :param str reward_id: ID of the Custom Reward to delete, must match a Custom Reward on broadcaster_id’s channel.
-        :return:
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.NotFoundException: if the broadcaster has no custom reward with the given id
         """
 
         url = build_url('channel_points/custom_rewards',
