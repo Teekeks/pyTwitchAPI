@@ -157,6 +157,8 @@ class Twitch:
         elif self.auto_refresh_auth and retries <= 0:
             if req.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
+            if req.status_code == 401:
+                raise UnauthorizedException()
         return req
 
     def __api_put_request(self,
@@ -184,6 +186,8 @@ class Twitch:
         elif self.auto_refresh_auth and retries <= 0:
             if req.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
+            if req.status_code == 401:
+                raise UnauthorizedException()
         return req
 
     def __api_patch_request(self,
@@ -211,6 +215,8 @@ class Twitch:
         elif self.auto_refresh_auth and retries <= 0:
             if req.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
+            if req.status_code == 401:
+                raise UnauthorizedException()
         return req
 
     def __api_delete_request(self,
@@ -238,6 +244,8 @@ class Twitch:
         elif self.auto_refresh_auth and retries <= 0:
             if req.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
+            if req.status_code == 401:
+                raise UnauthorizedException()
         return req
 
     def __api_get_request(self, url: str,
@@ -259,6 +267,8 @@ class Twitch:
         elif self.auto_refresh_auth and retries <= 0:
             if req.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
+            if req.status_code == 401:
+                raise UnauthorizedException()
         return req
 
     def __generate_app_token(self) -> None:
@@ -358,7 +368,7 @@ class Twitch:
                         `ended_at` must also be specified.
         :param ~twitchAPI.types.AnalyticsReportType report_type: Type of analytics report that is returned
         :rtype: dict
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -410,7 +420,7 @@ class Twitch:
         :param ~datetime.datetime started_at: Starting date/time for returned reports, if this is provided,
                         `ended_at` must also be specified.
         :param ~twitchAPI.types.AnalyticsReportType report_type: Type of analytics report that is returned.
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -456,7 +466,7 @@ class Twitch:
                 :const:`twitchAPI.types.TimePeriod.ALL`
         :param ~datetime.datetime started_at: Timestamp for the period over which the returned data is aggregated.
         :param str user_id: ID of the user whose results are returned; i.e., the person who paid for the Bits.
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -493,7 +503,7 @@ class Twitch:
         :param str transaction_id: Transaction IDs to look up.
         :param str after: cursor for forward pagination
         :param int first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -525,7 +535,7 @@ class Twitch:
         :param bool has_delay: If False, the clip is captured from the live stream when the API is called; otherwise,
                 a delay is added before the clip is captured (to account for the brief delay between the broadcaster’s
                 stream and the viewer’s experience of that stream). |default| :code:`False`
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -563,7 +573,7 @@ class Twitch:
         :param str before: Cursor for backward pagination
         :param ~datetime.datetime ended_at: Ending date/time for returned clips
         :param ~datetime.datetime started_at: Starting date/time for returned clips
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -604,7 +614,7 @@ class Twitch:
         https://dev.twitch.tv/docs/api/reference#create-entitlement-grants-upload-url
 
         :param str manifest_id: Unique identifier of the manifest file to be uploaded. Must be 1-64 characters.
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the the authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -632,7 +642,7 @@ class Twitch:
         :param list[str] code: The code to get the status of. Maximum of 20 entries
         :param int user_id: Represents the numeric Twitch user ID of the account which is going to receive the
                         entitlement associated with the code.
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -661,7 +671,7 @@ class Twitch:
         :param list[str] code: The code to redeem to the authenticated user’s account. Maximum of 20 entries
         :param int user_id: Represents the numeric Twitch user ID of the account which  is going to receive the
                         entitlement associated with the code.
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -691,7 +701,7 @@ class Twitch:
         :param str after: Cursor for forward pagination
         :param str before: Cursor for backward pagination
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -721,7 +731,7 @@ class Twitch:
 
         :param list[str] game_ids: Game ID
         :param list[str] names: Game Name
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -755,7 +765,7 @@ class Twitch:
         :param str msg_id: Developer-generated identifier for mapping messages to results.
         :param str msg_text: Message text.
         :param str user_id: User ID of the sender.
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -792,7 +802,7 @@ class Twitch:
                         this channel and have a matching user_id
         :param str after: Cursor for forward pagination
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -830,7 +840,7 @@ class Twitch:
                         channel and have a matching user_id.
         :param str after: Cursor for forward pagination
         :param str before: Cursor for backward pagination
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -860,7 +870,7 @@ class Twitch:
         :param list[str] user_ids: Filters the results and only returns a status object for users who are moderator in
                         this channel and have a matching user_id. Maximum 100
         :param str after: Cursor for forward pagination
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -890,7 +900,7 @@ class Twitch:
         :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
         :param list[str] user_ids: Filters the results and only returns a status object for users who are moderator in
                         this channel and have a matching user_id. Maximum 100
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -921,7 +931,7 @@ class Twitch:
 
         :param str user_id: ID of the broadcaster in whose live stream the marker is created.
         :param str description: Description of or comments on the marker. Max length is 140 characters.
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -963,7 +973,7 @@ class Twitch:
                         to 100 IDs.
         :param list[str] user_login: Returns streams broadcast by one or more specified user login names.
                         You can specify up to 100 names.
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1015,7 +1025,7 @@ class Twitch:
         :param str before: Cursor for backward pagination
         :param int first: Number of values to be returned when getting videos by user or game ID. Limit: 100.
                         |default| :code:`20`
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1048,7 +1058,7 @@ class Twitch:
 
         :param str broadcaster_id: User ID of the broadcaster. Must match the User ID in the Bearer token.
         :param list[str] user_ids: Unique identifier of account to get subscription status of. Maximum 100 entries
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1078,7 +1088,7 @@ class Twitch:
         :param str after: Cursor for forward pagination
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :param list[str] tag_ids: IDs of tags. Maximum 100 entries
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1106,7 +1116,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-tags
 
         :param str broadcaster_id: ID of the stream thats tags are going to be fetched
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1129,7 +1139,7 @@ class Twitch:
         :param str broadcaster_id: ID of the stream for which tags are to be replaced.
         :param list[str] tag_ids: IDs of tags to be applied to the stream. Maximum of 100 supported.
         :return: {}
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1160,7 +1170,7 @@ class Twitch:
 
         :param list[str] user_ids: User ID. Multiple user IDs can be specified. Limit: 100.
         :param list[str] logins: User login name. Multiple login names can be specified. Limit: 100.
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1197,7 +1207,7 @@ class Twitch:
         :param str from_id: User ID. The request returns information about users who are being followed by
                         the from_id user.
         :param str to_id: User ID. The request returns information about users who are following the to_id user.
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1226,7 +1236,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-user
 
         :param str description: User’s account description
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1243,7 +1253,7 @@ class Twitch:
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-extensions
 
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1263,7 +1273,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-active-extensions
 
         :param str user_id: ID of the user whose installed extensions will be returned.
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1283,7 +1293,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-user-extensions
 
         :param dict data: The user extension data to be written
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1324,7 +1334,7 @@ class Twitch:
         :param ~twitchAPI.types.TimePeriod period: Period during which the video was created.
         :param ~twitchAPI.types.SortMethod sort: Sort order of the videos.
         :param ~twitchAPI.types.VideoType video_type: Type of video.
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1367,7 +1377,7 @@ class Twitch:
 
         :param int first: Number of values to be returned per page. Limit: 100. |default| :code:`20`
         :param str after: Cursor for forward pagination
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1390,7 +1400,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-information
 
         :param str broadcaster_id: ID of the channel to be updated
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1414,7 +1424,7 @@ class Twitch:
         :param str game_id: The current game ID being played on the channel
         :param str broadcaster_language: The language of the channel
         :param str title: The title of the stream
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1447,7 +1457,7 @@ class Twitch:
         :param int first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
         :param str after: Cursor for forward pagination
         :param bool live_only: Filter results for live streams only. |default| :code:`False`
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1476,7 +1486,7 @@ class Twitch:
         :param str query: search query
         :param int first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
         :param str after: Cursor for forward pagination
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1500,7 +1510,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-key
 
         :param str broadcaster_id: User ID of the broadcaster
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1521,7 +1531,7 @@ class Twitch:
 
         :param str broadcaster_id: ID of the channel requesting a commercial
         :param int length: Desired length of the commercial in seconds. , one of these: [30, 60, 90, 120, 150, 180]
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1550,7 +1560,7 @@ class Twitch:
         :param str to_id: ID of the channel to be followed by the user
         :param bool allow_notifications: If true, the user gets email or push notifications (depending on the user’s
                         notification settings) when the channel goes live. |default| :code:`false`
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1574,7 +1584,7 @@ class Twitch:
 
         :param str from_id: User ID of the follower
         :param str to_id: Channel to be unfollowed by the user
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1596,7 +1606,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-cheermotes
 
         :param str broadcaster_id: ID for the broadcaster who might own specialized Cheermotes.
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1624,7 +1634,7 @@ class Twitch:
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`1`
         :param str id: The id of the wanted event, if known
         :param str cursor: Cursor for forward pagination
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user or app authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1666,7 +1676,7 @@ class Twitch:
         :param str game_id: A Twitch Game ID
         :param str after: The cursor used to fetch the next page of data.
         :param int first: Maximum number of entitlements to return. Maximum: 100 |default| :code:`20`
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
@@ -1730,7 +1740,7 @@ class Twitch:
         :raises ValueError: if is_global_cooldown_enabled is True but global_cooldown_seconds is not specified
         :raises ValueError: if is_max_per_stream_enabled is True but max_per_stream is not specified
         :raises ValueError: if is_max_per_user_per_stream_enabled is True but max_per_user_per_stream is not specified
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1771,4 +1781,5 @@ class Twitch:
             raise TwitchAPIException('Forbidden: Channel Points are not available for the broadcaster')
         data = result.json()
         return make_fields_datetime(data, ['cooldown_expires_at'])
+
 
