@@ -159,6 +159,8 @@ class Twitch:
                 raise TwitchBackendException('The Twitch API returns a server error')
             if req.status_code == 401:
                 raise UnauthorizedException()
+        if req.status_code == 500:
+            raise TwitchBackendException('Internal Server Error')
         return req
 
     def __api_put_request(self,
@@ -188,6 +190,8 @@ class Twitch:
                 raise TwitchBackendException('The Twitch API returns a server error')
             if req.status_code == 401:
                 raise UnauthorizedException()
+        if req.status_code == 500:
+            raise TwitchBackendException('Internal Server Error')
         return req
 
     def __api_patch_request(self,
@@ -217,6 +221,8 @@ class Twitch:
                 raise TwitchBackendException('The Twitch API returns a server error')
             if req.status_code == 401:
                 raise UnauthorizedException()
+        if req.status_code == 500:
+            raise TwitchBackendException('Internal Server Error')
         return req
 
     def __api_delete_request(self,
@@ -246,6 +252,8 @@ class Twitch:
                 raise TwitchBackendException('The Twitch API returns a server error')
             if req.status_code == 401:
                 raise UnauthorizedException()
+        if req.status_code == 500:
+            raise TwitchBackendException('Internal Server Error')
         return req
 
     def __api_get_request(self, url: str,
@@ -269,6 +277,8 @@ class Twitch:
                 raise TwitchBackendException('The Twitch API returns a server error')
             if req.status_code == 401:
                 raise UnauthorizedException()
+        if req.status_code == 500:
+            raise TwitchBackendException('Internal Server Error')
         return req
 
     def __generate_app_token(self) -> None:
@@ -1782,4 +1792,27 @@ class Twitch:
         data = result.json()
         return make_fields_datetime(data, ['cooldown_expires_at'])
 
+    def delete_custom_reward(self,
+                             broadcaster_id: str,
+                             reward_id: str):
+        """Deletes a Custom Reward on a channel.
 
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-custom-rewards
+
+        :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
+        :param str reward_id: ID of the Custom Reward to delete, must match a Custom Reward on broadcaster_id’s channel.
+        :return:
+        """
+
+        url = build_url('channel_points/custom_rewards',
+                        {'broadcaster_id': broadcaster_id,
+                         'id': reward_id})
+        result = self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS])
+
+        if result.status_code == 200:
+            return
+        if result.status_code == 404:
+            raise NotFoundException()
+        if result.status_code == 400:
+            raise TwitchAPIException('Bad request - Query/Body Parameter missing or invalid')
