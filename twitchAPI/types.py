@@ -194,8 +194,14 @@ class TwitchAPIException(Exception):
     """Base Twitch API Exception"""
     pass
 
+
 class InvalidRefreshTokenException(TwitchAPIException):
     """used User Refresh Token is invalid"""
+    pass
+
+
+class NotFoundException(TwitchAPIException):
+    """Resource was not found with the given parameter"""
     pass
 
 
