@@ -40,7 +40,7 @@ Class Documentation:
 """
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL
-from .types import AuthScope
+from .types import AuthScope, InvalidRefreshTokenException, UnauthorizedException
 from typing import List, Union
 import webbrowser
 from aiohttp import web
@@ -62,6 +62,9 @@ def refresh_access_token(refresh_token: str,
     :param str app_id: the id of your app
     :param str app_secret: the secret key of your app
     :return: access_token, refresh_token
+    :raises ~twitchAPI.types.InvalidRefreshTokenException: if refresh token is invalid
+    :raises ~twitchAPI.types.UnauthorizedException: if both refresh and access token are invalid (eg if the user changes
+                their password of the app gets disconnected)
     :rtype: (str, str)
     """
     param = {
@@ -73,6 +76,10 @@ def refresh_access_token(refresh_token: str,
     url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', {})
     result = requests.post(url, data=param)
     data = result.json()
+    if data.get('status', 200) == 400:
+        raise InvalidRefreshTokenException(data.get('message', ''))
+    if data.get('status', 200) == 401:
+        raise UnauthorizedException(data.get('message', ''))
     return data['access_token'], data['refresh_token']
 
 

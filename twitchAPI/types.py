@@ -194,6 +194,10 @@ class TwitchAPIException(Exception):
     """Base Twitch API Exception"""
     pass
 
+class InvalidRefreshTokenException(TwitchAPIException):
+    """used User Refresh Token is invalid"""
+    pass
+
 
 class TwitchAuthorizationException(TwitchAPIException):
     """Exception in the Twitch Authorization"""
