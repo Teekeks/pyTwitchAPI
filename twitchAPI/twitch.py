@@ -161,6 +161,8 @@ class Twitch:
                 raise UnauthorizedException()
         if req.status_code == 500:
             raise TwitchBackendException('Internal Server Error')
+        if req.status_code == 400:
+            raise TwitchAPIException('Bad Request')
         return req
 
     def __api_put_request(self,
@@ -192,6 +194,8 @@ class Twitch:
                 raise UnauthorizedException()
         if req.status_code == 500:
             raise TwitchBackendException('Internal Server Error')
+        if req.status_code == 400:
+            raise TwitchAPIException('Bad Request')
         return req
 
     def __api_patch_request(self,
@@ -223,6 +227,8 @@ class Twitch:
                 raise UnauthorizedException()
         if req.status_code == 500:
             raise TwitchBackendException('Internal Server Error')
+        if req.status_code == 400:
+            raise TwitchAPIException('Bad Request')
         return req
 
     def __api_delete_request(self,
@@ -254,6 +260,8 @@ class Twitch:
                 raise UnauthorizedException()
         if req.status_code == 500:
             raise TwitchBackendException('Internal Server Error')
+        if req.status_code == 400:
+            raise TwitchAPIException('Bad Request')
         return req
 
     def __api_get_request(self, url: str,
@@ -279,6 +287,8 @@ class Twitch:
                 raise UnauthorizedException()
         if req.status_code == 500:
             raise TwitchBackendException('Internal Server Error')
+        if req.status_code == 400:
+            raise TwitchAPIException('Bad Request')
         return req
 
     def __generate_app_token(self) -> None:
@@ -1822,3 +1832,38 @@ class Twitch:
             raise NotFoundException()
         if result.status_code == 400:
             raise TwitchAPIException('Bad request - Query/Body Parameter missing or invalid')
+
+    def get_custom_reward(self,
+                          broadcaster_id: str,
+                          reward_id: Optional[List[str]] = None,
+                          only_manageable_rewards: Optional[bool] = False) -> dict:
+        """Returns a list of Custom Reward objects for the Custom Rewards on a channel.
+        Developers only have access to update and delete rewards that the same/calling client_id created.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-custom-rewards
+
+        :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
+        :param list[str] reward_id: When used, this parameter filters the results and only returns reward objects
+                for the Custom Rewards with matching ID. Maximum: 50
+        :param bool only_manageable_rewards: When set to true, only returns custom rewards
+                that the calling client_id can manage. |default| :code:`false`
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user or app authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if if reward_id is longer than 50 entries
+        """
+
+        if reward_id is not None and len(reward_id) > 50:
+            raise ValueError('reward_id can not contain more than 50 entries')
+        url = build_url('channel_points/custom_rewards',
+                        {
+                            'broadcaster_id': broadcaster_id,
+                            'id': reward_id,
+                            'only_manageable_rewards': only_manageable_rewards
+                        }, remove_none=True, split_lists=True)
+
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_REDEMPTIONS])
+        return make_fields_datetime(result.json(), ['cooldown_expires_at'])
