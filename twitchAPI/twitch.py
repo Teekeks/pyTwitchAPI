@@ -1841,13 +1841,14 @@ class Twitch:
         Developers only have access to update and delete rewards that the same/calling client_id created.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS`\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-custom-rewards
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-custom-reward
 
         :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
         :param list[str] reward_id: When used, this parameter filters the results and only returns reward objects
                 for the Custom Rewards with matching ID. Maximum: 50
         :param bool only_manageable_rewards: When set to true, only returns custom rewards
                 that the calling client_id can manage. |default| :code:`false`
+        :rtype: dict
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user or app authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1867,3 +1868,66 @@ class Twitch:
 
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_REDEMPTIONS])
         return make_fields_datetime(result.json(), ['cooldown_expires_at'])
+
+    def get_custom_reward_redemption(self,
+                                     broadcaster_id: str,
+                                     reward_id: str,
+                                     id: Optional[List[str]] = None,
+                                     status: Optional[CustomRewardRedemptionStatus] = None,
+                                     sort: Optional[SortOrder] = SortOrder.OLDEST,
+                                     after: Optional[str] = None,
+                                     first: Optional[int] = 20) -> dict:
+        """Returns Custom Reward Redemption objects for a Custom Reward on a channel that was created by the
+        same client_id.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-custom-reward-redemption
+
+        :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
+        :param str reward_id: When ID is not provided, this parameter returns paginated Custom
+                Reward Redemption objects for redemptions of the Custom Reward with ID reward_id
+        :param list(str) id: When used, this param filters the results and only returns
+                Custom Reward Redemption objects for the redemptions with matching ID. Maximum: 50 ids
+                |default| :code:`None`
+        :param ~twitchAPI.types.CustomRewardRedemptionStatus status: When id is not provided, this param is required
+                and filters the paginated Custom Reward Redemption objects for redemptions with the matching status.
+                |default| :code:`None`
+        :param ~twitchAPI.types.SortOrder sort: Sort order of redemptions returned when getting the paginated
+                Custom Reward Redemption objects for a reward.
+                |default| :code:`~twitchAPI.types.SortOrder.OLDEST`
+        :param str after: Cursor for forward pagination. |default| :code:`None`
+        :param int first: Number of results to be returned when getting the paginated Custom Reward
+                Redemption objects for a reward. Limit: 50
+                |default| :code:`20`
+        :rtype: dict
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user or app authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if id has more than 50 entries
+        :raises valueError: if first is not in range 1 to 50
+        """
+
+        if first is not None and (first < 1 or first > 50):
+            raise ValueError('first must be in range 1 to 50')
+        if id is not None and len(id) > 50:
+            raise ValueError('id can not have more than 50 entries')
+
+        url = build_url('channel_points/custom_rewards/redemption',
+                        {
+                            'broadcaster_id': broadcaster_id,
+                            'reward_id': reward_id,
+                            'id': id,
+                            'status': status,
+                            'sort': sort,
+                            'after': after,
+                            'first': first
+                        }, remove_none=True, split_lists=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_REDEMPTIONS])
+        data = make_fields_datetime(result.json(), ['redeemed_at'])
+        data = fields_to_enum(data,
+                              ['status'],
+                              CustomRewardRedemptionStatus,
+                              CustomRewardRedemptionStatus.CANCELED)
+        return data
