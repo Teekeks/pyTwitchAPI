@@ -1894,7 +1894,7 @@ class Twitch:
                 |default| :code:`None`
         :param ~twitchAPI.types.SortOrder sort: Sort order of redemptions returned when getting the paginated
                 Custom Reward Redemption objects for a reward.
-                |default| :code:`~twitchAPI.types.SortOrder.OLDEST`
+                |default| :code:`SortOrder.OLDEST`
         :param str after: Cursor for forward pagination. |default| :code:`None`
         :param int first: Number of results to be returned when getting the paginated Custom Reward
                 Redemption objects for a reward. Limit: 50
@@ -1906,7 +1906,7 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if id has more than 50 entries
-        :raises valueError: if first is not in range 1 to 50
+        :raises ValueError: if first is not in range 1 to 50
         """
 
         if first is not None and (first < 1 or first > 50):
@@ -1931,3 +1931,5 @@ class Twitch:
                               CustomRewardRedemptionStatus,
                               CustomRewardRedemptionStatus.CANCELED)
         return data
+
+
