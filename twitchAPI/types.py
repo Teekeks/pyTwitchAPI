@@ -190,6 +190,26 @@ class PubSubResponseError(Enum):
     UNKNOWN = 'unknown error'
 
 
+class CustomRewardRedemptionStatus(Enum):
+    """
+    :var UNFULFILLED:
+    :var FULFILLED:
+    :var CANCELED:
+    """
+    UNFULFILLED = 'UNFULFILLED'
+    FULFILLED = 'FULFILLED'
+    CANCELED = 'CANCELED'
+
+
+class SortOrder(Enum):
+    """
+    :var OLDEST:
+    :var NEWEST:
+    """
+    OLDEST = 'OLDEST'
+    NEWEST = 'NEWEST'
+
+
 class TwitchAPIException(Exception):
     """Base Twitch API Exception"""
     pass

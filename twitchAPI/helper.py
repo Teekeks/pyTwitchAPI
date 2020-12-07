@@ -28,22 +28,31 @@ def extract_uuid_str_from_url(url: str) -> Union[str, None]:
     return uuids[0] if len(uuids) > 0 else None
 
 
-def build_url(url: str, params: dict, remove_none=False, split_lists=False) -> str:
+def build_url(url: str, params: dict, remove_none=False, split_lists=False, enum_value=True) -> str:
     """Build a valid url string
 
     :param url: base URL
     :param params: dictionary of URL parameter
-    :param remove_none: optional bool, if set all params that have a None value get removed
-    :param split_lists: optional bool, if set all params that are a list will be split over multiple url parameter with the same name
+    :param bool remove_none: if set all params that have a None value get removed |default| :code:`False`
+    :param bool split_lists: if set all params that are a list will be split over multiple url
+            parameter with the same name |default| :code:`False`
+    :param bool enum_value: if true, automatically get value string from Enum values |default| :code:`True`
     :return: URL
     :rtype: str
     """
+    def get_val(val):
+        if not enum_value:
+            return str(val)
+        if isinstance(val, Enum):
+            return str(val.value)
+        return str(val)
+
     def add_param(res, k, v):
         if len(res) > 0:
             res += "&"
         res += str(k)
         if v is not None:
-            res += "=" + urllib.parse.quote(str(v))
+            res += "=" + urllib.parse.quote(get_val(v))
         return res
     result = ""
     for key, value in params.items():
