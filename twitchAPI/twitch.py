@@ -849,6 +849,7 @@ class Twitch:
                          broadcaster_id: str,
                          user_id: Optional[str] = None,
                          after: Optional[str] = None,
+                         first: Optional[int] = 20,
                          before: Optional[str] = None) -> dict:
         """Returns all banned and timed-out users in a channel.\n\n
 
@@ -860,17 +861,22 @@ class Twitch:
                         channel and have a matching user_id.
         :param str after: Cursor for forward pagination
         :param str before: Cursor for backward pagination
+        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is not in range 1 to 100
         :rtype: dict
         """
+        if first < 1 or first > 100:
+            raise ValueError('first must be in range 1 to 100')
         param = {
             'broadcaster_id': broadcaster_id,
             'user_id': user_id,
             'after': after,
+            'first': first,
             'before': before
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/banned', param, remove_none=True)
