@@ -29,7 +29,8 @@ Authentication
 The Twitch API knows 2 different authentications. App and User Authentication.
 Which one you need (or if one at all) depends on what calls you want to use.
 
-Its always good to get at least App authentication even for calls where you dont need it since the rate limmits are way better for authenticated calls.
+Its always good to get at least App authentication even for calls where you dont need it since the rate limmits are way
+better for authenticated calls.
 
 
 App Authentication
@@ -141,7 +142,6 @@ class Twitch:
         """Make POST request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making POST request to {url}')
-        req = None
         if data is None:
             req = requests.post(url, headers=headers)
         else:
@@ -174,7 +174,6 @@ class Twitch:
         """Make PUT request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making PUT request to {url}')
-        req = None
         if data is None:
             req = requests.put(url, headers=headers)
         else:
@@ -207,7 +206,6 @@ class Twitch:
         """Make PATCH request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making PATCH request to {url}')
-        req = None
         if data is None:
             req = requests.patch(url, headers=headers)
         else:
@@ -240,7 +238,6 @@ class Twitch:
         """Make DELETE request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making DELETE request to {url}')
-        req = None
         if data is None:
             req = requests.delete(url, headers=headers)
         else:
