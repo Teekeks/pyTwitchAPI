@@ -886,6 +886,7 @@ class Twitch:
     def get_moderators(self,
                        broadcaster_id: str,
                        user_ids: Optional[List[str]] = None,
+                       first: Optional[int] = 20,
                        after: Optional[str] = None) -> dict:
         """Returns all moderators in a channel.\n\n
 
@@ -896,19 +897,24 @@ class Twitch:
         :param list[str] user_ids: Filters the results and only returns a status object for users who are moderator in
                         this channel and have a matching user_id. Maximum 100
         :param str after: Cursor for forward pagination
+        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if user_ids has more than 100 entries
+        :raises ValueError: if first is not in range 1 to 100
         :rtype: dict
         """
+        if first < 1 or first > 100:
+            raise ValueError('first must be in range 1 to 100')
         if user_ids is not None and len(user_ids) > 100:
             raise ValueError('user_ids can only be 100 entries long')
         param = {
             'broadcaster_id': broadcaster_id,
             'user_id': user_ids,
+            'first': first,
             'after': after
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators', param, remove_none=True, split_lists=True)
