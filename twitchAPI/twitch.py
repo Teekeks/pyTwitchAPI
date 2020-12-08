@@ -2018,3 +2018,53 @@ class Twitch:
                                      'not available for the broadcaster')
         data = result.json()
         return make_fields_datetime(data, ['cooldown_expires_at'])
+
+    def update_redemption_status(self,
+                                 broadcaster_id: str,
+                                 reward_id: str,
+                                 redemption_ids: List[str],
+                                 status: CustomRewardRedemptionStatus) -> dict:
+        """Updates the status of Custom Reward Redemption objects on a channel that
+                are in the :code:`UNFULFILLED` status.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-redemption-status
+
+        :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token.
+        :param str reward_id: ID of the Custom Reward the redemptions to be updated are for.
+        :param list(str) redemption_ids: IDs of the Custom Reward Redemption to update, must match a
+                    Custom Reward Redemption on broadcaster_id’s channel Max: 50
+        :param ~twitchAPI.types.CustomRewardRedemptionStatus status: The new status to set redemptions to.
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchAPIException: if Channel Points are not available for the broadcaster or
+                        the custom reward belongs to a different broadcaster
+        :raises ValueError: if redemption_ids is longer than 50 entries
+        :raises ValueError: if no custom reward redemptions with status UNFULFILLED where found for the given ids
+        :raises ~twitchAPI.types.TwitchAPIException: if Channel Points are not available for the broadcaster or
+                        the custom reward belongs to a different broadcaster
+        :rtype: dict
+        """
+        if len(redemption_ids) > 50:
+            raise ValueError('redemption_ids cant have more than 50 entries')
+
+        url = build_url('channel_points/custom_rewards/redemptions',
+                        {
+                            'id': redemption_ids,
+                            'broadcaster_id': broadcaster_id,
+                            'reward_id': reward_id
+                        }, split_lists=True)
+        body = {'status': status.value}
+        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], data=body)
+        if result.status_code == 404:
+            raise ValueError('no custom reward redemptions with the specified ids where found '
+                             'with a status of UNFULFILLED')
+        if result.status_code == 403:
+            raise TwitchAPIException('This custom reward was created by a different broadcaster or channel points are'
+                                     'not available for the broadcaster')
+        data = make_fields_datetime(result.json(), ['redeemed_at'])
+        return fields_to_enum(data, ['status'], CustomRewardRedemptionStatus, CustomRewardRedemptionStatus.CANCELED)
