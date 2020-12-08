@@ -322,13 +322,13 @@ class Twitch:
         self.__generate_app_token()
         self.__has_app_auth = True
 
-    def set_user_authentication(self, token: str, scope: List[AuthScope], refresh_token: Optional[str] = None) -> None:
+    def set_user_authentication(self, token: str, scope: List[AuthScope], refresh_token: Optional[str] = None):
         """Set a user token to be used.
 
         :param str token: the generated user token
         :param list[~twitchAPI.types.AuthScope] scope: List of Authorization Scopes that the given user token has
         :param str refresh_token: The generated refresh token, has to be provided if :attr:`auto_refresh_auth` is True
-        :return: None
+                    |default| :code:`None`
         :raises ValueError: if :attr:`auto_refresh_auth` is True but refresh_token is not set
         """
         if refresh_token is None and self.auto_refresh_auth:
@@ -378,15 +378,16 @@ class Twitch:
         Requires User authentication with scope :py:const:`twitchAPI.types.AuthScope.ANALYTICS_READ_EXTENSION`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-analytics
 
-        :param str after: cursor for forward pagination
-        :param str extension_id: If this is specified, the returned URL points to an analytics report for just the specified
-                            extension.
+        :param str after: cursor for forward pagination |default| :code:`None`
+        :param str extension_id: If this is specified, the returned URL points to an analytics report for just the
+                            specified extension. |default| :code:`None`
         :param int first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
         :param ~datetime.datetime ended_at: Ending date/time for returned reports, if this is provided,
-                        `started_at` must also be specified.
+                        `started_at` must also be specified. |default| :code:`None`
         :param ~datetime.datetime started_at: Starting date/time for returned reports, if this is provided,
-                        `ended_at` must also be specified.
+                        `ended_at` must also be specified. |default| :code:`None`
         :param ~twitchAPI.types.AnalyticsReportType report_type: Type of analytics report that is returned
+                        |default| :code:`None`
         :rtype: dict
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -432,14 +433,15 @@ class Twitch:
         Requires User authentication with scope :py:const:`twitchAPI.types.AuthScope.ANALYTICS_READ_GAMES`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-game-analytics
 
-        :param str after: cursor for forward pagination
+        :param str after: cursor for forward pagination |default| :code:`None`
         :param int first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
-        :param str game_id: Game ID
+        :param str game_id: Game ID |default| :code:`None`
         :param ~datetime.datetime ended_at: Ending date/time for returned reports, if this is provided,
-                        `started_at` must also be specified.
+                        `started_at` must also be specified. |default| :code:`None`
         :param ~datetime.datetime started_at: Starting date/time for returned reports, if this is provided,
-                        `ended_at` must also be specified.
+                        `ended_at` must also be specified. |default| :code:`None`
         :param ~twitchAPI.types.AnalyticsReportType report_type: Type of analytics report that is returned.
+                        |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -485,7 +487,9 @@ class Twitch:
         :param ~twitchAPI.types.TimePeriod period: Time period over which data is aggregated, |default|
                 :const:`twitchAPI.types.TimePeriod.ALL`
         :param ~datetime.datetime started_at: Timestamp for the period over which the returned data is aggregated.
+                |default| :code:`None`
         :param str user_id: ID of the user whose results are returned; i.e., the person who paid for the Bits.
+                |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -520,8 +524,8 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-transactions
 
         :param str extension_id: ID of the extension to list transactions for.
-        :param str transaction_id: Transaction IDs to look up.
-        :param str after: cursor for forward pagination
+        :param str transaction_id: Transaction IDs to look up. |default| :code:`None`
+        :param str after: cursor for forward pagination |default| :code:`None`
         :param int first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -585,14 +589,14 @@ class Twitch:
         Requires App or User authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-clips
 
-        :param str broadcaster_id: ID of the broadcaster for whom clips are returned.
-        :param str game_id: ID of the game for which clips are returned.
-        :param list[str] clip_id: ID of the clip being queried. Limit: 100.
+        :param str broadcaster_id: ID of the broadcaster for whom clips are returned. |default| :code:`None`
+        :param str game_id: ID of the game for which clips are returned. |default| :code:`None`
+        :param list[str] clip_id: ID of the clip being queried. Limit: 100. |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
-        :param str after: Cursor for forward pagination
-        :param str before: Cursor for backward pagination
-        :param ~datetime.datetime ended_at: Ending date/time for returned clips
-        :param ~datetime.datetime started_at: Starting date/time for returned clips
+        :param str after: Cursor for forward pagination |default| :code:`None`
+        :param str before: Cursor for backward pagination |default| :code:`None`
+        :param ~datetime.datetime ended_at: Ending date/time for returned clips |default| :code:`None`
+        :param ~datetime.datetime started_at: Starting date/time for returned clips |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -718,8 +722,8 @@ class Twitch:
         Requires App or User authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-top-games
 
-        :param str after: Cursor for forward pagination
-        :param str before: Cursor for backward pagination
+        :param str after: Cursor for forward pagination |default| :code:`None`
+        :param str before: Cursor for backward pagination |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -749,8 +753,8 @@ class Twitch:
 
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-games
 
-        :param list[str] game_ids: Game ID
-        :param list[str] names: Game Name
+        :param list[str] game_ids: Game ID |default| :code:`None`
+        :param list[str] names: Game Name |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -819,8 +823,8 @@ class Twitch:
 
         :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
         :param str user_id: Filters the results and only returns a status object for users who are banned in
-                        this channel and have a matching user_id
-        :param str after: Cursor for forward pagination
+                        this channel and have a matching user_id |default| :code:`None`
+        :param str after: Cursor for forward pagination |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -858,9 +862,9 @@ class Twitch:
 
         :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
         :param str user_id: Filters the results and only returns a status object for users who are banned in this
-                        channel and have a matching user_id.
-        :param str after: Cursor for forward pagination
-        :param str before: Cursor for backward pagination
+                        channel and have a matching user_id. |default| :code:`None`
+        :param str after: Cursor for forward pagination |default| :code:`None`
+        :param str before: Cursor for backward pagination |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -895,8 +899,8 @@ class Twitch:
 
         :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
         :param list[str] user_ids: Filters the results and only returns a status object for users who are moderator in
-                        this channel and have a matching user_id. Maximum 100
-        :param str after: Cursor for forward pagination
+                        this channel and have a matching user_id. Maximum 100 |default| :code:`None`
+        :param str after: Cursor for forward pagination |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -933,7 +937,7 @@ class Twitch:
 
         :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
         :param list[str] user_ids: Filters the results and only returns a status object for users who are moderator in
-                        this channel and have a matching user_id. Maximum 100
+                        this channel and have a matching user_id. Maximum 100 |default| :code:`None`
         :param str after: Cursor for forward pagination |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
@@ -972,6 +976,7 @@ class Twitch:
 
         :param str user_id: ID of the broadcaster in whose live stream the marker is created.
         :param str description: Description of or comments on the marker. Max length is 140 characters.
+                        |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1005,15 +1010,16 @@ class Twitch:
         Requires App or User authentication.\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-streams
 
-        :param str after: Cursor for forward pagination
-        :param str before: Cursor for backward pagination
+        :param str after: Cursor for forward pagination |default| :code:`None`
+        :param str before: Cursor for backward pagination |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :param list[str] game_id: Returns streams broadcasting a specified game ID. You can specify up to 100 IDs.
-        :param list[str] language: Stream language. You can specify up to 100 languages.
+                        |default| :code:`None`
+        :param list[str] language: Stream language. You can specify up to 100 languages. |default| :code:`None`
         :param list[str] user_id: Returns streams broadcast by one or more specified user IDs. You can specify up
-                        to 100 IDs.
+                        to 100 IDs. |default| :code:`None`
         :param list[str] user_login: Returns streams broadcast by one or more specified user login names.
-                        You can specify up to 100 names.
+                        You can specify up to 100 names. |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1062,8 +1068,8 @@ class Twitch:
 
         :param str user_id: ID of the broadcaster from whose stream markers are returned.
         :param str video_id: ID of the VOD/video whose stream markers are returned.
-        :param str after: Cursor for forward pagination
-        :param str before: Cursor for backward pagination
+        :param str after: Cursor for forward pagination |default| :code:`None`
+        :param str before: Cursor for backward pagination |default| :code:`None`
         :param int first: Number of values to be returned when getting videos by user or game ID. Limit: 100.
                         |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
@@ -1101,6 +1107,7 @@ class Twitch:
 
         :param str broadcaster_id: User ID of the broadcaster. Must match the User ID in the Bearer token.
         :param list[str] user_ids: Unique identifier of account to get subscription status of. Maximum 100 entries
+                        |default| :code:`None`
         :param str after: Cursor for forward pagination. |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
@@ -1135,9 +1142,9 @@ class Twitch:
         Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-all-stream-tags
 
-        :param str after: Cursor for forward pagination
+        :param str after: Cursor for forward pagination |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
-        :param list[str] tag_ids: IDs of tags. Maximum 100 entries
+        :param list[str] tag_ids: IDs of tags. Maximum 100 entries |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1218,8 +1225,9 @@ class Twitch:
 
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users
 
-        :param list[str] user_ids: User ID. Multiple user IDs can be specified. Limit: 100.
+        :param list[str] user_ids: User ID. Multiple user IDs can be specified. Limit: 100. |default| :code:`None`
         :param list[str] logins: User login name. Multiple login names can be specified. Limit: 100.
+                        |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1252,11 +1260,12 @@ class Twitch:
         You have to use at least one of the following fields: from_id, to_id
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users-follows
 
-        :param str after: Cursor for forward pagination
+        :param str after: Cursor for forward pagination |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :param str from_id: User ID. The request returns information about users who are being followed by
-                        the from_id user.
+                        the from_id user. |default| :code:`None`
         :param str to_id: User ID. The request returns information about users who are following the to_id user.
+                        |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1322,7 +1331,7 @@ class Twitch:
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-active-extensions
 
-        :param str user_id: ID of the user whose installed extensions will be returned.
+        :param str user_id: ID of the user whose installed extensions will be returned. |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1429,7 +1438,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-webhook-subscriptions
 
         :param int first: Number of values to be returned per page. Limit: 100. |default| :code:`20`
-        :param str after: Cursor for forward pagination
+        :param str after: Cursor for forward pagination |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1474,9 +1483,9 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#modify-channel-information
 
         :param str broadcaster_id: ID of the channel to be updated
-        :param str game_id: The current game ID being played on the channel
-        :param str broadcaster_language: The language of the channel
-        :param str title: The title of the stream
+        :param str game_id: The current game ID being played on the channel |default| :code:`None`
+        :param str broadcaster_language: The language of the channel |default| :code:`None`
+        :param str title: The title of the stream |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1508,7 +1517,7 @@ class Twitch:
 
         :param str query: search query
         :param int first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
-        :param str after: Cursor for forward pagination
+        :param str after: Cursor for forward pagination |default| :code:`None`
         :param bool live_only: Filter results for live streams only. |default| :code:`False`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1538,7 +1547,7 @@ class Twitch:
 
         :param str query: search query
         :param int first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
-        :param str after: Cursor for forward pagination
+        :param str after: Cursor for forward pagination |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1612,7 +1621,7 @@ class Twitch:
         :param str from_id: User ID of the follower
         :param str to_id: ID of the channel to be followed by the user
         :param bool allow_notifications: If true, the user gets email or push notifications (depending on the user’s
-                        notification settings) when the channel goes live. |default| :code:`false`
+                        notification settings) when the channel goes live. |default| :code:`False`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1685,8 +1694,8 @@ class Twitch:
 
         :param str broadcaster_id: User ID of the broadcaster.
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`1`
-        :param str id: The id of the wanted event, if known
-        :param str cursor: Cursor for forward pagination
+        :param str id: The id of the wanted event, if known |default| :code:`None`
+        :param str cursor: Cursor for forward pagination |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user or app authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1724,10 +1733,10 @@ class Twitch:
         See Twitch documentation for valid parameter combinations!\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-drops-entitlements
 
-        :param str id: Unique Identifier of the entitlement
-        :param str user_id: A Twitch User ID
-        :param str game_id: A Twitch Game ID
-        :param str after: The cursor used to fetch the next page of data.
+        :param str id: Unique Identifier of the entitlement |default| :code:`None`
+        :param str user_id: A Twitch User ID |default| :code:`None`
+        :param str game_id: A Twitch Game ID |default| :code:`None`
+        :param str after: The cursor used to fetch the next page of data. |default| :code:`None`
         :param int first: Maximum number of entitlements to return. Maximum: 100 |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1776,17 +1785,17 @@ class Twitch:
         :param int cost: The cost of the reward
         :param is_enabled: Is the reward currently enabled, if false the reward won’t show up to viewers.
                     |default| :code:`true`
-        :param str background_color: Custom background color for the reward.
+        :param str background_color: Custom background color for the reward. |default| :code:`None`
                     Format: Hex with # prefix. Example: :code:`#00E5CB`.
         :param bool is_user_input_required: Does the user need to enter information when redeeming the reward.
                     |default| :code:`false`
         :param bool is_max_per_stream_enabled: Whether a maximum per stream is enabled. |default| :code:`false`
-        :param int max_per_stream: The maximum number per stream if enabled
+        :param int max_per_stream: The maximum number per stream if enabled |default| :code:`None`
         :param bool is_max_per_user_per_stream_enabled: Whether a maximum per user per stream is enabled.
                     |default| :code:`false`
-        :param int max_per_user_per_stream: The maximum number per user per stream if enabled
+        :param int max_per_user_per_stream: The maximum number per user per stream if enabled |default| :code:`None`
         :param bool is_global_cooldown_enabled: Whether a cooldown is enabled. |default| :code:`false`
-        :param int global_cooldown_seconds: The cooldown in seconds if enabled
+        :param int global_cooldown_seconds: The cooldown in seconds if enabled |default| :code:`None`
         :param bool should_redemptions_skip_request_queue: Should redemptions be set to FULFILLED status immediately
                     when redeemed and skip the request queue instead of the normal UNFULFILLED status.
                     |default| :code:`false`
@@ -1874,7 +1883,7 @@ class Twitch:
 
         :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
         :param list[str] reward_id: When used, this parameter filters the results and only returns reward objects
-                for the Custom Rewards with matching ID. Maximum: 50
+                for the Custom Rewards with matching ID. Maximum: 50 |default| :code:`None`
         :param bool only_manageable_rewards: When set to true, only returns custom rewards
                 that the calling client_id can manage. |default| :code:`false`
         :rtype: dict
@@ -1915,7 +1924,7 @@ class Twitch:
         :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
         :param str reward_id: When ID is not provided, this parameter returns paginated Custom
                 Reward Redemption objects for redemptions of the Custom Reward with ID reward_id
-        :param list(str) id: When used, this param filters the results and only returns
+        :param list(str) id: When used, this param filters the results and only returns |default| :code:`None`
                 Custom Reward Redemption objects for the redemptions with matching ID. Maximum: 50 ids
                 |default| :code:`None`
         :param ~twitchAPI.types.CustomRewardRedemptionStatus status: When id is not provided, this param is required
@@ -1989,17 +1998,17 @@ class Twitch:
         :param int cost: The cost of the reward
         :param is_enabled: Is the reward currently enabled, if false the reward won’t show up to viewers.
                     |default| :code:`true`
-        :param str background_color: Custom background color for the reward.
+        :param str background_color: Custom background color for the reward. |default| :code:`None`
                     Format: Hex with # prefix. Example: :code:`#00E5CB`.
         :param bool is_user_input_required: Does the user need to enter information when redeeming the reward.
                     |default| :code:`false`
         :param bool is_max_per_stream_enabled: Whether a maximum per stream is enabled. |default| :code:`false`
-        :param int max_per_stream: The maximum number per stream if enabled
+        :param int max_per_stream: The maximum number per stream if enabled |default| :code:`None`
         :param bool is_max_per_user_per_stream_enabled: Whether a maximum per user per stream is enabled.
                     |default| :code:`false`
-        :param int max_per_user_per_stream: The maximum number per user per stream if enabled
+        :param int max_per_user_per_stream: The maximum number per user per stream if enabled |default| :code:`None`
         :param bool is_global_cooldown_enabled: Whether a cooldown is enabled. |default| :code:`false`
-        :param int global_cooldown_seconds: The cooldown in seconds if enabled
+        :param int global_cooldown_seconds: The cooldown in seconds if enabled |default| :code:`None`
         :param bool should_redemptions_skip_request_queue: Should redemptions be set to FULFILLED status immediately
                     when redeemed and skip the request queue instead of the normal UNFULFILLED status.
                     |default| :code:`false`
