@@ -4,6 +4,20 @@ Changelog
 =====================================
 
 ****************
+Version 2.2.0
+****************
+
+* added missing "Create custom rewards" endpoint
+* added missing "Delete Custom rewards" endpoint
+* added missing "Get Custom Reward" endpoint
+* added missing "Get custom reward redemption" endpoint
+* added missing "Update custom Reward" endpoint
+* added missing "Update redemption status" endpoint
+* added missing pagination parameters to endpoints that support them
+* improved documentation
+* properly handle 401 response after retries
+
+****************
 Version 2.1
 ****************
 
