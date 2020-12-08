@@ -1785,8 +1785,8 @@ class Twitch:
         :param int cost: The cost of the reward
         :param is_enabled: Is the reward currently enabled, if false the reward won’t show up to viewers.
                     |default| :code:`true`
-        :param str background_color: Custom background color for the reward. |default| :code:`None`
-                    Format: Hex with # prefix. Example: :code:`#00E5CB`.
+        :param str background_color: Custom background color for the reward.
+                    Format: Hex with # prefix. Example: :code:`#00E5CB`. |default| :code:`None`
         :param bool is_user_input_required: Does the user need to enter information when redeeming the reward.
                     |default| :code:`false`
         :param bool is_max_per_stream_enabled: Whether a maximum per stream is enabled. |default| :code:`false`
