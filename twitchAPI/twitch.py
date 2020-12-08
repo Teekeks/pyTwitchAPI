@@ -29,7 +29,7 @@ Authentication
 The Twitch API knows 2 different authentications. App and User Authentication.
 Which one you need (or if one at all) depends on what calls you want to use.
 
-Its always good to get at least App authentication even for calls where you dont need it since the rate limmits are way
+Its always good to get at least App authentication even for calls where you don't need it since the rate limits are way
 better for authenticated calls.
 
 
@@ -1169,7 +1169,7 @@ class Twitch:
         Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-tags
 
-        :param str broadcaster_id: ID of the stream thats tags are going to be fetched
+        :param str broadcaster_id: ID of the stream that's tags are going to be fetched
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1776,7 +1776,7 @@ class Twitch:
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-custom-rewards
 
-        :param str broadcaster_id: ID of the broadcatser, must be same as user_id of auth token
+        :param str broadcaster_id: ID of the broadcaster, must be same as user_id of auth token
         :param str title: The title of the reward
         :param str prompt: The prompt for the viewer when they are redeeming the reward
         :param int cost: The cost of the reward
@@ -1988,7 +1988,7 @@ class Twitch:
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-custom-rewards
 
-        :param str broadcaster_id: ID of the broadcatser, must be same as user_id of auth token
+        :param str broadcaster_id: ID of the broadcaster, must be same as user_id of auth token
         :param str reward_id: ID of the reward that you want to update
         :param str title: The title of the reward
         :param str prompt: The prompt for the viewer when they are redeeming the reward
