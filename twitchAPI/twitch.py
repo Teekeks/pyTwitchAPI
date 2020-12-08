@@ -1363,7 +1363,7 @@ class Twitch:
                    game_id: Optional[str] = None,
                    after: Optional[str] = None,
                    before: Optional[str] = None,
-                   first: int = 20,
+                   first: Optional[int] = 20,
                    language: Optional[str] = None,
                    period: TimePeriod = TimePeriod.ALL,
                    sort: SortMethod = SortMethod.TIME,
@@ -1373,17 +1373,20 @@ class Twitch:
         Requires App authentication.\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-videos
 
-        :param list[str] ids: ID of the video being queried. Limit: 100.
-        :param str user_id: ID of the user who owns the video.
-        :param str game_id: ID of the game the video is of.
-        :param str after: Cursor for forward pagination
-        :param str before: Cursor for backward pagination
+        :param list[str] ids: ID of the video being queried. Limit: 100. |default| :code:`None`
+        :param str user_id: ID of the user who owns the video. |default| :code:`None`
+        :param str game_id: ID of the game the video is of. |default| :code:`None`
+        :param str after: Cursor for forward pagination |default| :code:`None`
+        :param str before: Cursor for backward pagination |default| :code:`None`
         :param int first: Number of values to be returned when getting videos by user or game ID.
                         Limit: 100. |default| :code:`20`
-        :param str language: Language of the video being queried.
+        :param str language: Language of the video being queried. |default| :code:`None`
         :param ~twitchAPI.types.TimePeriod period: Period during which the video was created.
+                        |default| :code:`TimePeriod.ALL`
         :param ~twitchAPI.types.SortMethod sort: Sort order of the videos.
+                        |default| :code:`SortMethod.TIME`
         :param ~twitchAPI.types.VideoType video_type: Type of video.
+                        |default| :code:`VideoType.ALL`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
