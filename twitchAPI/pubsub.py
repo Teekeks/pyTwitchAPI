@@ -18,6 +18,7 @@ Short code example:
 
     from twitchAPI.pubsub import PubSub
     from twitchAPI.twitch import Twitch
+    from twitchAPI.types import AuthScope
     from pprint import pprint
     from uuid import UUID
 
@@ -25,11 +26,13 @@ Short code example:
         print('got callback for UUID ' + str(uuid))
         pprint(data)
 
+    # setting up Authentication and getting your user id
     twitch = Twitch('my_app_id', 'my_app_secret')
     twitch.authenticate_app([])
     twitch.set_user_authentication('my_user_auth_token', [AuthScope.WHISPERS_READ], 'my_user_auth_refresh_token')
     user_id = twitch.get_users(logins=['my_username'])['data'][0]['id']
 
+    # starting up PubSub
     pubsub = PubSub(twitch)
     pubsub.start()
     # you can either start listening before or after you started pubsub.

@@ -151,3 +151,38 @@ hook.unsubscribe_all(twitch)
 ```
 
 The parameter is a ``twitchAPI.twitch.Twitch`` instance with app authentication.
+
+
+## PubSub
+
+PubSub enables you to subscribe to a topic, for updates (e.g., when a user cheers in a channel).
+
+A more detailed documentation can be found [here on readthedocs](https://pytwitchapi.readthedocs.io/en/latest/modules/twitchAPI.pubsub.html)
+
+```python
+from twitchAPI.pubsub import PubSub
+from twitchAPI.twitch import Twitch
+from twitchAPI.types import AuthScope
+from pprint import pprint
+from uuid import UUID
+
+def callback_whisper(uuid: UUID, data: dict) -> None:
+    print('got callback for UUID ' + str(uuid))
+    pprint(data)
+
+# setting up Authentication and getting your user id
+twitch = Twitch('my_app_id', 'my_app_secret')
+twitch.authenticate_app([])
+twitch.set_user_authentication('my_user_auth_token', [AuthScope.WHISPERS_READ], 'my_user_auth_refresh_token')
+user_id = twitch.get_users(logins=['my_username'])['data'][0]['id']
+
+# starting up PubSub
+pubsub = PubSub(twitch)
+pubsub.start()
+# you can either start listening before or after you started pubsub.
+uuid = pubsub.listen_whispers(user_id, callback_whisper)
+input('press ENTER to close...')
+# you do not need to unlisten to topics before stopping but you can listen and unlisten at any moment you want
+pubsub.unlisten(uuid)
+pubsub.stop()
+```
