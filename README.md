@@ -12,9 +12,11 @@ Install using pip:
 
 ```pip install twitchAPI```
 
-## Documentation
+## Documentation and Support
 
 A full API documentation can be found [on readthedocs.org](https://pytwitchapi.readthedocs.io/en/latest/index.html).
+
+For support please join the [Twitch API discord server](https://discord.gg/tu2Dmc7gpd)
 
 ## Usage
 

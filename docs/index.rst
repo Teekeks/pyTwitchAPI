@@ -21,6 +21,10 @@ Install using pip:
 
 ```pip install twitchAPI```
 
+Support
+=======
+
+For Support please join the `Twitch API Discord server <https://discord.gg/tu2Dmc7gpd>`_.
 
 Usage
 =====
