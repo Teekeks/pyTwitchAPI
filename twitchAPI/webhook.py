@@ -77,7 +77,7 @@ Class Documentation:
 """
 
 
-from typing import Union, Tuple, Callable
+from typing import Union, Tuple, Callable, List
 from .helper import build_url, TWITCH_API_BASE_URL, get_uuid, get_json, make_fields_datetime, fields_to_enum
 from .helper import extract_uuid_str_from_url
 from .types import *
@@ -284,7 +284,15 @@ class TwitchWebHook:
             self.__logger.error(f'Subscription failed! status code: {result.status_code}, body: {result.text}')
         return result.status_code == 202
 
-    def _generic_subscribe(self, callback_path: str, url: str, uuid: UUID, callback_func) -> bool:
+    def _generic_subscribe(self,
+                           callback_path: str,
+                           url: str,
+                           uuid: UUID,
+                           callback_func,
+                           auth_type: AuthType,
+                           auth_scope: List[AuthScope]) -> bool:
+        if not self.__twitch.has_required_auth(auth_type, auth_scope):
+            raise UnauthorizedException('required authentication not set or missing auth scope')
         success = self._subscribe(callback_path+"?uuid=" + str(uuid), url)
         if success:
             self.__add_callable(uuid, callback_func)
@@ -410,7 +418,7 @@ class TwitchWebHook:
                       "to_id": to_id}
         url = build_url(TWITCH_API_BASE_URL + "users/follows", param_dict, remove_none=True)
         uuid = get_uuid()
-        return self._generic_subscribe('/users/follows', url, uuid, callback_func), uuid
+        return self._generic_subscribe('/users/follows', url, uuid, callback_func, AuthType.NONE, []), uuid
 
     def subscribe_stream_changed(self,
                                  user_id: str,
@@ -425,7 +433,7 @@ class TwitchWebHook:
         param_dict = {"user_id": user_id}
         url = build_url(TWITCH_API_BASE_URL + "streams", param_dict)
         uuid = get_uuid()
-        return self._generic_subscribe('/streams', url, uuid, callback_func), uuid
+        return self._generic_subscribe('/streams', url, uuid, callback_func, AuthType.NONE, []), uuid
 
     def subscribe_user_changed(self,
                                user_id: str,
@@ -440,7 +448,7 @@ class TwitchWebHook:
         param_dict = {"id": user_id}
         url = build_url(TWITCH_API_BASE_URL + "users", param_dict)
         uuid = get_uuid()
-        return self._generic_subscribe('/users/changed', url, uuid, callback_func), uuid
+        return self._generic_subscribe('/users/changed', url, uuid, callback_func, AuthType.USER, []), uuid
 
     def subscribe_extension_transaction_created(self,
                                                 extension_id: str,
@@ -462,7 +470,7 @@ class TwitchWebHook:
         }
         url = build_url(TWITCH_API_BASE_URL + 'extensions/transactions', params)
         uuid = get_uuid()
-        return self._generic_subscribe('/extensions/transactions', url, uuid, callback_func), uuid
+        return self._generic_subscribe('/extensions/transactions', url, uuid, callback_func, AuthType.APP, []), uuid
 
     def subscribe_moderator_change_events(self,
                                           broadcaster_id: str,
@@ -483,7 +491,12 @@ class TwitchWebHook:
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators/events', params, remove_none=True)
         uuid = get_uuid()
-        return self._generic_subscribe('/moderation/moderators/events', url, uuid, callback_func), uuid
+        return self._generic_subscribe('/moderation/moderators/events',
+                                       url,
+                                       uuid,
+                                       callback_func,
+                                       AuthType.USER,
+                                       []), uuid
 
     def subscribe_channel_ban_change_events(self,
                                             broadcaster_id: str,
@@ -504,7 +517,7 @@ class TwitchWebHook:
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/banned/events', params, remove_none=True)
         uuid = get_uuid()
-        return self._generic_subscribe('/moderation/banned/events', url, uuid, callback_func), uuid
+        return self._generic_subscribe('/moderation/banned/events', url, uuid, callback_func, AuthType.USER, []), uuid
 
     def subscribe_subscription_events(self,
                                       broadcaster_id: str,
@@ -531,7 +544,12 @@ class TwitchWebHook:
         }
         url = build_url(TWITCH_API_BASE_URL + 'subscriptions/events', params, remove_none=True)
         uuid = get_uuid()
-        return self._generic_subscribe('/subscriptions/events', url, uuid, callback_func), uuid
+        return self._generic_subscribe('/subscriptions/events',
+                                       url,
+                                       uuid,
+                                       callback_func,
+                                       AuthType.USER,
+                                       [AuthScope.CHANNEL_READ_SUBSCRIPTIONS]), uuid
 
     def subscribe_hype_train_events(self,
                                     broadcaster_id: str,
@@ -549,7 +567,12 @@ class TwitchWebHook:
         }
         url = build_url(TWITCH_API_BASE_URL + 'hypetrain/events', params)
         uuid = get_uuid()
-        return self._generic_subscribe('/hypetrain/events', url, uuid, callback_func), uuid
+        return self._generic_subscribe('/hypetrain/events',
+                                       url,
+                                       uuid,
+                                       callback_func,
+                                       AuthType.USER,
+                                       [AuthScope.CHANNEL_READ_HYPE_TRAIN]), uuid
 
     # ==================================================================================================================
     # HANDLERS

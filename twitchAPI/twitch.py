@@ -121,6 +121,21 @@ class Twitch:
         """Returns the set User auth Scope"""
         return self.__user_auth_scope
 
+    def has_required_auth(self, required_type: AuthType, required_scope: List[AuthScope]):
+        if required_type == AuthType.USER:
+            if not self.__has_user_auth:
+                return False
+            for s in required_scope:
+                if s not in self.__user_auth_scope:
+                    return False
+        if required_type == AuthType.APP:
+            if not self.__has_app_auth:
+                return False
+            for s in required_scope:
+                if s not in self.__app_auth_scope:
+                    return False
+        return True
+
     def refresh_used_token(self):
         """Refreshes the currently used token"""
         if self.__has_user_auth:
