@@ -16,7 +16,10 @@ You need to have a public IP with a port open. That port will be 80 by default.
 Authentication is off by default but you can choose to authenticate to use some Webhook Topics or to get more information.
 
 .. note:: Please note that Your Endpoint URL has to be HTTPS if you need authentication which means that you probably
-            need a reverse proxy like nginx. This lib currently does not provide any way to add https on its own.
+            need a reverse proxy like nginx. You can also hand in a valid ssl context to be used in the constructor.
+
+You can check on whether or not your webhook is publicly reachable by navigating to the URL set in `callback_url`.
+You should get a 200 response with the text `pyTwitchAPI webhook`.
 
 
 *******************

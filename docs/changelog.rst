@@ -4,6 +4,16 @@ Changelog
 =====================================
 
 ****************
+Version 2.2.1
+****************
+
+* added option to set a ssl context to be used by Webhook
+* fixed modify_channel_information throwing ValueError (thanks asishm!)
+* added default route to Webhook on / for easier debugging
+* properly check for empty lists in the selection of the used AuthScope in get_users
+* raise ValueError if both from_id and to_id are None in subscribe_user_follow of Webhook
+
+****************
 Version 2.2.0
 ****************
 
