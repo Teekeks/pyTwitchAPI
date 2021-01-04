@@ -169,7 +169,8 @@ class TwitchWebHook:
                              web.get('/hypetrain/events', self.__handle_challenge),
                              web.post('/hypetrain/events', self.__handle_hypetrain_events),
                              web.get('/subscriptions/events', self.__handle_challenge),
-                             web.post('/subscriptions/events', self.__handle_subscription_events)])
+                             web.post('/subscriptions/events', self.__handle_subscription_events),
+                             web.get('/', self.__handle_default)])
         hook_runner = web.AppRunner(hook_app)
         return hook_runner
 
