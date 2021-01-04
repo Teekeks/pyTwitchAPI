@@ -1545,7 +1545,7 @@ class Twitch:
                         {'broadcaster_id': broadcaster_id}, remove_none=True)
         body = {k: v for k, v in {'game_id': game_id,
                                   'broadcaster_language': broadcaster_language,
-                                  'title': title} if v is not None}
+                                  'title': title}.items() if v is not None}
         response = self.__api_patch_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], data=body)
         return response.status_code == 204
 
