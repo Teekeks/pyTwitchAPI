@@ -77,7 +77,7 @@ Class Documentation:
 """
 
 
-from typing import Union, Tuple, Callable, List
+from typing import Union, Tuple, Callable, List, Optional
 from .helper import build_url, TWITCH_API_BASE_URL, get_uuid, get_json, make_fields_datetime, fields_to_enum
 from .helper import extract_uuid_str_from_url
 from .types import *
@@ -90,6 +90,7 @@ from logging import getLogger, Logger
 import time
 from .twitch import Twitch
 from concurrent.futures._base import CancelledError
+from ssl import SSLContext
 
 
 class TwitchWebHook:
@@ -98,6 +99,7 @@ class TwitchWebHook:
     :param str callback_url: The full URL of the webhook.
     :param str api_client_id: The id of your API client
     :param int port: the port on which this webhook should run
+    :param ~ssl.SSLContext ssl_context: optional ssl context to be used |default| :code:`None`
     :var str secret: A random secret string. Set this for added security.
     :var str callback_url: The full URL of the webhook.
     :var int subscribe_least_seconds: The duration in seconds for how long you want to subscribe to webhhoks.
@@ -123,6 +125,7 @@ class TwitchWebHook:
     _host: str = '0.0.0.0'
     __twitch: Twitch = None
     __task_refresh = None
+    __ssl_context = None
     __client_id = None
     __running = False
     __callbacks = {}
@@ -133,10 +136,11 @@ class TwitchWebHook:
     __hook_runner: Union['web.AppRunner', None] = None
     __logger: Logger = None
 
-    def __init__(self, callback_url: str, api_client_id: str, port: int):
+    def __init__(self, callback_url: str, api_client_id: str, port: int, ssl_context: Optional[SSLContext] = None):
         self.callback_url = callback_url
         self.__client_id = api_client_id
         self._port = port
+        self.__ssl_context = ssl_context
         self.__logger = getLogger('twitchAPI.webhook')
 
     def authenticate(self, twitch: Twitch) -> None:
@@ -179,7 +183,7 @@ class TwitchWebHook:
         self.__hook_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.__hook_loop)
         self.__hook_loop.run_until_complete(runner.setup())
-        site = web.TCPSite(runner, str(self._host), self._port)
+        site = web.TCPSite(runner, str(self._host), self._port, ssl_context=self.__ssl_context)
         self.__hook_loop.run_until_complete(site.start())
         self.__logger.info('started twitch API hook on port ' + str(self._port))
         # add refresh task
