@@ -141,10 +141,10 @@ class Twitch:
         if self.__has_user_auth:
             self.__logger.debug('refreshing user token')
             from .oauth import refresh_access_token
-            self.__user_auth_token,\
-                self.__user_auth_refresh_token = refresh_access_token(self.__user_auth_refresh_token,
-                                                                      self.app_id,
-                                                                      self.app_secret)
+            self.__user_auth_token, \
+            self.__user_auth_refresh_token = refresh_access_token(self.__user_auth_refresh_token,
+                                                                  self.app_id,
+                                                                  self.app_secret)
         else:
             self.__generate_app_token()
 
@@ -288,7 +288,7 @@ class Twitch:
             if req.status_code == 401:
                 # unauthorized, lets try to refresh the token once
                 self.refresh_used_token()
-                return self.__api_get_request(url,  auth_type, required_scope, retries - 1)
+                return self.__api_get_request(url, auth_type, required_scope, retries - 1)
             elif req.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 return self.__api_get_request(url, auth_type, required_scope, 0)
@@ -373,6 +373,7 @@ class Twitch:
         """
         # if no auth is set, self.__app_auth_token will be None
         return self.__user_auth_token if self.__has_user_auth else self.__app_auth_token
+
     # ======================================================================================================================
     # API calls
     # ======================================================================================================================
@@ -1280,7 +1281,8 @@ class Twitch:
         }
         url = build_url(TWITCH_API_BASE_URL + 'users', url_params, remove_none=True, split_lists=True)
         response = self.__api_get_request(url,
-                                          AuthType.USER if user_ids is None and logins is None else AuthType.APP,
+                                          AuthType.USER if (user_ids is None or len(user_ids) == 0) and (
+                                                      logins is None or len(logins) == 0) else AuthType.APP,
                                           [])
         return response.json()
 
@@ -1877,20 +1879,20 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
                         {'broadcaster_id': broadcaster_id})
         body = {x: y for x, y in {
-                                    'title': title,
-                                    'prompt': prompt,
-                                    'cost': cost,
-                                    'is_enabled': is_enabled,
-                                    'background_color': background_color,
-                                    'is_user_input_required': is_user_input_required,
-                                    'is_max_per_stream_enabled': is_max_per_stream_enabled,
-                                    'max_per_stream': max_per_stream,
-                                    'is_max_per_user_per_stream_enabled': is_max_per_user_per_stream_enabled,
-                                    'max_per_user_per_stream': max_per_user_per_stream,
-                                    'is_global_cooldown_enabled': is_global_cooldown_enabled,
-                                    'global_cooldown_seconds': global_cooldown_seconds,
-                                    'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
-                                 }.items() if y is not None}
+            'title': title,
+            'prompt': prompt,
+            'cost': cost,
+            'is_enabled': is_enabled,
+            'background_color': background_color,
+            'is_user_input_required': is_user_input_required,
+            'is_max_per_stream_enabled': is_max_per_stream_enabled,
+            'max_per_stream': max_per_stream,
+            'is_max_per_user_per_stream_enabled': is_max_per_user_per_stream_enabled,
+            'max_per_user_per_stream': max_per_user_per_stream,
+            'is_global_cooldown_enabled': is_global_cooldown_enabled,
+            'global_cooldown_seconds': global_cooldown_seconds,
+            'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
+        }.items() if y is not None}
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
         if result.status_code == 403:
             raise TwitchAPIException('Forbidden: Channel Points are not available for the broadcaster')
@@ -2097,20 +2099,20 @@ class Twitch:
                         {'broadcaster_id': broadcaster_id,
                          'id': reward_id})
         body = {x: y for x, y in {
-                                    'title': title,
-                                    'prompt': prompt,
-                                    'cost': cost,
-                                    'is_enabled': is_enabled,
-                                    'background_color': background_color,
-                                    'is_user_input_required': is_user_input_required,
-                                    'is_max_per_stream_enabled': is_max_per_stream_enabled,
-                                    'max_per_stream': max_per_stream,
-                                    'is_max_per_user_per_stream_enabled': is_max_per_user_per_stream_enabled,
-                                    'max_per_user_per_stream': max_per_user_per_stream,
-                                    'is_global_cooldown_enabled': is_global_cooldown_enabled,
-                                    'global_cooldown_seconds': global_cooldown_seconds,
-                                    'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
-                                 }.items() if y is not None}
+            'title': title,
+            'prompt': prompt,
+            'cost': cost,
+            'is_enabled': is_enabled,
+            'background_color': background_color,
+            'is_user_input_required': is_user_input_required,
+            'is_max_per_stream_enabled': is_max_per_stream_enabled,
+            'max_per_stream': max_per_stream,
+            'is_max_per_user_per_stream_enabled': is_max_per_user_per_stream_enabled,
+            'max_per_user_per_stream': max_per_user_per_stream,
+            'is_global_cooldown_enabled': is_global_cooldown_enabled,
+            'global_cooldown_seconds': global_cooldown_seconds,
+            'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
+        }.items() if y is not None}
         result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
         if result.status_code == 404:
             raise ValueError('Custom reward does not exist with the given reward_id for the given broadcaster')
