@@ -416,8 +416,11 @@ class TwitchWebHook:
         :param from_id: str or None
         :param to_id: str or None
         :param callback_func: function for callback
+        :raises ValueError: if both from_id and to_id are None
         :rtype: bool, UUID
         """
+        if from_id is None and to_id is None:
+            raise ValueError('specify at least one of from_id and to_id')
         param_dict = {"first": 1,
                       "from_id": from_id,
                       "to_id": to_id}
