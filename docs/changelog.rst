@@ -4,6 +4,12 @@ Changelog
 =====================================
 
 ****************
+Version 2.2.2
+****************
+
+* added missing API base url to delete_custom_reward, get_custom_reward, get_custom_reward_redemption and update_redemption_status (thanks asphaltschneider!)
+
+****************
 Version 2.2.1
 ****************
 
