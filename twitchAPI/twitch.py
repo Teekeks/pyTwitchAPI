@@ -1919,7 +1919,7 @@ class Twitch:
         :raises ~twitchAPI.types.NotFoundException: if the broadcaster has no custom reward with the given id
         """
 
-        url = build_url('channel_points/custom_rewards',
+        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
                         {'broadcaster_id': broadcaster_id,
                          'id': reward_id})
         result = self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS])
@@ -1956,7 +1956,7 @@ class Twitch:
 
         if reward_id is not None and len(reward_id) > 50:
             raise ValueError('reward_id can not contain more than 50 entries')
-        url = build_url('channel_points/custom_rewards',
+        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
                         {
                             'broadcaster_id': broadcaster_id,
                             'id': reward_id,
@@ -2012,7 +2012,7 @@ class Twitch:
         if id is not None and len(id) > 50:
             raise ValueError('id can not have more than 50 entries')
 
-        url = build_url('channel_points/custom_rewards/redemption',
+        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards/redemption',
                         {
                             'broadcaster_id': broadcaster_id,
                             'reward_id': reward_id,
@@ -2156,7 +2156,7 @@ class Twitch:
         if len(redemption_ids) > 50:
             raise ValueError('redemption_ids cant have more than 50 entries')
 
-        url = build_url('channel_points/custom_rewards/redemptions',
+        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards/redemptions',
                         {
                             'id': redemption_ids,
                             'broadcaster_id': broadcaster_id,
