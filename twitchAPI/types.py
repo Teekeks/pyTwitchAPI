@@ -40,6 +40,10 @@ class AuthScope(Enum):
     :var WHISPERS_EDIT:
     :var MODERATION_READ:
     :var CHANNEL_SUBSCRIPTIONS:
+    :var CHANNEL_READ_EDITORS:
+    :var CHANNEL_MANAGE_VIDEOS:
+    :var USER_READ_BLOCKED_USERS:
+    :var USER_MANAGE_BLOCKED_USERS:
     """
     ANALYTICS_READ_EXTENSION = 'analytics:read:extensions'
     ANALYTICS_READ_GAMES = 'analytics:read:games'
@@ -64,6 +68,10 @@ class AuthScope(Enum):
     WHISPERS_EDIT = 'whispers:edit'
     MODERATION_READ = 'moderation:read'
     CHANNEL_SUBSCRIPTIONS = 'channel_subscriptions'
+    CHANNEL_READ_EDITORS = 'channel:read:editors'
+    CHANNEL_MANAGE_VIDEOS = 'channel:manage:videos'
+    USER_READ_BLOCKED_USERS = 'user:read:blocked_users'
+    USER_MANAGE_BLOCKED_USERS = 'user:manage:blocked_users'
 
 
 class ModerationEventType(Enum):
