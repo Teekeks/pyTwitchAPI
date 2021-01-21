@@ -2172,3 +2172,25 @@ class Twitch:
                                      'not available for the broadcaster')
         data = make_fields_datetime(result.json(), ['redeemed_at'])
         return fields_to_enum(data, ['status'], CustomRewardRedemptionStatus, CustomRewardRedemptionStatus.CANCELED)
+
+    def get_channel_editors(self,
+                            broadcaster_id: str) -> dict:
+        """Gets a list of users who have editor permissions for a specific channel.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_EDITORS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-editors
+
+        :param str broadcaster_id: Broadcaster’s user ID associated with the channel
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+
+        url = build_url(TWITCH_API_BASE_URL + 'channels/editors', {'broadcaster_id': broadcaster_id})
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_EDITORS])
+        return make_fields_datetime(result.json(), ['created_at'])
