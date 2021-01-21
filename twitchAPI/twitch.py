@@ -2194,3 +2194,31 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'channels/editors', {'broadcaster_id': broadcaster_id})
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_EDITORS])
         return make_fields_datetime(result.json(), ['created_at'])
+
+    def delete_videos(self,
+                      video_ids: List[str]) -> Union[bool, dict]:
+        """Deletes one or more videos. Videos are past broadcasts, Highlights, or uploads.
+        Returns False if the User was not Authorized to delete at least one of the given videos.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIDEOS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-videos
+
+        :param list(str) video_ids: ids of the videos, Limit: 5 ids
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if video_ids contains more than 5 entries or is a empty list
+        :rtype: dict or False
+        """
+        if video_ids is None or len(video_ids) == 0 or len(video_ids) > 5:
+            raise ValueError('video_ids must contain between 1 and 5 entries')
+        url = build_url(TWITCH_API_BASE_URL + 'videos', {'id': video_ids}, split_lists=True)
+        result = self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_VIDEOS])
+        if result.status_code == 200:
+            return result.json()
+        else:
+            return False
