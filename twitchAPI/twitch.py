@@ -2222,3 +2222,36 @@ class Twitch:
             return result.json()
         else:
             return False
+
+    def get_user_block_list(self,
+                            broadcaster_id: str,
+                            first: Optional[int] = 20,
+                            after: Optional[str] = None) -> dict:
+        """Gets a specified user’s block list. The list is sorted by when the block occurred in descending order
+        (i.e. most recent block first).
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_READ_BLOCKED_USERS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-block-list
+
+        :param str broadcaster_id: User ID for a twitch user
+        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
+        :param str after: Cursor for forward pagination |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if first is not in range 1 to 100
+        :rtype: dict
+        """
+
+        if first < 1 or first > 100:
+            raise ValueError('first must be in range 1 to 100')
+        url = build_url(TWITCH_API_BASE_URL + 'users/blocks',
+                        {'broadcaster_id': broadcaster_id,
+                         'first': first,
+                         'after': after}, remove_none=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BLOCKED_USERS])
+        return result.json()
