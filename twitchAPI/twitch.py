@@ -425,7 +425,7 @@ class Twitch:
             'extension_id': extension_id,
             'first': first,
             'started_at': started_at.isoformat() if started_at is not None else None,
-            'type': report_type.value if report_type is not None else None
+            'type': enum_value_or_none(report_type)
         }
         url = build_url(TWITCH_API_BASE_URL + 'analytics/extensions',
                         url_params,
@@ -479,7 +479,7 @@ class Twitch:
             'first': first,
             'game_id': game_id,
             'started_at': started_at.isoformat() if started_at is not None else None,
-            'type': report_type.value if report_type is not None else None
+            'type': enum_value_or_none(report_type)
         }
         url = build_url(TWITCH_API_BASE_URL + 'analytics/games',
                         url_params,
