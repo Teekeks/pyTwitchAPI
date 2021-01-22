@@ -178,3 +178,7 @@ def make_enum(data: str, _enum: Type[Enum], default: Enum) -> Enum:
         return _enum(data)
     else:
         return default
+
+
+def enum_value_or_none(enum):
+    return enum.value if enum is not None else None
