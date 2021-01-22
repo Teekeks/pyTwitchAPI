@@ -586,7 +586,7 @@ class Twitch:
         """
         param = {
             'broadcaster_id': broadcaster_id,
-            'has_delay': str(has_delay).lower()
+            'has_delay': has_delay
         }
         url = build_url(TWITCH_API_BASE_URL + 'clips', param)
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.CLIPS_EDIT])
