@@ -4,6 +4,18 @@ Changelog
 =====================================
 
 ****************
+Version 2.2.3
+****************
+
+* added new "get channel editors" endpoint
+* added new "delete videos" endpoint
+* added new "get user block list" endpoint
+* added new "block user" endpoint
+* added new "unblock user" endpoint
+* added new authentication scopes
+* some refactoring
+
+****************
 Version 2.2.2
 ****************
 
