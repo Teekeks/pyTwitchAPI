@@ -218,6 +218,26 @@ class SortOrder(Enum):
     NEWEST = 'NEWEST'
 
 
+class BlockSourceContext(Enum):
+    """
+    :var CHAT:
+    :var WHISPER:
+    """
+    CHAT = 'chat'
+    WHISPER = 'whisper'
+
+
+class BlockReason(Enum):
+    """
+    :var SPAM:
+    :var HARASSMENT:
+    :var OTHER:
+    """
+    SPAM = 'spam'
+    HARASSMENT = 'harassment'
+    OTHER = 'other'
+
+
 class TwitchAPIException(Exception):
     """Base Twitch API Exception"""
     pass
