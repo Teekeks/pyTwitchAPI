@@ -61,7 +61,7 @@ Class Documentation:
 import requests
 from typing import Union, List, Optional
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
-    fields_to_enum, enum_value_or_none
+    fields_to_enum, enum_value_or_none, datetime_to_str
 from datetime import datetime
 from logging import getLogger, Logger
 from .types import *
@@ -421,10 +421,10 @@ class Twitch:
             raise ValueError('first must be between 1 and 100')
         url_params = {
             'after': after,
-            'ended_at': ended_at.isoformat() if ended_at is not None else None,
+            'ended_at': datetime_to_str(ended_at),
             'extension_id': extension_id,
             'first': first,
-            'started_at': started_at.isoformat() if started_at is not None else None,
+            'started_at': datetime_to_str(started_at),
             'type': enum_value_or_none(report_type)
         }
         url = build_url(TWITCH_API_BASE_URL + 'analytics/extensions',
@@ -475,10 +475,10 @@ class Twitch:
             raise ValueError('first must be between 1 and 100')
         url_params = {
             'after': after,
-            'ended_at': ended_at.isoformat() if ended_at is not None else None,
+            'ended_at': datetime_to_str(ended_at),
             'first': first,
             'game_id': game_id,
-            'started_at': started_at.isoformat() if started_at is not None else None,
+            'started_at': datetime_to_str(started_at),
             'type': enum_value_or_none(report_type)
         }
         url = build_url(TWITCH_API_BASE_URL + 'analytics/games',
@@ -519,7 +519,7 @@ class Twitch:
         url_params = {
             'count': count,
             'period': period.value,
-            'started_at': started_at.isoformat() if started_at is not None else None,
+            'started_at': datetime_to_str(started_at),
             'user_id': user_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'bits/leaderboard', url_params, remove_none=True)
@@ -638,8 +638,8 @@ class Twitch:
             'after': after,
             'before': before,
             'first': first,
-            'ended_at': ended_at.astimezone().isoformat() if ended_at is not None else None,
-            'started_at': started_at.astimezone().isoformat() if started_at is not None else None
+            'ended_at': datetime_to_str(ended_at),
+            'started_at': datetime_to_str(started_at)
         }
         url = build_url(TWITCH_API_BASE_URL + 'clips', param, split_lists=True, remove_none=True)
         result = self.__api_get_request(url, AuthType.APP, [])

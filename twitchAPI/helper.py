@@ -182,3 +182,7 @@ def make_enum(data: str, _enum: Type[Enum], default: Enum) -> Enum:
 
 def enum_value_or_none(enum):
     return enum.value if enum is not None else None
+
+
+def datetime_to_str(dt):
+    return dt.astimezone().isoformat() if dt is not None else None
