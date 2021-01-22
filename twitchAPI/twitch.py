@@ -61,7 +61,7 @@ Class Documentation:
 import requests
 from typing import Union, List, Optional
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
-    fields_to_enum
+    fields_to_enum, enum_value_or_none
 from datetime import datetime
 from logging import getLogger, Logger
 from .types import *
@@ -2255,3 +2255,34 @@ class Twitch:
                          'after': after}, remove_none=True)
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BLOCKED_USERS])
         return result.json()
+
+    def block_user(self,
+                   target_user_id: str,
+                   source_context: Optional[BlockSourceContext] = None,
+                   reason: Optional[BlockReason] = None) -> dict:
+        """Blocks the specified user on behalf of the authenticated user.
+
+         Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_MANAGE_BLOCKED_USERS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#block-user
+
+        :param str target_user_id:
+        :param ~twitchAPI.types.BlockSourceContext source_context: Source context for blocking the user. Optional
+                    |default| :code:`None`
+        :param ~twitchAPI.types.BlockReason reason: Reason for blocking the user. Optional. |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'users/blocks',
+                        {'target_user_id': target_user_id,
+                         'source_context': enum_value_or_none(source_context),
+                         'reason': enum_value_or_none(reason)},
+                        remove_none=True)
+        result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
+        return result.json()
+
