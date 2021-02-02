@@ -4,6 +4,13 @@ Changelog
 =====================================
 
 ****************
+Version 2.2.4
+****************
+
+* added Python 3.9 compatibility
+* improved example for pubsub
+
+****************
 Version 2.2.3
 ****************
 

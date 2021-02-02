@@ -6,7 +6,7 @@
 Python Twitch API
 =====================================
 
-This is a full implementation of the Twitch Helix API, its Webhook and PubSub in python 3.7.
+This is a full implementation of the Twitch Helix API, its Webhook and PubSub in python 3.7+.
 
 On Github: https://github.com/Teekeks/pyTwitchAPI
 

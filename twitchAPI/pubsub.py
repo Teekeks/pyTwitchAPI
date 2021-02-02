@@ -29,6 +29,7 @@ Short code example:
     # setting up Authentication and getting your user id
     twitch = Twitch('my_app_id', 'my_app_secret')
     twitch.authenticate_app([])
+    # you can get your user auth token and user auth refresh token following the example in twitchAPI.oauth
     twitch.set_user_authentication('my_user_auth_token', [AuthScope.WHISPERS_READ], 'my_user_auth_refresh_token')
     user_id = twitch.get_users(logins=['my_username'])['data'][0]['id']
 

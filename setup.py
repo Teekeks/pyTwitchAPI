@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     packages=find_packages(),
     name="twitchAPI",
-    version="2.2.3",
+    version="2.2.4",
     url="https://github.com/Teekeks/pyTwitchAPI",
     author="Lena \"Teekeks\" During",
     author_email="info@teawork.de",
@@ -21,7 +21,8 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8"
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9"
     ],
     package_data={
         "twitchAPI": ["*.html"],
