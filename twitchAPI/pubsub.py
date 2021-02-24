@@ -431,7 +431,7 @@ class PubSub:
         """
         You are notified when anyone subscribes (first month), resubscribes (subsequent months),
         or gifts a subscription to a channel. Subgift subscription messages contain recipient information.\n
-        Requires the :const:`twitchAPI.types.AuthScope.CHANNEL_SUBSCRIPTIONS` AuthScope.\n
+        Requires the :const:`twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` AuthScope.\n
 
         :param str channel_id: ID of the Channel
         :param Callable[[~uuid.UUID,dict],None] callback_func: Function called on event
@@ -446,7 +446,7 @@ class PubSub:
         """
         return self.__generic_listen(f'channel-subscribe-events-v1.{channel_id}',
                                      callback_func,
-                                     [AuthScope.CHANNEL_SUBSCRIPTIONS])
+                                     [AuthScope.CHANNEL_READ_SUBSCRIPTIONS])
 
     def listen_chat_moderator_actions(self,
                                       user_id: str,
