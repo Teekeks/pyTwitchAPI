@@ -59,7 +59,7 @@ Class Documentation:
 ********************
 """
 import requests
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Callable
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
     fields_to_enum, enum_value_or_none, datetime_to_str
 from datetime import datetime
@@ -74,9 +74,15 @@ class Twitch:
     :param str app_id: Your app id
     :param str app_secret: Your app secret
     :var bool auto_refresh_auth: If set to true, auto refresh the auth token once it expires. |default| :code:`True`
+    :var Callable[[str, str], None] user_auth_refresh_callback: If set, gets called whenever a user auth token gets
+        refreshed. Parameter: Auth Token, Refresh Token |default| :code:`None`
+    :var Callable[[str, str], None] app_auth_refresh_callback: If set, gets called whenever a app auth token gets
+        refreshed. Parameter: Auth Token |default| :code:`None`
     """
     app_id: Optional[str] = None
     app_secret: Optional[str] = None
+    user_auth_refresh_callback: Optional[Callable[[str, str], None]] = None
+    app_auth_refresh_callback: Optional[Callable[[str], None]] = None
     __app_auth_token: Optional[str] = None
     __app_auth_scope: List[AuthScope] = []
     __has_app_auth: bool = False
@@ -142,11 +148,15 @@ class Twitch:
             self.__logger.debug('refreshing user token')
             from .oauth import refresh_access_token
             self.__user_auth_token, \
-            self.__user_auth_refresh_token = refresh_access_token(self.__user_auth_refresh_token,
-                                                                  self.app_id,
-                                                                  self.app_secret)
+                self.__user_auth_refresh_token = refresh_access_token(self.__user_auth_refresh_token,
+                                                                      self.app_id,
+                                                                      self.app_secret)
+            if self.user_auth_refresh_callback is not None:
+                self.user_auth_refresh_callback(self.__user_auth_token, self.__user_auth_refresh_token)
         else:
             self.__generate_app_token()
+            if self.app_auth_refresh_callback is not None:
+                self.app_auth_refresh_callback(self.__app_auth_token)
 
     def __api_post_request(self,
                            url: str,
