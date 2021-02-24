@@ -54,6 +54,26 @@ services to generate a token or use my build in authenticator.
 
 See :obj:`twitchAPI.oauth` for more info.
 
+
+Authentication refresh callback
+===============================
+
+Optionally you can set a callback for both user access token refresh and app access token refresh.
+
+.. code-block:: python
+
+    from twitchAPI.twitch import Twitch
+
+    def user_refresh(token: str, refresh_token: str):
+        print(f'my new user token is: {token}')
+
+    def app_refresh(token: str):
+        print(f'my new app token is: {token}')
+
+    twitch = Twitch('my_app_id', 'my_app_secret')
+    twitch.app_auth_refresh_callback = app_refresh
+    twitch.user_auth_refresh_callback = user_refresh
+
 ********************
 Class Documentation:
 ********************
@@ -74,9 +94,9 @@ class Twitch:
     :param str app_id: Your app id
     :param str app_secret: Your app secret
     :var bool auto_refresh_auth: If set to true, auto refresh the auth token once it expires. |default| :code:`True`
-    :var Callable[[str, str], None] user_auth_refresh_callback: If set, gets called whenever a user auth token gets
+    :var Callable[[str,str],None] user_auth_refresh_callback: If set, gets called whenever a user auth token gets
         refreshed. Parameter: Auth Token, Refresh Token |default| :code:`None`
-    :var Callable[[str, str], None] app_auth_refresh_callback: If set, gets called whenever a app auth token gets
+    :var Callable[[str,str],None] app_auth_refresh_callback: If set, gets called whenever a app auth token gets
         refreshed. Parameter: Auth Token |default| :code:`None`
     """
     app_id: Optional[str] = None

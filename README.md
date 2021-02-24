@@ -82,7 +82,23 @@ from twitchAPI.oauth import refresh_access_token
 new_token, new_refresh_token = refresh_access_token('refresh_token', 'client_id', 'client_secret')
 ```
 
+### AuthToken refresh callback
 
+Optionally you can set a callback for both user access token refresh and app access token refresh.
+
+```python
+from twitchAPI.twitch import Twitch
+
+def user_refresh(token: str, refresh_token: str):
+    print(f'my new user token is: {token}')
+
+def app_refresh(token: str):
+    print(f'my new app token is: {token}')
+
+twitch = Twitch('my_app_id', 'my_app_secret')
+twitch.app_auth_refresh_callback = app_refresh
+twitch.user_auth_refresh_callback = user_refresh
+```
 
 ### Webhook
 
