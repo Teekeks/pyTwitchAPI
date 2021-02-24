@@ -4,11 +4,20 @@ Changelog
 =====================================
 
 ****************
+Version 2.2.5
+****************
+
+* added optional callback to Twitch for user and app access token refresh
+* added additional check for non empty title in Twitch.modify_channel_information
+* changed required scope of PubSub.listen_channel_subscriptions from CHANNEL_SUBSCRIPTIONS to CHANNEL_READ_SUBSCRIPTIONS
+
+
+****************
 Version 2.2.4
 ****************
 
 * added Python 3.9 compatibility
-* improved example for pubsub
+* improved example for PubSub
 
 ****************
 Version 2.2.3

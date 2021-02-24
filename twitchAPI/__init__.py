@@ -4,4 +4,4 @@ from twitchAPI.oauth import UserAuthenticator, refresh_access_token
 from twitchAPI.types import *
 from twitchAPI.pubsub import PubSub
 
-VERSION = (2, 2, 4)
+VERSION = (2, 2, 5)
