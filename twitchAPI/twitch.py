@@ -1549,10 +1549,13 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if none of the following fiends are specified: `game_id, broadcaster_language, title`
+        :raises ValueError: if title is a empty string
         :rtype: bool
         """
         if game_id is None and broadcaster_language is None and title is None:
             raise ValueError('You need to specify at least one of the optional parameter')
+        if len(title) == 0:
+            raise ValueError('title cant be a empty string')
         url = build_url(TWITCH_API_BASE_URL + 'channels',
                         {'broadcaster_id': broadcaster_id}, remove_none=True)
         body = {k: v for k, v in {'game_id': game_id,
