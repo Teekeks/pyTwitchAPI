@@ -676,35 +676,6 @@ class Twitch:
         data = result.json()
         return make_fields_datetime(data, ['created_at'])
 
-    def create_entitlement_grants_upload_url(self,
-                                             manifest_id: str) -> dict:
-        """Creates a URL where you can upload a manifest file and notify users that they have an entitlement.
-        Entitlements are digital items that users are entitled to use.
-        Twitch entitlements are granted to users gratis or as part of a purchase on Twitch.\n\n
-
-        Requires App authentication\n
-        For detailed documentation, see here:
-        https://dev.twitch.tv/docs/api/reference#create-entitlement-grants-upload-url
-
-        :param str manifest_id: Unique identifier of the manifest file to be uploaded. Must be 1-64 characters.
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the the authentication token became invalid
-                        and a re authentication failed
-        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
-        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if length of manifest_id is not in range 1 to 64
-        :rtype: dict
-        """
-        if len(manifest_id) < 1 or len(manifest_id) > 64:
-            raise ValueError('manifest_id must be between 1 and 64 characters long!')
-        param = {
-            'manifest_id': manifest_id,
-            'type': 'bulk_drops_grant'
-        }
-        url = build_url(TWITCH_API_BASE_URL + 'entitlements/upload', param)
-        result = self.__api_post_request(url, AuthType.APP, [])
-        return result.json()
-
     def get_code_status(self,
                         code: List[str],
                         user_id: int) -> dict:
