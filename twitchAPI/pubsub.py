@@ -473,3 +473,25 @@ class PubSub:
         return self.__generic_listen(f'chat_moderator_actions.{user_id}.{channel_id}',
                                      callback_func,
                                      [AuthScope.CHANNEL_MODERATE])
+
+    def listen_undocumented_topic(self,
+                                  topic: str,
+                                  callback_func: Callable[[UUID, dict], None]) -> UUID:
+        """
+        Listen to one of the many undocumented PubSub topics.
+
+        Make sure that you have the required AuthScope for your topic set, since this lib can not check it for you!
+
+        .. warning:: Using a undocumented topic can break at any time, use at your own risk!
+
+        :param str topic: the topic string
+        :param Callable[[~uuid.UUID,dict],None] callback_func: Function called on event
+        :rtype: ~uuid.UUID
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if Token is not valid or does not have the required AuthScope
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by
+                `listen_confirm_timeout`
+        """
+        self.__logger.warning(f"using undocumented topic {topic}")
+        return self.__generic_listen(topic, callback_func, [])
