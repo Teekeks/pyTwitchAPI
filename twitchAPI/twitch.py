@@ -1001,7 +1001,7 @@ class Twitch:
                              description: Optional[str] = None) -> dict:
         """Creates a marker in the stream of a user specified by user ID.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT_BROADCAST`\n
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-stream-marker
 
         :param str user_id: ID of the broadcaster in whose live stream the marker is created.
@@ -1022,7 +1022,7 @@ class Twitch:
         body = {'user_id': user_id}
         if description is not None:
             body['description'] = description
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], data=body)
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data=body)
         data = result.json()
         return make_fields_datetime(data, ['created_at'])
 
@@ -1226,7 +1226,7 @@ class Twitch:
         If no tags are specified, all tags previously applied to the stream are removed.
         Automated tags are not affected by this operation.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT_BROADCAST`\n
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#replace-stream-tags
 
         :param str broadcaster_id: ID of the stream for which tags are to be replaced.
@@ -1244,7 +1244,7 @@ class Twitch:
         if len(tag_ids) > 100:
             raise ValueError('tag_ids can not have more than 100 entries')
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
-        self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], data={'tag_ids': tag_ids})
+        self.__api_put_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data={'tag_ids': tag_ids})
         # this returns nothing
         return {}
 
@@ -1526,7 +1526,7 @@ class Twitch:
                                    title: Optional[str] = None) -> bool:
         """Modifies channel information for users.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT_BROADCAST`\n
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#modify-channel-information
 
         :param str broadcaster_id: ID of the channel to be updated
@@ -1552,7 +1552,7 @@ class Twitch:
         body = {k: v for k, v in {'game_id': game_id,
                                   'broadcaster_language': broadcaster_language,
                                   'title': title}.items() if v is not None}
-        response = self.__api_patch_request(url, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], data=body)
+        response = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data=body)
         return response.status_code == 204
 
     def search_channels(self,
