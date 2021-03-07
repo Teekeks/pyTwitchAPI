@@ -42,7 +42,9 @@ Short code example:
     user_info = twitch.get_users(logins=['my_twitch_user'])
     user_id = user_info['data'][0]['id']
     # basic setup
-    hook = TwitchWebHook("https://my.cool.domain.net:8080", 'my_app_id', 8080)
+    # Please note that the first parameter is the domain your webhook is reachable from the outside, the last parameter
+    # is the port that the Webhook should use
+    hook = TwitchWebHook("https://my.cool.domain.net:443", 'my_app_id', 8080)
     hook.authenticate(twitch)
     hook.start()
     print('subscribing to hook:')

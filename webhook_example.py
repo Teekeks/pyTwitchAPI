@@ -26,7 +26,9 @@ auth = UserAuthenticator(twitch, [AuthScope.USER_READ_EMAIL])
 token, refresh_token = auth.authenticate()  # this will open a webpage
 twitch.set_user_authentication(token, [AuthScope.USER_READ_EMAIL], refresh_token)  # setting the user authentication so any api call will also use it
 # setting up the Webhook itself
-hook = TwitchWebHook("https://my.cool.ip:8080", 'your app id', 8080)
+# Please note that the first parameter is the domain your webhook is reachable from the outside, the last parameter
+# is the port that the Webhook should use
+hook = TwitchWebHook("https://my.cool.ip:443", 'your app id', 8080)
 hook.authenticate(twitch)  # this will use the highest authentication set, which is the user authentication.
 # some hooks don't require any authentication, which would remove the requirement to set up a https reverse proxy
 # if you don't require authentication just dont call authenticate()
