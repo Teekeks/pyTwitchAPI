@@ -301,12 +301,11 @@ class TwitchWebHook:
                            callback_func,
                            auth_type: AuthType,
                            auth_scope: List[AuthScope]) -> bool:
-        if not self.__twitch.has_required_auth(auth_type, auth_scope):
+        if auth_type != AuthType.NONE and not self.__twitch.has_required_auth(auth_type, auth_scope):
             raise UnauthorizedException('required authentication not set or missing auth scope')
         success = self._subscribe(callback_path+"?uuid=" + str(uuid), url)
         if success:
             self.__add_callable(uuid, callback_func)
-            # self.__urls[uuid] = url
             self.__active_webhooks[uuid] = {
                 'url': url,
                 'callback': callback_func,
