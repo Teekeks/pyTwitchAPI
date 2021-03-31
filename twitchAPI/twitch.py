@@ -249,7 +249,6 @@ class Twitch:
             req = requests.post(url, headers=headers)
         else:
             req = requests.post(url, headers=headers, json=data)
-
         return self.__check_request_return(req,
                                            self.__api_post_request,
                                            True,
@@ -599,7 +598,7 @@ class Twitch:
             first: first
         }
         url = build_url(TWITCH_API_BASE_URL + 'extensions/transactions', url_param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         data = result.json()
         return make_fields_datetime(data, ['timestamp'])
 
@@ -681,7 +680,7 @@ class Twitch:
             'started_at': datetime_to_str(started_at)
         }
         url = build_url(TWITCH_API_BASE_URL + 'clips', param, split_lists=True, remove_none=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         data = result.json()
         return make_fields_datetime(data, ['created_at'])
 
@@ -773,7 +772,7 @@ class Twitch:
             'first': first
         }
         url = build_url(TWITCH_API_BASE_URL + 'games/top', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         return result.json()
 
     def get_games(self,
@@ -806,7 +805,7 @@ class Twitch:
             'name': names
         }
         url = build_url(TWITCH_API_BASE_URL + 'games', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         return result.json()
 
     def check_automod_status(self,
@@ -1089,7 +1088,7 @@ class Twitch:
             'user_login': user_login
         }
         url = build_url(TWITCH_API_BASE_URL + 'streams', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         data = result.json()
         return make_fields_datetime(data, ['started_at'])
 
@@ -1213,7 +1212,7 @@ class Twitch:
                         broadcaster_id: str) -> dict:
         """Gets the list of tags for a specified stream (channel).\n\n
 
-        Requires App authentication\n
+        Requires User authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-tags
 
         :param str broadcaster_id: ID of the stream that's tags are going to be fetched
@@ -1225,7 +1224,7 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.USER, [])
         return result.json()
 
     def replace_stream_tags(self,
@@ -1292,7 +1291,7 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'users', url_params, remove_none=True, split_lists=True)
         response = self.__api_get_request(url,
                                           AuthType.USER if (user_ids is None or len(user_ids) == 0) and (
-                                                      logins is None or len(logins) == 0) else AuthType.APP,
+                                                      logins is None or len(logins) == 0) else AuthType.EITHER,
                                           [])
         return response.json()
 
@@ -1333,7 +1332,7 @@ class Twitch:
             'to_id': to_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'users/follows', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         return make_fields_datetime(result.json(), ['followed_at'])
 
     def update_user(self,
@@ -1477,7 +1476,7 @@ class Twitch:
             'type': video_type.value
         }
         url = build_url(TWITCH_API_BASE_URL + 'videos', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         data = result.json()
         data = make_fields_datetime(data, ['created_at', 'published_at'])
         data = fields_to_enum(data, ['type'], VideoType, VideoType.UNKNOWN)
@@ -1525,7 +1524,7 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'channels', {'broadcaster_id': broadcaster_id})
-        response = self.__api_get_request(url, AuthType.APP, [])
+        response = self.__api_get_request(url, AuthType.EITHER, [])
         return response.json()
 
     def modify_channel_information(self,
@@ -1594,7 +1593,7 @@ class Twitch:
                          'first': first,
                          'after': after,
                          'live_only': live_only}, remove_none=True)
-        response = self.__api_get_request(url, AuthType.APP, [])
+        response = self.__api_get_request(url, AuthType.EITHER, [])
         return make_fields_datetime(response.json(), ['started_at'])
 
     def search_categories(self,
@@ -1623,7 +1622,7 @@ class Twitch:
                         {'query': query,
                          'first': first,
                          'after': after}, remove_none=True)
-        response = self.__api_get_request(url, AuthType.APP, [])
+        response = self.__api_get_request(url, AuthType.EITHER, [])
         return response.json()
 
     def get_stream_key(self,
@@ -1743,7 +1742,7 @@ class Twitch:
         """
         url = build_url(TWITCH_API_BASE_URL + 'bits/cheermotes',
                         {'broadcaster_id': broadcaster_id})
-        response = self.__api_get_request(url, AuthType.APP, [])
+        response = self.__api_get_request(url, AuthType.EITHER, [])
         return make_fields_datetime(response.json(), ['last_updated'])
 
     def get_hype_train_events(self,
@@ -1779,7 +1778,7 @@ class Twitch:
                          'first': first,
                          'id': id,
                          'cursor': cursor}, remove_none=True)
-        response = self.__api_get_request(url, AuthType.APP, [AuthScope.CHANNEL_READ_HYPE_TRAIN])
+        response = self.__api_get_request(url, AuthType.EITHER, [AuthScope.CHANNEL_READ_HYPE_TRAIN])
         data = make_fields_datetime(response.json(), ['event_timestamp',
                                                       'started_at',
                                                       'expires_at',
@@ -1824,7 +1823,7 @@ class Twitch:
                             'after': after,
                             'first': first
                         }, remove_none=True)
-        response = self.__api_get_request(url, AuthType.APP, [])
+        response = self.__api_get_request(url, AuthType.EITHER, [])
         data = make_fields_datetime(response.json(), ['timestamp'])
         return data
 
