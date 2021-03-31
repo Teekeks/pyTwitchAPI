@@ -238,7 +238,8 @@ class Twitch:
             if response.status_code == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
             if response.status_code == 401:
-                raise UnauthorizedException()
+                msg = response.json().get('message', '')
+                raise UnauthorizedException(msg)
         if response.status_code == 500:
             raise TwitchBackendException('Internal Server Error')
         if response.status_code == 400:
