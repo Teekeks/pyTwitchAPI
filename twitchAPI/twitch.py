@@ -123,7 +123,12 @@ class Twitch:
 
     def __generate_header(self, auth_type: 'AuthType', required_scope: List[AuthScope]) -> dict:
         header = {"Client-ID": self.app_id}
-        if auth_type == AuthType.APP:
+        if auth_type == AuthType.EITHER:
+            has_auth, target, token, scope = self.__get_used_either_auth(required_scope)
+            if not has_auth:
+                raise UnauthorizedException('No authorization with correct scope set!')
+            header['Authorization'] = f'Bearer {token}'
+        elif auth_type == AuthType.APP:
             if not self.__has_app_auth:
                 raise UnauthorizedException('Require app authentication!')
             for s in required_scope:
@@ -137,30 +142,47 @@ class Twitch:
                 if s not in self.__user_auth_scope:
                     raise MissingScopeException('Require user auth scope ' + s.name)
             header['Authorization'] = f'Bearer {self.__user_auth_token}'
-        elif self.__has_user_auth or self.__has_app_auth:
-            # if no required, set one anyway to get better rate limits if possible
-            header['Authorization'] = \
-                f'Bearer {self.__user_auth_token if self.__has_user_auth else self.__app_auth_token}'
+        elif auth_type == AuthType.NONE:
+            # set one anyway for better performance if possible but don't error if none found
+            has_auth, target, token, scope = self.__get_used_either_auth(required_scope)
+            if has_auth:
+                header['Authorization'] = f'Bearer {token}'
         return header
+
+    def __get_used_either_auth(self, required_scope: List[AuthScope]) -> \
+            (bool, AuthType, Union[None, str], List[AuthScope]):
+        if self.has_required_auth(AuthType.USER, required_scope):
+            return True, AuthType.USER, self.__user_auth_token, self.__user_auth_scope
+        if self.has_required_auth(AuthType.APP, required_scope):
+            return True, AuthType.APP, self.__app_auth_token, self.__app_auth_scope
+        return False, AuthType.NONE, None, []
 
     def get_user_auth_scope(self) -> List[AuthScope]:
         """Returns the set User auth Scope"""
         return self.__user_auth_scope
 
-    def has_required_auth(self, required_type: AuthType, required_scope: List[AuthScope]):
+    def has_required_auth(self, required_type: AuthType, required_scope: List[AuthScope]) -> bool:
+        if required_type == AuthType.NONE:
+            return True
+        if required_type == AuthType.EITHER:
+            return self.has_required_auth(AuthType.USER, required_scope) or \
+                   self.has_required_auth(AuthType.APP, required_scope)
         if required_type == AuthType.USER:
             if not self.__has_user_auth:
                 return False
             for s in required_scope:
                 if s not in self.__user_auth_scope:
                     return False
+            return True
         if required_type == AuthType.APP:
             if not self.__has_app_auth:
                 return False
             for s in required_scope:
                 if s not in self.__app_auth_scope:
                     return False
-        return True
+            return True
+        # default to false
+        return False
 
     def refresh_used_token(self):
         """Refreshes the currently used token"""

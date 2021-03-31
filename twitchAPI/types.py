@@ -153,6 +153,7 @@ class AuthType(Enum):
     NONE = 0
     USER = 1
     APP = 2
+    EITHER = 3
 
 
 class CodeStatus(Enum):
