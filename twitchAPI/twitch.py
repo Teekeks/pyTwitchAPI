@@ -1796,7 +1796,7 @@ class Twitch:
 
         OAuth Token Client ID must have ownership of Game\n\n
 
-        Requires App authentication\n
+        Requires App or User authentication\n
         See Twitch documentation for valid parameter combinations!\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-drops-entitlements
 
@@ -1815,6 +1815,10 @@ class Twitch:
         """
         if first < 1 or first > 100:
             raise ValueError('first must be between 1 and 100')
+        can_use, auth_type, token, scope = self.__get_used_either_auth([])
+        if auth_type == AuthType.USER:
+            if user_id is not None:
+                raise ValueError('cant use user_id when using User Authentication')
         url = build_url(TWITCH_API_BASE_URL + 'entitlements/drops',
                         {
                             'id': id,
