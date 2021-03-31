@@ -184,6 +184,7 @@ class Twitch:
         # default to false
         return False
 
+    # FIXME rewrite refresh_used_token
     def refresh_used_token(self):
         """Refreshes the currently used token"""
         if self.__has_user_auth:
@@ -200,6 +201,41 @@ class Twitch:
             if self.app_auth_refresh_callback is not None:
                 self.app_auth_refresh_callback(self.__app_auth_token)
 
+    def __check_request_return(self,
+                               response: requests.Response,
+                               retry_func: Callable,
+                               reply_func_has_data: bool,
+                               url: str,
+                               auth_type: 'AuthType',
+                               required_scope: List[AuthScope],
+                               data: Optional[dict] = None,
+                               retries: int = 1
+                               ) -> requests.Response:
+        if self.auto_refresh_auth and retries > 0:
+            if response.status_code == 401:
+                # unauthorized, lets try to refresh the token once
+                self.refresh_used_token()
+                if reply_func_has_data:
+                    return retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
+                else:
+                    return retry_func(url, auth_type, required_scope, retries=retries - 1)
+            elif response.status_code == 503:
+                # service unavailable, retry exactly once as recommended by twitch documentation
+                if reply_func_has_data:
+                    return retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
+                else:
+                    return retry_func(url, auth_type, required_scope, retries=retries - 1)
+        elif self.auto_refresh_auth and retries <= 0:
+            if response.status_code == 503:
+                raise TwitchBackendException('The Twitch API returns a server error')
+            if response.status_code == 401:
+                raise UnauthorizedException()
+        if response.status_code == 500:
+            raise TwitchBackendException('Internal Server Error')
+        if response.status_code == 400:
+            raise TwitchAPIException('Bad Request')
+        return response
+
     def __api_post_request(self,
                            url: str,
                            auth_type: 'AuthType',
@@ -213,24 +249,15 @@ class Twitch:
             req = requests.post(url, headers=headers)
         else:
             req = requests.post(url, headers=headers, json=data)
-        if self.auto_refresh_auth and retries > 0:
-            if req.status_code == 401:
-                # unauthorized, lets try to refresh the token once
-                self.refresh_used_token()
-                return self.__api_post_request(url, auth_type, required_scope, data=data, retries=retries - 1)
-            elif req.status_code == 503:
-                # service unavailable, retry exactly once as recommended by twitch documentation
-                return self.__api_post_request(url, auth_type, required_scope, data=data, retries=0)
-        elif self.auto_refresh_auth and retries <= 0:
-            if req.status_code == 503:
-                raise TwitchBackendException('The Twitch API returns a server error')
-            if req.status_code == 401:
-                raise UnauthorizedException()
-        if req.status_code == 500:
-            raise TwitchBackendException('Internal Server Error')
-        if req.status_code == 400:
-            raise TwitchAPIException('Bad Request')
-        return req
+
+        return self.__check_request_return(req,
+                                           self.__api_post_request,
+                                           True,
+                                           url,
+                                           auth_type,
+                                           required_scope,
+                                           data,
+                                           retries)
 
     def __api_put_request(self,
                           url: str,
@@ -245,24 +272,14 @@ class Twitch:
             req = requests.put(url, headers=headers)
         else:
             req = requests.put(url, headers=headers, json=data)
-        if self.auto_refresh_auth and retries > 0:
-            if req.status_code == 401:
-                # unauthorized, lets try to refresh the token once
-                self.refresh_used_token()
-                return self.__api_put_request(url, auth_type, required_scope, data=data, retries=retries - 1)
-            elif req.status_code == 503:
-                # service unavailable, retry exactly once as recommended by twitch documentation
-                return self.__api_put_request(url, auth_type, required_scope, data=data, retries=0)
-        elif self.auto_refresh_auth and retries <= 0:
-            if req.status_code == 503:
-                raise TwitchBackendException('The Twitch API returns a server error')
-            if req.status_code == 401:
-                raise UnauthorizedException()
-        if req.status_code == 500:
-            raise TwitchBackendException('Internal Server Error')
-        if req.status_code == 400:
-            raise TwitchAPIException('Bad Request')
-        return req
+        return self.__check_request_return(req,
+                                           self.__api_put_request,
+                                           True,
+                                           url,
+                                           auth_type,
+                                           required_scope,
+                                           data,
+                                           retries)
 
     def __api_patch_request(self,
                             url: str,
@@ -277,24 +294,14 @@ class Twitch:
             req = requests.patch(url, headers=headers)
         else:
             req = requests.patch(url, headers=headers, json=data)
-        if self.auto_refresh_auth and retries > 0:
-            if req.status_code == 401:
-                # unauthorized, lets try to refresh the token once
-                self.refresh_used_token()
-                return self.__api_patch_request(url, auth_type, required_scope, data=data, retries=retries - 1)
-            elif req.status_code == 503:
-                # service unavailable, retry exactly once as recommended by twitch documentation
-                return self.__api_patch_request(url, auth_type, required_scope, data=data, retries=0)
-        elif self.auto_refresh_auth and retries <= 0:
-            if req.status_code == 503:
-                raise TwitchBackendException('The Twitch API returns a server error')
-            if req.status_code == 401:
-                raise UnauthorizedException()
-        if req.status_code == 500:
-            raise TwitchBackendException('Internal Server Error')
-        if req.status_code == 400:
-            raise TwitchAPIException('Bad Request')
-        return req
+        return self.__check_request_return(req,
+                                           self.__api_patch_request,
+                                           True,
+                                           url,
+                                           auth_type,
+                                           required_scope,
+                                           data,
+                                           retries)
 
     def __api_delete_request(self,
                              url: str,
@@ -309,24 +316,14 @@ class Twitch:
             req = requests.delete(url, headers=headers)
         else:
             req = requests.delete(url, headers=headers, json=data)
-        if self.auto_refresh_auth and retries > 0:
-            if req.status_code == 401:
-                # unauthorized, lets try to refresh the token once
-                self.refresh_used_token()
-                return self.__api_delete_request(url, auth_type, required_scope, data=data, retries=retries - 1)
-            elif req.status_code == 503:
-                # service unavailable, retry exactly once as recommended by twitch documentation
-                return self.__api_delete_request(url, auth_type, required_scope, data=data, retries=0)
-        elif self.auto_refresh_auth and retries <= 0:
-            if req.status_code == 503:
-                raise TwitchBackendException('The Twitch API returns a server error')
-            if req.status_code == 401:
-                raise UnauthorizedException()
-        if req.status_code == 500:
-            raise TwitchBackendException('Internal Server Error')
-        if req.status_code == 400:
-            raise TwitchAPIException('Bad Request')
-        return req
+        return self.__check_request_return(req,
+                                           self.__api_delete_request,
+                                           True,
+                                           url,
+                                           auth_type,
+                                           required_scope,
+                                           data,
+                                           retries)
 
     def __api_get_request(self, url: str,
                           auth_type: 'AuthType',
@@ -336,24 +333,14 @@ class Twitch:
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making GET request to {url}')
         req = requests.get(url, headers=headers)
-        if self.auto_refresh_auth and retries > 0:
-            if req.status_code == 401:
-                # unauthorized, lets try to refresh the token once
-                self.refresh_used_token()
-                return self.__api_get_request(url, auth_type, required_scope, retries - 1)
-            elif req.status_code == 503:
-                # service unavailable, retry exactly once as recommended by twitch documentation
-                return self.__api_get_request(url, auth_type, required_scope, 0)
-        elif self.auto_refresh_auth and retries <= 0:
-            if req.status_code == 503:
-                raise TwitchBackendException('The Twitch API returns a server error')
-            if req.status_code == 401:
-                raise UnauthorizedException()
-        if req.status_code == 500:
-            raise TwitchBackendException('Internal Server Error')
-        if req.status_code == 400:
-            raise TwitchAPIException('Bad Request')
-        return req
+        return self.__check_request_return(req,
+                                           self.__api_get_request,
+                                           False,
+                                           url,
+                                           auth_type,
+                                           required_scope,
+                                           None,
+                                           retries)
 
     def __generate_app_token(self) -> None:
         params = {
