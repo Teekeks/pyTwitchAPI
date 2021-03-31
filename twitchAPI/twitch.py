@@ -123,7 +123,12 @@ class Twitch:
 
     def __generate_header(self, auth_type: 'AuthType', required_scope: List[AuthScope]) -> dict:
         header = {"Client-ID": self.app_id}
-        if auth_type == AuthType.APP:
+        if auth_type == AuthType.EITHER:
+            has_auth, target, token, scope = self.__get_used_either_auth(required_scope)
+            if not has_auth:
+                raise UnauthorizedException('No authorization with correct scope set!')
+            header['Authorization'] = f'Bearer {token}'
+        elif auth_type == AuthType.APP:
             if not self.__has_app_auth:
                 raise UnauthorizedException('Require app authentication!')
             for s in required_scope:
@@ -137,31 +142,49 @@ class Twitch:
                 if s not in self.__user_auth_scope:
                     raise MissingScopeException('Require user auth scope ' + s.name)
             header['Authorization'] = f'Bearer {self.__user_auth_token}'
-        elif self.__has_user_auth or self.__has_app_auth:
-            # if no required, set one anyway to get better rate limits if possible
-            header['Authorization'] = \
-                f'Bearer {self.__user_auth_token if self.__has_user_auth else self.__app_auth_token}'
+        elif auth_type == AuthType.NONE:
+            # set one anyway for better performance if possible but don't error if none found
+            has_auth, target, token, scope = self.__get_used_either_auth(required_scope)
+            if has_auth:
+                header['Authorization'] = f'Bearer {token}'
         return header
+
+    def __get_used_either_auth(self, required_scope: List[AuthScope]) -> \
+            (bool, AuthType, Union[None, str], List[AuthScope]):
+        if self.has_required_auth(AuthType.USER, required_scope):
+            return True, AuthType.USER, self.__user_auth_token, self.__user_auth_scope
+        if self.has_required_auth(AuthType.APP, required_scope):
+            return True, AuthType.APP, self.__app_auth_token, self.__app_auth_scope
+        return False, AuthType.NONE, None, []
 
     def get_user_auth_scope(self) -> List[AuthScope]:
         """Returns the set User auth Scope"""
         return self.__user_auth_scope
 
-    def has_required_auth(self, required_type: AuthType, required_scope: List[AuthScope]):
+    def has_required_auth(self, required_type: AuthType, required_scope: List[AuthScope]) -> bool:
+        if required_type == AuthType.NONE:
+            return True
+        if required_type == AuthType.EITHER:
+            return self.has_required_auth(AuthType.USER, required_scope) or \
+                   self.has_required_auth(AuthType.APP, required_scope)
         if required_type == AuthType.USER:
             if not self.__has_user_auth:
                 return False
             for s in required_scope:
                 if s not in self.__user_auth_scope:
                     return False
+            return True
         if required_type == AuthType.APP:
             if not self.__has_app_auth:
                 return False
             for s in required_scope:
                 if s not in self.__app_auth_scope:
                     return False
-        return True
+            return True
+        # default to false
+        return False
 
+    # FIXME rewrite refresh_used_token
     def refresh_used_token(self):
         """Refreshes the currently used token"""
         if self.__has_user_auth:
@@ -178,6 +201,41 @@ class Twitch:
             if self.app_auth_refresh_callback is not None:
                 self.app_auth_refresh_callback(self.__app_auth_token)
 
+    def __check_request_return(self,
+                               response: requests.Response,
+                               retry_func: Callable,
+                               reply_func_has_data: bool,
+                               url: str,
+                               auth_type: 'AuthType',
+                               required_scope: List[AuthScope],
+                               data: Optional[dict] = None,
+                               retries: int = 1
+                               ) -> requests.Response:
+        if self.auto_refresh_auth and retries > 0:
+            if response.status_code == 401:
+                # unauthorized, lets try to refresh the token once
+                self.refresh_used_token()
+                if reply_func_has_data:
+                    return retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
+                else:
+                    return retry_func(url, auth_type, required_scope, retries=retries - 1)
+            elif response.status_code == 503:
+                # service unavailable, retry exactly once as recommended by twitch documentation
+                if reply_func_has_data:
+                    return retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
+                else:
+                    return retry_func(url, auth_type, required_scope, retries=retries - 1)
+        elif self.auto_refresh_auth and retries <= 0:
+            if response.status_code == 503:
+                raise TwitchBackendException('The Twitch API returns a server error')
+            if response.status_code == 401:
+                raise UnauthorizedException()
+        if response.status_code == 500:
+            raise TwitchBackendException('Internal Server Error')
+        if response.status_code == 400:
+            raise TwitchAPIException('Bad Request')
+        return response
+
     def __api_post_request(self,
                            url: str,
                            auth_type: 'AuthType',
@@ -191,24 +249,14 @@ class Twitch:
             req = requests.post(url, headers=headers)
         else:
             req = requests.post(url, headers=headers, json=data)
-        if self.auto_refresh_auth and retries > 0:
-            if req.status_code == 401:
-                # unauthorized, lets try to refresh the token once
-                self.refresh_used_token()
-                return self.__api_post_request(url, auth_type, required_scope, data=data, retries=retries - 1)
-            elif req.status_code == 503:
-                # service unavailable, retry exactly once as recommended by twitch documentation
-                return self.__api_post_request(url, auth_type, required_scope, data=data, retries=0)
-        elif self.auto_refresh_auth and retries <= 0:
-            if req.status_code == 503:
-                raise TwitchBackendException('The Twitch API returns a server error')
-            if req.status_code == 401:
-                raise UnauthorizedException()
-        if req.status_code == 500:
-            raise TwitchBackendException('Internal Server Error')
-        if req.status_code == 400:
-            raise TwitchAPIException('Bad Request')
-        return req
+        return self.__check_request_return(req,
+                                           self.__api_post_request,
+                                           True,
+                                           url,
+                                           auth_type,
+                                           required_scope,
+                                           data,
+                                           retries)
 
     def __api_put_request(self,
                           url: str,
@@ -223,24 +271,14 @@ class Twitch:
             req = requests.put(url, headers=headers)
         else:
             req = requests.put(url, headers=headers, json=data)
-        if self.auto_refresh_auth and retries > 0:
-            if req.status_code == 401:
-                # unauthorized, lets try to refresh the token once
-                self.refresh_used_token()
-                return self.__api_put_request(url, auth_type, required_scope, data=data, retries=retries - 1)
-            elif req.status_code == 503:
-                # service unavailable, retry exactly once as recommended by twitch documentation
-                return self.__api_put_request(url, auth_type, required_scope, data=data, retries=0)
-        elif self.auto_refresh_auth and retries <= 0:
-            if req.status_code == 503:
-                raise TwitchBackendException('The Twitch API returns a server error')
-            if req.status_code == 401:
-                raise UnauthorizedException()
-        if req.status_code == 500:
-            raise TwitchBackendException('Internal Server Error')
-        if req.status_code == 400:
-            raise TwitchAPIException('Bad Request')
-        return req
+        return self.__check_request_return(req,
+                                           self.__api_put_request,
+                                           True,
+                                           url,
+                                           auth_type,
+                                           required_scope,
+                                           data,
+                                           retries)
 
     def __api_patch_request(self,
                             url: str,
@@ -255,24 +293,14 @@ class Twitch:
             req = requests.patch(url, headers=headers)
         else:
             req = requests.patch(url, headers=headers, json=data)
-        if self.auto_refresh_auth and retries > 0:
-            if req.status_code == 401:
-                # unauthorized, lets try to refresh the token once
-                self.refresh_used_token()
-                return self.__api_patch_request(url, auth_type, required_scope, data=data, retries=retries - 1)
-            elif req.status_code == 503:
-                # service unavailable, retry exactly once as recommended by twitch documentation
-                return self.__api_patch_request(url, auth_type, required_scope, data=data, retries=0)
-        elif self.auto_refresh_auth and retries <= 0:
-            if req.status_code == 503:
-                raise TwitchBackendException('The Twitch API returns a server error')
-            if req.status_code == 401:
-                raise UnauthorizedException()
-        if req.status_code == 500:
-            raise TwitchBackendException('Internal Server Error')
-        if req.status_code == 400:
-            raise TwitchAPIException('Bad Request')
-        return req
+        return self.__check_request_return(req,
+                                           self.__api_patch_request,
+                                           True,
+                                           url,
+                                           auth_type,
+                                           required_scope,
+                                           data,
+                                           retries)
 
     def __api_delete_request(self,
                              url: str,
@@ -287,24 +315,14 @@ class Twitch:
             req = requests.delete(url, headers=headers)
         else:
             req = requests.delete(url, headers=headers, json=data)
-        if self.auto_refresh_auth and retries > 0:
-            if req.status_code == 401:
-                # unauthorized, lets try to refresh the token once
-                self.refresh_used_token()
-                return self.__api_delete_request(url, auth_type, required_scope, data=data, retries=retries - 1)
-            elif req.status_code == 503:
-                # service unavailable, retry exactly once as recommended by twitch documentation
-                return self.__api_delete_request(url, auth_type, required_scope, data=data, retries=0)
-        elif self.auto_refresh_auth and retries <= 0:
-            if req.status_code == 503:
-                raise TwitchBackendException('The Twitch API returns a server error')
-            if req.status_code == 401:
-                raise UnauthorizedException()
-        if req.status_code == 500:
-            raise TwitchBackendException('Internal Server Error')
-        if req.status_code == 400:
-            raise TwitchAPIException('Bad Request')
-        return req
+        return self.__check_request_return(req,
+                                           self.__api_delete_request,
+                                           True,
+                                           url,
+                                           auth_type,
+                                           required_scope,
+                                           data,
+                                           retries)
 
     def __api_get_request(self, url: str,
                           auth_type: 'AuthType',
@@ -314,24 +332,14 @@ class Twitch:
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making GET request to {url}')
         req = requests.get(url, headers=headers)
-        if self.auto_refresh_auth and retries > 0:
-            if req.status_code == 401:
-                # unauthorized, lets try to refresh the token once
-                self.refresh_used_token()
-                return self.__api_get_request(url, auth_type, required_scope, retries - 1)
-            elif req.status_code == 503:
-                # service unavailable, retry exactly once as recommended by twitch documentation
-                return self.__api_get_request(url, auth_type, required_scope, 0)
-        elif self.auto_refresh_auth and retries <= 0:
-            if req.status_code == 503:
-                raise TwitchBackendException('The Twitch API returns a server error')
-            if req.status_code == 401:
-                raise UnauthorizedException()
-        if req.status_code == 500:
-            raise TwitchBackendException('Internal Server Error')
-        if req.status_code == 400:
-            raise TwitchAPIException('Bad Request')
-        return req
+        return self.__check_request_return(req,
+                                           self.__api_get_request,
+                                           False,
+                                           url,
+                                           auth_type,
+                                           required_scope,
+                                           None,
+                                           retries)
 
     def __generate_app_token(self) -> None:
         params = {
@@ -590,7 +598,7 @@ class Twitch:
             first: first
         }
         url = build_url(TWITCH_API_BASE_URL + 'extensions/transactions', url_param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         data = result.json()
         return make_fields_datetime(data, ['timestamp'])
 
@@ -672,7 +680,7 @@ class Twitch:
             'started_at': datetime_to_str(started_at)
         }
         url = build_url(TWITCH_API_BASE_URL + 'clips', param, split_lists=True, remove_none=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         data = result.json()
         return make_fields_datetime(data, ['created_at'])
 
@@ -764,7 +772,7 @@ class Twitch:
             'first': first
         }
         url = build_url(TWITCH_API_BASE_URL + 'games/top', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         return result.json()
 
     def get_games(self,
@@ -797,7 +805,7 @@ class Twitch:
             'name': names
         }
         url = build_url(TWITCH_API_BASE_URL + 'games', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         return result.json()
 
     def check_automod_status(self,
@@ -1080,7 +1088,7 @@ class Twitch:
             'user_login': user_login
         }
         url = build_url(TWITCH_API_BASE_URL + 'streams', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         data = result.json()
         return make_fields_datetime(data, ['started_at'])
 
@@ -1204,7 +1212,7 @@ class Twitch:
                         broadcaster_id: str) -> dict:
         """Gets the list of tags for a specified stream (channel).\n\n
 
-        Requires App authentication\n
+        Requires User authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-tags
 
         :param str broadcaster_id: ID of the stream that's tags are going to be fetched
@@ -1216,7 +1224,7 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.USER, [])
         return result.json()
 
     def replace_stream_tags(self,
@@ -1283,7 +1291,7 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'users', url_params, remove_none=True, split_lists=True)
         response = self.__api_get_request(url,
                                           AuthType.USER if (user_ids is None or len(user_ids) == 0) and (
-                                                      logins is None or len(logins) == 0) else AuthType.APP,
+                                                      logins is None or len(logins) == 0) else AuthType.EITHER,
                                           [])
         return response.json()
 
@@ -1324,7 +1332,7 @@ class Twitch:
             'to_id': to_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'users/follows', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         return make_fields_datetime(result.json(), ['followed_at'])
 
     def update_user(self,
@@ -1468,7 +1476,7 @@ class Twitch:
             'type': video_type.value
         }
         url = build_url(TWITCH_API_BASE_URL + 'videos', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
+        result = self.__api_get_request(url, AuthType.EITHER, [])
         data = result.json()
         data = make_fields_datetime(data, ['created_at', 'published_at'])
         data = fields_to_enum(data, ['type'], VideoType, VideoType.UNKNOWN)
@@ -1516,7 +1524,7 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'channels', {'broadcaster_id': broadcaster_id})
-        response = self.__api_get_request(url, AuthType.APP, [])
+        response = self.__api_get_request(url, AuthType.EITHER, [])
         return response.json()
 
     def modify_channel_information(self,
@@ -1585,7 +1593,7 @@ class Twitch:
                          'first': first,
                          'after': after,
                          'live_only': live_only}, remove_none=True)
-        response = self.__api_get_request(url, AuthType.APP, [])
+        response = self.__api_get_request(url, AuthType.EITHER, [])
         return make_fields_datetime(response.json(), ['started_at'])
 
     def search_categories(self,
@@ -1614,7 +1622,7 @@ class Twitch:
                         {'query': query,
                          'first': first,
                          'after': after}, remove_none=True)
-        response = self.__api_get_request(url, AuthType.APP, [])
+        response = self.__api_get_request(url, AuthType.EITHER, [])
         return response.json()
 
     def get_stream_key(self,
@@ -1734,7 +1742,7 @@ class Twitch:
         """
         url = build_url(TWITCH_API_BASE_URL + 'bits/cheermotes',
                         {'broadcaster_id': broadcaster_id})
-        response = self.__api_get_request(url, AuthType.APP, [])
+        response = self.__api_get_request(url, AuthType.EITHER, [])
         return make_fields_datetime(response.json(), ['last_updated'])
 
     def get_hype_train_events(self,
@@ -1770,7 +1778,7 @@ class Twitch:
                          'first': first,
                          'id': id,
                          'cursor': cursor}, remove_none=True)
-        response = self.__api_get_request(url, AuthType.APP, [AuthScope.CHANNEL_READ_HYPE_TRAIN])
+        response = self.__api_get_request(url, AuthType.EITHER, [AuthScope.CHANNEL_READ_HYPE_TRAIN])
         data = make_fields_datetime(response.json(), ['event_timestamp',
                                                       'started_at',
                                                       'expires_at',
@@ -1815,7 +1823,7 @@ class Twitch:
                             'after': after,
                             'first': first
                         }, remove_none=True)
-        response = self.__api_get_request(url, AuthType.APP, [])
+        response = self.__api_get_request(url, AuthType.EITHER, [])
         data = make_fields_datetime(response.json(), ['timestamp'])
         return data
 
