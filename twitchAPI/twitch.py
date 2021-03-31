@@ -93,6 +93,9 @@ class Twitch:
 
     :param str app_id: Your app id
     :param str app_secret: Your app secret
+    :param bool authenticate_app: If true, auto generate a app token on startup |default| :code:`True`
+    :param list[~twitchAPI.types.AuthScope] target_app_auth_scope: AuthScope to use if :code:`authenticate_app` is True
+            |default| :code:`None`
     :var bool auto_refresh_auth: If set to true, auto refresh the auth token once it expires. |default| :code:`True`
     :var Callable[[str,str],None] user_auth_refresh_callback: If set, gets called whenever a user auth token gets
         refreshed. Parameter: Auth Token, Refresh Token |default| :code:`None`
@@ -116,10 +119,16 @@ class Twitch:
 
     auto_refresh_auth: bool = True
 
-    def __init__(self, app_id: str, app_secret: str):
+    def __init__(self,
+                 app_id: str,
+                 app_secret: str,
+                 authenticate_app: bool = True,
+                 target_app_auth_scope: Optional[List[AuthScope]] = None):
         self.app_id = app_id
         self.app_secret = app_secret
         self.__logger = getLogger('twitchAPI.twitch')
+        if authenticate_app:
+            self.authenticate_app(target_app_auth_scope if target_app_auth_scope is not None else [])
 
     def __generate_header(self, auth_type: 'AuthType', required_scope: List[AuthScope]) -> dict:
         header = {"Client-ID": self.app_id}
