@@ -153,6 +153,11 @@ def fields_to_enum(data: Union[dict, list],
                              _enum: Type[Enum],
                              default: Optional[Enum]) -> dict:
         fd = data
+        if isinstance(data, str):
+            if data not in _enum_vals:
+                return default
+            else:
+                return _enum(data)
         for key, value in data.items():
             # TODO fix for non string values
             if isinstance(value, str):

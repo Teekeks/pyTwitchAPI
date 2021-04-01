@@ -39,7 +39,7 @@ Class Documentation:
 ********************
 """
 from .twitch import Twitch
-from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL
+from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL, fields_to_enum
 from .types import AuthScope, InvalidRefreshTokenException, UnauthorizedException
 from typing import List, Union
 import webbrowser
@@ -81,6 +81,22 @@ def refresh_access_token(refresh_token: str,
     if data.get('status', 200) == 401:
         raise UnauthorizedException(data.get('message', ''))
     return data['access_token'], data['refresh_token']
+
+
+def validate_token(access_token: str) -> dict:
+    """ helper function for validating a user or app access token.
+
+    https://dev.twitch.tv/docs/authentication#validating-requests
+
+    :param str access_token: either a user or app OAuth access token
+    :return: response from the api
+    :rtype: dict
+    """
+    header = {'Authorization': f'OAuth {access_token}'}
+    url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/validate', {})
+    result = requests.get(url, headers=header)
+    data = result.json()
+    return fields_to_enum(data, ['scopes'], AuthScope, None)
 
 
 class UserAuthenticator:
