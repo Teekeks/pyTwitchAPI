@@ -84,7 +84,7 @@ def refresh_access_token(refresh_token: str,
 
 
 def validate_token(access_token: str) -> dict:
-    """ helper function for validating a user or app access token.
+    """Helper function for validating a user or app access token.
 
     https://dev.twitch.tv/docs/authentication#validating-requests
 
@@ -97,6 +97,24 @@ def validate_token(access_token: str) -> dict:
     result = requests.get(url, headers=header)
     data = result.json()
     return fields_to_enum(data, ['scopes'], AuthScope, None)
+
+
+def revoke_token(client_id: str, access_token: str) -> bool:
+    """Helper function for revoking a user or app OAuth access token.
+
+    https://dev.twitch.tv/docs/authentication#revoking-access-tokens
+
+    :param str client_id: client id belonging to the access token
+    :param str access_token: user or app OAuth access token
+    :rtype: bool
+    :return: :code:`True` if revoking succeeded, otherwise :code:`False`
+    """
+    url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/revoke', {
+        'client_id': client_id,
+        'token': access_token
+    })
+    result = requests.post(url)
+    return result.status_code == 200
 
 
 class UserAuthenticator:
