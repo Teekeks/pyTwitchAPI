@@ -382,17 +382,40 @@ class Twitch:
         self.__generate_app_token()
         self.__has_app_auth = True
 
-    def set_user_authentication(self, token: str, scope: List[AuthScope], refresh_token: Optional[str] = None):
+    def set_user_authentication(self,
+                                token: str,
+                                scope: List[AuthScope],
+                                refresh_token: Optional[str] = None,
+                                validate: bool = True):
         """Set a user token to be used.
 
         :param str token: the generated user token
         :param list[~twitchAPI.types.AuthScope] scope: List of Authorization Scopes that the given user token has
         :param str refresh_token: The generated refresh token, has to be provided if :attr:`auto_refresh_auth` is True
                     |default| :code:`None`
+        :param bool validate: if true, validate the set token for being a user auth token and having the required scope
+                    |default| :code:`True`
         :raises ValueError: if :attr:`auto_refresh_auth` is True but refresh_token is not set
+        :raises ~twitchAPI.types.MissingScopeException: if given token is missing one of the required scopes
+        :raises ~twitchAPI.types.InvalidTokenException: if the given token is invalid or for a different client id
         """
         if refresh_token is None and self.auto_refresh_auth:
             raise ValueError('refresh_token has to be provided when auto_refresh_user_auth is True')
+        if validate:
+            from .oauth import validate_token
+            val_result = validate_token(token)
+            if val_result.get('status', 200) == 401:
+                raise InvalidTokenException(val_result.get('message', ''))
+            if 'login' not in val_result or 'user_id' not in val_result:
+                # this is a app token or not valid
+                raise InvalidTokenException('not a user oauth token')
+            if val_result.get('client_id') != self.app_id:
+                raise InvalidTokenException('client id does not match')
+            scopes = val_result.get('scopes', [])
+            for s in scope:
+                if s not in scopes:
+                    raise MissingScopeException(f'given token is missing scope {s.value}')
+
         self.__user_auth_token = token
         self.__user_auth_refresh_token = refresh_token
         self.__user_auth_scope = scope

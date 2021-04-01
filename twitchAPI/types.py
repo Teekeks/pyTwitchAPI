@@ -249,6 +249,11 @@ class InvalidRefreshTokenException(TwitchAPIException):
     pass
 
 
+class InvalidTokenException(TwitchAPIException):
+    """Used if a invalid token is set for the client"""
+    pass
+
+
 class NotFoundException(TwitchAPIException):
     """Resource was not found with the given parameter"""
     pass
