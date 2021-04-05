@@ -283,3 +283,8 @@ class TwitchBackendException(TwitchAPIException):
 class PubSubListenTimeoutException(TwitchAPIException):
     """when a a PubSub listen command times out"""
     pass
+
+
+class MissingAppSecretException(TwitchAPIException):
+    """When the app secret is not set but app authorization is attempted"""
+    pass

@@ -92,7 +92,8 @@ class Twitch:
     Twitch API client
 
     :param str app_id: Your app id
-    :param str app_secret: Your app secret
+    :param str app_secret: Your app secret, leave as None if you only want to use User Authentication
+            |default| :code:`None`
     :param bool authenticate_app: If true, auto generate a app token on startup |default| :code:`True`
     :param list[~twitchAPI.types.AuthScope] target_app_auth_scope: AuthScope to use if :code:`authenticate_app` is True
             |default| :code:`None`
@@ -121,7 +122,7 @@ class Twitch:
 
     def __init__(self,
                  app_id: str,
-                 app_secret: str,
+                 app_secret: Optional[str] = None,
                  authenticate_app: bool = True,
                  target_app_auth_scope: Optional[List[AuthScope]] = None):
         self.app_id = app_id
@@ -355,6 +356,8 @@ class Twitch:
                                            retries)
 
     def __generate_app_token(self) -> None:
+        if self.app_secret is None:
+            raise MissingAppSecretException()
         params = {
             'client_id': self.app_id,
             'client_secret': self.app_secret,
