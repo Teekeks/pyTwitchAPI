@@ -1289,6 +1289,38 @@ class Twitch:
         # this returns nothing
         return {}
 
+    def get_teams(self,
+                  team_id: Optional[str] = None,
+                  name: Optional[str] = None) -> dict:
+        """Gets information for a specific Twitch Team.\n\n
+
+        Requires User or App authentication.
+        One of the two optional query parameters must be specified.
+
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference/#get-teams
+
+        :param str team_id: Team ID |default| :code:`None`
+        :param str name: Team Name |default| :code:`None`
+        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if neither team_id nor name are given or if both team_id and names are given.
+        :rtype: dict
+        """
+        if team_id is None and name is None:
+            raise ValueError('You need to specify one of the two optional parameter.')
+        if team_id is not None and name is not None:
+            raise ValueError('Only one optional parameter must be specified.')
+        param = {
+            'id': team_id,
+            'name': name
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'teams', param, remove_none=True, split_lists=True)
+        result = self.__api_get_request(url, AuthType.EITHER, [])
+        return make_fields_datetime(result.json(), ['created_at', 'updated_at'])
+
     def get_users(self,
                   user_ids: Optional[List[str]] = None,
                   logins: Optional[List[str]] = None) -> dict:
