@@ -223,6 +223,7 @@ class Twitch:
         if self.auto_refresh_auth and retries > 0:
             if response.status_code == 401:
                 # unauthorized, lets try to refresh the token once
+                self.__logger.debug('got 401 response -> try to refresh token')
                 self.refresh_used_token()
                 if reply_func_has_data:
                     return retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
@@ -230,6 +231,7 @@ class Twitch:
                     return retry_func(url, auth_type, required_scope, retries=retries - 1)
             elif response.status_code == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
+                self.__logger.debug('got 503 response -> retry once')
                 if reply_func_has_data:
                     return retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
                 else:
@@ -239,6 +241,7 @@ class Twitch:
                 raise TwitchBackendException('The Twitch API returns a server error')
             if response.status_code == 401:
                 msg = response.json().get('message', '')
+                self.__logger.debug(f'got 401 response and can\'t refresh. Message: "{msg}"')
                 raise UnauthorizedException(msg)
         if response.status_code == 500:
             raise TwitchBackendException('Internal Server Error')
