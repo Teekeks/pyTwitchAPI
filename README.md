@@ -41,7 +41,7 @@ user_id = user_info['data'][0]['id']
 The Twitch API knows 2 different authentications. App and User Authentication.
 Which one you need (or if one at all) depends on what calls you want to use.
 
-It's always good to get at least App authentication even for calls where you don't need it since the rate limmits are way better for authenticated calls.
+It's always good to get at least App authentication even for calls where you don't need it since the rate limits are way better for authenticated calls.
 
 **Please read the docs for more details and examples on how to set and use Authentication!**
 
@@ -56,8 +56,8 @@ twitch = Twitch('my_app_id', 'my_app_secret')
 
 ### User Authentication
 
-To get a user auth token, the user has to explicitly click "Authorize" on the twitch website. You can use various online services to generate a token or use my build in authenticator.
-For my authenticator you have to add the following URL as a "OAuth Redirect URL": ```http://localhost:17563```
+To get a user auth token, the user has to explicitly click "Authorize" on the twitch website. You can use various online services to generate a token or use my build in Authenticator.
+For my Authenticator you have to add the following URL as a "OAuth Redirect URL": ```http://localhost:17563```
 You can set that [here in your twitch dev dashboard](https://dev.twitch.tv/console).
 
 
@@ -110,7 +110,7 @@ A more detailed documentation can be found [here on readthedocs](https://pytwitc
 #### Requirements
 
 You need to have a public IP with a port open. That port will be 80 by default.
-Authentication is off by default but you can choose to authenticate to use some Webhook Topics or to get more information.  
+Authentication is off by default, but you can choose to authenticate to use some Webhook Topics or to get more information.  
 **Please note that Your Endpoint URL has to be HTTPS if you choose to authenticate which means that you probably need a reverse proxy like nginx.**
 
 

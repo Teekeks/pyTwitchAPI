@@ -44,6 +44,7 @@ class AuthScope(Enum):
     :var CHANNEL_MANAGE_VIDEOS:
     :var USER_READ_BLOCKED_USERS:
     :var USER_MANAGE_BLOCKED_USERS:
+    :var USER_READ_SUBSCRIPTIONS:
     """
     ANALYTICS_READ_EXTENSION = 'analytics:read:extensions'
     ANALYTICS_READ_GAMES = 'analytics:read:games'
