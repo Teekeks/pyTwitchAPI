@@ -1208,6 +1208,33 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_SUBSCRIPTIONS])
         return result.json()
 
+    def check_user_subscription(self,
+                                broadcaster_id: str,
+                                user_id: str) -> dict:
+        """Checks if a specific user (user_id) is subscribed to a specific channel (broadcaster_id).
+
+        Requires User or App Authorization with scope :const:`twitchAPI.types.AuthScope.USER_READ_SUBSCRIPTIONS`
+
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#check-user-subscription
+
+        :param str broadcaster_id: User ID of an Affiliate or Partner broadcaster.
+        :param str user_id: User ID of a Twitch viewer.
+        :rtype: dict
+        :raises ~twitchAPI.types.UnauthorizedException: if app or user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the app or user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        """
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'user_id': user_id
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'subscriptions/user', param)
+        result = self.__api_get_request(url, AuthType.EITHER, [AuthScope.USER_READ_SUBSCRIPTIONS])
+        return result.json()
+
     def get_all_stream_tags(self,
                             after: Optional[str] = None,
                             first: int = 20,
