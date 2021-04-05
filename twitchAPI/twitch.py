@@ -1875,11 +1875,11 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if first is not in range 1 to 100
+        :raises ValueError: if first is not in range 1 to 1000
         :rtype: dict
         """
-        if first < 1 or first > 100:
-            raise ValueError('first must be between 1 and 100')
+        if first < 1 or first > 1000:
+            raise ValueError('first must be between 1 and 1000')
         can_use, auth_type, token, scope = self.__get_used_either_auth([])
         if auth_type == AuthType.USER:
             if user_id is not None:
