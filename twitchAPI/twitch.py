@@ -1289,6 +1289,26 @@ class Twitch:
         # this returns nothing
         return {}
 
+    def get_channel_teams(self,
+                          broadcaster_id: str) -> dict:
+        """Retrieves a list of Twitch Teams of which the specified channel/broadcaster is a member.\n\n
+
+        Requires User or App authentication.
+
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference/#get-channel-teams
+
+        :param str broadcaster_id: User ID for a Twitch user.
+        :rtype: dict
+        :raises ~twitchAPI.types.UnauthorizedException: if app or user authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'teams/channel', {'broadcaster_id': broadcaster_id})
+        result = self.__api_get_request(url, AuthType.EITHER, [])
+        return make_fields_datetime(result.json(), ['created_at', 'updated_at'])
+
     def get_teams(self,
                   team_id: Optional[str] = None,
                   name: Optional[str] = None) -> dict:
@@ -1301,7 +1321,7 @@ class Twitch:
 
         :param str team_id: Team ID |default| :code:`None`
         :param str name: Team Name |default| :code:`None`
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
+        :raises ~twitchAPI.types.UnauthorizedException: if app or user authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
