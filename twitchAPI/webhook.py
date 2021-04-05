@@ -68,13 +68,19 @@ succeeded but the final handshake failed.
 
 You can unsubscribe from a webhook subscription at any time by using :meth:`~twitchAPI.webhook.TwitchWebHook.unsubscribe`
 
-If :attr:`~.TwitchWebHook.unsubscribe_on_stop` is True (default), you dont need to manually unsubscribe from topics.
+If :attr:`~.TwitchWebHook.unsubscribe_on_stop` is True (default), you don't need to manually unsubscribe from topics.
 
-By deafult, subscriptions will be automatically renewed one minute before they run out for as long as the
+By default, subscriptions will be automatically renewed one minute before they run out for as long as the
 webhook is running.
 
 You can also use :meth:`~twitchAPI.webhook.TwitchWebHook.unsubscribe_all` to unsubscribe from all topic subscriptions at
 once. This will also unsubscribe from topics that where left over from a previous run.
+
+***********************
+Fixing typical problems
+***********************
+
+* Make sure that you use a valid HTTPS
 
 ********************
 Class Documentation:
