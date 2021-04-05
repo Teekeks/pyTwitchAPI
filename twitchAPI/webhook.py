@@ -80,8 +80,9 @@ once. This will also unsubscribe from topics that where left over from a previou
 Fixing typical problems
 ***********************
 
-* Make sure that your set URL is reachable from outside your network
-* Make sure that you use a non self signed SSL certificate (use one from e.g. Let's Encrypt) if you use any Authentication
+* Make sure that your set URL is reachable from outside your network.
+* Make sure that you use a non self signed SSL certificate (use one from e.g. Let's Encrypt) if you use any Authentication.
+* If you change your domain's DNS, it can take up to 24 hours (or more) to propagate the changes across the entire internet and reach the Twitch servers.
 
 ********************
 Class Documentation:
