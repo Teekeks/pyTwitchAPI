@@ -4,6 +4,24 @@ Changelog
 =====================================
 
 ****************
+Version 2.3.0
+****************
+
+* Initializing the Twitch API now automatically creates a app authorization (can be disabled via flag)
+* Made it possible to not set a app secret in cases where only user authentication is required
+* added helper function `validate_token` to OAuth
+* added helper function `revoke_token` to OAuth
+* User OAuth Token is now automatically validated for correct scope and validity when being set
+* added new "Get Drops Entitlement" endpoint
+* added new "Get Teams" endpoint
+* added new "Get Chattel teams" endpoint
+* added new AuthScope USER_READ_SUBSCRIPTIONS
+* fixed exception in Webhook if no Authentication is set and also not required
+* refactored Authentication handling, making it more versatile
+* added more debugging logs
+* improved documentation
+
+****************
 Version 2.2.5
 ****************
 
