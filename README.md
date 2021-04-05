@@ -41,7 +41,9 @@ user_id = user_info['data'][0]['id']
 The Twitch API knows 2 different authentications. App and User Authentication.
 Which one you need (or if one at all) depends on what calls you want to use.
 
-Its always good to get at least App authentication even for calls where you dont need it since the rate limmits are way better for authenticated calls.
+It's always good to get at least App authentication even for calls where you don't need it since the rate limmits are way better for authenticated calls.
+
+**Please read the docs for more details and examples on how to set and use Authentication!**
 
 #### App Authentication
 
@@ -50,9 +52,8 @@ App authentication is super simple, just do the following:
 ```python
 from twitchAPI.twitch import Twitch
 twitch = Twitch('my_app_id', 'my_app_secret')
-# add App authentication
-twitch.authenticate_app([])
 ```
+
 ### User Authentication
 
 To get a user auth token, the user has to explicitly click "Authorize" on the twitch website. You can use various online services to generate a token or use my build in authenticator.

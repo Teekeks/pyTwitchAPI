@@ -36,10 +36,10 @@ For more detailed usage examples, see the links below
     from twitchAPI.twitch import Twitch
     from pprint import pprint
     twitch = Twitch('my_app_key', 'my_app_secret')
-    # lets create a simple app authentication:
-    twitch.authenticate_app([])
     pprint(twitch.get_users(logins=['your_twitch_username']))
 
+
+See `twitchAPI.twitch` for more details on how to set Authentication.
 
 Logging
 =======

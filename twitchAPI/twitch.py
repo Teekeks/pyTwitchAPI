@@ -17,8 +17,6 @@ Example Usage:
     from twitchAPI.twitch import Twitch
     from pprint import pprint
     twitch = Twitch('my_app_key', 'my_app_secret')
-    # lets create a simple app authentication:
-    twitch.authenticate_app([])
     pprint(twitch.get_users(logins=['your_twitch_username']))
 
 
@@ -36,24 +34,62 @@ better for authenticated calls.
 App Authentication
 ==================
 
-App authentication is super simple, just do the following:
+By default, The lib will try to attempt to create a App Authentication on Initialization:
 
 .. code-block:: python
 
     from twitchAPI.twitch import Twitch
     twitch = Twitch('my_app_id', 'my_app_secret')
-    # add App authentication
-    twitch.authenticate_app([])
+
+You can set a Auth Scope like this:
+
+.. code-block:: python
+
+    from twitchAPI.twitch import Twitch, AuthScope
+    twitch = Twitch('my_app_id', 'my_app_secret', target_app_auth_scope=[AuthScope.USER_EDIT])
+
+If you want to change the AuthScope later use this:
+
+.. code-block:: python
+
+    twitch.authenticate_app(my_new_scope)
+
+
+If you don't want to use App Authentication, Initialize like this:
+
+.. code-block:: python
+
+    from twitchAPI.twitch import Twitch
+    twitch = Twitch('my_app_id', authenticate_app=False)
 
 
 User Authentication
 ===================
 
+Only use a user auth token, use this:
+
+.. code-block:: python
+
+    from twitchAPI.twitch import Twitch
+    twitch = Twitch('my_app_id', authenticate_app=False)
+    # make sure to set the second parameter as the scope used to generate the token
+    twitch.set_user_authentication('token', [], 'refresh_token')
+
+
+Use both App and user Authentication:
+
+.. code-block:: python
+
+    from twitchAPI.twitch import Twitch
+    twitch = Twitch('my_app_id', 'my_app_secret')
+    # make sure to set the second parameter as the scope used to generate the token
+    twitch.set_user_authentication('token', [], 'refresh_token')
+
+
 To get a user auth token, the user has to explicitly click "Authorize" on the twitch website. You can use various online
 services to generate a token or use my build in authenticator.
 
-See :obj:`twitchAPI.oauth` for more info.
-
+See :obj:`twitchAPI.oauth` for more info on my build in authenticator.
 
 Authentication refresh callback
 ===============================
