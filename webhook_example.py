@@ -17,7 +17,6 @@ def callback_user_changed(uuid, data):
 
 # basic twitch API authentication, this will yield a app token but not a user token
 twitch = Twitch('your app id', 'your app secret')
-twitch.authenticate_app([])
 # since we want user information, we require a OAuth token, lets get one
 # you dont need to generate a fresh user token every time, you can also refresh a old one or get one using a different online service
 # for refreshing look here: https://github.com/Teekeks/pyTwitchAPI#user-authentication
