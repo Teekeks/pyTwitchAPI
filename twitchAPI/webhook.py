@@ -80,7 +80,8 @@ once. This will also unsubscribe from topics that where left over from a previou
 Fixing typical problems
 ***********************
 
-* Make sure that you use a valid HTTPS
+* Make sure that your set URL is reachable from outside your network
+* Make sure that you use a non self signed SSL certificate (use one from e.g. Let's Encrypt) if you use any Authentication
 
 ********************
 Class Documentation:
