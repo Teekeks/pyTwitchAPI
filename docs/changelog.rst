@@ -4,6 +4,12 @@ Changelog
 =====================================
 
 ****************
+Version 2.3.1
+****************
+
+* fixed id parameter for get_clips of Twitch
+
+****************
 Version 2.3.0
 ****************
 
