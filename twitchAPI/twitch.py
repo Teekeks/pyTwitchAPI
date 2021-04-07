@@ -747,7 +747,7 @@ class Twitch:
         param = {
             'broadcaster_id': broadcaster_id,
             'game_id': game_id,
-            'clip_id': clip_id,
+            'id': clip_id,
             'after': after,
             'before': before,
             'first': first,
