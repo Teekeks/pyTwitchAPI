@@ -4,6 +4,13 @@ Changelog
 =====================================
 
 ****************
+Version 2.3.2
+****************
+
+* fixed get_custom_reward_redemption url (thanks iProdigy!)
+* made reward_id parameter of get_custom_reward_redemption optional
+
+****************
 Version 2.3.1
 ****************
 
