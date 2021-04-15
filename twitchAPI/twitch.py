@@ -2138,7 +2138,7 @@ class Twitch:
 
     def get_custom_reward_redemption(self,
                                      broadcaster_id: str,
-                                     reward_id: str,
+                                     reward_id: Optional[str] = None,
                                      id: Optional[List[str]] = None,
                                      status: Optional[CustomRewardRedemptionStatus] = None,
                                      sort: Optional[SortOrder] = SortOrder.OLDEST,
@@ -2153,6 +2153,7 @@ class Twitch:
         :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
         :param str reward_id: When ID is not provided, this parameter returns paginated Custom
                 Reward Redemption objects for redemptions of the Custom Reward with ID reward_id
+                |default| :code:`None`
         :param list(str) id: When used, this param filters the results and only returns |default| :code:`None`
                 Custom Reward Redemption objects for the redemptions with matching ID. Maximum: 50 ids
                 |default| :code:`None`
