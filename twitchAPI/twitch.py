@@ -2182,7 +2182,7 @@ class Twitch:
         if id is not None and len(id) > 50:
             raise ValueError('id can not have more than 50 entries')
 
-        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards/redemption',
+        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards/redemptions',
                         {
                             'broadcaster_id': broadcaster_id,
                             'reward_id': reward_id,
