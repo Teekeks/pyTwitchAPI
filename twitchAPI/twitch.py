@@ -2109,7 +2109,7 @@ class Twitch:
 
     def get_custom_reward(self,
                           broadcaster_id: str,
-                          reward_id: Optional[List[str]] = None,
+                          reward_id: Optional[Union[str,List[str]]] = None,
                           only_manageable_rewards: Optional[bool] = False) -> dict:
         """Returns a list of Custom Reward objects for the Custom Rewards on a channel.
         Developers only have access to update and delete rewards that the same/calling client_id created.
@@ -2118,8 +2118,9 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-custom-reward
 
         :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
-        :param list[str] reward_id: When used, this parameter filters the results and only returns reward objects
-                for the Custom Rewards with matching ID. Maximum: 50 |default| :code:`None`
+        :param union[list[str],str] reward_id: When used, this parameter filters the results and only returns reward
+                objects for the Custom Rewards with matching ID. Maximum: 50
+                Can be either a list of str or str |default| :code:`None`
         :param bool only_manageable_rewards: When set to true, only returns custom rewards
                 that the calling client_id can manage. |default| :code:`false`
         :rtype: dict
@@ -2132,7 +2133,7 @@ class Twitch:
         :raises ValueError: if if reward_id is longer than 50 entries
         """
 
-        if reward_id is not None and len(reward_id) > 50:
+        if reward_id is not None and isinstance(reward_id, list) and len(reward_id) > 50:
             raise ValueError('reward_id can not contain more than 50 entries')
         url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
                         {
