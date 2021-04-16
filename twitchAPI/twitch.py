@@ -602,8 +602,8 @@ class Twitch:
         return make_fields_datetime(data, ['ended_at', 'started_at'])
 
     def get_bits_leaderboard(self,
-                             count: int = 10,
-                             period: TimePeriod = TimePeriod.ALL,
+                             count: Optional[int] = 10,
+                             period: Optional[TimePeriod] = TimePeriod.ALL,
                              started_at: Optional[datetime] = None,
                              user_id: Optional[str] = None) -> dict:
         """Gets a ranked list of Bits leaderboard information for an authorized broadcaster.\n\n
@@ -1815,7 +1815,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if length is not one of these: `30, 60, 90, 120, 150, 180`
+        :raises ValueError: if length is not one of these: :code:`30, 60, 90, 120, 150, 180`
         :rtype: dict
         """
         if length not in [30, 60, 90, 120, 150, 180]:
