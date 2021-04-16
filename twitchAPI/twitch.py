@@ -1689,7 +1689,8 @@ class Twitch:
                                    broadcaster_id: str,
                                    game_id: Optional[str] = None,
                                    broadcaster_language: Optional[str] = None,
-                                   title: Optional[str] = None) -> bool:
+                                   title: Optional[str] = None,
+                                   delay: Optional[int] = None) -> bool:
         """Modifies channel information for users.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
@@ -1699,6 +1700,8 @@ class Twitch:
         :param str game_id: The current game ID being played on the channel |default| :code:`None`
         :param str broadcaster_language: The language of the channel |default| :code:`None`
         :param str title: The title of the stream |default| :code:`None`
+        :param int delay: Stream delay in seconds. Trying to set this while not being a Twitch Partner will result in a
+                        Error 400! |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -1717,7 +1720,8 @@ class Twitch:
                         {'broadcaster_id': broadcaster_id}, remove_none=True)
         body = {k: v for k, v in {'game_id': game_id,
                                   'broadcaster_language': broadcaster_language,
-                                  'title': title}.items() if v is not None}
+                                  'title': title,
+                                  'delay': delay}.items() if v is not None}
         response = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data=body)
         return response.status_code == 204
 
