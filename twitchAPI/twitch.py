@@ -1700,8 +1700,8 @@ class Twitch:
         :param str game_id: The current game ID being played on the channel |default| :code:`None`
         :param str broadcaster_language: The language of the channel |default| :code:`None`
         :param str title: The title of the stream |default| :code:`None`
-        :param int delay: Stream delay in seconds. Trying to set this while not being a Twitch Partner will result in a
-                        Error 400! |default| :code:`None`
+        :param int delay: Stream delay in seconds. Trying to set this while not being a Twitch Partner will fail!
+                        |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
