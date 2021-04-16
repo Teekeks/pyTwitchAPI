@@ -2307,7 +2307,7 @@ class Twitch:
     def update_redemption_status(self,
                                  broadcaster_id: str,
                                  reward_id: str,
-                                 redemption_ids: List[str],
+                                 redemption_ids: Union[List[str], str],
                                  status: CustomRewardRedemptionStatus) -> dict:
         """Updates the status of Custom Reward Redemption objects on a channel that
                 are in the :code:`UNFULFILLED` status.
@@ -2317,8 +2317,8 @@ class Twitch:
 
         :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token.
         :param str reward_id: ID of the Custom Reward the redemptions to be updated are for.
-        :param list(str) redemption_ids: IDs of the Custom Reward Redemption to update, must match a
-                    Custom Reward Redemption on broadcaster_id’s channel Max: 50
+        :param union(list(str),str) redemption_ids: IDs of the Custom Reward Redemption to update, must match a
+                    Custom Reward Redemption on broadcaster_id’s channel Max: 50 Can either be a list of str or str
         :param ~twitchAPI.types.CustomRewardRedemptionStatus status: The new status to set redemptions to.
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
@@ -2335,7 +2335,7 @@ class Twitch:
                         the custom reward belongs to a different broadcaster
         :rtype: dict
         """
-        if len(redemption_ids) > 50:
+        if isinstance(redemption_ids, list) and len(redemption_ids) > 50:
             raise ValueError('redemption_ids cant have more than 50 entries')
 
         url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards/redemptions',
