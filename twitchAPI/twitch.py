@@ -642,7 +642,7 @@ class Twitch:
 
     def get_extension_transactions(self,
                                    extension_id: str,
-                                   transaction_ids: Optional[List[str]] = None,
+                                   transaction_id: Optional[Union[str, List[str]]] = None,
                                    after: Optional[str] = None,
                                    first: int = 20) -> dict:
         """Get Extension Transactions allows extension back end servers to fetch a list of transactions that have
@@ -653,7 +653,8 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-transactions
 
         :param str extension_id: ID of the extension to list transactions for.
-        :param list(str) transaction_ids: Transaction IDs to look up. |default| :code:`None`
+        :param union(list(str),str) transaction_id: Transaction IDs to look up. Can either be a list of str or str
+                        |default| :code:`None`
         :param str after: cursor for forward pagination |default| :code:`None`
         :param int first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
@@ -667,11 +668,11 @@ class Twitch:
         """
         if first > 100 or first < 1:
             raise ValueError("first must be between 1 and 100")
-        if transaction_ids is not None and len(transaction_ids) > 100:
+        if transaction_id is not None and isinstance(transaction_id, list) and len(transaction_id) > 100:
             raise ValueError('transaction_ids cant be longer than 100 entries')
         url_param = {
             'extension_id': extension_id,
-            'id': transaction_ids,
+            'id': transaction_id,
             'after': after,
             first: first
         }
