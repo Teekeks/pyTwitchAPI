@@ -1996,8 +1996,8 @@ class Twitch:
     def create_custom_reward(self,
                              broadcaster_id: str,
                              title: str,
-                             prompt: str,
                              cost: int,
+                             prompt: Optional[str] = None,
                              is_enabled: Optional[bool] = True,
                              background_color: Optional[str] = None,
                              is_user_input_required: Optional[bool] = False,
@@ -2015,24 +2015,24 @@ class Twitch:
 
         :param str broadcaster_id: ID of the broadcaster, must be same as user_id of auth token
         :param str title: The title of the reward
-        :param str prompt: The prompt for the viewer when they are redeeming the reward
         :param int cost: The cost of the reward
+        :param str prompt: The prompt for the viewer when they are redeeming the reward |default| :code:`None`
         :param is_enabled: Is the reward currently enabled, if false the reward won’t show up to viewers.
-                    |default| :code:`true`
+                    |default| :code:`True`
         :param str background_color: Custom background color for the reward.
                     Format: Hex with # prefix. Example: :code:`#00E5CB`. |default| :code:`None`
         :param bool is_user_input_required: Does the user need to enter information when redeeming the reward.
-                    |default| :code:`false`
-        :param bool is_max_per_stream_enabled: Whether a maximum per stream is enabled. |default| :code:`false`
+                    |default| :code:`False`
+        :param bool is_max_per_stream_enabled: Whether a maximum per stream is enabled. |default| :code:`False`
         :param int max_per_stream: The maximum number per stream if enabled |default| :code:`None`
         :param bool is_max_per_user_per_stream_enabled: Whether a maximum per user per stream is enabled.
-                    |default| :code:`false`
+                    |default| :code:`False`
         :param int max_per_user_per_stream: The maximum number per user per stream if enabled |default| :code:`None`
-        :param bool is_global_cooldown_enabled: Whether a cooldown is enabled. |default| :code:`false`
+        :param bool is_global_cooldown_enabled: Whether a cooldown is enabled. |default| :code:`False`
         :param int global_cooldown_seconds: The cooldown in seconds if enabled |default| :code:`None`
         :param bool should_redemptions_skip_request_queue: Should redemptions be set to FULFILLED status immediately
                     when redeemed and skip the request queue instead of the normal UNFULFILLED status.
-                    |default| :code:`false`
+                    |default| :code:`False`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ValueError: if is_global_cooldown_enabled is True but global_cooldown_seconds is not specified
         :raises ValueError: if is_max_per_stream_enabled is True but max_per_stream is not specified
