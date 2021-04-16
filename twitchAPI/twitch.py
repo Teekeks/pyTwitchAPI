@@ -642,7 +642,7 @@ class Twitch:
 
     def get_extension_transactions(self,
                                    extension_id: str,
-                                   transaction_id: Optional[str] = None,
+                                   transaction_ids: Optional[List[str]] = None,
                                    after: Optional[str] = None,
                                    first: int = 20) -> dict:
         """Get Extension Transactions allows extension back end servers to fetch a list of transactions that have
@@ -653,7 +653,7 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-transactions
 
         :param str extension_id: ID of the extension to list transactions for.
-        :param str transaction_id: Transaction IDs to look up. |default| :code:`None`
+        :param list(str) transaction_ids: Transaction IDs to look up. |default| :code:`None`
         :param str after: cursor for forward pagination |default| :code:`None`
         :param int first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
@@ -662,17 +662,20 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if first is not in range 1 to 100
+        :raises ValueError: if transaction_ids is longer than 100 entries
         :rtype: dict
         """
         if first > 100 or first < 1:
             raise ValueError("first must be between 1 and 100")
+        if transaction_ids is not None and len(transaction_ids) > 100:
+            raise ValueError('transaction_ids cant be longer than 100 entries')
         url_param = {
             'extension_id': extension_id,
-            'id': transaction_id,
+            'id': transaction_ids,
             'after': after,
             first: first
         }
-        url = build_url(TWITCH_API_BASE_URL + 'extensions/transactions', url_param, remove_none=True)
+        url = build_url(TWITCH_API_BASE_URL + 'extensions/transactions', url_param, remove_none=True, split_lists=True)
         result = self.__api_get_request(url, AuthType.EITHER, [])
         data = result.json()
         return make_fields_datetime(data, ['timestamp'])
