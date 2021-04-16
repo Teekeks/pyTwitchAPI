@@ -2138,7 +2138,7 @@ class Twitch:
 
     def get_custom_reward_redemption(self,
                                      broadcaster_id: str,
-                                     reward_id: Optional[str] = None,
+                                     reward_id: str,
                                      id: Optional[List[str]] = None,
                                      status: Optional[CustomRewardRedemptionStatus] = None,
                                      sort: Optional[SortOrder] = SortOrder.OLDEST,
@@ -2153,7 +2153,6 @@ class Twitch:
         :param str broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
         :param str reward_id: When ID is not provided, this parameter returns paginated Custom
                 Reward Redemption objects for redemptions of the Custom Reward with ID reward_id
-                |default| :code:`None`
         :param list(str) id: When used, this param filters the results and only returns |default| :code:`None`
                 Custom Reward Redemption objects for the redemptions with matching ID. Maximum: 50 ids
                 |default| :code:`None`
@@ -2176,12 +2175,15 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if id has more than 50 entries
         :raises ValueError: if first is not in range 1 to 50
+        :raises ValueError: if status and id are both :code:`None`
         """
 
         if first is not None and (first < 1 or first > 50):
             raise ValueError('first must be in range 1 to 50')
         if id is not None and len(id) > 50:
             raise ValueError('id can not have more than 50 entries')
+        if status is None and id is None:
+            raise ValueError('you have to set at least one of status or id')
 
         url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards/redemptions',
                         {
