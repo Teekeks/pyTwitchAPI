@@ -27,9 +27,8 @@ Setting up a Instance of the Twitch API and get your User ID:
 ```python
 from twitchAPI.twitch import Twitch
 
-# create instance of twitch API
+# create instance of twitch API and create app authentication
 twitch = Twitch('my_app_id', 'my_app_secret')
-twitch.authenticate_app([])
 
 # get ID of user
 user_info = twitch.get_users(logins=['my_username'])
