@@ -2215,9 +2215,9 @@ class Twitch:
     def update_custom_reward(self,
                              broadcaster_id: str,
                              reward_id: str,
-                             title: str,
-                             prompt: str,
-                             cost: int,
+                             title: Optional[str] = None,
+                             prompt: Optional[str] = None,
+                             cost: Optional[int] = None,
                              is_enabled: Optional[bool] = True,
                              background_color: Optional[str] = None,
                              is_user_input_required: Optional[bool] = False,
@@ -2235,9 +2235,9 @@ class Twitch:
 
         :param str broadcaster_id: ID of the broadcaster, must be same as user_id of auth token
         :param str reward_id: ID of the reward that you want to update
-        :param str title: The title of the reward
-        :param str prompt: The prompt for the viewer when they are redeeming the reward
-        :param int cost: The cost of the reward
+        :param str title: The title of the reward |default| :code:`None`
+        :param str prompt: The prompt for the viewer when they are redeeming the reward |default| :code:`None`
+        :param int cost: The cost of the reward |default| :code:`None`
         :param is_enabled: Is the reward currently enabled, if false the reward won’t show up to viewers.
                     |default| :code:`true`
         :param str background_color: Custom background color for the reward. |default| :code:`None`
