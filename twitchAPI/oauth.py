@@ -231,8 +231,11 @@ class UserAuthenticator:
             fd = f.read()
         return web.Response(text=fd, content_type='text/html')
 
+    def return_auth_url(self):
+        return self.__build_auth_url()
+
     def authenticate(self,
-                     callback_func=None):
+                     callback_func=None, user_token=None):
         """Start the user authentication flow\n
         If callback_func is not set, authenticate will wait till the authentication process finnished and then return
         the access_token and the refresh_token
@@ -242,15 +245,20 @@ class UserAuthenticator:
         :rtype: None or (str, str)
         """
         self.__callback_func = callback_func
-        self.__start()
-        # wait for the server to start up
-        while not self.__server_running:
-            sleep(0.01)
-        # open in browser
-        webbrowser.open(self.__build_auth_url(), new=2)
-        while self.__user_token is None:
-            sleep(0.01)
-        # now we need to actually get the correct token
+
+        if user_token is None:
+            self.__start()
+            # wait for the server to start up
+            while not self.__server_running:
+                sleep(0.01)
+            # open in browser
+            webbrowser.open(self.__build_auth_url(), new=2)
+            while self.__user_token is None:
+                sleep(0.01)
+            # now we need to actually get the correct token
+        else:
+            self.__user_token = user_token
+
         param = {
             'client_id': self.__client_id,
             'client_secret': self.__twitch.app_secret,
@@ -264,3 +272,5 @@ class UserAuthenticator:
         if callback_func is None:
             self.stop()
             return data['access_token'], data['refresh_token']
+        elif user_token is not None:
+            self.__callback_func(self.__user_token)
