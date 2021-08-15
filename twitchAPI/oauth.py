@@ -4,15 +4,25 @@ User OAuth Authenticator and helper functions
 ---------------------------------------------
 
 This tool is an alternative to various online services that give you a user auth token.
+It provides non-server and server options.
 
-************
-Requirements
-************
+***************************************
+Requirements for non-server environment
+***************************************
 
 Since this tool opens a browser tab for the Twitch authentication, you can only use this tool on enviroments that can
 open a browser window and render the `<twitch.tv>`__ website.
 
 For my authenticator you have to add the following URL as a "OAuth Redirect URL": :code:`http://localhost:17563`
+You can set that `here in your twitch dev dashboard <https://dev.twitch.tv/console>`__.
+
+***********************************
+Requirements for server environment
+***********************************
+
+You need the user code provided by Twitch when the user logs-in at the url returned by :code:`return_auth_url`.
+
+Create the UserAuthenticator with the URL of your webserver that will handle the redirect, and add it as a "OAuth Redirect URL"
 You can set that `here in your twitch dev dashboard <https://dev.twitch.tv/console>`__.
 
 ************
@@ -120,9 +130,9 @@ def revoke_token(client_id: str, access_token: str) -> bool:
 class UserAuthenticator:
     """Simple to use client for the Twitch User authentication flow.
 
-       :param ~twitchAPI.twitch.Twitch twitch: A twitch instance
-       :param list[~twitchAPI.types.AuthScope] scopes: List of the desired Auth scopes
-       :param bool force_verify: If this is true, the user will always be prompted for authorization by twitch,
+        :param ~twitchAPI.twitch.Twitch twitch: A twitch instance
+        :param list[~twitchAPI.types.AuthScope] scopes: List of the desired Auth scopes
+        :param bool force_verify: If this is true, the user will always be prompted for authorization by twitch,
                     |default| :code:`False`
         :param str url: The reachable URL that will be opened in the browser.
                     |default| :code:`http://localhost:17563`
@@ -241,8 +251,10 @@ class UserAuthenticator:
         """Start the user authentication flow\n
         If callback_func is not set, authenticate will wait till the authentication process finnished and then return
         the access_token and the refresh_token
+        If user_token is set, it will be used instead of launching the webserver and opening the browser
 
         :param callback_func: Function to call once the authentication finnished.
+        :param str user_token: Code obtained from twitch to request the access and refresh token.
         :return: None if callback_func is set, otherwise access_token and refresh_token
         :rtype: None or (str, str)
         """
