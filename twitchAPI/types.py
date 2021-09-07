@@ -256,6 +256,23 @@ class EntitlementFulfillmentStatus(Enum):
     FULFILLED = 'FULFILLED'
 
 
+class PollStatus(Enum):
+    """
+    :var ACTIVE:
+    :var COMPLETED:
+    :var MODERATED:
+    :var INVALID:
+    :var TERMINATED:
+    :var ARCHIVED:
+    """
+    ACTIVE = 'ACTIVE'
+    COMPLETED = 'COMPLETED'
+    MODERATED = 'MODERATED'
+    INVALID = 'INVALID'
+    TERMINATED = 'TERMINATED',
+    ARCHIVED = 'ARCHIVED'
+
+
 class TwitchAPIException(Exception):
     """Base Twitch API Exception"""
     pass

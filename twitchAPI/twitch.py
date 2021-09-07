@@ -2625,3 +2625,37 @@ class Twitch:
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body).json()
         return make_fields_datetime(result, ['started_at', 'ended_at'])
 
+    def end_poll(self,
+                 broadcaster_id: str,
+                 poll_id: str,
+                 status: PollStatus) -> dict:
+        """End a poll that is currently active.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#end-poll
+
+        :param str broadcaster_id: id of the broadcaster running the poll
+        :param str poll_id: id of the poll
+        :param ~twitchAPI.types.PollStatus status: The poll status to be set
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if status is not TERMINATED or ARCHIVED
+        :rtype: dict
+        """
+        if status not in (PollStatus.TERMINATED, PollStatus.ARCHIVED):
+            raise ValueError('status must be either TERMINATED or ARCHIVED')
+        url = build_url(TWITCH_API_BASE_URL + 'polls', {})
+        body = {
+            'broadcaster_id': broadcaster_id,
+            'id': poll_id,
+            status: status.value
+        }
+        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body).json()
+        result = fields_to_enum(result, ['status'], PollStatus, PollStatus.ACTIVE)
+        return make_fields_datetime(result, ['started_at', 'ended_at'])
+
