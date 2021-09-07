@@ -2829,3 +2829,21 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'chat/badges', {'broadcaster_id': broadcaster_id})
         result = self.__api_get_request(url, AuthType.EITHER, [])
         return result.json()
+
+    def get_global_chat_badges(self) -> dict:
+        """Gets a list of chat badges that can be used in chat for any channel.
+
+        Requires User or App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-chat-badges
+
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'chat/badges/global', {})
+        result = self.__api_get_request(url, AuthType.EITHER, [])
+        return result.json()
