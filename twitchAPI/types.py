@@ -50,6 +50,7 @@ class AuthScope(Enum):
     :var CHANNEL_MANAGE_POLLS:
     :var CHANNEL_READ_PREDICTIONS:
     :var CHANNEL_MANAGE_PREDICTIONS:
+    :var MODERATOR_MANAGE_AUTOMOD:
     """
     ANALYTICS_READ_EXTENSION = 'analytics:read:extensions'
     ANALYTICS_READ_GAMES = 'analytics:read:games'
@@ -84,6 +85,7 @@ class AuthScope(Enum):
     CHANNEL_MANAGE_POLLS = 'channel:manage:polls'
     CHANNEL_READ_PREDICTIONS = 'channel:read:predictions'
     CHANNEL_MANAGE_PREDICTIONS = 'channel:manage:predictions'
+    MODERATOR_MANAGE_AUTOMOD = 'moderator:manage:automod'
 
 
 class ModerationEventType(Enum):
@@ -288,6 +290,15 @@ class PredictionStatus(Enum):
     RESOLVED = 'RESOLVED'
     CANCELED = 'CANCELED'
     LOCKED = 'LOCKED'
+
+
+class AutoModAction(Enum):
+    """
+    :var ALLOW:
+    :var DENY:
+    """
+    ALLOW = 'ALLOW'
+    DENY = 'DENY'
 
 
 class TwitchAPIException(Exception):

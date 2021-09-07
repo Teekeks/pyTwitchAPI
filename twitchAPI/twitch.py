@@ -2780,3 +2780,33 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'predictions', {})
         result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
         return make_fields_datetime(result.json(), ['created_at', 'ended_at', 'locked_at'])
+
+    def manage_held_automod_message(self,
+                                    user_id: str,
+                                    msg_id: str,
+                                    action: AutoModAction) -> bool:
+        """Allow or deny a message that was held for review by AutoMod.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_AUTOMOD`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#manage-held-automod-messages
+
+        :param str user_id: The moderator who is approving or rejecting the held message.
+        :param str msg_id: ID of the targeted message
+        :param ~twitchAPI.types.AutoModAction action: The action to take for the message.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        body = {
+            'user_id': user_id,
+            'msg_id': msg_id,
+            'action': action.value
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/automod/message', {})
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_AUTOMOD], data=body)
+        return result.status_code == 200
