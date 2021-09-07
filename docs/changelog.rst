@@ -4,6 +4,19 @@ Changelog
 =====================================
 
 ****************
+Version 2.4.0
+****************
+
+* Check if at least one of status or id is provided in get_custom_reward_redemption
+* reverted change that made reward_id optional in get_custom_reward_redemption
+* get_extension_transactions now takes up to 100 transaction ids
+* added delay parameter to modify_channel_information
+* made parameter prompt of create_custom_reward optional and changed parameter order
+* made reward_id of get_custom_reward take either a list of str or str
+* made parameter title, prompt and cost optional in update_custom_reward
+* made parameter redemption_ids of update_redemption_status take either a list of str or str
+
+****************
 Version 2.3.2
 ****************
 
