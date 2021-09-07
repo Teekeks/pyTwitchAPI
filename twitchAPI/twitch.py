@@ -2867,3 +2867,23 @@ class Twitch:
                         {'broadcaster_id': broadcaster_id})
         result = self.__api_get_request(url, AuthType.EITHER, [])
         return result.json()
+
+    def get_global_emotes(self) -> dict:
+        """Gets all global emotes.
+
+        Requires User or App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-global-emotes
+
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'chat/emotes/global', {})
+        result = self.__api_get_request(url, AuthType.EITHER, [])
+        return result.json()
+
+    
