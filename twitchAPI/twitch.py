@@ -2701,3 +2701,41 @@ class Twitch:
         data = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_PREDICTIONS])
         return make_fields_datetime(data.json(), ['created_at', 'ended_at', 'locked_at'])
 
+    def create_prediction(self,
+                          broadcaster_id: str,
+                          title: str,
+                          outcomes: List[str],
+                          prediction_window: int) -> dict:
+        """Create a Channel Points Prediction for a specific Twitch channel.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-predictions
+
+        :param str broadcaster_id: The broadcaster running the prediction
+        :param str title: Title of the Prediction
+        :param list[str] outcomes: List of possible Outcomes, must contain exactly 2 entries
+        :param int prediction_window: Total duration for the Prediction (in seconds). Minimum 1, Maximum 1800
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if prediction_window is not in range 1 to 1800
+        :raises ValueError: if outcomes does not contain exactly 2 entries
+        :rtype: dict
+        """
+        if prediction_window < 1 or prediction_window > 1800:
+            raise ValueError('prediction_window must be in range 1 to 1800')
+        if len(outcomes) != 2:
+            raise ValueError('outcomes requires exactly 2 entries')
+        body = {
+            'broadcaster_id': broadcaster_id,
+            'title': title,
+            'outcomes': [{'title': x} for x in outcomes],
+            'prediction_window': prediction_window
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'predictions', {})
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
+        return make_fields_datetime(result.json(), ['created_at', 'ended_at', 'locked_at'])
