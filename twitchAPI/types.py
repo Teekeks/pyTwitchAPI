@@ -241,6 +241,15 @@ class BlockReason(Enum):
     OTHER = 'other'
 
 
+class EntitlementFulfillmentStatus(Enum):
+    """
+    :var CLAIMED:
+    :var FULFILLED:
+    """
+    CLAIMED = 'CLAIMED'
+    FULFILLED = 'FULFILLED'
+
+
 class TwitchAPIException(Exception):
     """Base Twitch API Exception"""
     pass

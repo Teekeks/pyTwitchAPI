@@ -2488,3 +2488,46 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'users/blocks', {'target_user_id': target_user_id})
         result = self.__api_delete_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
         return result.status_code == 204
+
+    def get_drops_entitlement(self,
+                              entitlement_id: Optional[str] = None,
+                              user_id: Optional[str] = None,
+                              game_id: Optional[str] = None,
+                              fulfillment_status: Optional[EntitlementFulfillmentStatus] = None,
+                              after: Optional[str] = None,
+                              first: Optional[int] = 20) -> dict:
+        """Gets a list of entitlements for a given organization that have been granted to a game, user, or both.
+
+        Requires either User or App Authentication.\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-drops-entitlements
+
+        :param str entitlement_id: id of the entitlement. |default| :code:`None`
+        :param str user_id: id of a twitch user |default| :code:`None`
+        :param str game_id: twitch game id |default| :code:`None`
+        :param ~twitchAPI.types.EntitlementFulfillmentStatus fulfillment_status: optional fulfillment status filter
+                |default| :code:`None`
+        :param str after: Cursor for forward pagination |default| :code:`None`
+        :param int first: Maximum number of entries to return. Maximum 100 |default|  :code:`20`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user or app authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if first is not in range 1 to 100
+        :rtype: dict
+        """
+        if first < 1 or first > 100:
+            raise ValueError('first must be in range 1 to 100')
+        data = {
+            'id': entitlement_id,
+            'user_id': user_id,
+            'game_id': game_id,
+            'fulfillment_status': enum_value_or_none(fulfillment_status),
+            'after': after,
+            'first': first
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'entitlements/drops', data, remove_none=True)
+        result = self.__api_get_request(url, AuthType.EITHER, [])
+        return result.json()
+
