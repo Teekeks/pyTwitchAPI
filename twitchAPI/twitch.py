@@ -2529,7 +2529,7 @@ class Twitch:
                   broadcaster_id: str,
                   poll_id: Optional[str] = None,
                   after: Optional[str] = None,
-                  first: Optional[int] = 20):
+                  first: Optional[int] = 20) -> dict:
         """Get information about all polls or specific polls for a Twitch channel.
         Poll information is available for 90 days.
 
@@ -2541,7 +2541,15 @@ class Twitch:
         :param str poll_id: ID of a poll. |default| :code:`None`
         :param str after: Cursor for forward pagination. |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum 20 |default| :code:`20`
-        :return:
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if first is not in range 1 to 20
+        :rtype: dict
         """
         if first is not None and (first < 1 or first > 20):
             raise ValueError('first must be in range 1 to 20')
@@ -2555,3 +2563,65 @@ class Twitch:
                         remove_none=True)
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_POLLS]).json()
         return make_fields_datetime(result, ['started_at', 'ended_at'])
+
+    def create_poll(self,
+                    broadcaster_id: str,
+                    title: str,
+                    choices: List[str],
+                    duration: int,
+                    bits_voting_enabled: bool = False,
+                    bits_per_vote: Optional[int] = None,
+                    channel_points_voting_enabled: bool = False,
+                    channel_points_per_vote: Optional[int] = None) -> dict:
+        """Create a poll for a specific Twitch channel.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-polls
+
+        :param str broadcaster_id: The broadcaster running the poll
+        :param str title: Question displayed for the poll
+        :param List[str] choices: List of poll choices.
+        :param int duration: Total duration for the poll (in seconds). Minimum 15, Maximum 1800
+        :param bool bits_voting_enabled: Indicates if Bits can be used for voting. |default| :code:`False`
+        :param int bits_per_vote: Number of Bits required to vote once with Bits.
+            Minimum: 0. Maximum: 10000. |default| :code:`None`
+        :param bool channel_points_voting_enabled: Indicates if Channel Points can be used for voting. |default| :code:`False`
+        :param int channel_points_per_vote: Number of Channel Points required to vote once with Channel Points.
+            Minimum: 0. Maximum: 1000000. |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if duration is not in range 15 to 1800
+        :raises ValueError: if bits_per_vote is not in range 0 to 10000
+        :raises ValueError: if channel_points_per_vote is not in range 0 to 1000000
+        :rtype: dict
+        """
+        if duration < 15 or duration > 1800:
+            raise ValueError('duration must be between 15 and 1800')
+        if bits_per_vote is not None:
+            if bits_per_vote < 0 or bits_per_vote > 10000:
+                raise ValueError('bits_per_vote must be in range 0 to 10000')
+        if channel_points_per_vote is not None:
+            if channel_points_per_vote < 0 or channel_points_per_vote > 1_000_000:
+                raise ValueError('channel_points_per_vote must be in range 0 to 1000000')
+        if len(choices) < 0 or len(choices) > 5:
+            raise ValueError('require between 2 and 5 choices')
+        body = {k: v for k, v in {
+                    'broadcaster_id': broadcaster_id,
+                    'title': title,
+                    'choices': [{'title': x} for x in choices],
+                    'duration': duration,
+                    'bits_voting_enabled': bits_voting_enabled,
+                    'bits_per_vote': bits_per_vote,
+                    'channel_points_voting_enabled': channel_points_voting_enabled,
+                    'channel_points_per_vote': channel_points_per_vote
+                }.items() if v is not None}
+
+        url = build_url(TWITCH_API_BASE_URL + 'polls', {})
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body).json()
+        return make_fields_datetime(result, ['started_at', 'ended_at'])
+
