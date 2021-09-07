@@ -2810,3 +2810,22 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'moderation/automod/message', {})
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_AUTOMOD], data=body)
         return result.status_code == 200
+
+    def get_chat_badges(self, broadcaster_id: str) -> dict:
+        """Gets a list of custom chat badges that can be used in chat for the specified channel.
+
+        Requires User or App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-chat-badges
+
+        :param broadcaster_id:
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'chat/badges', {'broadcaster_id': broadcaster_id})
+        result = self.__api_get_request(url, AuthType.EITHER, [])
+        return result.json()
