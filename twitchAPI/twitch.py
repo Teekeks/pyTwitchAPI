@@ -2504,7 +2504,15 @@ class Twitch:
                 user_id must match the User ID in the bearer token.
         :param str after: Cursor for forward pagination. |default| :code:`None`
         :param int first: Maximum number of objects to return. Maximum 100 |default| :code:`100`
-        :return:
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if first is not in range 1 to 100
+        :rtype: dict
         """
         if first < 1 or first > 100:
             raise ValueError('first must be in range 1 to 100')
@@ -2516,3 +2524,34 @@ class Twitch:
                         remove_none=True)
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_FOLLOWS])
         return make_fields_datetime(result.json(), ['started_at'])
+
+    def get_polls(self,
+                  broadcaster_id: str,
+                  poll_id: Optional[str] = None,
+                  after: Optional[str] = None,
+                  first: Optional[int] = 20):
+        """Get information about all polls or specific polls for a Twitch channel.
+        Poll information is available for 90 days.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_POLLS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-polls
+
+        :param str broadcaster_id: The broadcaster running polls.
+                Provided broadcaster_id must match the user_id in the user OAuth token.
+        :param str poll_id: ID of a poll. |default| :code:`None`
+        :param str after: Cursor for forward pagination. |default| :code:`None`
+        :param int first: Maximum number of objects to return. Maximum 20 |default| :code:`20`
+        :return:
+        """
+        if first is not None and (first < 1 or first > 20):
+            raise ValueError('first must be in range 1 to 20')
+        url = build_url(TWITCH_API_BASE_URL + 'polls',
+                        {
+                            'broadcaster_id': broadcaster_id,
+                            'id': poll_id,
+                            'after': after,
+                            'first': first
+                        },
+                        remove_none=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_POLLS]).json()
+        return make_fields_datetime(result, ['started_at', 'ended_at'])

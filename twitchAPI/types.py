@@ -45,6 +45,8 @@ class AuthScope(Enum):
     :var USER_READ_BLOCKED_USERS:
     :var USER_MANAGE_BLOCKED_USERS:
     :var USER_READ_SUBSCRIPTIONS:
+    :var USER_READ_FOLLOWS:
+    :var CHANNEL_READ_POLLS:
     """
     ANALYTICS_READ_EXTENSION = 'analytics:read:extensions'
     ANALYTICS_READ_GAMES = 'analytics:read:games'
@@ -75,6 +77,7 @@ class AuthScope(Enum):
     USER_MANAGE_BLOCKED_USERS = 'user:manage:blocked_users'
     USER_READ_SUBSCRIPTIONS = 'user:read:subscriptions'
     USER_READ_FOLLOWS = 'user:read:follows'
+    CHANNEL_READ_POLLS = 'channel:read:polls'
 
 
 class ModerationEventType(Enum):
