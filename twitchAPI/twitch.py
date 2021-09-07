@@ -2739,3 +2739,44 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'predictions', {})
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
         return make_fields_datetime(result.json(), ['created_at', 'ended_at', 'locked_at'])
+
+    def end_prediction(self,
+                       broadcaster_id: str,
+                       prediction_id: str,
+                       status: PredictionStatus,
+                       winning_outcome_id: Optional[str] = None):
+        """Lock, resolve, or cancel a Channel Points Prediction.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#end-prediction
+
+        :param str broadcaster_id: ID of the broadcaster
+        :param str prediction_id: ID of the Prediction
+        :param ~twitchAPI.types.PredictionStatus status: The Prediction status to be set.
+        :param str winning_outcome_id: ID of the winning outcome for the Prediction. |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if winning_outcome_id is None and status is RESOLVED
+        :raises ValueError: if status is not one of RESOLVED, CANCELED or LOCKED
+        :rtype: dict
+        """
+        if status not in (PredictionStatus.RESOLVED, PredictionStatus.CANCELED, PredictionStatus.LOCKED):
+            raise ValueError('status has to be one of RESOLVED, CANCELED or LOCKED')
+        if status == PredictionStatus.RESOLVED:
+            if winning_outcome_id is None:
+                raise ValueError('need to specify winning_outcome_id for status RESOLVED')
+        body = {
+            'broadcaster_id': broadcaster_id,
+            'id': prediction_id,
+            'status': status.value
+        }
+        if winning_outcome_id is not None:
+            body['winning_outcome_id'] = winning_outcome_id
+        url = build_url(TWITCH_API_BASE_URL + 'predictions', {})
+        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
+        return make_fields_datetime(result.json(), ['created_at', 'ended_at', 'locked_at'])

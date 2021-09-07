@@ -277,6 +277,19 @@ class PollStatus(Enum):
     ARCHIVED = 'ARCHIVED'
 
 
+class PredictionStatus(Enum):
+    """
+    :var ACTIVE:
+    :var RESOLVED:
+    :var CANCELED:
+    :var LOCKED:
+    """
+    ACTIVE = 'ACTIVE'
+    RESOLVED = 'RESOLVED'
+    CANCELED = 'CANCELED'
+    LOCKED = 'LOCKED'
+
+
 class TwitchAPIException(Exception):
     """Base Twitch API Exception"""
     pass
