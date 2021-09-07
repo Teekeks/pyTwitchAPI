@@ -2514,11 +2514,11 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
-        :raises ValueError: if first is not in range 1 to 100
+        :raises ValueError: if first is not in range 1 to 1000
         :rtype: dict
         """
-        if first < 1 or first > 100:
-            raise ValueError('first must be in range 1 to 100')
+        if first < 1 or first > 1000:
+            raise ValueError('first must be in range 1 to 1000')
         data = {
             'id': entitlement_id,
             'user_id': user_id,
@@ -2530,4 +2530,5 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'entitlements/drops', data, remove_none=True)
         result = self.__api_get_request(url, AuthType.EITHER, [])
         return result.json()
+
 
