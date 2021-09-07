@@ -2659,3 +2659,45 @@ class Twitch:
         result = fields_to_enum(result, ['status'], PollStatus, PollStatus.ACTIVE)
         return make_fields_datetime(result, ['started_at', 'ended_at'])
 
+    def get_predictions(self,
+                        broadcaster_id: str,
+                        prediction_ids: Optional[List[str]] = None,
+                        after: Optional[str] = None,
+                        first: Optional[int] = 20) -> dict:
+        """Get information about all Channel Points Predictions or specific Channel Points Predictions for a Twitch channel.
+        Results are ordered by most recent, so it can be assumed that the currently active or locked Prediction will be the first item.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-predictions
+
+        :param str broadcaster_id: The broadcaster running the prediction
+        :param List[str] prediction_ids: List of prediction ids. |default| :code:`None`
+        :param str after: Cursor for forward pagination. |default| :code:`None`
+        :param int first: Maximum number of objects to return. Maximum 20 |default| :code:`20`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if first is not in range 1 to 20
+        :raises ValueError: if prediction_ids contains more than 100 entries
+        :rtype: dict
+        """
+        if first is not None and (first < 1 or first > 20):
+            raise ValueError('first must be in range 1 to 20')
+        if prediction_ids is not None:
+            if len(prediction_ids) > 100:
+                raise ValueError('maximum of 100 prediction ids allowed')
+
+        url = build_url(TWITCH_API_BASE_URL + 'predictions',
+                        {
+                            'broadcaster_id': broadcaster_id,
+                            'id': prediction_ids,
+                            'after': after,
+                            'first': first
+                        }, remove_none=True, split_lists=True)
+        data = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_PREDICTIONS])
+        return make_fields_datetime(data.json(), ['created_at', 'ended_at', 'locked_at'])
+

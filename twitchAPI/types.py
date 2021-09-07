@@ -48,6 +48,8 @@ class AuthScope(Enum):
     :var USER_READ_FOLLOWS:
     :var CHANNEL_READ_POLLS:
     :var CHANNEL_MANAGE_POLLS:
+    :var CHANNEL_READ_PREDICTIONS:
+    :var CHANNEL_MANAGE_PREDICTIONS:
     """
     ANALYTICS_READ_EXTENSION = 'analytics:read:extensions'
     ANALYTICS_READ_GAMES = 'analytics:read:games'
@@ -80,6 +82,8 @@ class AuthScope(Enum):
     USER_READ_FOLLOWS = 'user:read:follows'
     CHANNEL_READ_POLLS = 'channel:read:polls'
     CHANNEL_MANAGE_POLLS = 'channel:manage:polls'
+    CHANNEL_READ_PREDICTIONS = 'channel:read:predictions'
+    CHANNEL_MANAGE_PREDICTIONS = 'channel:manage:predictions'
 
 
 class ModerationEventType(Enum):
