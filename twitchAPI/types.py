@@ -74,6 +74,7 @@ class AuthScope(Enum):
     USER_READ_BLOCKED_USERS = 'user:read:blocked_users'
     USER_MANAGE_BLOCKED_USERS = 'user:manage:blocked_users'
     USER_READ_SUBSCRIPTIONS = 'user:read:subscriptions'
+    USER_READ_FOLLOWS = 'user:read:follows'
 
 
 class ModerationEventType(Enum):

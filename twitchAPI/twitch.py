@@ -2488,3 +2488,31 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'users/blocks', {'target_user_id': target_user_id})
         result = self.__api_delete_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
         return result.status_code == 204
+
+    def get_followed_streams(self,
+                             user_id: str,
+                             after: Optional[str] = None,
+                             first: Optional[int] = 100) -> dict:
+        """Gets information about active streams belonging to channels that the authenticated user follows.
+        Streams are returned sorted by number of current viewers, in descending order.
+        Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_READ_FOLLOWS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-followed-streams
+
+        :param str user_id: Results will only include active streams from the channels that this Twitch user follows.
+                user_id must match the User ID in the bearer token.
+        :param str after: Cursor for forward pagination. |default| :code:`None`
+        :param int first: Maximum number of objects to return. Maximum 100 |default| :code:`100`
+        :return:
+        """
+        if first < 1 or first > 100:
+            raise ValueError('first must be in range 1 to 100')
+        url = build_url(TWITCH_API_BASE_URL + 'streams/followed',
+                        {
+                            'user_id': user_id,
+                            'after': after,
+                            'first': first},
+                        remove_none=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_FOLLOWS])
+        return make_fields_datetime(result.json(), ['started_at'])
