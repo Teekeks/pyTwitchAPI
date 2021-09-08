@@ -2389,7 +2389,7 @@ class Twitch:
     def block_user(self,
                    target_user_id: str,
                    source_context: Optional[BlockSourceContext] = None,
-                   reason: Optional[BlockReason] = None) -> dict:
+                   reason: Optional[BlockReason] = None) -> bool:
         """Blocks the specified user on behalf of the authenticated user.
 
          Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_MANAGE_BLOCKED_USERS`\n
@@ -2406,7 +2406,7 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
-        :rtype: dict
+        :rtype: bool
         """
         url = build_url(TWITCH_API_BASE_URL + 'users/blocks',
                         {'target_user_id': target_user_id,
@@ -2414,7 +2414,7 @@ class Twitch:
                          'reason': enum_value_or_none(reason)},
                         remove_none=True)
         result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
-        return result.json()
+        return result.status_code == 204
 
     def unblock_user(self,
                      target_user_id: str) -> bool:
