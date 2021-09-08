@@ -918,3 +918,22 @@ class EventSub:
                                '1',
                                {'client_id': client_id},
                                callback)
+
+    def listen_user_update(self, user_id: str, callback: Callable[[dict], None]) -> str:
+        """A user has updated their account.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userupdate
+
+        :param str user_id: The user ID for the user you want update notifications for.
+        :param Callable[[dict],None] callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :rtype: bool
+        """
+        return self._subscribe('user.update',
+                               '1',
+                               {'user_id': user_id},
+                               callback)
