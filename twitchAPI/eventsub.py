@@ -899,3 +899,22 @@ class EventSub:
                                '1',
                                {'client_id': client_id},
                                callback)
+
+    def listen_user_authorization_revoke(self, client_id: str, callback: Callable[[dict], None]) -> str:
+        """A user’s authorization has been revoked for your client id.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userauthorizationrevoke
+
+        :param str client_id: Your application’s client id.
+        :param Callable[[dict],None] callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :rtype: bool
+        """
+        return self._subscribe('user.authorization.revoke',
+                               '1',
+                               {'client_id': client_id},
+                               callback)
