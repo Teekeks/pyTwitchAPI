@@ -349,3 +349,13 @@ class PubSubListenTimeoutException(TwitchAPIException):
 class MissingAppSecretException(TwitchAPIException):
     """When the app secret is not set but app authorization is attempted"""
     pass
+
+
+class EventSubSubscriptionTimeout(TwitchAPIException):
+    """When the waiting for a confirmed EventSub subscription timed out"""
+    pass
+
+
+class EventSubSubscriptionConflict(TwitchAPIException):
+    """When you try to subscribe to a EventSub subscription that already exists"""
+    pass
