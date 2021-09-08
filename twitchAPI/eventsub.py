@@ -1,7 +1,7 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 """
 Full Implementation of the Twitch EventSub
------------------------------------------
+------------------------------------------
 
 In Progress
 
@@ -264,10 +264,10 @@ class EventSub:
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelfollow
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param (Callable[[dict], None]) callback: function for callback
+        :param Callable[[dict],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
-        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if ~twitchAPI.twitch.Twitch.wait_for_subscription_confirm
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :rtype: bool
