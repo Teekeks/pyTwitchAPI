@@ -2866,8 +2866,39 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
-        :rtype: dict
+        :rtype: bool
         """
         url = build_url(TWITCH_API_BASE_URL + 'eventsub/subscriptions', {'id': subscription_id})
         result = self.__api_delete_request(url, AuthType.APP, [])
         return result.status_code == 204
+
+    def get_eventsub_subscriptions(self,
+                                   status: Optional[str] = None,
+                                   sub_type: Optional[str] = None,
+                                   after: Optional[str] = None):
+        """Gets a list of your EventSub subscriptions.
+        The list is paginated and ordered by the oldest subscription first.
+
+        Requires App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-eventsub-subscriptions
+
+        :param str status: Filter subscriptions by its status. |default| :code:`None`
+        :param str sub_type: Filter subscriptions by subscription type. |default| :code:`None`
+        :param str after: The cursor used to get the next page of results. |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'eventsub/subscriptions',
+                        {
+                            'status': status,
+                            'type': sub_type,
+                            'after': after
+                        }, remove_none=True)
+        result = self.__api_get_request(url, AuthType.APP, [])
+        return result.json()
+
