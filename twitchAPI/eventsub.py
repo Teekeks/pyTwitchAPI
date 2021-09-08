@@ -419,3 +419,24 @@ class EventSub:
                                '1',
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
+
+    def listen_channel_unban(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+        """A viewer is unbanned from the specified channel.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelunban
+
+        :param str broadcaster_user_id: the id of the user you want to listen to
+        :param Callable[[dict],None] callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :rtype: bool
+        """
+        return self._subscribe('channel.unban',
+                               '1',
+                               {'broadcaster_user_id': broadcaster_user_id},
+                               callback)
+
+
