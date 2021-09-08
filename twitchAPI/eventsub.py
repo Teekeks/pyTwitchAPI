@@ -3,7 +3,70 @@
 Full Implementation of the Twitch EventSub
 ------------------------------------------
 
-In Progress
+The EventSub client runs in its own thread, calling the given callback function whenever an event happens.
+
+Look at the `Twitch EventSub reference <https://dev.twitch.tv/docs/eventsub/eventsub-reference>`__ to find the topics
+you are interested in.
+
+************
+Requirements
+************
+
+You need to have a public IP with a port open. That port will be 80 by default.
+You need app authentication and your Endpoint URL must point to a
+
+.. note:: Please note that Your Endpoint URL has to be HTTPS, has to run on Port 443 and requires a valid, non self signed certificate
+            This most likely means, that you need a reverse proxy like nginx. You can also hand in a valid ssl context to be used in the constructor.
+
+You can check on whether or not your webhook is publicly reachable by navigating to the URL set in `callback_url`.
+You should get a 200 response with the text `pyTwitchAPI eventsub`.
+
+*******************
+Listening to topics
+*******************
+
+After you started your EventSub client, you can use the :code:`listen_` prefixed functions to listen to the topics you are inetrested in.
+
+The function you hand in as callback will be called whenever that event happens with the event data as a parameter.
+
+*******************
+Short code example:
+*******************
+
+.. code-block:: python
+
+    from pprint import pprint
+    from twitchAPI import Twitch, EventSub
+
+    # this will be called whenever someone follows the target channel
+    async def on_follow(data: dict):
+        pprint(data)
+
+    YOUR_USERNAME = 'your_username_here'
+    TARGET_USERNAME = 'target_username_here'
+    WEBHOOK_URL = 'https://url.to.your.webhook.com'
+    APP_ID = 'your_app_id'
+    APP_SECRET = 'your_app_secret'
+
+    twitch = Twitch(APP_ID, APP_SECRET)
+    twitch.authenticate_app([])
+
+    user_info = twitch.get_users(logins=[YOUR_USERNAME])
+
+    uid = twitch.get_users(logins=[TARGET_USERNAME])
+    user_id = user_info['data'][0]['id']
+    # basic setup, will run on port 8080 and a reverse proxy takes care of the https and certificate
+    hook = EventSub(WEBHOOK_URL, APP_ID, 8080, twitch)
+    # unsubscribe from all to get a clean slate
+    hook.unsubscribe_all()
+    # start client
+    hook.start()
+    print('subscribing to hooks:')
+    hook.listen_channel_follow(uid['data'][0]['id'], on_follow)
+
+    input('press Enter to shut down...\n')
+    hook.stop()
+    print('done')
 
 ********************
 Class Documentation:
@@ -35,6 +98,7 @@ class EventSub:
     :param str api_client_id: The id of your API client
     :param int port: the port on which this webhook should run
     :param ~ssl.SSLContext ssl_context: optional ssl context to be used |default| :code:`None`
+    :param ~twitchAPI.twitch.Twitch twitch:  a app authenticated instance of :code:`Twitch`
     :var str secret: A random secret string. Set this for added security.
     :var str callback_url: The full URL of the webhook.
     :var bool wait_for_subscription_confirm: Set this to false if you dont want to wait for a subscription confirm.
@@ -64,22 +128,18 @@ class EventSub:
     __hook_runner: Union['web.AppRunner', None] = None
     __logger: Logger = None
 
-    def __init__(self, callback_url: str, api_client_id: str, port: int, ssl_context: Optional[SSLContext] = None):
+    def __init__(self,
+                 callback_url: str,
+                 api_client_id: str,
+                 port: int,
+                 twitch: Twitch,
+                 ssl_context: Optional[SSLContext] = None):
         self.callback_url = callback_url
         self.__client_id = api_client_id
         self._port = port
         self.__ssl_context = ssl_context
-        self.__logger = getLogger('twitchAPI.eventsub')
-
-    def authenticate(self, twitch: Twitch) -> None:
-        """Set authentication for the Webhook. Can be either a app or user token.
-
-        :param ~twitchAPI.twitch.Twitch twitch: a authenticated instance of :class:`~twitchAPI.twitch.Twitch`
-        :rtype: None
-        :raises RuntimeError: if the callback URL does not use HTTPS
-        """
-        self.__authenticate = True
         self.__twitch = twitch
+        self.__logger = getLogger('twitchAPI.eventsub')
         if not self.callback_url.startswith('https'):
             raise RuntimeError('HTTPS is required for authenticated webhook.\n'
                                + 'Either use non authenticated webhook or use a HTTPS proxy!')
