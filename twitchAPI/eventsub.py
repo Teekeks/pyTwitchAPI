@@ -732,3 +732,35 @@ class EventSub:
                                '1',
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
+
+    def listen_drop_entitlement_grant(self,
+                                      organisation_id: str,
+                                      callback: Callable[[dict], None],
+                                      category_id: Optional[str] = None,
+                                      campaign_id: Optional[str] = None) -> str:
+        """An entitlement for a Drop is granted to a user.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#dropentitlementgrant
+
+        :param str organisation_id: The organization ID of the organization that owns the game on the developer portal.
+        :param str category_id: The category (or game) ID of the game for which entitlement notifications will be received.
+                |default| :code:`None`
+        :param str campaign_id: The campaign ID for a specific campaign for which entitlement notifications will be received.
+                |default| :code:`None`
+        :param Callable[[dict],None] callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :rtype: bool
+        """
+        d = {k: v for k, v in {
+            'organization_id': organisation_id,
+            'category_id': category_id,
+            'campaign_id': campaign_id
+        }.items() if v is not None}
+        return self._subscribe('drop.entitlement.grant',
+                               '1',
+                               d,
+                               callback)
