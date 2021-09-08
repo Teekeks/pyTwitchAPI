@@ -396,7 +396,7 @@ class EventSub:
         """
         d = {k: v for k, v in {'from_broadcaster_user_id': from_broadcaster_user_id,
                                'to_broadcaster_user_id': to_broadcaster_user_id}.items() if v is not None}
-        return self._subscribe('channel.cheer',
+        return self._subscribe('channel.raid',
                                '1',
                                d,
                                callback)
