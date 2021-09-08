@@ -141,6 +141,18 @@ class UserAuthenticator:
         :var str host: the host the webserver will bind to. |default| :code:`0.0.0.0`
        """
 
+    __document: str = """<!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <title>pyTwitchAPI OAuth</title>
+ </head>
+ <body>
+     <h1>Thanks for Authenticating with pyTwitchAPI!</h1>
+ You may now close this page.
+ </body>
+ </html>"""
+
     __twitch: 'Twitch' = None
     port: int = 17563
     url: str = 'http://localhost:17563'
@@ -237,11 +249,7 @@ class UserAuthenticator:
             return web.Response(status=400)
         if self.__callback_func is not None:
             self.__callback_func(self.__user_token)
-        fn = path.join(path.dirname(__file__), 'oauth.html')
-        fd = ''
-        with open(fn, 'r') as f:
-            fd = f.read()
-        return web.Response(text=fd, content_type='text/html')
+        return web.Response(text=self.__document, content_type='text/html')
 
     def return_auth_url(self):
         return self.__build_auth_url()
