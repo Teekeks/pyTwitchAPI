@@ -289,3 +289,19 @@ class EventSub:
         :rtype: bool
         """
         return self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+
+    def listen_channel_subscribe(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+        """A notification when a specified channel receives a subscriber. This does not include resubscribes.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscribe
+
+        :param str broadcaster_user_id: the id of the user you want to listen to
+        :param Callable[[dict],None] callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :rtype: bool
+        """
+        return self._subscribe('channel.subscribe', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
