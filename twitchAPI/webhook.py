@@ -52,7 +52,7 @@ Short code example:
     pprint(success)
     pprint(twitch.get_webhook_subscriptions())
     # the webhook is now running and you are subscribed to the topic you want to listen to. lets idle a bit...
-    input('press Enter to shut down...')
+    input('press Enter to shut down')
     hook.stop()
     print('done')
 
