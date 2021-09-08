@@ -637,3 +637,22 @@ class EventSub:
                                '1',
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
+
+    def listen_channel_poll_end(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+        """A poll ended on a specified channel.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpollend
+
+        :param str broadcaster_user_id: the id of the user you want to listen to
+        :param Callable[[dict],None] callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :rtype: bool
+        """
+        return self._subscribe('channel.poll.end',
+                               '1',
+                               {'broadcaster_user_id': broadcaster_user_id},
+                               callback)
