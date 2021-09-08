@@ -498,6 +498,30 @@ class PubSub:
                                      callback_func,
                                      [AuthScope.CHANNEL_MODERATE])
 
+    def listen_user_moderation_notifications(self,
+                                             user_id: str,
+                                             channel_id: str,
+                                             callback_func: Callable[[UUID, dict], None]) -> UUID:
+        """
+        A user’s message held by AutoMod has been approved or denied.\n
+        Requires the :const:`twitchAPI.types.AuthScope.CHAT_READ` AuthScope.\n
+
+        :param str user_id: ID of the User
+        :param str channel_id: ID of the Channel
+        :param Callable[[~uuid.UUID,dict],None] callback_func: Function called on event
+        :return: UUID of this subscription
+        :rtype: ~uuid.UUID
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if Token is not valid
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by
+                `listen_confirm_timeout`
+        :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
+        """
+        return self.__generic_listen(f'user-moderation-notifications.{user_id}.{channel_id}',
+                                     callback_func,
+                                     [AuthScope.CHAT_READ])
+
     def listen_undocumented_topic(self,
                                   topic: str,
                                   callback_func: Callable[[UUID, dict], None]) -> UUID:
