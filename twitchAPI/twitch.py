@@ -2852,3 +2852,22 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'chat/emotes/set', {'emote_set_id': emote_set_id}, split_lists=True)
         result = self.__api_get_request(url, AuthType.EITHER, [])
         return result.json()
+
+    def delete_eventsub_subscription(self, subscription_id: str) -> bool:
+        """Deletes an EventSub subscription.
+
+        Requires App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-eventsub-subscription
+
+        :param str subscription_id: The ID of the subscription
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'eventsub/subscriptions', {'id': subscription_id})
+        result = self.__api_delete_request(url, AuthType.APP, [])
+        return result.status_code == 204
