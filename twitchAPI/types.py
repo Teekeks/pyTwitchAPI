@@ -359,3 +359,8 @@ class EventSubSubscriptionTimeout(TwitchAPIException):
 class EventSubSubscriptionConflict(TwitchAPIException):
     """When you try to subscribe to a EventSub subscription that already exists"""
     pass
+
+
+class EventSubSubscriptionError(TwitchAPIException):
+    """if the subscription request was invalid"""
+    pass

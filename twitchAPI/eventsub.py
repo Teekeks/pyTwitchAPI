@@ -25,7 +25,7 @@ from .twitch import Twitch
 from concurrent.futures._base import CancelledError
 from ssl import SSLContext
 from pprint import pprint
-from .types import EventSubSubscriptionTimeout, EventSubSubscriptionConflict
+from .types import EventSubSubscriptionTimeout, EventSubSubscriptionConflict, EventSubSubscriptionError
 
 
 class EventSub:
@@ -188,6 +188,9 @@ class EventSub:
         result = self.__api_post_request(TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data).json()
         if result.get('error', '').lower() == 'conflict':
             raise EventSubSubscriptionConflict(result.get('message', ''))
+        if result.get('error') is not None:
+            raise EventSubSubscriptionError(result.get('message'))
+        print(result)
         sub_id = result['data'][0]['id']
         self.__add_callback(sub_id, callback)
         if self.wait_for_subscription_confirm:
@@ -255,5 +258,18 @@ class EventSub:
         This is a shorthand for ~twitchAPI.twitch.Twitch.delete_eventsub_subscription"""
         return self.__twitch.delete_eventsub_subscription(topic_id)
 
-    def listen_channel_follow(self, broadcaster_user_id: str, callback) -> str:
+    def listen_channel_follow(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+        """A specified channel receives a follow.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelfollow
+
+        :param str broadcaster_user_id: the id of the user you want to listen to
+        :param (Callable[[dict], None]) callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if ~twitchAPI.twitch.Twitch.wait_for_subscription_confirm
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :rtype: bool
+        """
         return self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
