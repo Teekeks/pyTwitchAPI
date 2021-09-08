@@ -375,3 +375,28 @@ class EventSub:
                                '1',
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
+
+    def listen_channel_raid(self,
+                            callback: Callable[[dict], None],
+                            to_broadcaster_user_id: Optional[str] = None,
+                            from_broadcaster_user_id: Optional[str] = None) -> str:
+        """A broadcaster raids another broadcaster’s channel.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelraid
+
+        :param str from_broadcaster_user_id: The broadcaster user ID that created the channel raid you want to get notifications for.
+        :param str to_broadcaster_user_id: The broadcaster user ID that received the channel raid you want to get notifications for.
+        :param Callable[[dict],None] callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :rtype: bool
+        """
+        d = {k: v for k, v in {'from_broadcaster_user_id': from_broadcaster_user_id,
+                               'to_broadcaster_user_id': to_broadcaster_user_id}.items() if v is not None}
+        return self._subscribe('channel.cheer',
+                               '1',
+                               d,
+                               callback)
