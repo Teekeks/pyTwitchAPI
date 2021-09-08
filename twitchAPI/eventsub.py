@@ -69,7 +69,7 @@ class EventSub:
         self.__client_id = api_client_id
         self._port = port
         self.__ssl_context = ssl_context
-        self.__logger = getLogger('twitchAPI.webhook')
+        self.__logger = getLogger('twitchAPI.eventsub')
 
     def authenticate(self, twitch: Twitch) -> None:
         """Set authentication for the Webhook. Can be either a app or user token.
