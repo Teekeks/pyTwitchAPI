@@ -48,6 +48,7 @@ This module uses the `logging` module for creating Logs.
 Valid loggers are:
 
 * `twitchAPI.twitch`
+* `twitchAPI.eventsub`
 * `twitchAPI.pubsub`
 * `twitchAPI.oauth`
 * `twitchAPI.webhook`
@@ -70,8 +71,9 @@ Indices and tables
    :toctree: modules
 
    twitchAPI.twitch
-   twitchAPI.webhook
+   twitchAPI.eventsub
    twitchAPI.pubsub
+   twitchAPI.webhook
    twitchAPI.oauth
    twitchAPI.types
    twitchAPI.helper
