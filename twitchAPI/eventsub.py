@@ -102,6 +102,7 @@ class EventSub:
         try:
             self.__hook_loop.run_forever()
         except (CancelledError, asyncio.CancelledError):
+            self.__logger.debug('we got canceled')
             pass
 
     def start(self):
@@ -125,11 +126,13 @@ class EventSub:
         """
         if self.__hook_runner is not None:
             if self.unsubscribe_on_stop:
-                all_keys = list(self.__active_webhooks.keys())
-            self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
-            self.__hook_runner = None
-            self.__hook_thread.join()
-            self.__running = False
+                self.unsubscribe_all_known()
+        tasks = {t for t in asyncio.all_tasks(loop=self.__hook_loop) if not t.done()}
+        for task in tasks:
+            task.cancel()
+        self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
+        self.__hook_runner = None
+        self.__running = False
 
     # ==================================================================================================================
     # HELPER
@@ -168,7 +171,7 @@ class EventSub:
     def __activate_callback(self, c_id: str):
         self.__callbacks[c_id]['active'] = True
 
-    def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback):
+    def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback) -> str:
         """"Subscribe to Twitch Topic"""
         # self.__logger.debug(f'{mode} to topic {topic_url} for {callback_path}')
         self.__logger.debug(f'subscribe to {sub_type} version {sub_version} with condition {condition}')
@@ -185,15 +188,17 @@ class EventSub:
         result = self.__api_post_request(TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data).json()
         if result.get('error', '').lower() == 'conflict':
             raise EventSubSubscriptionConflict(result.get('message', ''))
-        self.__add_callback(result['data'][0]['id'], callback)
+        sub_id = result['data'][0]['id']
+        self.__add_callback(sub_id, callback)
         if self.wait_for_subscription_confirm:
             timeout = datetime.datetime.utcnow() + datetime.timedelta(seconds=self.wait_for_subscription_confirm_timeout)
             while timeout >= datetime.datetime.utcnow():
-                if self.__callbacks[result['data'][0]['id']]['active']:
-                    return
+                if self.__callbacks[sub_id]['active']:
+                    return sub_id
                 else:
-                    asyncio.sleep(0.01)
+                    asyncio.get_event_loop().run_until_complete(asyncio.sleep(0.01))
             raise EventSubSubscriptionTimeout()
+        return sub_id
     # ==================================================================================================================
     # HANDLERS
     # ==================================================================================================================
@@ -217,7 +222,38 @@ class EventSub:
                 self.__logger.error(f'received event for unknown subscription with ID {sub_id}')
             else:
                 await callback['callback'](data.get('event', {}))
-            pass
+            return web.Response(status=200)
 
-    def listen_channel_follow(self, broadcaster_user_id: str, callback):
-        self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+    def unsubscribe_all(self):
+        """Unsubscribe from all subscriptions"""
+        ids = []
+        repeat = True
+        cursor = None
+        # get all ids
+        while repeat:
+            ret = self.__twitch.get_eventsub_subscriptions(after=cursor)
+            for d in ret.get('data', []):
+                ids.append(d.get('id'))
+            cursor = ret.get('pagination', {}).get('cursor')
+            repeat = cursor is not None
+        for _id in ids:
+            succ = self.__twitch.delete_eventsub_subscription(_id)
+            if not succ:
+                self.__logger.warning(f'failed to unsubscribe from event {_id}')
+
+    def unsubscribe_all_known(self):
+        """Unsubscribe from all subscriptions known to this client."""
+        for key, value in self.__callbacks.items():
+            self.__logger.debug(f'unsubscribe from event {key}')
+            succ = self.__twitch.delete_eventsub_subscription(key)
+            if not succ:
+                self.__logger.warning(f'failed to unsubscribe from event {key}')
+
+    def unsubscribe_topic(self, topic_id: str) -> bool:
+        """Unsubscribe from a specific topic.
+
+        This is a shorthand for ~twitchAPI.twitch.Twitch.delete_eventsub_subscription"""
+        return self.__twitch.delete_eventsub_subscription(topic_id)
+
+    def listen_channel_follow(self, broadcaster_user_id: str, callback) -> str:
+        return self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
