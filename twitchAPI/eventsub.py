@@ -122,7 +122,6 @@ class EventSub:
     __running = False
     __callbacks = {}
     __active_webhooks = {}
-    __authenticate: bool = False
     __hook_thread: Union['threading.Thread', None] = None
     __hook_loop: Union['asyncio.AbstractEventLoop', None] = None
     __hook_runner: Union['web.AppRunner', None] = None
@@ -203,11 +202,10 @@ class EventSub:
             "Client-ID": self.__client_id,
             "Content-Type": "application/json"
         }
-        if self.__authenticate:
-            token = self.__twitch.get_used_token()
-            if token is None:
-                raise TwitchAuthorizationException('no Authorization set!')
-            headers['Authorization'] = "Bearer " + token
+        token = self.__twitch.get_app_token()
+        if token is None:
+            raise TwitchAuthorizationException('no Authorization set!')
+        headers['Authorization'] = "Bearer " + token
         return headers
 
     def __api_post_request(self, url: str, data: Union[dict, None] = None):
