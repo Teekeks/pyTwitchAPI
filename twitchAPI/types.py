@@ -364,3 +364,8 @@ class EventSubSubscriptionConflict(TwitchAPIException):
 class EventSubSubscriptionError(TwitchAPIException):
     """if the subscription request was invalid"""
     pass
+
+
+class DeprecatedError(TwitchAPIException):
+    """If something has been marked as deprecated by the Twitch API"""
+    pass

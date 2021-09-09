@@ -3,6 +3,8 @@
 Full Implementation of the Twitch Webhook
 -----------------------------------------
 
+.. warn:: Webhooks have been discontinued.
+
 The Webhook runs in its own thread, calling the given callback function whenever an webhook event happens.
 
 Look at the `Twitch Webhook reference <https://dev.twitch.tv/docs/api/webhooks-reference>`__ to find the topics you are
@@ -155,6 +157,7 @@ class TwitchWebHook:
         self._port = port
         self.__ssl_context = ssl_context
         self.__logger = getLogger('twitchAPI.webhook')
+        raise DeprecatedError()  # Webhooks are deprecated and can no longer be used
 
     def authenticate(self, twitch: Twitch) -> None:
         """Set authentication for the Webhook. Can be either a app or user token.

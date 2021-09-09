@@ -157,7 +157,6 @@ class EventSub:
             self.__hook_loop.run_forever()
         except (CancelledError, asyncio.CancelledError):
             self.__logger.debug('we got cancelled')
-            pass
 
     def start(self):
         """Starts the EventSub client
@@ -221,7 +220,6 @@ class EventSub:
 
     def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback) -> str:
         """"Subscribe to Twitch Topic"""
-        # self.__logger.debug(f'{mode} to topic {topic_url} for {callback_path}')
         self.__logger.debug(f'subscribe to {sub_type} version {sub_version} with condition {condition}')
         data = {
             'type': sub_type,
