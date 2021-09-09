@@ -905,14 +905,9 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        # TODO you can pass multiple sets in the body, account for that
-        url_param = {
-            'broadcaster_id': broadcaster_id
-        }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/enforcements/status', url_param)
-        body = {
-            'data': automod_check_entries
-        }
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/enforcements/status',
+                        {'broadcaster_id': broadcaster_id})
+        body = {'data': automod_check_entries}
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATION_READ], data=body)
         return result.json()
 
