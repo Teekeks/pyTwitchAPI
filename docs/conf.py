@@ -34,8 +34,8 @@ master_doc = 'index'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
-    'enum_tools.autoenum',
     'sphinx.ext.autosummary',
+    'enum_tools.autoenum',
     'recommonmark'
 ]
 
