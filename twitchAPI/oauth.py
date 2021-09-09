@@ -57,7 +57,6 @@ from aiohttp import web
 import asyncio
 from threading import Thread
 from time import sleep
-from os import path
 import requests
 from concurrent.futures._base import CancelledError
 from logging import getLogger, Logger
@@ -257,11 +256,11 @@ class UserAuthenticator:
     def authenticate(self,
                      callback_func=None, user_token=None):
         """Start the user authentication flow\n
-        If callback_func is not set, authenticate will wait till the authentication process finnished and then return
+        If callback_func is not set, authenticate will wait till the authentication process finished and then return
         the access_token and the refresh_token
         If user_token is set, it will be used instead of launching the webserver and opening the browser
 
-        :param callback_func: Function to call once the authentication finnished.
+        :param callback_func: Function to call once the authentication finished.
         :param str user_token: Code obtained from twitch to request the access and refresh token.
         :return: None if callback_func is set, otherwise access_token and refresh_token
         :rtype: None or (str, str)
