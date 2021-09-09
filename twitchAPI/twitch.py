@@ -889,18 +889,14 @@ class Twitch:
 
     def check_automod_status(self,
                              broadcaster_id: str,
-                             msg_id: str,
-                             msg_text: str,
-                             user_id: str) -> dict:
+                             automod_check_entries: List[AutoModCheckEntry]) -> dict:
         """Determines whether a string message meets the channel’s AutoMod requirements.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#check-automod-status
 
         :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
-        :param str msg_id: Developer-generated identifier for mapping messages to results.
-        :param str msg_text: Message text.
-        :param str user_id: User ID of the sender.
+        :param list[~twitchAPI.types.AutoModCheckEntry] automod_check_entries: The Automod Check Entries
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -915,11 +911,7 @@ class Twitch:
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/enforcements/status', url_param)
         body = {
-            'data': [{
-                'msg_id': msg_id,
-                'msg_text': msg_text,
-                'user_id': user_id}
-            ]
+            'data': automod_check_entries
         }
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATION_READ], data=body)
         return result.json()

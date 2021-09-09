@@ -2,6 +2,7 @@
 """Type Definitions"""
 
 from enum import Enum
+from typing import TypedDict
 
 
 class AnalyticsReportType(Enum):
@@ -299,6 +300,18 @@ class AutoModAction(Enum):
     """
     ALLOW = 'ALLOW'
     DENY = 'DENY'
+
+
+class AutoModCheckEntry(TypedDict):
+    msg_id: str
+    """Developer-generated identifier for mapping messages to results."""
+    msg_text: str
+    """Message text"""
+    user_id: str
+    """User ID of the sender"""
+
+
+# EXCEPTIONS
 
 
 class TwitchAPIException(Exception):
