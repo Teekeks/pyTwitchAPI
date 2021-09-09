@@ -191,3 +191,7 @@ def enum_value_or_none(enum):
 
 def datetime_to_str(dt):
     return dt.astimezone().isoformat() if dt is not None else None
+
+
+def remove_none_values(d: dict) -> dict:
+    return {k: v for k, v in d.items() if v is not None}

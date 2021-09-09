@@ -73,21 +73,17 @@ Class Documentation:
 ********************
 """
 import datetime
-from typing import Union, Tuple, Callable, List, Optional
-from .helper import build_url, TWITCH_API_BASE_URL, get_uuid, get_json, make_fields_datetime, fields_to_enum
-from .helper import extract_uuid_str_from_url
+from typing import Union, Callable, Optional
+from .helper import TWITCH_API_BASE_URL, remove_none_values
 from .types import *
 import requests
 from aiohttp import web
 import threading
 import asyncio
-from uuid import UUID
 from logging import getLogger, Logger
-import time
 from .twitch import Twitch
 from concurrent.futures._base import CancelledError
 from ssl import SSLContext
-from pprint import pprint
 from .types import EventSubSubscriptionTimeout, EventSubSubscriptionConflict, EventSubSubscriptionError
 
 
@@ -109,7 +105,7 @@ class EventSub:
                     |default| :code:`True`
     """
 
-    secret = "asdg6456di"
+    secret = 'asdg6456di'
     callback_url = None
     wait_for_subscription_confirm: bool = True
     wait_for_subscription_confirm_timeout: int = 30
@@ -147,8 +143,7 @@ class EventSub:
         hook_app = web.Application()
         hook_app.add_routes([web.post('/callback', self.__handle_callback),
                              web.get('/', self.__handle_default)])
-        hook_runner = web.AppRunner(hook_app)
-        return hook_runner
+        return web.AppRunner(hook_app)
 
     def __run_hook(self, runner: 'web.AppRunner'):
         self.__hook_runner = runner
@@ -161,7 +156,7 @@ class EventSub:
         try:
             self.__hook_loop.run_forever()
         except (CancelledError, asyncio.CancelledError):
-            self.__logger.debug('we got canceled')
+            self.__logger.debug('we got cancelled')
             pass
 
     def start(self):
@@ -183,9 +178,8 @@ class EventSub:
 
         :rtype: None
         """
-        if self.__hook_runner is not None:
-            if self.unsubscribe_on_stop:
-                self.unsubscribe_all_known()
+        if self.__hook_runner is not None and self.unsubscribe_on_stop:
+            self.unsubscribe_all_known()
         tasks = {t for t in asyncio.all_tasks(loop=self.__hook_loop) if not t.done()}
         for task in tasks:
             task.cancel()
@@ -198,22 +192,18 @@ class EventSub:
     # ==================================================================================================================
 
     def __build_request_header(self):
-        headers = {
-            "Client-ID": self.__client_id,
-            "Content-Type": "application/json"
-        }
         token = self.__twitch.get_app_token()
         if token is None:
             raise TwitchAuthorizationException('no Authorization set!')
-        headers['Authorization'] = "Bearer " + token
-        return headers
+        return {
+            'Client-ID': self.__client_id,
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}'
+        }
 
     def __api_post_request(self, url: str, data: Union[dict, None] = None):
         headers = self.__build_request_header()
-        if data is None:
-            return requests.post(url, headers=headers)
-        else:
-            return requests.post(url, headers=headers, json=data)
+        return requests.post(url, headers=headers, json=data)
 
     def __api_get_request(self, url: str):
         headers = self.__build_request_header()
@@ -244,22 +234,23 @@ class EventSub:
             }
         }
         result = self.__api_post_request(TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data).json()
-        if result.get('error', '').lower() == 'conflict':
-            raise EventSubSubscriptionConflict(result.get('message', ''))
-        if result.get('error') is not None:
+        error = result.get('error')
+        if error is not None:
+            if error.lower() == 'conflict':
+                raise EventSubSubscriptionConflict(result.get('message', ''))
             raise EventSubSubscriptionError(result.get('message'))
-        print(result)
         sub_id = result['data'][0]['id']
         self.__add_callback(sub_id, callback)
         if self.wait_for_subscription_confirm:
-            timeout = datetime.datetime.utcnow() + datetime.timedelta(seconds=self.wait_for_subscription_confirm_timeout)
+            timeout = datetime.datetime.utcnow() + datetime.timedelta(
+                seconds=self.wait_for_subscription_confirm_timeout)
             while timeout >= datetime.datetime.utcnow():
                 if self.__callbacks[sub_id]['active']:
                     return sub_id
-                else:
-                    asyncio.get_event_loop().run_until_complete(asyncio.sleep(0.01))
+                asyncio.get_event_loop().run_until_complete(asyncio.sleep(0.01))
             raise EventSubSubscriptionTimeout()
         return sub_id
+
     # ==================================================================================================================
     # HANDLERS
     # ==================================================================================================================
@@ -276,14 +267,13 @@ class EventSub:
         data: dict = await request.json()
         if data.get('challenge') is not None:
             return await self.__handle_challenge(request, data)
+        sub_id = data.get('subscription', {}).get('id')
+        callback = self.__callbacks.get(sub_id)
+        if callback is None:
+            self.__logger.error(f'received event for unknown subscription with ID {sub_id}')
         else:
-            sub_id = data.get('subscription', {}).get('id')
-            callback = self.__callbacks.get(sub_id)
-            if callback is None:
-                self.__logger.error(f'received event for unknown subscription with ID {sub_id}')
-            else:
-                await callback['callback'](data.get('event', {}))
-            return web.Response(status=200)
+            await callback['callback'](data.get('event', {}))
+        return web.Response(status=200)
 
     def unsubscribe_all(self):
         """Unsubscribe from all subscriptions"""
@@ -452,11 +442,11 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :rtype: bool
         """
-        d = {k: v for k, v in {'from_broadcaster_user_id': from_broadcaster_user_id,
-                               'to_broadcaster_user_id': to_broadcaster_user_id}.items() if v is not None}
         return self._subscribe('channel.raid',
                                '1',
-                               d,
+                               remove_none_values({
+                                   'from_broadcaster_user_id': from_broadcaster_user_id,
+                                   'to_broadcaster_user_id': to_broadcaster_user_id}),
                                callback)
 
     def listen_channel_ban(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
@@ -535,7 +525,8 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_points_custom_reward_add(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_points_custom_reward_add(self, broadcaster_user_id: str,
+                                                callback: Callable[[dict], None]) -> str:
         """A custom channel points reward has been created for the specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_rewardadd
@@ -572,12 +563,11 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :rtype: bool
         """
-        d = {'broadcaster_user_id': broadcaster_user_id}
-        if reward_id is not None:
-            d['reward_id'] = reward_id
         return self._subscribe('channel.channel_points_custom_reward.update',
                                '1',
-                               d,
+                               remove_none_values({
+                                   'broadcaster_user_id': broadcaster_user_id,
+                                   'reward_id': reward_id}),
                                callback)
 
     def listen_channel_points_custom_reward_remove(self,
@@ -598,12 +588,11 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :rtype: bool
         """
-        d = {'broadcaster_user_id': broadcaster_user_id}
-        if reward_id is not None:
-            d['reward_id'] = reward_id
         return self._subscribe('channel.channel_points_custom_reward.remove',
                                '1',
-                               d,
+                               remove_none_values({
+                                   'broadcaster_user_id': broadcaster_user_id,
+                                   'reward_id': reward_id}),
                                callback)
 
     def listen_channel_points_custom_reward_redemption_add(self,
@@ -624,12 +613,11 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :rtype: bool
         """
-        d = {'broadcaster_user_id': broadcaster_user_id}
-        if reward_id is not None:
-            d['reward_id'] = reward_id
         return self._subscribe('channel.channel_points_custom_reward_redemption.add',
                                '1',
-                               d,
+                               remove_none_values({
+                                   'broadcaster_user_id': broadcaster_user_id,
+                                   'reward_id': reward_id}),
                                callback)
 
     def listen_channel_points_custom_reward_redemption_update(self,
@@ -650,12 +638,11 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :rtype: bool
         """
-        d = {'broadcaster_user_id': broadcaster_user_id}
-        if reward_id is not None:
-            d['reward_id'] = reward_id
         return self._subscribe('channel.channel_points_custom_reward_redemption.update',
                                '1',
-                               d,
+                               remove_none_values({
+                                   'broadcaster_user_id': broadcaster_user_id,
+                                   'reward_id': reward_id}),
                                callback)
 
     def listen_channel_poll_begin(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
@@ -813,14 +800,13 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :rtype: bool
         """
-        d = {k: v for k, v in {
-            'organization_id': organisation_id,
-            'category_id': category_id,
-            'campaign_id': campaign_id
-        }.items() if v is not None}
         return self._subscribe('drop.entitlement.grant',
                                '1',
-                               d,
+                               remove_none_values({
+                                   'organization_id': organisation_id,
+                                   'category_id': category_id,
+                                   'campaign_id': campaign_id
+                               }),
                                callback)
 
     def listen_extension_bits_transaction_create(self,
