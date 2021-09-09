@@ -3,7 +3,7 @@
 Full Implementation of the Twitch Webhook
 -----------------------------------------
 
-.. warn:: Webhooks have been discontinued.
+.. warning:: Webhooks have been discontinued.
 
 The Webhook runs in its own thread, calling the given callback function whenever an webhook event happens.
 

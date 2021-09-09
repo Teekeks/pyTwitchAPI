@@ -1,5 +1,5 @@
-twitchAPI.webhook
-=================
+﻿twitchAPI.webhook
+=====================
 
 .. automodule:: twitchAPI.webhook
-   :members:
+    :members:

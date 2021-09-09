@@ -1,5 +1,5 @@
-twitchAPI.helper
-================
+﻿twitchAPI.helper
+=====================
 
 .. automodule:: twitchAPI.helper
-   :members:
+    :members:

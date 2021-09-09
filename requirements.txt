@@ -2,3 +2,4 @@ requests
 aiohttp
 python-dateutil
 websockets
+typing_extensions

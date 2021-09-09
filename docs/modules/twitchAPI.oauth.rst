@@ -1,5 +1,5 @@
-twitchAPI.oauth
-===============
+﻿twitchAPI.oauth
+=====================
 
 .. automodule:: twitchAPI.oauth
-   :members:
+    :members:

@@ -1,5 +1,5 @@
-twitchAPI.eventsub
-==================
+﻿twitchAPI.eventsub
+=====================
 
 .. automodule:: twitchAPI.eventsub
-   :members:
+    :members:

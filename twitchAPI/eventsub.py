@@ -64,7 +64,7 @@ Short code example:
     print('subscribing to hooks:')
     hook.listen_channel_follow(uid['data'][0]['id'], on_follow)
 
-    input('press Enter to shut down...\n')
+    input('press Enter to shut down...')
     hook.stop()
     print('done')
 

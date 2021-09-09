@@ -1,6 +1,5 @@
-twitchAPI.twitch
-================
+﻿twitchAPI.twitch
+=====================
 
 .. automodule:: twitchAPI.twitch
-   :members:
-
+    :members:

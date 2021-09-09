@@ -2,14 +2,11 @@
 """Type Definitions"""
 
 from enum import Enum
-from typing import TypedDict
+from typing_extensions import TypedDict
 
 
 class AnalyticsReportType(Enum):
     """Enum of all Analytics report types
-
-    :var V1:
-    :var V2:
     """
     V1 = 'overview_v1'
     V2 = 'overview_v2'
@@ -17,41 +14,6 @@ class AnalyticsReportType(Enum):
 
 class AuthScope(Enum):
     """Enum of Authentication scopes
-
-    :var ANALYTICS_READ_EXTENSION:
-    :var ANALYTICS_READ_GAMES:
-    :var BITS_READ:
-    :var CHANNEL_READ_SUBSCRIPTIONS:
-    :var CHANNEL_READ_STREAM_KEY:
-    :var CHANNEL_EDIT_COMMERCIAL:
-    :var CHANNEL_READ_HYPE_TRAIN:
-    :var CHANNEL_MANAGE_BROADCAST:
-    :var CHANNEL_READ_REDEMPTIONS:
-    :var CHANNEL_MANAGE_REDEMPTIONS:
-    :var CLIPS_EDIT:
-    :var USER_EDIT:
-    :var USER_EDIT_BROADCAST:
-    :var USER_READ_BROADCAST:
-    :var USER_READ_EMAIL:
-    :var USER_EDIT_FOLLOWS:
-    :var CHANNEL_MODERATE:
-    :var CHAT_EDIT:
-    :var CHAT_READ:
-    :var WHISPERS_READ:
-    :var WHISPERS_EDIT:
-    :var MODERATION_READ:
-    :var CHANNEL_SUBSCRIPTIONS:
-    :var CHANNEL_READ_EDITORS:
-    :var CHANNEL_MANAGE_VIDEOS:
-    :var USER_READ_BLOCKED_USERS:
-    :var USER_MANAGE_BLOCKED_USERS:
-    :var USER_READ_SUBSCRIPTIONS:
-    :var USER_READ_FOLLOWS:
-    :var CHANNEL_READ_POLLS:
-    :var CHANNEL_MANAGE_POLLS:
-    :var CHANNEL_READ_PREDICTIONS:
-    :var CHANNEL_MANAGE_PREDICTIONS:
-    :var MODERATOR_MANAGE_AUTOMOD:
     """
     ANALYTICS_READ_EXTENSION = 'analytics:read:extensions'
     ANALYTICS_READ_GAMES = 'analytics:read:games'
@@ -91,10 +53,6 @@ class AuthScope(Enum):
 
 class ModerationEventType(Enum):
     """Enum of moderation event types
-
-    :var BAN:
-    :var UNBAN:
-    :var UNKNOWN:
     """
     BAN = 'moderation.user.ban'
     UNBAN = 'moderation.user.unban'
@@ -103,12 +61,6 @@ class ModerationEventType(Enum):
 
 class TimePeriod(Enum):
     """Enum of valid Time periods
-
-    :var ALL:
-    :var DAY:
-    :var WEEK:
-    :var MONTH:
-    :var YEAR:
     """
     ALL = 'all'
     DAY = 'day'
@@ -119,10 +71,6 @@ class TimePeriod(Enum):
 
 class SortMethod(Enum):
     """Enum of valid sort methods
-
-    :var TIME:
-    :var TRENDING:
-    :var VIEWS:
     """
     TIME = 'time'
     TRENDING = 'trending'
@@ -131,10 +79,6 @@ class SortMethod(Enum):
 
 class HypeTrainContributionMethod(Enum):
     """Enum of valid Hype Train contribution types
-
-    :var BITS:
-    :var SUBS:
-    :var UNKNOWN:
     """
 
     BITS = 'BITS'
@@ -144,12 +88,6 @@ class HypeTrainContributionMethod(Enum):
 
 class VideoType(Enum):
     """Enum of valid video types
-
-    :var ALL:
-    :var UPLOAD:
-    :var ARCHIVE:
-    :var HIGHLIGHT:
-    :var UNKNOWN:
     """
     ALL = 'all'
     UPLOAD = 'upload'
@@ -160,10 +98,6 @@ class VideoType(Enum):
 
 class AuthType(Enum):
     """Type of authentication required. Only internal use
-
-    :var NONE: No auth required
-    :var USER: User auth required
-    :var APP: app auth required
     """
     NONE = 0
     USER = 1
@@ -173,17 +107,6 @@ class AuthType(Enum):
 
 class CodeStatus(Enum):
     """Enum Code Status, see https://dev.twitch.tv/docs/api/reference#get-code-status for more documentation
-
-    :var SUCCESSFULLY_REDEEMED:
-    :var ALREADY_CLAIMED:
-    :var EXPIRED:
-    :var USER_NOT_ELIGIBLE:
-    :var NOT_FOUND:
-    :var INACTIVE:
-    :var UNUSED:
-    :var INCORRECT_FORMAT:
-    :var INTERNAL_ERROR:
-    :var UNKNOWN_VALUE:
     """
     SUCCESSFULLY_REDEEMED = 'SUCCESSFULLY_REDEEMED'
     ALREADY_CLAIMED = 'ALREADY_CLAIMED'
@@ -199,12 +122,6 @@ class CodeStatus(Enum):
 
 class PubSubResponseError(Enum):
     """
-    :var BAD_MESSAGE: message is malformed
-    :var BAD_AUTH: user auth token is invalid
-    :var SERVER: server error
-    :var BAD_TOPIC: topic is invalid
-    :var NONE: no Error
-    :var UNKNOWN: a unknown error
     """
     BAD_MESSAGE = 'ERR_BADMESSAGE'
     BAD_AUTH = 'ERR_BADAUTH'
@@ -216,9 +133,6 @@ class PubSubResponseError(Enum):
 
 class CustomRewardRedemptionStatus(Enum):
     """
-    :var UNFULFILLED:
-    :var FULFILLED:
-    :var CANCELED:
     """
     UNFULFILLED = 'UNFULFILLED'
     FULFILLED = 'FULFILLED'
@@ -227,8 +141,6 @@ class CustomRewardRedemptionStatus(Enum):
 
 class SortOrder(Enum):
     """
-    :var OLDEST:
-    :var NEWEST:
     """
     OLDEST = 'OLDEST'
     NEWEST = 'NEWEST'
@@ -236,8 +148,6 @@ class SortOrder(Enum):
 
 class BlockSourceContext(Enum):
     """
-    :var CHAT:
-    :var WHISPER:
     """
     CHAT = 'chat'
     WHISPER = 'whisper'
@@ -245,9 +155,6 @@ class BlockSourceContext(Enum):
 
 class BlockReason(Enum):
     """
-    :var SPAM:
-    :var HARASSMENT:
-    :var OTHER:
     """
     SPAM = 'spam'
     HARASSMENT = 'harassment'
@@ -256,8 +163,6 @@ class BlockReason(Enum):
 
 class EntitlementFulfillmentStatus(Enum):
     """
-    :var CLAIMED:
-    :var FULFILLED:
     """
     CLAIMED = 'CLAIMED'
     FULFILLED = 'FULFILLED'
@@ -265,12 +170,6 @@ class EntitlementFulfillmentStatus(Enum):
 
 class PollStatus(Enum):
     """
-    :var ACTIVE:
-    :var COMPLETED:
-    :var MODERATED:
-    :var INVALID:
-    :var TERMINATED:
-    :var ARCHIVED:
     """
     ACTIVE = 'ACTIVE'
     COMPLETED = 'COMPLETED'
@@ -282,10 +181,6 @@ class PollStatus(Enum):
 
 class PredictionStatus(Enum):
     """
-    :var ACTIVE:
-    :var RESOLVED:
-    :var CANCELED:
-    :var LOCKED:
     """
     ACTIVE = 'ACTIVE'
     RESOLVED = 'RESOLVED'
@@ -295,8 +190,6 @@ class PredictionStatus(Enum):
 
 class AutoModAction(Enum):
     """
-    :var ALLOW:
-    :var DENY:
     """
     ALLOW = 'ALLOW'
     DENY = 'DENY'

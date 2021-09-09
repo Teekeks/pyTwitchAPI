@@ -33,8 +33,9 @@ master_doc = 'index'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
+    'enum_tools.autoenum',
+    'sphinx.ext.autosummary',
     'recommonmark'
 ]
 

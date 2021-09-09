@@ -1,5 +1,5 @@
-twitchAPI.pubsub
-================
+﻿twitchAPI.pubsub
+=====================
 
 .. automodule:: twitchAPI.pubsub
-   :members:
+    :members:
