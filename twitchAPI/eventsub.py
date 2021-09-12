@@ -270,7 +270,7 @@ class EventSub:
         if callback is None:
             self.__logger.error(f'received event for unknown subscription with ID {sub_id}')
         else:
-            await callback['callback'](data.get('event', {}))
+            await callback['callback'](data)
         return web.Response(status=200)
 
     def unsubscribe_all(self):
