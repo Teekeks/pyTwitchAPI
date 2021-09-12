@@ -39,7 +39,7 @@ Short code example:
     from twitchAPI import Twitch, EventSub
 
     # this will be called whenever someone follows the target channel
-    async def on_follow(data: dict):
+    async def on_follow(sub_id: str, data: dict):
         pprint(data)
 
     YOUR_USERNAME = 'your_username_here'
@@ -270,7 +270,7 @@ class EventSub:
         if callback is None:
             self.__logger.error(f'received event for unknown subscription with ID {sub_id}')
         else:
-            await callback['callback'](data)
+            await callback['callback'](sub_id, data)
         return web.Response(status=200)
 
     def unsubscribe_all(self):
@@ -304,13 +304,13 @@ class EventSub:
         This is a shorthand for ~twitchAPI.twitch.Twitch.delete_eventsub_subscription"""
         return self.__twitch.delete_eventsub_subscription(topic_id)
 
-    def listen_channel_update(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_update(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A broadcaster updates their channel properties e.g., category, title, mature flag, broadcast, or language.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelupdate
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -320,13 +320,13 @@ class EventSub:
         """
         return self._subscribe('channel.update', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
-    def listen_channel_follow(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_follow(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A specified channel receives a follow.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelfollow
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -336,13 +336,13 @@ class EventSub:
         """
         return self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
-    def listen_channel_subscribe(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_subscribe(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A notification when a specified channel receives a subscriber. This does not include resubscribes.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscribe
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -352,13 +352,13 @@ class EventSub:
         """
         return self._subscribe('channel.subscribe', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
-    def listen_channel_subscription_end(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_subscription_end(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A notification when a subscription to the specified channel ends.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscriptionend
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -368,13 +368,13 @@ class EventSub:
         """
         return self._subscribe('channel.subscription.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
-    def listen_channel_subscription_gift(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_subscription_gift(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A notification when a viewer gives a gift subscription to one or more users in the specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscriptiongift
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -384,13 +384,13 @@ class EventSub:
         """
         return self._subscribe('channel.subscription.gift', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
-    def listen_channel_subscription_message(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_subscription_message(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A notification when a user sends a resubscription chat message in a specific channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscriptionmessage
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -403,13 +403,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_cheer(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_cheer(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A user cheers on the specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelcheer
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -423,7 +423,7 @@ class EventSub:
                                callback)
 
     def listen_channel_raid(self,
-                            callback: Callable[[dict], None],
+                            callback: Union[Callable[[str, dict], None], None],
                             to_broadcaster_user_id: Optional[str] = None,
                             from_broadcaster_user_id: Optional[str] = None) -> str:
         """A broadcaster raids another broadcaster’s channel.
@@ -432,7 +432,7 @@ class EventSub:
 
         :param str from_broadcaster_user_id: The broadcaster user ID that created the channel raid you want to get notifications for.
         :param str to_broadcaster_user_id: The broadcaster user ID that received the channel raid you want to get notifications for.
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -447,13 +447,13 @@ class EventSub:
                                    'to_broadcaster_user_id': to_broadcaster_user_id}),
                                callback)
 
-    def listen_channel_ban(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_ban(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A viewer is banned from the specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelban
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -466,13 +466,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_unban(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_unban(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A viewer is unbanned from the specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelunban
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -485,13 +485,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_moderator_add(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_moderator_add(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """Moderator privileges were added to a user on a specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelmoderatoradd
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -504,13 +504,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_moderator_remove(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_moderator_remove(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """Moderator privileges were removed from a user on a specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelmoderatorremove
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -524,13 +524,13 @@ class EventSub:
                                callback)
 
     def listen_channel_points_custom_reward_add(self, broadcaster_user_id: str,
-                                                callback: Callable[[dict], None]) -> str:
+                                                callback: Union[Callable[[str, dict], None], None]) -> str:
         """A custom channel points reward has been created for the specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_rewardadd
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -545,7 +545,7 @@ class EventSub:
 
     def listen_channel_points_custom_reward_update(self,
                                                    broadcaster_user_id: str,
-                                                   callback: Callable[[dict], None],
+                                                   callback: Union[Callable[[str, dict], None], None],
                                                    reward_id: Optional[str] = None) -> str:
         """A custom channel points reward has been updated for the specified channel.
 
@@ -553,7 +553,7 @@ class EventSub:
 
         :param str broadcaster_user_id: the id of the user you want to listen to
         :param str reward_id: the id of the reward you want to get updates from. |default| :code:`None`
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -570,7 +570,7 @@ class EventSub:
 
     def listen_channel_points_custom_reward_remove(self,
                                                    broadcaster_user_id: str,
-                                                   callback: Callable[[dict], None],
+                                                   callback: Union[Callable[[str, dict], None], None],
                                                    reward_id: Optional[str] = None) -> str:
         """A custom channel points reward has been removed from the specified channel.
 
@@ -578,7 +578,7 @@ class EventSub:
 
         :param str broadcaster_user_id: the id of the user you want to listen to
         :param str reward_id: the id of the reward you want to get updates from. |default| :code:`None`
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -595,7 +595,7 @@ class EventSub:
 
     def listen_channel_points_custom_reward_redemption_add(self,
                                                            broadcaster_user_id: str,
-                                                           callback: Callable[[dict], None],
+                                                           callback: Union[Callable[[str, dict], None], None],
                                                            reward_id: Optional[str] = None) -> str:
         """A viewer has redeemed a custom channel points reward on the specified channel.
 
@@ -603,7 +603,7 @@ class EventSub:
 
         :param str broadcaster_user_id: the id of the user you want to listen to
         :param str reward_id: the id of the reward you want to get updates from. |default| :code:`None`
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -620,7 +620,7 @@ class EventSub:
 
     def listen_channel_points_custom_reward_redemption_update(self,
                                                               broadcaster_user_id: str,
-                                                              callback: Callable[[dict], None],
+                                                              callback: Union[Callable[[str, dict], None], None],
                                                               reward_id: Optional[str] = None) -> str:
         """A redemption of a channel points custom reward has been updated for the specified channel.
 
@@ -628,7 +628,7 @@ class EventSub:
 
         :param str broadcaster_user_id: the id of the user you want to listen to
         :param str reward_id: the id of the reward you want to get updates from. |default| :code:`None`
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -643,13 +643,13 @@ class EventSub:
                                    'reward_id': reward_id}),
                                callback)
 
-    def listen_channel_poll_begin(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_poll_begin(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A poll started on a specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpollbegin
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -662,13 +662,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_poll_progress(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_poll_progress(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """Users respond to a poll on a specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpollprogress
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -681,13 +681,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_poll_end(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_poll_end(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A poll ended on a specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpollend
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -700,13 +700,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_prediction_begin(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_prediction_begin(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A Prediction started on a specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionbegin
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -719,13 +719,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_prediction_progress(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_prediction_progress(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """Users participated in a Prediction on a specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionprogress
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -738,13 +738,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_prediction_lock(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_prediction_lock(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A Prediction was locked on a specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionlock
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -757,13 +757,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_channel_prediction_end(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_channel_prediction_end(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A Prediction ended on a specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionend
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -778,7 +778,7 @@ class EventSub:
 
     def listen_drop_entitlement_grant(self,
                                       organisation_id: str,
-                                      callback: Callable[[dict], None],
+                                      callback: Union[Callable[[str, dict], None], None],
                                       category_id: Optional[str] = None,
                                       campaign_id: Optional[str] = None) -> str:
         """An entitlement for a Drop is granted to a user.
@@ -790,7 +790,7 @@ class EventSub:
                 |default| :code:`None`
         :param str campaign_id: The campaign ID for a specific campaign for which entitlement notifications will be received.
                 |default| :code:`None`
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -809,13 +809,13 @@ class EventSub:
 
     def listen_extension_bits_transaction_create(self,
                                                  extension_client_id: str,
-                                                 callback: Callable[[dict], None]) -> str:
+                                                 callback: Union[Callable[[str, dict], None], None]) -> str:
         """A Bits transaction occurred for a specified Twitch Extension.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#extensionbits_transactioncreate
 
         :param str extension_client_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -828,13 +828,13 @@ class EventSub:
                                {'extension_client_id': extension_client_id},
                                callback)
 
-    def listen_hype_train_begin(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_hype_train_begin(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A Hype Train begins on the specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelhype_trainbegin
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -847,13 +847,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_hype_train_progress(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_hype_train_progress(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A Hype Train makes progress on the specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelhype_trainprogress
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -866,13 +866,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_hype_train_end(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_hype_train_end(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A Hype Train ends on the specified channel.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelhype_trainend
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -885,13 +885,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_stream_online(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_stream_online(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """The specified broadcaster starts a stream.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#streamonline
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -904,13 +904,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_stream_offline(self, broadcaster_user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_stream_offline(self, broadcaster_user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """The specified broadcaster stops a stream.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#streamoffline
 
         :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -923,13 +923,13 @@ class EventSub:
                                {'broadcaster_user_id': broadcaster_user_id},
                                callback)
 
-    def listen_user_authorization_grant(self, client_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_user_authorization_grant(self, client_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A user’s authorization has been granted to your client id.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userauthorizationgrant
 
         :param str client_id: Your application’s client id.
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -942,13 +942,13 @@ class EventSub:
                                {'client_id': client_id},
                                callback)
 
-    def listen_user_authorization_revoke(self, client_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_user_authorization_revoke(self, client_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A user’s authorization has been revoked for your client id.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userauthorizationrevoke
 
         :param str client_id: Your application’s client id.
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
@@ -961,13 +961,13 @@ class EventSub:
                                {'client_id': client_id},
                                callback)
 
-    def listen_user_update(self, user_id: str, callback: Callable[[dict], None]) -> str:
+    def listen_user_update(self, user_id: str, callback: Union[Callable[[str, dict], None], None]) -> str:
         """A user has updated their account.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userupdate
 
         :param str user_id: The user ID for the user you want update notifications for.
-        :param Callable[[dict],None] callback: function for callback
+        :param Union[Callable[[str,dict],None],None] callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
