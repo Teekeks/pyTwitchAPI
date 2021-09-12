@@ -25,7 +25,7 @@ You should get a 200 response with the text `pyTwitchAPI eventsub`.
 Listening to topics
 *******************
 
-After you started your EventSub client, you can use the :code:`listen_` prefixed functions to listen to the topics you are inetrested in.
+After you started your EventSub client, you can use the :code:`listen_` prefixed functions to listen to the topics you are interested in.
 
 The function you hand in as callback will be called whenever that event happens with the event data as a parameter.
 
