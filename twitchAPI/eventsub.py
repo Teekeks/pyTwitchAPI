@@ -51,10 +51,10 @@ Short code example:
     twitch = Twitch(APP_ID, APP_SECRET)
     twitch.authenticate_app([])
 
-    user_info = twitch.get_users(logins=[YOUR_USERNAME])
-
-    uid = twitch.get_users(logins=[TARGET_USERNAME])
+    # we need to retrieve the identifier of the target channel
+    user_info = twitch.get_users(logins=[TARGET_USERNAME])
     user_id = user_info['data'][0]['id']
+
     # basic setup, will run on port 8080 and a reverse proxy takes care of the https and certificate
     hook = EventSub(WEBHOOK_URL, APP_ID, 8080, twitch)
     # unsubscribe from all to get a clean slate
@@ -62,7 +62,7 @@ Short code example:
     # start client
     hook.start()
     print('subscribing to hooks:')
-    hook.listen_channel_follow(uid['data'][0]['id'], on_follow)
+    hook.listen_channel_follow(user_id, on_follow)
 
     input('press Enter to shut down...')
     hook.stop()
