@@ -2895,7 +2895,7 @@ class Twitch:
                                     start_time: Optional[datetime] = None,
                                     utc_offset: Optional[str] = None,
                                     first: Optional[int] = 20,
-                                    after: Optional[str] = None):
+                                    after: Optional[str] = None) -> dict:
         """Gets all scheduled broadcasts or specific scheduled broadcasts from a channel’s stream schedule.
 
         Requires App or User Authentication\n
@@ -2932,3 +2932,18 @@ class Twitch:
                         }, remove_none=True, split_lists=True)
         result = self.__api_get_request(url, AuthType.EITHER, []).json()
         return make_fields_datetime(result, ['start_time', 'end_time'])
+
+    def get_channel_icalendar(self, broadcaster_id: str) -> str:
+        """Gets all scheduled broadcasts from a channel’s stream schedule as an iCalendar.
+
+        Does not require Authorization\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-icalendar
+
+        :param str broadcaster_id: id of the broadcaster
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: str
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'schedule/icalendar', {'broadcaster_id': broadcaster_id})
+        return self.__api_get_request(url, AuthType.NONE, []).text
