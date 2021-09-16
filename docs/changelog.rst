@@ -7,11 +7,11 @@ Changelog
 Version 2.4.0
 ****************
 
-* **Implemented EventSub**
+- **Implemented EventSub**
 
-* Marked Webhook as deprecated
+- Marked Webhook as deprecated
 
-* added the following new endpoint:
+- added the following new endpoint
 
   * "Get Followed Streams"
 
@@ -53,7 +53,7 @@ Version 2.4.0
 
   * "Update Drops Entitlements"
 
-* Added the following new AuthScopes:
+- Added the following new AuthScopes
 
   * USER_READ_FOLLOWS
 
@@ -69,28 +69,28 @@ Version 2.4.0
 
   * CHANNEL_MANAGE_SCHEDULE
 
-* removed deprecated Endpoints:
+- removed deprecated Endpoints
 
   * "Create User Follows"
 
   * "Delete User Follows"
 
-* Added Topics to PubSub:
+- Added Topics to PubSub
 
   * "AutoMod Queue"
 
   * "User Moderation Notifications"
 
-* Check if at least one of status or id is provided in get_custom_reward_redemption
-* reverted change that made reward_id optional in get_custom_reward_redemption
-* get_extension_transactions now takes up to 100 transaction ids
-* added delay parameter to modify_channel_information
-* made parameter prompt of create_custom_reward optional and changed parameter order
-* made reward_id of get_custom_reward take either a list of str or str
-* made parameter title, prompt and cost optional in update_custom_reward
-* made parameter redemption_ids of update_redemption_status take either a list of str or str
-* fixed exception in block_user
-* allowed Twitch.check_automod_status to take in more that one entry
+- Check if at least one of status or id is provided in get_custom_reward_redemption
+- reverted change that made reward_id optional in get_custom_reward_redemption
+- get_extension_transactions now takes up to 100 transaction ids
+- added delay parameter to modify_channel_information
+- made parameter prompt of create_custom_reward optional and changed parameter order
+- made reward_id of get_custom_reward take either a list of str or str
+- made parameter title, prompt and cost optional in update_custom_reward
+- made parameter redemption_ids of update_redemption_status take either a list of str or str
+- fixed exception in block_user
+- allowed Twitch.check_automod_status to take in more that one entry
 
 ****************
 Version 2.3.2
