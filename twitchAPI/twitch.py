@@ -117,7 +117,7 @@ Class Documentation:
 import requests
 from typing import Union, List, Optional, Callable
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
-    fields_to_enum, enum_value_or_none, datetime_to_str
+    fields_to_enum, enum_value_or_none, datetime_to_str, remove_none_values
 from datetime import datetime
 from logging import getLogger, Logger
 from .types import *
@@ -2982,3 +2982,44 @@ class Twitch:
                             'timezone': timezone
                         }, remove_none=True)
         return self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE]).status_code == 200
+
+    def create_channel_stream_schedule_segment(self,
+                                               broadcaster_id: str,
+                                               start_time: datetime,
+                                               timezone: str,
+                                               is_recurring: bool,
+                                               duration: Optional[str] = None,
+                                               category_id: Optional[str] = None,
+                                               title: Optional[str] = None) -> dict:
+        """Create a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-channel-stream-schedule-segment
+
+        :param str broadcaster_id: id of the broadcaster
+        :param datetime start_time: Start time for the scheduled broadcast
+        :param str timezone: The timezone of the application creating the scheduled broadcast using the IANA time zone database format.
+        :param bool is_recurring: Indicates if the scheduled broadcast is recurring weekly.
+        :param str duration: Duration of the scheduled broadcast in minutes from the start_time. |default| :code:`240`
+        :param str category_id: Game/Category ID for the scheduled broadcast. |default| :code:`None`
+        :param str title: Title for the scheduled broadcast. |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'schedule/segment', {'broadcaster_id': broadcaster_id})
+        body = remove_none_values({
+            'start_time': datetime_to_str(start_time),
+            'timezone': timezone,
+            'is_recurring': is_recurring,
+            'duration': duration,
+            'category_id': category_id,
+            'title': title
+        })
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE], data=body).json()
+        return make_fields_datetime(result, ['start_time', 'end_time'])
