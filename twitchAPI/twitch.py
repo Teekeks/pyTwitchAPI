@@ -3023,3 +3023,50 @@ class Twitch:
         })
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE], data=body).json()
         return make_fields_datetime(result, ['start_time', 'end_time'])
+
+    def update_channel_stream_schedule_segment(self,
+                                               broadcaster_id: str,
+                                               stream_segment_id: str,
+                                               start_time: Optional[datetime] = None,
+                                               duration: Optional[str] = None,
+                                               category_id: Optional[str] = None,
+                                               title: Optional[str] = None,
+                                               is_canceled: Optional[bool] = None,
+                                               timezone: Optional[str] = None) -> dict:
+        """Update a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-channel-stream-schedule-segment
+
+        :param str broadcaster_id: id of the broadcaster
+        :param str stream_segment_id: The ID of the streaming segment to update.
+        :param ~datetime.datetime start_time: Start time for the scheduled broadcast |default| :code:`None`
+        :param str duration: Duration of the scheduled broadcast in minutes from the start_time. |default| :code:`240`
+        :param str category_id: Game/Category ID for the scheduled broadcast. |default| :code:`None`
+        :param str title: Title for the scheduled broadcast. |default| :code:`None`
+        :param bool is_canceled: Indicated if the scheduled broadcast is canceled. |default| :code:`None`
+        :param str timezone: The timezone of the application creating the scheduled broadcast using the IANA time zone database format. |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'schedule/segment',
+                        {
+                            'broadcaster_id': broadcaster_id,
+                            'id': stream_segment_id
+                        })
+        body = remove_none_values({
+            'start_time': datetime_to_str(start_time),
+            'duration': duration,
+            'category_id': category_id,
+            'title': title,
+            'is_canceled': is_canceled,
+            'timezone': timezone
+        })
+        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE], data=body)
+        return make_fields_datetime(result.json(), ['start_time', 'end_time'])
