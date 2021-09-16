@@ -8,42 +8,79 @@ Version 2.4.0
 ****************
 
 * **Implemented EventSub**
+
 * Marked Webhook as deprecated
+
 * added the following new endpoint:
+
   * "Get Followed Streams"
+
   * "Get Polls"
+
   * "End Poll"
+
   * "Get Predictions"
+
   * "Create Prediction"
+
   * "End Prediction"
+
   * "Manage held AutoMod Messages"
+
   * "Get Channel Badges"
+
   * "Get Global Chat Badges"
+
   * "Get Channel Emotes"
+
   * "Get Global Emotes"
+
   * "Get Emote Sets"
+
   * "Delete EventSub Subscription"
+
   * "Get Channel Stream Schedule"
+
   * "Get Channel iCalendar"
+
   * "Update Channel Stream Schedule"
+
   * "Create Channel Stream Schedule Segment"
+
   * "Update Channel Stream Schedule Segment"
+
   * "Delete Channel Stream Schedule Segment"
+
   * "Update Drops Entitlements"
+
 * Added the following new AuthScopes:
+
   * USER_READ_FOLLOWS
+
   * CHANNEL_READ_POLLS
+
   * CHANNEL_MANAGE_POLLS
+
   * CHANNEL_READ_PREDICTIONS
+
   * CHANNEL_MANAGE_PREDICTIONS
+
   * MODERATOR_MANAGE_AUTOMOD
+
   * CHANNEL_MANAGE_SCHEDULE
+
 * removed deprecated Endpoints:
+
   * "Create User Follows"
+
   * "Delete User Follows"
+
 * Added Topics to PubSub:
+
   * "AutoMod Queue"
+
   * "User Moderation Notifications"
+
 * Check if at least one of status or id is provided in get_custom_reward_redemption
 * reverted change that made reward_id optional in get_custom_reward_redemption
 * get_extension_transactions now takes up to 100 transaction ids
