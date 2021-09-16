@@ -2947,3 +2947,38 @@ class Twitch:
         """
         url = build_url(TWITCH_API_BASE_URL + 'schedule/icalendar', {'broadcaster_id': broadcaster_id})
         return self.__api_get_request(url, AuthType.NONE, []).text
+
+    def update_channel_stream_schedule(self,
+                                       broadcaster_id: str,
+                                       is_vacation_enabled: Optional[bool] = None,
+                                       vacation_start_time: Optional[datetime] = None,
+                                       vacation_end_time: Optional[datetime] = None,
+                                       timezone: Optional[str] = None) -> bool:
+        """Update the settings for a channel’s stream schedule. This can be used for setting vacation details.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-channel-stream-schedule
+
+        :param str broadcaster_id: id of the broadcaster
+        :param bool is_vacation_enabled: indicates if Vacation Mode is enabled. |default| :code:`None`
+        :param ~datetime.datetime vacation_start_time: Start time for vacation |default| :code:`None`
+        :param ~datetime.datetime vacation_end_time: End time for vacation specified |default| :code:`None`
+        :param str timezone: The timezone for when the vacation is being scheduled using the IANA time zone database format.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: bool
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'schedule/settings',
+                        {
+                            'broadcaster_id': broadcaster_id,
+                            'is_vacation_enabled': is_vacation_enabled,
+                            'vacation_start_time': datetime_to_str(vacation_start_time),
+                            'vacation_end_time': datetime_to_str(vacation_end_time),
+                            'timezone': timezone
+                        }, remove_none=True)
+        return self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE]).status_code == 200
