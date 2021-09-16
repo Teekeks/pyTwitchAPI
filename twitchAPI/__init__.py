@@ -5,4 +5,4 @@ from twitchAPI.types import *
 from twitchAPI.pubsub import PubSub
 from twitchAPI.eventsub import EventSub
 
-VERSION = (2, 3, 2)
+VERSION = (2, 4, 0)

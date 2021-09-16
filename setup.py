@@ -4,11 +4,11 @@ from setuptools import setup, find_packages
 setup(
     packages=find_packages(),
     name="twitchAPI",
-    version="2.3.2",
+    version="2.4.0",
     url="https://github.com/Teekeks/pyTwitchAPI",
     author="Lena \"Teekeks\" During",
     author_email="info@teawork.de",
-    description="A Python 3.7+ implementation of the Twitch Helix API, its Webhook and PubSub",
+    description="A Python 3.7+ implementation of the Twitch Helix API, its Webhook, PubSub and EventSub",
     license="MIT",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -28,5 +28,5 @@ setup(
         "twitchAPI": ["*.html"],
         "twitchAPI.res": ["*.html"]
     },
-    install_requires=['requests', 'python-dateutil', 'aiohttp', 'websockets']
+    install_requires=['requests', 'python-dateutil', 'aiohttp', 'websockets', 'typing_extensions']
 )
