@@ -3088,7 +3088,7 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
-        :rtype: dict
+        :rtype: bool
         """
         url = build_url(TWITCH_API_BASE_URL + 'schedule/segment',
                         {
@@ -3096,3 +3096,32 @@ class Twitch:
                             'id': stream_segment_id
                         })
         return self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE]).status_code == 204
+
+    def update_drops_entitlements(self,
+                                  entitlement_ids: List[str],
+                                  fulfillment_status: EntitlementFulfillmentStatus) -> dict:
+        """Updates the fulfillment status on a set of Drops entitlements, specified by their entitlement IDs.
+
+        Requires User or App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-drops-entitlements
+
+        :param list[str] entitlement_ids: An array of unique identifiers of the entitlements to update.
+        :param ~twitchAPI.types.EntitlementFulfillmentStatus fulfillment_status: A fulfillment status.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if entitlement_ids has more than 100 entries
+        :rtype: dict
+        """
+        if len(entitlement_ids) > 100:
+            raise ValueError('entitlement_ids can only have a maximum of 100 entries')
+        url = build_url(TWITCH_API_BASE_URL + 'entitlements/drops', {})
+        body = remove_none_values({
+            'entitlement_ids': entitlement_ids,
+            'fulfillment_status': fulfillment_status.value
+        })
+        return self.__api_patch_request(url, AuthType.EITHER, [], data=body).json()
+
