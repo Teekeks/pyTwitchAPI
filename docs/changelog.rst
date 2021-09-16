@@ -11,75 +11,75 @@ Version 2.4.0
 
 - Marked Webhook as deprecated
 
-- added the following new endpoint
+- added the following new endpoints
 
-  * "Get Followed Streams"
+  - "Get Followed Streams"
 
-  * "Get Polls"
+  - "Get Polls"
 
-  * "End Poll"
+  - "End Poll"
 
-  * "Get Predictions"
+  - "Get Predictions"
 
-  * "Create Prediction"
+  - "Create Prediction"
 
-  * "End Prediction"
+  - "End Prediction"
 
-  * "Manage held AutoMod Messages"
+  - "Manage held AutoMod Messages"
 
-  * "Get Channel Badges"
+  - "Get Channel Badges"
 
-  * "Get Global Chat Badges"
+  - "Get Global Chat Badges"
 
-  * "Get Channel Emotes"
+  - "Get Channel Emotes"
 
-  * "Get Global Emotes"
+  - "Get Global Emotes"
 
-  * "Get Emote Sets"
+  - "Get Emote Sets"
 
-  * "Delete EventSub Subscription"
+  - "Delete EventSub Subscription"
 
-  * "Get Channel Stream Schedule"
+  - "Get Channel Stream Schedule"
 
-  * "Get Channel iCalendar"
+  - "Get Channel iCalendar"
 
-  * "Update Channel Stream Schedule"
+  - "Update Channel Stream Schedule"
 
-  * "Create Channel Stream Schedule Segment"
+  - "Create Channel Stream Schedule Segment"
 
-  * "Update Channel Stream Schedule Segment"
+  - "Update Channel Stream Schedule Segment"
 
-  * "Delete Channel Stream Schedule Segment"
+  - "Delete Channel Stream Schedule Segment"
 
-  * "Update Drops Entitlements"
+  - "Update Drops Entitlements"
 
 - Added the following new AuthScopes
 
-  * USER_READ_FOLLOWS
+  - USER_READ_FOLLOWS
 
-  * CHANNEL_READ_POLLS
+  - CHANNEL_READ_POLLS
 
-  * CHANNEL_MANAGE_POLLS
+  - CHANNEL_MANAGE_POLLS
 
-  * CHANNEL_READ_PREDICTIONS
+  - CHANNEL_READ_PREDICTIONS
 
-  * CHANNEL_MANAGE_PREDICTIONS
+  - CHANNEL_MANAGE_PREDICTIONS
 
-  * MODERATOR_MANAGE_AUTOMOD
+  - MODERATOR_MANAGE_AUTOMOD
 
-  * CHANNEL_MANAGE_SCHEDULE
+  - CHANNEL_MANAGE_SCHEDULE
 
 - removed deprecated Endpoints
 
-  * "Create User Follows"
+  - "Create User Follows"
 
-  * "Delete User Follows"
+  - "Delete User Follows"
 
 - Added Topics to PubSub
 
-  * "AutoMod Queue"
+  - "AutoMod Queue"
 
-  * "User Moderation Notifications"
+  - "User Moderation Notifications"
 
 - Check if at least one of status or id is provided in get_custom_reward_redemption
 - reverted change that made reward_id optional in get_custom_reward_redemption
