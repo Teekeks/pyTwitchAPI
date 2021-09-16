@@ -3036,7 +3036,7 @@ class Twitch:
         """Update a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-channel-stream-schedule-segment
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-channel-stream-schedule-segment
 
         :param str broadcaster_id: id of the broadcaster
         :param str stream_segment_id: The ID of the streaming segment to update.
@@ -3070,3 +3070,29 @@ class Twitch:
         })
         result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE], data=body)
         return make_fields_datetime(result.json(), ['start_time', 'end_time'])
+
+    def delete_channel_stream_schedule_segment(self,
+                                               broadcaster_id: str,
+                                               stream_segment_id: str) -> bool:
+        """Delete a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-channel-stream-schedule-segment
+
+        :param str broadcaster_id: id of the broadcaster
+        :param str stream_segment_id: The ID of the streaming segment to delete.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'schedule/segment',
+                        {
+                            'broadcaster_id': broadcaster_id,
+                            'id': stream_segment_id
+                        })
+        return self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE]).status_code == 204
