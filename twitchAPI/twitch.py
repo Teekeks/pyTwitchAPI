@@ -2889,3 +2889,46 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.APP, [])
         return result.json()
 
+    def get_channel_stream_schedule(self,
+                                    broadcaster_id: str,
+                                    stream_segment_ids: Optional[List[str]] = None,
+                                    start_time: Optional[datetime] = None,
+                                    utc_offset: Optional[str] = None,
+                                    first: Optional[int] = 20,
+                                    after: Optional[str] = None):
+        """Gets all scheduled broadcasts or specific scheduled broadcasts from a channel’s stream schedule.
+
+        Requires App or User Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-stream-schedule
+
+        :param str broadcaster_id: user id of the broadcaster
+        :param list[str] stream_segment_ids: optional list of stream segment ids. Maximum 100 entries. |default| :code:`None`
+        :param ~datetime.datetime start_time: optional timestamp to start returning stream segments from. |default| :code:`None`
+        :param str utc_offset: A timezone offset to be used. |default| :code:`None`
+        :param int first: Maximum Number of stream segments to return. Maximum 25. |default| :code:`20`
+        :param str after: Cursor for forward pagination |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if stream_segment_ids has more than 100 entries
+        :raises ValueError: if first is not in range 1 to 25
+        :rtype: dict
+        """
+        if stream_segment_ids is not None and len(stream_segment_ids) > 100:
+            raise ValueError('stream_segment_ids can only have 100 entries')
+        if first is not None and (first > 25 or first < 1):
+            raise ValueError('first has to be in range 1 to 25')
+        url = build_url(TWITCH_API_BASE_URL + 'schedule',
+                        {
+                            'broadcaster_id': broadcaster_id,
+                            'id': stream_segment_ids,
+                            'start_time': datetime_to_str(start_time),
+                            'utc_offset': utc_offset,
+                            'first': first,
+                            'after': after
+                        }, remove_none=True, split_lists=True)
+        result = self.__api_get_request(url, AuthType.EITHER, []).json()
+        return make_fields_datetime(result, ['start_time', 'end_time'])
