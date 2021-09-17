@@ -4,6 +4,13 @@ Changelog
 =====================================
 
 ****************
+Version 2.4.1
+****************
+
+- EventSub now uses a random 20 letter secret by default
+- EventSub now verifies the send signature
+
+****************
 Version 2.4.0
 ****************
 
