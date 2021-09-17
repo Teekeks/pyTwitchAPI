@@ -82,6 +82,8 @@ from .twitch import Twitch
 from concurrent.futures._base import CancelledError
 from ssl import SSLContext
 from .types import EventSubSubscriptionTimeout, EventSubSubscriptionConflict, EventSubSubscriptionError
+import hmac
+import hashlib
 
 
 CALLBACK_TYPE = Callable[[dict], Awaitable[None]]
@@ -249,6 +251,15 @@ class EventSub:
             raise EventSubSubscriptionTimeout()
         return sub_id
 
+    async def _verify_signature(self, request: 'web.Request') -> bool:
+        expected = request.headers['Twitch-Eventsub-Message-Signature']
+        hmac_message = request.headers['Twitch-Eventsub-Message-Id'] + \
+            request.headers['Twitch-Eventsub-Message-Timestamp'] + await request.text()
+        sig = 'sha256=' + hmac.new(bytes(self.secret, 'utf-8'),
+                                   msg=bytes(hmac_message, 'utf-8'),
+                                   digestmod=hashlib.sha256).hexdigest().lower()
+        return sig == expected
+
     # ==================================================================================================================
     # HANDLERS
     # ==================================================================================================================
@@ -258,6 +269,9 @@ class EventSub:
 
     async def __handle_challenge(self, request: 'web.Request', data: dict):
         self.__logger.debug(f'received challenge for subscription {data.get("subscription").get("id")}')
+        if not await self._verify_signature(request):
+            self.__logger.warning(f'message signature is not matching! Discarding message')
+            return web.Response(status=403)
         self.__activate_callback(data.get('subscription').get('id'))
         return web.Response(text=data.get('challenge'))
 
@@ -270,6 +284,9 @@ class EventSub:
         if callback is None:
             self.__logger.error(f'received event for unknown subscription with ID {sub_id}')
         else:
+            if not await self._verify_signature(request):
+                self.__logger.warning(f'message signature is not matching! Discarding message')
+                return web.Response(status=403)
             await callback['callback'](data)
         return web.Response(status=200)
 
