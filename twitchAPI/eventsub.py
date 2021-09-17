@@ -70,6 +70,8 @@ Class Documentation:
 ********************
 """
 import datetime
+import random
+import string
 from typing import Union, Callable, Optional, Awaitable
 from .helper import TWITCH_API_BASE_URL, remove_none_values
 from .types import *
@@ -107,7 +109,7 @@ class EventSub:
                     |default| :code:`True`
     """
 
-    secret = 'asdg6456di'
+    secret = ''.join(random.choice(string.ascii_lowercase) for i in range(20))
     callback_url = None
     wait_for_subscription_confirm: bool = True
     wait_for_subscription_confirm_timeout: int = 30
