@@ -1,4 +1,4 @@
-#  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
+#  Copyright (c) 2021. Lena "Teekeks" During <info@teawork.de>
 """
 Full Implementation of the Twitch EventSub
 ------------------------------------------
@@ -61,8 +61,10 @@ Short code example:
     print('subscribing to hooks:')
     hook.listen_channel_follow(user_id, on_follow)
 
-    input('press Enter to shut down...')
-    hook.stop()
+    try:
+        input('press Enter to shut down...')
+    finally:
+        hook.stop()
     print('done')
 
 ********************
@@ -101,7 +103,7 @@ class EventSub:
     :param ~twitchAPI.twitch.Twitch twitch:  a app authenticated instance of :code:`Twitch`
     :var str secret: A random secret string. Set this for added security.
     :var str callback_url: The full URL of the webhook.
-    :var bool wait_for_subscription_confirm: Set this to false if you dont want to wait for a subscription confirm.
+    :var bool wait_for_subscription_confirm: Set this to false if you don't want to wait for a subscription confirm.
                     |default| :code:`True`
     :var int wait_for_subscription_confirm_timeout: Max time in seconds to wait for a subscription confirmation.
                     Only used if ``wait_for_subscription_confirm`` is set to True. |default| :code:`30`
@@ -175,9 +177,9 @@ class EventSub:
         self.__hook_thread.start()
 
     def stop(self):
-        """Stops the Webhook
+        """Stops the EventSub client
 
-        Please make sure to unsubscribe from all subscriptions!
+        This also unsubscribes from all known subscriptions if unsubscribe_on_stop is True
 
         :rtype: None
         """
