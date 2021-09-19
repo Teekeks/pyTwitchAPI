@@ -50,7 +50,7 @@ Class Documentation:
 """
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL, fields_to_enum
-from .types import AuthScope, InvalidRefreshTokenException, UnauthorizedException
+from .types import AuthScope, InvalidRefreshTokenException, UnauthorizedException, TwitchAPIException
 from typing import List, Union
 import webbrowser
 from aiohttp import web
@@ -263,6 +263,7 @@ class UserAuthenticator:
         :param callback_func: Function to call once the authentication finished.
         :param str user_token: Code obtained from twitch to request the access and refresh token.
         :return: None if callback_func is set, otherwise access_token and refresh_token
+        :raises ~twitchAPI.types.TwitchAPIException: if authentication fails
         :rtype: None or (str, str)
         """
         self.__callback_func = callback_func
@@ -289,9 +290,11 @@ class UserAuthenticator:
         }
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', param)
         response = requests.post(url)
-        data = response.json()
+        data: dict = response.json()
         if callback_func is None:
             self.stop()
+            if data.get('access_token') is None:
+                raise TwitchAPIException(f'Authentication failed:\n{str(data)}')
             return data['access_token'], data['refresh_token']
         elif user_token is not None:
             self.__callback_func(self.__user_token)
