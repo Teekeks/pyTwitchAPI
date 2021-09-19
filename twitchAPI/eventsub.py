@@ -318,12 +318,14 @@ class EventSub:
             succ = self.__twitch.delete_eventsub_subscription(key)
             if not succ:
                 self.__logger.warning(f'failed to unsubscribe from event {key}')
+        self.__callbacks.clear()
 
     def unsubscribe_topic(self, topic_id: str) -> bool:
-        """Unsubscribe from a specific topic.
-
-        This is a shorthand for ~twitchAPI.twitch.Twitch.delete_eventsub_subscription"""
-        return self.__twitch.delete_eventsub_subscription(topic_id)
+        """Unsubscribe from a specific topic."""
+        result = self.__twitch.delete_eventsub_subscription(topic_id)
+        if result:
+            self.__callbacks.pop(topic_id, None)
+        return result
 
     def listen_channel_update(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A broadcaster updates their channel properties e.g., category, title, mature flag, broadcast, or language.
