@@ -252,6 +252,7 @@ class EventSub:
                 if self.__callbacks[sub_id]['active']:
                     return sub_id
                 asyncio.get_event_loop().run_until_complete(asyncio.sleep(0.01))
+            self.__callbacks.pop(sub_id, None)
             raise EventSubSubscriptionTimeout()
         return sub_id
 
@@ -310,6 +311,7 @@ class EventSub:
             succ = self.__twitch.delete_eventsub_subscription(_id)
             if not succ:
                 self.__logger.warning(f'failed to unsubscribe from event {_id}')
+        self.__callbacks.clear()
 
     def unsubscribe_all_known(self):
         """Unsubscribe from all subscriptions known to this client."""
