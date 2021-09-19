@@ -4,6 +4,13 @@ Changelog
 =====================================
 
 ****************
+Version 2.4.2
+****************
+
+- Fixed EventSub not keeping local state in sync on unsubscribe
+- Added proper exception if authentication via oauth fails
+
+****************
 Version 2.4.1
 ****************
 
