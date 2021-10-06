@@ -44,6 +44,7 @@ class AuthScope(Enum):
     USER_MANAGE_BLOCKED_USERS = 'user:manage:blocked_users'
     USER_READ_SUBSCRIPTIONS = 'user:read:subscriptions'
     USER_READ_FOLLOWS = 'user:read:follows'
+    CHANNEL_READ_GOALS = 'channel:read:goals'
     CHANNEL_READ_POLLS = 'channel:read:polls'
     CHANNEL_MANAGE_POLLS = 'channel:manage:polls'
     CHANNEL_READ_PREDICTIONS = 'channel:read:predictions'
