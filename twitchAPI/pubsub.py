@@ -58,7 +58,7 @@ import json
 from random import randrange
 import datetime
 from logging import getLogger, Logger
-from typing import Callable, List
+from typing import Callable, List, Dict
 from uuid import UUID
 from time import sleep
 
@@ -255,7 +255,7 @@ class PubSub:
     async def __task_receive(self):
         async for message in self.__connection:
             data = json.loads(message)
-            switcher = {
+            switcher: Dict[str, Callable] = {
                 'pong': self.__handle_pong,
                 'reconnect': self.__handle_reconnect,
                 'response': self.__handle_response,
@@ -263,7 +263,7 @@ class PubSub:
             }
             handler = switcher.get(data.get('type', '').lower(),
                                    self.__handle_unknown)
-            await handler(data)
+            self.__socket_loop.create_task(handler(data))
 
 ###########################################################################################
 # Handler

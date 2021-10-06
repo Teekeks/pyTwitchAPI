@@ -292,7 +292,7 @@ class EventSub:
             if not await self._verify_signature(request):
                 self.__logger.warning(f'message signature is not matching! Discarding message')
                 return web.Response(status=403)
-            await callback['callback'](data)
+            self.__hook_loop.create_task(callback['callback'](data))
         return web.Response(status=200)
 
     def unsubscribe_all(self):
