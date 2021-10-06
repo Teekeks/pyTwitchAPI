@@ -237,8 +237,11 @@ class EventSub:
                 'secret': self.secret
             }
         }
-        result = self.__api_post_request(TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data).json()
+        r_data = self.__api_post_request(TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data)
+        result = r_data.json()
         error = result.get('error')
+        if r_data.status_code == 500:
+            raise TwitchBackendException(error)
         if error is not None:
             if error.lower() == 'conflict':
                 raise EventSubSubscriptionConflict(result.get('message', ''))
@@ -341,6 +344,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.update', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
@@ -357,6 +361,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
@@ -373,6 +378,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.subscribe', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
@@ -389,6 +395,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.subscription.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
@@ -405,6 +412,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.subscription.gift', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
@@ -421,6 +429,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.subscription.message',
@@ -440,6 +449,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.cheer',
@@ -463,6 +473,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.raid',
@@ -484,6 +495,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.ban',
@@ -503,6 +515,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.unban',
@@ -522,6 +535,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.moderator.add',
@@ -541,6 +555,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.moderator.remove',
@@ -561,6 +576,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.channel_points_custom_reward.add',
@@ -584,6 +600,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.channel_points_custom_reward.update',
@@ -609,6 +626,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.channel_points_custom_reward.remove',
@@ -634,6 +652,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.channel_points_custom_reward_redemption.add',
@@ -659,6 +678,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.channel_points_custom_reward_redemption.update',
@@ -680,6 +700,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.poll.begin',
@@ -699,6 +720,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.poll.progress',
@@ -718,6 +740,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.poll.end',
@@ -737,6 +760,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.prediction.begin',
@@ -756,6 +780,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.prediction.progress',
@@ -775,6 +800,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.prediction.lock',
@@ -794,6 +820,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.prediction.end',
@@ -821,6 +848,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('drop.entitlement.grant',
@@ -846,6 +874,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('extension.bits_transaction.create',
@@ -865,6 +894,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.hype_train.begin',
@@ -884,6 +914,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.hype_train.progress',
@@ -903,6 +934,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('channel.hype_train.end',
@@ -922,6 +954,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('stream.online',
@@ -941,6 +974,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('stream.offline',
@@ -960,6 +994,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('user.authorization.grant',
@@ -979,6 +1014,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('user.authorization.revoke',
@@ -998,6 +1034,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         :rtype: str
         """
         return self._subscribe('user.update',
