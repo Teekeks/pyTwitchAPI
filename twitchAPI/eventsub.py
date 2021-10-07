@@ -882,6 +882,66 @@ class EventSub:
                                {'extension_client_id': extension_client_id},
                                callback)
 
+    def listen_goal_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+        """A goal begins on the specified channel.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelgoalbegin
+
+        :param str broadcaster_user_id: the id of the user you want to listen to
+        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :rtype: str
+        """
+        return self._subscribe('channel.goal.begin',
+                               '1',
+                               {'broadcaster_user_id': broadcaster_user_id},
+                               callback)
+
+    def listen_goal_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+        """A goal makes progress on the specified channel.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelgoalprogress
+
+        :param str broadcaster_user_id: the id of the user you want to listen to
+        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :rtype: str
+        """
+        return self._subscribe('channel.goal.progress',
+                               '1',
+                               {'broadcaster_user_id': broadcaster_user_id},
+                               callback)
+
+    def listen_goal_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+        """A goal ends on the specified channel.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelgoalend
+
+        :param str broadcaster_user_id: the id of the user you want to listen to
+        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :rtype: str
+        """
+        return self._subscribe('channel.goal.end',
+                               '1',
+                               {'broadcaster_user_id': broadcaster_user_id},
+                               callback)
+
     def listen_hype_train_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Hype Train begins on the specified channel.
 
