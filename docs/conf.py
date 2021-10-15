@@ -22,7 +22,7 @@ copyright = '2020, Lena "Teekeks" During'
 author = 'Lena "Teekeks" During'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0'
+release = '2.5.0'
 
 master_doc = 'index'
 
