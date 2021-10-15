@@ -10,8 +10,11 @@ Version 2.5.0
 - EventSub and PubSub callbacks are now executed non blocking, this fixes that long running callbacks stop the library to respond to heartbeats etc.
 - EventSub subscription can now throw a TwitchBackendException when the API returns a Error 500
 - added the following EventSub topics (thanks d7415!)
+
   - listen_goal_begin
+
   - listen_goal_progress
+
   - listen_goal_end
 
 ****************
