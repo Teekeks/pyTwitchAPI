@@ -11,11 +11,11 @@ Version 2.5.0
 - EventSub subscription can now throw a TwitchBackendException when the API returns a Error 500
 - added the following EventSub topics (thanks d7415!)
 
-  - listen_goal_begin
+  - "Goal Begin"
 
-  - listen_goal_progress
+  - "Goal Progress"
 
-  - listen_goal_end
+  - "Goal End"
 
 ****************
 Version 2.4.2
