@@ -4,6 +4,12 @@ Changelog
 =====================================
 
 ****************
+Version 2.5.1
+****************
+
+- Fixed bug that prevented EventSub subscriptions to work if main threads asyncio loop was already running
+
+****************
 Version 2.5.0
 ****************
 
