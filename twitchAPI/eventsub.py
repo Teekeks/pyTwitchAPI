@@ -74,6 +74,7 @@ Class Documentation:
 import datetime
 import random
 import string
+import time
 from typing import Union, Callable, Optional, Awaitable
 from .helper import TWITCH_API_BASE_URL, remove_none_values
 from .types import *
@@ -254,7 +255,7 @@ class EventSub:
             while timeout >= datetime.datetime.utcnow():
                 if self.__callbacks[sub_id]['active']:
                     return sub_id
-                asyncio.get_event_loop().run_until_complete(asyncio.sleep(0.01))
+                time.sleep(0.01)
             self.__callbacks.pop(sub_id, None)
             raise EventSubSubscriptionTimeout()
         return sub_id
