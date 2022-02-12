@@ -4,6 +4,20 @@ Changelog
 =====================================
 
 ****************
+Version 2.5.2
+****************
+
+- Added the following new endpoints:
+
+  - "Get Chat Settings"
+
+  - "Update Chat Settings"
+
+- Added Auth Scope "channel:manage:chat_settings"
+- Fixed error in Auth Scope "channel:manage:schedule"
+- Fixed error in Endpoint "Get Extension Transactions"
+
+****************
 Version 2.5.1
 ****************
 
