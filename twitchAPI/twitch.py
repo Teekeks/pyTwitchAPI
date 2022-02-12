@@ -680,7 +680,7 @@ class Twitch:
             'extension_id': extension_id,
             'id': transaction_id,
             'after': after,
-            first: first
+            'first': first
         }
         url = build_url(TWITCH_API_BASE_URL + 'extensions/transactions', url_param, remove_none=True, split_lists=True)
         result = self.__api_get_request(url, AuthType.EITHER, [])
