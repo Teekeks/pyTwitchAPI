@@ -713,18 +713,18 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.EITHER, [])
         return result.json()
 
-    def update_channel_settings(self,
-                                broadcaster_id: str,
-                                moderator_id: str,
-                                emote_mode: Optional[bool] = None,
-                                follower_mode: Optional[bool] = None,
-                                follower_mode_duration: Optional[int] = None,
-                                non_moderator_chat_delay: Optional[bool] = None,
-                                non_moderator_chat_delay_duration: Optional[int] = None,
-                                slow_mode: Optional[bool] = None,
-                                slow_mode_wait_time: Optional[int] = None,
-                                subscriber_mode: Optional[bool] = None,
-                                unique_chat_mode: Optional[bool] = None):
+    def update_chat_settings(self,
+                             broadcaster_id: str,
+                             moderator_id: str,
+                             emote_mode: Optional[bool] = None,
+                             follower_mode: Optional[bool] = None,
+                             follower_mode_duration: Optional[int] = None,
+                             non_moderator_chat_delay: Optional[bool] = None,
+                             non_moderator_chat_delay_duration: Optional[int] = None,
+                             slow_mode: Optional[bool] = None,
+                             slow_mode_wait_time: Optional[int] = None,
+                             subscriber_mode: Optional[bool] = None,
+                             unique_chat_mode: Optional[bool] = None):
         """Updates the broadcaster’s chat settings.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_CHAT_SETTINGS`\n
