@@ -22,7 +22,7 @@ For support please join the [Twitch API discord server](https://discord.gg/tu2Dm
 
 ### Basic API calls
 
-Setting up a Instance of the Twitch API and get your User ID:
+Setting up an Instance of the Twitch API and get your User ID:
 
 ```python
 from twitchAPI.twitch import Twitch
@@ -147,7 +147,7 @@ You need app authentication and your Endpoint URL must point to a
 **Please note that Your Endpoint URL has to be HTTPS, has to run on Port 443 and requires a valid, non self signed certificate
 This most likely means, that you need a reverse proxy like nginx. You can also hand in a valid ssl context to be used in the constructor.**
 
-You can check on whether or not your webhook is publicly reachable by navigating to the URL set in `callback_url`.
+You can check on whether your webhook is publicly reachable by navigating to the URL set in `callback_url`.
 You should get a 200 response with the text `pyTwitchAPI eventsub`.
 
 ### Listening to topics
