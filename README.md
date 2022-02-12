@@ -100,76 +100,6 @@ twitch.app_auth_refresh_callback = app_refresh
 twitch.user_auth_refresh_callback = user_refresh
 ```
 
-### Webhook
-
-See [webhook_example.py](../master/webhook_example.py) for a full example usage. 
-
-A more detailed documentation can be found [here on readthedocs](https://pytwitchapi.readthedocs.io/en/latest/modules/twitchAPI.webhook.html).
-
-#### Requirements
-
-You need to have a public IP with a port open. That port will be 80 by default.
-Authentication is off by default, but you can choose to authenticate to use some Webhook Topics or to get more information.  
-**Please note that Your Endpoint URL has to be HTTPS if you choose to authenticate which means that you probably need a reverse proxy like nginx.**
-
-
-### Start Webhook
-
-Example on how to set up a webhook and start it:
-````python
-from twitchAPI.twitch import Twitch
-from twitchAPI.webhook import TwitchWebHook
-
-twitch = Twitch('my_app_id', 'my_app_secret')
-# add App authentication
-twitch.authenticate_app([])
-
-# Note that you have to use https as soon as you use functions that require authentication (most of them)
-hook = TwitchWebHook("https://my.cool.ip:8080", 'your app id', 8080)
-# some hooks dont require any authentication, which would remove the requirement to set up a https reverse proxy
-# if you dont require authentication just dont call authenticate()
-hook.authenticate(twitch)
-hook.start()
-````
-
-### Subscribing to Webhook Topics
-Define a callback function and subscribe to a event:
-````python
-from uuid import UUID
-from pprint import pprint
-
-def callback_user_changed(uuid: UUID, data: dict) -> None:
-    print(f'Callback for UUID {str(uuid)}')
-    pprint(data)
-
-success, sub_uuid = hook.subscribe_user_changed(user_id, callback_user_changed)
-````
-The subscription function returns a UUID that identifies this subscription. This means you can use the same callback function for multiple subscriptions.
-
-### Unsubscribing
-
-To unsubscribe, just use that UUID from the subscription:
-```python
-success = hook.unsubscribe_user_changed(sub_uuid)
-```
-
-### Stopping the Webhook
-
-Stopping the webhook:
-```python
-hook.stop()
-```
-
-### Unsubscribing from any remaining active Webhook topic
-
-Should your management of webhook subscriptions fail (due to a crash or something else) and there is a active webhook remaining after your program closed, you may use the following:
-
-```python
-hook.unsubscribe_all(twitch)
-```
-
-The parameter is a ``twitchAPI.twitch.Twitch`` instance with app authentication.
-
 
 ## PubSub
 
@@ -203,4 +133,61 @@ input('press ENTER to close...')
 # you do not need to unlisten to topics before stopping but you can listen and unlisten at any moment you want
 pubsub.unlisten(uuid)
 pubsub.stop()
+```
+
+
+## EventSub
+
+### Requirements
+
+
+You need to have a public IP with a port open. That port will be 80 by default.
+You need app authentication and your Endpoint URL must point to a
+
+**Please note that Your Endpoint URL has to be HTTPS, has to run on Port 443 and requires a valid, non self signed certificate
+This most likely means, that you need a reverse proxy like nginx. You can also hand in a valid ssl context to be used in the constructor.**
+
+You can check on whether or not your webhook is publicly reachable by navigating to the URL set in `callback_url`.
+You should get a 200 response with the text `pyTwitchAPI eventsub`.
+
+### Listening to topics
+
+After you started your EventSub client, you can use the `listen_` prefixed functions to listen to the topics you are interested in.
+
+The function you hand in as callback will be called whenever that event happens with the event data as a parameter.
+
+### Short code example:
+
+```python
+from pprint import pprint
+from twitchAPI import Twitch, EventSub
+
+# this will be called whenever someone follows the target channel
+async def on_follow(data: dict):
+    pprint(data)
+
+TARGET_USERNAME = 'target_username_here'
+WEBHOOK_URL = 'https://url.to.your.webhook.com'
+APP_ID = 'your_app_id'
+APP_SECRET = 'your_app_secret'
+
+twitch = Twitch(APP_ID, APP_SECRET)
+twitch.authenticate_app([])
+
+uid = twitch.get_users(logins=[TARGET_USERNAME])
+user_id = uid['data'][0]['id']
+# basic setup, will run on port 8080 and a reverse proxy takes care of the https and certificate
+hook = EventSub(WEBHOOK_URL, APP_ID, 8080, twitch)
+# unsubscribe from all to get a clean slate
+hook.unsubscribe_all()
+# start client
+hook.start()
+print('subscribing to hooks:')
+hook.listen_channel_follow(user_id, on_follow)
+
+try:
+    input('press Enter to shut down...')
+finally:
+    hook.stop()
+print('done')
 ```
