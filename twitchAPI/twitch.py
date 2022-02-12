@@ -713,6 +713,74 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.EITHER, [])
         return result.json()
 
+    def update_channel_settings(self,
+                                broadcaster_id: str,
+                                moderator_id: str,
+                                emote_mode: Optional[bool] = None,
+                                follower_mode: Optional[bool] = None,
+                                follower_mode_duration: Optional[int] = None,
+                                non_moderator_chat_delay: Optional[bool] = None,
+                                non_moderator_chat_delay_duration: Optional[int] = None,
+                                slow_mode: Optional[bool] = None,
+                                slow_mode_wait_time: Optional[int] = None,
+                                subscriber_mode: Optional[bool] = None,
+                                unique_chat_mode: Optional[bool] = None):
+        """Updates the broadcaster’s chat settings.
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_CHAT_SETTINGS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-chat-settings
+
+        :param str broadcaster_id: The ID of the broadcaster whose chat settings you want to update.
+        :param str moderator_id: The ID of a user that has permission to moderate the broadcaster’s chat room.
+        :param bool emote_mode: A Boolean value that determines whether chat messages must contain only emotes.
+                    |default| :code:`None`
+        :param bool follower_mode: A Boolean value that determines whether the broadcaster restricts the chat room to
+                    followers only, based on how long they’ve followed. |default| :code:`None`
+        :param int follower_mode_duration: The length of time, in minutes, that the followers must have followed the
+                    broadcaster to participate in the chat room |default| :code:`None`
+        :param bool non_moderator_chat_delay: A Boolean value that determines whether the broadcaster adds a short delay
+                    before chat messages appear in the chat room. |default| :code:`None`
+        :param int non_moderator_chat_delay_duration: he amount of time, in seconds, that messages are delayed
+                    from appearing in chat. Possible Values: 2, 4 and 6 |default| :code:`None`
+        :param bool slow_mode: A Boolean value that determines whether the broadcaster limits how often users in the
+                    chat room are allowed to send messages. |default| :code:`None`
+        :param int slow_mode_wait_time: The amount of time, in seconds, that users need to wait between sending
+                    messages |default| :code:`None`
+        :param bool subscriber_mode: A Boolean value that determines whether only users that subscribe to the
+                    broadcaster’s channel can talk in the chat room. |default| :code:`None`
+        :param bool unique_chat_mode: A Boolean value that determines whether the broadcaster requires users to post
+                    only unique messages in the chat room. |default| :code:`None`
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if non_moderator_chat_delay_duration is not one of 2, 4 or 6
+        :rtype: dict
+        """
+        if non_moderator_chat_delay_duration is not None:
+            if non_moderator_chat_delay_duration not in (2, 4, 6):
+                raise ValueError('non_moderator_chat_delay_duration has to be one of 2, 4 or 6')
+        url_param = {
+            'broadcaster_id': broadcaster_id,
+            'moderator_id': moderator_id
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'chat/settings', url_param, remove_none=True)
+        body = remove_none_values({
+            'emote_mode': emote_mode,
+            'follower_mode': follower_mode,
+            'follower_mode_duration': follower_mode_duration,
+            'non_moderator_chat_delay': non_moderator_chat_delay,
+            'non_moderator_chat_delay_duration': non_moderator_chat_delay_duration,
+            'slow_mode': slow_mode,
+            'slow_mode_wait_time': slow_mode_wait_time,
+            'subscriber_mode': subscriber_mode,
+            'unique_chat_mode': unique_chat_mode
+        })
+        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_CHAT_SETTINGS], body)
+        return result.json()
+
     def create_clip(self,
                     broadcaster_id: str,
                     has_delay: bool = False) -> dict:
