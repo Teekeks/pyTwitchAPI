@@ -16,6 +16,7 @@ Version 2.5.2
 - Added Auth Scope "channel:manage:chat_settings"
 - Fixed error in Auth Scope "channel:manage:schedule"
 - Fixed error in Endpoint "Get Extension Transactions"
+- Removed unusable Webhook code
 
 ****************
 Version 2.5.1
