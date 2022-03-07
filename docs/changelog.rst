@@ -4,6 +4,12 @@ Changelog
 =====================================
 
 ****************
+Version 2.5.3
+****************
+
+- `Twitch.get_channel_info` now also optionally accepts a list of strings with up to 100 entries for the `broadcaster_id` parameter
+
+****************
 Version 2.5.2
 ****************
 
