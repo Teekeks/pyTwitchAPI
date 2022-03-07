@@ -1754,21 +1754,26 @@ class Twitch:
         return response.json()
 
     def get_channel_information(self,
-                                broadcaster_id: str) -> dict:
+                                broadcaster_id: Union[str, List[str]]) -> dict:
         """Gets channel information for users.\n\n
 
         Requires App or user authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-information
 
-        :param str broadcaster_id: ID of the channel to be updated
+        :param union[str,list[str]] broadcaster_id: ID of the channel to be updated, can either be a string or a
+                        list of strings with up to 100 entries
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if broadcaster_id is a list and does not have between 1 and 100 entries
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'channels', {'broadcaster_id': broadcaster_id})
+        if isinstance(broadcaster_id, list):
+            if len(broadcaster_id) == 0 or len(broadcaster_id) > 100:
+                raise ValueError('broadcaster_id has to have between 1 and 100 entries')
+        url = build_url(TWITCH_API_BASE_URL + 'channels', {'broadcaster_id': broadcaster_id}, split_lists=True)
         response = self.__api_get_request(url, AuthType.EITHER, [])
         return response.json()
 
