@@ -284,7 +284,8 @@ class Twitch:
             raise TwitchBackendException('Internal Server Error')
         if response.status_code == 400:
             raise TwitchAPIException('Bad Request')
-        if str(response.headers['Ratelimit-Remaining']) == '0' or response.status_code == 429:
+
+        if response.status_code == 429 or str(response.headers.get('Ratelimit-Remaining', '')) == '0':
             self.__logger.warning('reached rate limit, waiting for reset')
             import time
             reset = int(response.headers['Ratelimit-Reset'])
