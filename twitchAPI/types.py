@@ -52,6 +52,7 @@ class AuthScope(Enum):
     MODERATOR_MANAGE_AUTOMOD = 'moderator:manage:automod'
     CHANNEL_MANAGE_SCHEDULE = 'channel:manage:schedule'
     CHANNEL_MANAGE_CHAT_SETTINGS = 'channel:manage:chat_settings'
+    MODERATOR_MANAGE_BANNED_USERS = 'moderator:manage:banned_users'
 
 
 class ModerationEventType(Enum):
