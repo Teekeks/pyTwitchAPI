@@ -1090,6 +1090,54 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
         return make_fields_datetime(result.json(), ['expires_at'])
 
+    def ban_user(self,
+                 broadcaster_id: str,
+                 moderator_id: str,
+                 target_id: str,
+                 reason: str,
+                 duration: Optional[int] = None):
+        """Bans a user from participating in a broadcaster’s chat room, or puts them in a timeout.
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BANNED_USERS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#ban-user
+
+        :param str broadcaster_id: The ID of the broadcaster whose chat room the user is being banned from.
+        :param str moderator_id: The ID of a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID
+                    associated with the user OAuth token.
+        :param str target_id: The ID of the user to ban or put in a timeout.
+        :param str reason: The reason the user is being banned or put in a timeout.
+                    The text is user defined and limited to a maximum of 500 characters.
+        :param int duration: To ban a user indefinitely, don't set this. Put a user in timeout for the number of seconds specified.
+                    Maximum 1_209_600 (2 weeks) |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if duration is set and not between 1 and 1_209_600
+        :raises ValueError: if reason is not between 1 and 500 characters in length
+        :rtype: dict
+        """
+        if duration is not None and (duration < 1 or duration > 1_209_600):
+            raise ValueError('duration must be either omitted or between 1 and 1209600')
+        if len(reason) < 1 or len(reason) > 500:
+            raise ValueError('reason must be between 1 and 500 characters in length')
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'moderator_id': moderator_id
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/bans', param, remove_none=False)
+        body = {
+            'data': remove_none_values({
+                'duration': duration,
+                'reason': reason,
+                'user_id': target_id
+            })
+        }
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS], data=body)
+        return result.json()
+
     def get_moderators(self,
                        broadcaster_id: str,
                        user_ids: Optional[List[str]] = None,
