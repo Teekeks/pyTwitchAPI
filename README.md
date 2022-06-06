@@ -142,7 +142,7 @@ pubsub.stop()
 
 
 You need to have a public IP with a port open. That port will be 80 by default.
-You need app authentication and your Endpoint URL must point to a
+You need app authentication.
 
 **Please note that Your Endpoint URL has to be HTTPS, has to run on Port 443 and requires a valid, non self signed certificate
 This most likely means, that you need a reverse proxy like nginx. You can also hand in a valid ssl context to be used in the constructor.**
