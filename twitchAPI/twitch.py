@@ -1168,6 +1168,43 @@ class Twitch:
         result = self.__api_delete_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS])
         return result.status_code == 204
 
+    def get_blocked_terms(self,
+                          broadcaster_id: str,
+                          moderator_id: str,
+                          after: Optional[str] = None,
+                          first: Optional[int] = None) -> dict:
+        """Gets the broadcaster’s list of non-private, blocked words or phrases.
+        These are the terms that the broadcaster or moderator added manually, or that were denied by AutoMod.
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_READ_BLOCKED_TERMS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-blocked-terms
+
+        :param str broadcaster_id: The ID of the broadcaster whose blocked terms you’re getting.
+        :param str moderator_id: The ID of a user that has permission to moderate the broadcaster’s chat room.
+                    This ID must match the user ID associated with the user OAuth token.
+        :param str after: The cursor used to get the next page of results. |default| :code:`None`
+        :param int first: The maximum number of blocked terms to return per page in the response. Maximum 100 |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if first is set and not between 1 and 100
+        :rtype: dict
+        """
+        if first is not None and (first < 1 or first > 100):
+            raise ValueError('first must be between 1 and 100')
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'moderator_id': moderator_id,
+            'first': first,
+            'after': after
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/blocked_terms', param, remove_none=True)
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATOR_READ_BLOCKED_TERMS])
+        return make_fields_datetime(result.json(), ['created_at', 'expires_at', 'updated_at'])
+
     def get_moderators(self,
                        broadcaster_id: str,
                        user_ids: Optional[List[str]] = None,
