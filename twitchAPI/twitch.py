@@ -1985,7 +1985,7 @@ class Twitch:
         """
         if game_id is None and broadcaster_language is None and title is None:
             raise ValueError('You need to specify at least one of the optional parameter')
-        if len(title) == 0:
+        if title is not None and len(title) == 0:
             raise ValueError('title cant be a empty string')
         url = build_url(TWITCH_API_BASE_URL + 'channels',
                         {'broadcaster_id': broadcaster_id}, remove_none=True)
