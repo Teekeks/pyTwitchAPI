@@ -4,6 +4,33 @@ Changelog
 =====================================
 
 ****************
+Version 2.5.4
+****************
+
+- Added the following new endpoints:
+
+  - "Ban User"
+
+  - "Unban User"
+
+  - "Get Blocked Terms"
+
+  - "Add Blocked Term"
+
+  - "Remove Blocked Term"
+
+- Added the following Auth Scopes:
+
+  - `moderator:manage:banned_users`
+
+  - `moderator:read:blocked_terms`
+
+  - `moderator:manage:blocked_terms`
+
+- Added additional debug logging to PubSub
+- Fixed KeyError when being rate limited
+
+****************
 Version 2.5.3
 ****************
 
