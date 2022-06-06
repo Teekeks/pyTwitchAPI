@@ -1205,6 +1205,39 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATOR_READ_BLOCKED_TERMS])
         return make_fields_datetime(result.json(), ['created_at', 'expires_at', 'updated_at'])
 
+    def add_blocked_term(self,
+                         broadcaster_id: str,
+                         moderator_id: str,
+                         text: str) -> dict:
+        """Adds a word or phrase to the broadcaster’s list of blocked terms. These are the terms that broadcasters don’t want used in their chat room.
+
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#add-blocked-term
+
+        :param str broadcaster_id: The ID of the broadcaster that owns the list of blocked terms.
+        :param str moderator_id: The ID of a user that has permission to moderate the broadcaster’s chat room.
+                    This ID must match the user ID associated with the user OAuth token.
+        :param str text: The word or phrase to block from being used in the broadcaster’s chat room. Between 2 and 500 characters long
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ValueError: if text is not between 2 and 500 characters long
+        :rtype: dict
+        """
+        if len(text) < 2 or len(text) > 500:
+            raise ValueError('text must have a length between 2 and 500 characters')
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'moderator_id': moderator_id
+        }
+        url = build_url(TWITCH_API_BASE_URL + 'moderation/blocked_terms', param)
+        body = {'text': text}
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS], data=body)
+        return make_fields_datetime(result.json(), ['created_at', 'expires_at', 'updated_at'])
+
     def get_moderators(self,
                        broadcaster_id: str,
                        user_ids: Optional[List[str]] = None,
