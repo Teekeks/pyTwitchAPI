@@ -107,6 +107,7 @@ class PubSub:
 
         :raises RuntimeError: if already started
         """
+        self.__logger.debug('starting pubsub...')
         if self.__running:
             raise RuntimeError('already started')
         self.__startup_complete = False
@@ -115,6 +116,7 @@ class PubSub:
         self.__socket_thread.start()
         while not self.__startup_complete:
             sleep(0.01)
+        self.__logger.debug('pubsub started up!')
 
     def stop(self) -> None:
         """
@@ -125,11 +127,13 @@ class PubSub:
 
         if not self.__running:
             raise RuntimeError('not running')
+        self.__logger.debug('stopping pubsub...')
         self.__startup_complete = False
         self.__running = False
         for task in self.__tasks:
             task.cancel()
         self.__socket_loop.call_soon_threadsafe(self.__socket_loop.stop)
+        self.__logger.debug('pubsub stopped!')
         self.__socket_thread.join()
 
 ###########################################################################################
@@ -137,6 +141,7 @@ class PubSub:
 ###########################################################################################
 
     async def __connect(self, is_startup=False):
+        self.__logger.debug('connecting...')
         if self.__connection is not None and self.__connection.open:
             await self.__connection.close()
         retry = 0
