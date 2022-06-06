@@ -53,6 +53,8 @@ class AuthScope(Enum):
     CHANNEL_MANAGE_SCHEDULE = 'channel:manage:schedule'
     CHANNEL_MANAGE_CHAT_SETTINGS = 'channel:manage:chat_settings'
     MODERATOR_MANAGE_BANNED_USERS = 'moderator:manage:banned_users'
+    MODERATOR_READ_BLOCKED_TERMS = 'moderator:read:blocked_terms'
+    MODERATOR_MANAGE_BLOCKED_TERMS = 'moderator:manage:blocked_terms'
 
 
 class ModerationEventType(Enum):
