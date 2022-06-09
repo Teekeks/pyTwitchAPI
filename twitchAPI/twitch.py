@@ -1088,7 +1088,7 @@ class Twitch:
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/banned', param, remove_none=True)
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
-        return make_fields_datetime(result.json(), ['expires_at'])
+        return make_fields_datetime(result.json(), ['expires_at', 'created_at'])
 
     def ban_user(self,
                  broadcaster_id: str,
@@ -1136,7 +1136,7 @@ class Twitch:
             })
         }
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS], data=body)
-        return result.json()
+        return make_fields_datetime(result.json(), ['created_at', 'end_time'])
 
     def unban_user(self,
                    broadcaster_id: str,
