@@ -4,6 +4,13 @@ Changelog
 =====================================
 
 ****************
+Version 2.5.5
+****************
+
+- Added datetime parsing to `created_at` field for Ban User and Get Banned Users endpoints
+- fixed title length check failing if the title is None for Modify Channel Information endpoint (thanks @Meduris!)
+
+****************
 Version 2.5.4
 ****************
 
