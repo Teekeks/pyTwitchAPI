@@ -2932,7 +2932,7 @@ class Twitch:
 
         :param str broadcaster_id: The broadcaster running the prediction
         :param str title: Title of the Prediction
-        :param list[str] outcomes: List of possible Outcomes, must contain exactly 2 entries
+        :param list[str] outcomes: List of possible Outcomes, must contain between 2 and 10 entries
         :param int prediction_window: Total duration for the Prediction (in seconds). Minimum 1, Maximum 1800
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
@@ -2947,8 +2947,8 @@ class Twitch:
         """
         if prediction_window < 1 or prediction_window > 1800:
             raise ValueError('prediction_window must be in range 1 to 1800')
-        if len(outcomes) != 2:
-            raise ValueError('outcomes requires exactly 2 entries')
+        if len(outcomes) < 2 or len(outcomes) > 10:
+            raise ValueError('outcomes must have between 2 entries and 10 entries')
         body = {
             'broadcaster_id': broadcaster_id,
             'title': title,
