@@ -608,6 +608,28 @@ class Twitch:
         data = response.json()
         return make_fields_datetime(data, ['ended_at', 'started_at'])
 
+    
+    def get_creator_goals(self, broadcaster_id: str) -> dict:
+        """Gets Creator Goal Details for the specified channel.
+
+        Requires User or App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-chat-badges
+
+        :param broadcaster_id:
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'goals', {'broadcaster_id': broadcaster_id})
+        result = self.__api_get_request(url, AuthType.EITHER, [])
+        return result.json()
+    
+    
+    
     def get_bits_leaderboard(self,
                              count: Optional[int] = 10,
                              period: Optional[TimePeriod] = TimePeriod.ALL,
