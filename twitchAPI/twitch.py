@@ -625,8 +625,9 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'goals', {'broadcaster_id': broadcaster_id})
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return result.json()
+        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_GOALS])
+        data = result.json()
+        return make_fields_datetime(data, ['created_at'])
     
     
     
