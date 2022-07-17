@@ -612,8 +612,8 @@ class Twitch:
     def get_creator_goals(self, broadcaster_id: str) -> dict:
         """Gets Creator Goal Details for the specified channel.
 
-        Requires User or App Authentication\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-chat-badges
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_READ_GOALS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-creator-goals
 
         :param broadcaster_id:
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
