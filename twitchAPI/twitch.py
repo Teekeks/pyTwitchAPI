@@ -283,7 +283,12 @@ class Twitch:
         if response.status_code == 500:
             raise TwitchBackendException('Internal Server Error')
         if response.status_code == 400:
-            raise TwitchAPIException('Bad Request')
+            msg = None
+            try:
+                msg = response.json().get('message')
+            except:
+                pass
+            raise TwitchAPIException('Bad Request' + '' if msg is None else f'- {msg}')
 
         if response.status_code == 429 or str(response.headers.get('Ratelimit-Remaining', '')) == '0':
             self.__logger.warning('reached rate limit, waiting for reset')
