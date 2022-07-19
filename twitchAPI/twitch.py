@@ -608,14 +608,13 @@ class Twitch:
         data = response.json()
         return make_fields_datetime(data, ['ended_at', 'started_at'])
 
-    
     def get_creator_goals(self, broadcaster_id: str) -> dict:
         """Gets Creator Goal Details for the specified channel.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_READ_GOALS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-creator-goals
 
-        :param broadcaster_id:
+        :param str broadcaster_id: The ID of the broadcaster that created the goals.
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -628,8 +627,6 @@ class Twitch:
         result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_GOALS])
         data = result.json()
         return make_fields_datetime(data, ['created_at'])
-    
-    
     
     def get_bits_leaderboard(self,
                              count: Optional[int] = 10,
