@@ -4,6 +4,14 @@ Changelog
 =====================================
 
 ****************
+Version 2.5.6
+****************
+
+- Updated Create Prediction to take between 2 and 10 outcomes (thanks @lynara!)
+- Added "Get Creator Goals" Endpoint (thanks @gitagogaming!)
+- TwitchAPIException will now also include the message from the Twitch API when available
+
+****************
 Version 2.5.5
 ****************
 
