@@ -1,6 +1,6 @@
 # Python Twitch API
 
-[![PyPI verion](https://img.shields.io/pypi/v/twitchAPI.svg)](https://pypi.org/project/twitchAPI/) [![Python version](https://img.shields.io/pypi/pyversions/twitchAPI)](https://pypi.org/project/twitchAPI/) [![Twitch API version](https://img.shields.io/badge/twitch%20API%20version-Helix-brightgreen)](https://dev.twitch.tv/docs/api) [![Documentation Status](https://readthedocs.org/projects/pytwitchapi/badge/?version=latest)](https://pytwitchapi.readthedocs.io/en/latest/?badge=latest)
+[![PyPI verion](https://img.shields.io/pypi/v/twitchAPI.svg)](https://pypi.org/project/twitchAPI/) [![Downloads](https://pepy.tech/badge/twitchapi)](https://pepy.tech/project/twitchapi) [![Python version](https://img.shields.io/pypi/pyversions/twitchAPI)](https://pypi.org/project/twitchAPI/) [![Twitch API version](https://img.shields.io/badge/twitch%20API%20version-Helix-brightgreen)](https://dev.twitch.tv/docs/api) [![Documentation Status](https://readthedocs.org/projects/pytwitchapi/badge/?version=latest)](https://pytwitchapi.readthedocs.io/en/latest/?badge=latest)
 
 
 This is a full implementation of the Twitch API, its Webhook and PubSub in python 3.7.  
