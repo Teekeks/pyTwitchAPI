@@ -1,8 +1,6 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 import asyncio
-import json
 import threading
-import typing
 from logging import getLogger, Logger
 from pprint import pprint
 from time import sleep
@@ -12,6 +10,13 @@ import websockets
 
 from twitchAPI import TwitchBackendException, Twitch, AuthType, AuthScope
 from twitchAPI.helper import TWITCH_CHAT_URL
+
+
+class Message:
+
+    def __init__(self, chat, parsed):
+        self.chat: 'Chat' = chat
+        pass
 
 
 class Chat:
@@ -299,6 +304,7 @@ class Chat:
 
     async def _handle_msg(self, parsed: dict):
         self.logger.debug('got new message')
+        message = Message(self, parsed)
 
     async def __task_startup(self):
         await self.__send_message('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands')

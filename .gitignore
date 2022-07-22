@@ -8,3 +8,4 @@ MANIFEST
 /dist/
 /twitchAPI.egg-info/
 /docs/_build/
+/chat_example.py
