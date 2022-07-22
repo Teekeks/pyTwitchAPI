@@ -2897,7 +2897,7 @@ class Twitch:
         body = {
             'broadcaster_id': broadcaster_id,
             'id': poll_id,
-            status: status.value
+            'status': status.value
         }
         result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body).json()
         result = fields_to_enum(result, ['status'], PollStatus, PollStatus.ACTIVE)
