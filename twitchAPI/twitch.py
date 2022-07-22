@@ -2465,11 +2465,11 @@ class Twitch:
                              is_enabled: Optional[bool] = True,
                              background_color: Optional[str] = None,
                              is_user_input_required: Optional[bool] = False,
-                             is_max_per_stream_enabled: Optional[bool] = False,
+                             is_max_per_stream_enabled: Optional[bool] = None,
                              max_per_stream: Optional[int] = None,
-                             is_max_per_user_per_stream_enabled: Optional[bool] = False,
+                             is_max_per_user_per_stream_enabled: Optional[bool] = None,
                              max_per_user_per_stream: Optional[int] = None,
-                             is_global_cooldown_enabled: Optional[bool] = False,
+                             is_global_cooldown_enabled: Optional[bool] = None,
                              global_cooldown_seconds: Optional[int] = None,
                              should_redemptions_skip_request_queue: Optional[bool] = False) -> dict:
         """Updates a Custom Reward created on a channel.
@@ -2513,20 +2513,13 @@ class Twitch:
         :raises ValueError: if the given reward_id does not match a custom reward by the given broadcaster
         :rtype: dict
         """
-        
+
         if is_global_cooldown_enabled and global_cooldown_seconds is None:
             raise ValueError('please specify global_cooldown_seconds')
-        elif not is_global_cooldown_enabled:
-            is_global_cooldown_enabled = None
         if is_max_per_stream_enabled and max_per_stream is None:
             raise ValueError('please specify max_per_stream')
-        elif not is_max_per_stream_enabled:
-            is_max_per_stream_enabled = None
         if is_max_per_user_per_stream_enabled and max_per_user_per_stream is None:
             raise ValueError('please specify max_per_user_per_stream')
-        elif not is_max_per_user_per_stream_enabled:
-            is_max_per_user_per_stream_enabled = None
-       
 
         url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
                         {'broadcaster_id': broadcaster_id,
@@ -2546,6 +2539,7 @@ class Twitch:
             'global_cooldown_seconds': global_cooldown_seconds,
             'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
         }.items() if y is not None}
+        print("THIS IS THE BODY: ", body)
         result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
         if result.status_code == 404:
             raise ValueError('Custom reward does not exist with the given reward_id for the given broadcaster')
