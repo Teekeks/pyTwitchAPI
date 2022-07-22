@@ -2513,13 +2513,20 @@ class Twitch:
         :raises ValueError: if the given reward_id does not match a custom reward by the given broadcaster
         :rtype: dict
         """
-
+        
         if is_global_cooldown_enabled and global_cooldown_seconds is None:
             raise ValueError('please specify global_cooldown_seconds')
+        elif not is_global_cooldown_enabled:
+            is_global_cooldown_enabled = None
         if is_max_per_stream_enabled and max_per_stream is None:
             raise ValueError('please specify max_per_stream')
+        elif not is_max_per_stream_enabled:
+            is_max_per_stream_enabled = None
         if is_max_per_user_per_stream_enabled and max_per_user_per_stream is None:
             raise ValueError('please specify max_per_user_per_stream')
+        elif not is_max_per_user_per_stream_enabled:
+            is_max_per_user_per_stream_enabled = None
+       
 
         url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
                         {'broadcaster_id': broadcaster_id,
