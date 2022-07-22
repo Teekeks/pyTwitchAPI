@@ -15,6 +15,7 @@ from urllib.parse import urlparse, parse_qs
 TWITCH_API_BASE_URL = "https://api.twitch.tv/helix/"
 TWITCH_AUTH_BASE_URL = "https://id.twitch.tv/"
 TWITCH_PUB_SUB_URL = "wss://pubsub-edge.twitch.tv"
+TWITCH_CHAT_URL = ""
 
 
 def extract_uuid_str_from_url(url: str) -> Union[str, None]:
