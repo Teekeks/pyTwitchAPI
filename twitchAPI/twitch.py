@@ -2539,7 +2539,6 @@ class Twitch:
             'global_cooldown_seconds': global_cooldown_seconds,
             'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
         }.items() if y is not None}
-        print("THIS IS THE BODY: ", body)
         result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
         if result.status_code == 404:
             raise ValueError('Custom reward does not exist with the given reward_id for the given broadcaster')
