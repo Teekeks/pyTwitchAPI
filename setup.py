@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     packages=find_packages(),
     name="twitchAPI",
-    version="2.5.7",
+    version="2.5.7.1",
     url="https://github.com/Teekeks/pyTwitchAPI",
     author="Lena \"Teekeks\" During",
     author_email="info@teawork.de",

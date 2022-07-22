@@ -8,6 +8,7 @@ Version 2.5.7
 ****************
 
 - Fixed the End Poll Endpoint
+- Properly define terminated poll status (thanks @iProdigy!)
 
 ****************
 Version 2.5.6
