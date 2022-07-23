@@ -52,6 +52,10 @@ class ChatMessage:
     def user(self) -> ChatUser:
         return ChatUser(self.chat, self._parsed)
 
+    async def reply(self, text: str):
+        await self.chat._send_message(f'@reply-parent-msg-id={self.id} PRIVMSG {self.room.name} :{text}')
+        pass
+
 
 class ChatCommand(ChatMessage):
 
