@@ -5,18 +5,52 @@ from logging import getLogger, Logger
 from pprint import pprint
 from time import sleep
 from typing import List, Optional, Union, Callable, Dict
-
 import websockets
-
-from twitchAPI import TwitchBackendException, Twitch, AuthType, AuthScope
+from twitchAPI import TwitchBackendException, Twitch, AuthType, AuthScope, ChatEvent
 from twitchAPI.helper import TWITCH_CHAT_URL
+from twitchAPI.types import ChatRoom
 
 
-class Message:
+class ChatUser:
 
     def __init__(self, chat, parsed):
         self.chat: 'Chat' = chat
+        self.name: str = parsed['source']['nick'] if parsed['source']['nick'] is not None else f':{chat.username}'
+
+
+class ChatCommand:
+
+    def __init__(self, chat, parsed):
+        self.chat: 'Chat' = chat
+        self._parsed = parsed
+        self.name: str = parsed['command'].get('bot_command')
+        self.parameter: str = parsed['command'].get('bot_command_params', '')
+        self.text: str = parsed['parameters']
+
+    @property
+    def room(self) -> Optional[ChatRoom]:
+        return self.chat.room_cache.get(self._parsed['command']['channel'])
+
+    @property
+    def user(self) -> ChatUser:
+        return ChatUser(self.chat, self._parsed)
+
+
+class ChatMessage:
+
+    def __init__(self, chat, parsed):
+        self.chat: 'Chat' = chat
+        self._parsed = parsed
+        self.text = parsed['parameters']
         pass
+
+    @property
+    def room(self) -> Optional[ChatRoom]:
+        return self.chat.room_cache.get(self._parsed['command']['channel'])
+
+    @property
+    def user(self) -> ChatUser:
+        return ChatUser(self.chat, self._parsed)
 
 
 class Chat:
@@ -39,6 +73,9 @@ class Chat:
     logger: Logger = None
     __nonce_waiting_confirm: dict = {}
     connection_url: str = TWITCH_CHAT_URL
+    _event_handler = {}
+    _command_handler = {}
+    room_cache: Dict[str, ChatRoom] = {}
 
     def __init__(self, twitch: Twitch, connection_url: Optional[str] = None):
         self.logger = getLogger('twitchAPI.chat')
@@ -291,20 +328,52 @@ class Chat:
                     continue
                 handlers: Dict[str, Callable] = {
                     'PING': self._handle_ping,
-                    'PRIVMSG': self._handle_msg
+                    'PRIVMSG': self._handle_msg,
+                    '001': self._handle_ready,
+                    'ROOMSTATE': self._handle_room_state
                 }
                 handler = handlers.get(parsed['command']['command'])
-                pprint(parsed)
+                # pprint(parsed)
                 if handler is not None:
                     asyncio.ensure_future(handler(parsed))
+
+    async def _handle_room_state(self, parsed: dict):
+        state = ChatRoom(
+            name=parsed['command']['channel'],
+            is_emote_only=parsed['tags'].get('emote-only') == '1',
+            is_subs_only=parsed['tags'].get('subs-only') == '1',
+            is_followers_only=parsed['tags'].get('followers-only') != '-1',
+            is_unique_only=parsed['tags'].get('r9k') == '1',
+            follower_only_delay=int(parsed['tags'].get('followers-only', '-1')),
+            room_id=parsed['tags'].get('room_id'),
+            slow=int(parsed['tags'].get('slow', '0')))
+        self.room_cache[state.name] = state
 
     async def _handle_ping(self, parsed: dict):
         self.logger.debug('got PING')
         await self.__send_message('PONG ' + parsed['parameters'])
 
+    async def _handle_ready(self, parsed: dict):
+        self.logger.debug('got ready event')
+        handler = self._event_handler.get(ChatEvent.READY, [])
+        for h in handler:
+            asyncio.ensure_future(h())
+
     async def _handle_msg(self, parsed: dict):
-        self.logger.debug('got new message')
-        message = Message(self, parsed)
+        self.logger.debug('got new message, call handler')
+        if parsed['command'].get('bot_command') is not None:
+            command_name = parsed['command'].get('bot_command').lower()
+            handler = self._command_handler.get(command_name)
+            if handler is not None:
+                asyncio.ensure_future(handler(ChatCommand(self, parsed)))
+            else:
+                self.logger.info(f'no handler registered for command "{command_name}"')
+            return
+        handler = self._event_handler.get(ChatEvent.MESSAGE, [])
+        pprint(parsed)
+        message = ChatMessage(self, parsed)
+        for h in handler:
+            asyncio.ensure_future(h(message))
 
     async def __task_startup(self):
         await self.__send_message('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands')
@@ -316,7 +385,20 @@ class Chat:
     # user functions
     ##################################################################################################################################################
 
-    async def join_chat(self, chat_rooms: Union[List[str], str]):
+    def register_command(self, name: str, handler: Callable) -> bool:
+        name = name.lower()
+        if self._command_handler.get(name) is not None:
+            return False
+        self._command_handler[name] = handler
+        return True
+
+    def register_event(self, event: ChatEvent, handler: Callable):
+        if self._event_handler.get(event) is None:
+            self._event_handler[event] = [handler]
+        else:
+            self._event_handler[event].append(handler)
+
+    async def join_room(self, chat_rooms: Union[List[str], str]):
         """ join one or more chat rooms
 
         :param chat_rooms:
@@ -326,4 +408,11 @@ class Chat:
             chat_rooms = [chat_rooms]
         chat_rooms = ','.join([f'#{c}' if c[0] != '#' else c for c in chat_rooms])
         await self.__send_message(f'JOIN {chat_rooms}')
+
+    async def send_message(self, room: Union[str, ChatRoom], text: str):
+        if isinstance(room, ChatRoom):
+            room = room.name
+        if room[0] != '#':
+            room = f'#{room}'
+        await self.__send_message(f'PRIVMSG {room} :{text}')
 
