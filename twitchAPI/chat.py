@@ -182,8 +182,8 @@ class Chat:
                     d = {}
                     badges = tag_value.split(',')
                     for pair in badges:
-                        badge_parts = pair.split('/')
-                        d[badge_parts[0]] = '/'.join(badge_parts[1:])
+                        badge_parts = pair.split('/', 1)
+                        d[badge_parts[0]] = badge_parts[1]
                     parsed_tags[parsed_tag[0]] = d
                 else:
                     parsed_tags[parsed_tag[0]] = None
