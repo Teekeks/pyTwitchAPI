@@ -15,25 +15,25 @@ class ChatUser:
 
     def __init__(self, chat, parsed):
         self.chat: 'Chat' = chat
-        self.name: str = parsed['source']['nick'] if parsed['source']['nick'] is not None else f':{chat.username}'
-
-
-class ChatCommand:
-
-    def __init__(self, chat, parsed):
-        self.chat: 'Chat' = chat
-        self._parsed = parsed
-        self.name: str = parsed['command'].get('bot_command')
-        self.parameter: str = parsed['command'].get('bot_command_params', '')
-        self.text: str = parsed['parameters']
-
-    @property
-    def room(self) -> Optional[ChatRoom]:
-        return self.chat.room_cache.get(self._parsed['command']['channel'])
-
-    @property
-    def user(self) -> ChatUser:
-        return ChatUser(self.chat, self._parsed)
+        self.name: str = parsed['source']['nick'] if parsed['source']['nick'] is not None else f'{chat.username}'
+        if self.name[0] == ':':
+            self.name = self.name[1:]
+        # TODO implement badge-info
+        # TODO implement badges
+        self.bits: int = int(parsed['tags'].get('bits', '0'))
+        self.color: str = parsed['tags'].get('color')
+        # TODO implement display-name
+        # TODO implement emotes
+        self.mod: bool = parsed['tags'].get('mod', '0') == '1'
+        self.reply_parent_msg_id: Optional[str] = parsed['tags'].get('reply-parent-msg-id')
+        self.reply_parent_user_id: Optional[str] = parsed['tags'].get('reply-parent-user-id')
+        self.reply_parent_display_name: Optional[str] = parsed['tags'].get('reply-parent-display-name')
+        self.reply_parent_msg_body: Optional[str] = parsed['tags'].get('reply-parent-msg-body')
+        self.subscriber: bool = parsed['tags'].get('subscriber') == '1'
+        # TODO implement tmi-sent-ts
+        self.turbo: bool = parsed['tags'].get('turbo') == '1'
+        self.id: str = parsed['tags'].get('user-id')
+        self.user_type: str = parsed['tags'].get('user-type')
 
 
 class ChatMessage:
@@ -42,7 +42,7 @@ class ChatMessage:
         self.chat: 'Chat' = chat
         self._parsed = parsed
         self.text = parsed['parameters']
-        pass
+        self.id: str = parsed['tags'].get('id')
 
     @property
     def room(self) -> Optional[ChatRoom]:
@@ -51,6 +51,14 @@ class ChatMessage:
     @property
     def user(self) -> ChatUser:
         return ChatUser(self.chat, self._parsed)
+
+
+class ChatCommand(ChatMessage):
+
+    def __init__(self, chat, parsed):
+        super(ChatCommand, self).__init__(chat, parsed)
+        self.name: str = parsed['command'].get('bot_command')
+        self.parameter: str = parsed['command'].get('bot_command_params', '')
 
 
 class Chat:
@@ -101,7 +109,6 @@ class Chat:
         idx = 0
         raw_tags_component = None
         raw_source_component = None
-        raw_command_component = None
         raw_parameters_component = None
 
         if message[idx] == '@':
@@ -224,14 +231,15 @@ class Chat:
             }
         elif command_parts[0] == '421':
             # unsupported command in parts 2
-            # FIXME actually log error
+            self.logger.warning(f'Unsupported IRC command: {command_parts[0]}')
             return None
         elif command_parts[0] in ('002', '003', '004', '353', '366', '372', '375', '376'):
             # FIXME maybe parse 353?
+            self.logger.info(f'numeric message: {command_parts[0]}')
             return None
         else:
-            # FIXME actually log error
             # unexpected command
+            self.logger.warning(f'Unexpected command: {command_parts[0]}')
             return None
 
         return parsed_command
@@ -312,7 +320,7 @@ class Chat:
         if self.__connection.open:
             self.__socket_loop.run_until_complete(self.__connection.close())
 
-    async def __send_message(self, message: str):
+    async def _send_message(self, message: str):
         self.logger.debug(f'Sending message "{message}"')
         await self.__connection.send(message)
 
@@ -333,7 +341,6 @@ class Chat:
                     'ROOMSTATE': self._handle_room_state
                 }
                 handler = handlers.get(parsed['command']['command'])
-                # pprint(parsed)
                 if handler is not None:
                     asyncio.ensure_future(handler(parsed))
 
@@ -351,7 +358,7 @@ class Chat:
 
     async def _handle_ping(self, parsed: dict):
         self.logger.debug('got PING')
-        await self.__send_message('PONG ' + parsed['parameters'])
+        await self._send_message('PONG ' + parsed['parameters'])
 
     async def _handle_ready(self, parsed: dict):
         self.logger.debug('got ready event')
@@ -370,15 +377,14 @@ class Chat:
                 self.logger.info(f'no handler registered for command "{command_name}"')
             return
         handler = self._event_handler.get(ChatEvent.MESSAGE, [])
-        pprint(parsed)
         message = ChatMessage(self, parsed)
         for h in handler:
             asyncio.ensure_future(h(message))
 
     async def __task_startup(self):
-        await self.__send_message('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands')
-        await self.__send_message(f'PASS oauth:{self.twitch.get_user_auth_token()}')
-        await self.__send_message(f'NICK {self.username}')
+        await self._send_message('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands')
+        await self._send_message(f'PASS oauth:{self.twitch.get_user_auth_token()}')
+        await self._send_message(f'NICK {self.username}')
         self.__startup_complete = True
 
     ##################################################################################################################################################
@@ -407,12 +413,16 @@ class Chat:
         if isinstance(chat_rooms, str):
             chat_rooms = [chat_rooms]
         chat_rooms = ','.join([f'#{c}' if c[0] != '#' else c for c in chat_rooms])
-        await self.__send_message(f'JOIN {chat_rooms}')
+        await self._send_message(f'JOIN {chat_rooms}')
 
     async def send_message(self, room: Union[str, ChatRoom], text: str):
         if isinstance(room, ChatRoom):
             room = room.name
+        if len(room) == 0:
+            raise ValueError('please specify a room to post to')
+        if len(text) == 0:
+            raise ValueError('you can\'t send a empty message')
         if room[0] != '#':
             room = f'#{room}'
-        await self.__send_message(f'PRIVMSG {room} :{text}')
+        await self._send_message(f'PRIVMSG {room} :{text}')
 
