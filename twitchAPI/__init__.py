@@ -3,5 +3,6 @@ from twitchAPI.oauth import UserAuthenticator, refresh_access_token, validate_to
 from twitchAPI.types import *
 from twitchAPI.pubsub import PubSub
 from twitchAPI.eventsub import EventSub
+from twitchAPI.chat import *
 
-VERSION = (2, 5, 7)
+VERSION = (3, 0, 0)
