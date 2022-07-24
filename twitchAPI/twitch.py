@@ -753,7 +753,7 @@ class Twitch:
                              unique_chat_mode: Optional[bool] = None):
         """Updates the broadcaster’s chat settings.
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_CHAT_SETTINGS`\n
+        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-chat-settings
 
         :param str broadcaster_id: The ID of the broadcaster whose chat settings you want to update.
