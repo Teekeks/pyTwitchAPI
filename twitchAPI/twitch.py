@@ -804,7 +804,7 @@ class Twitch:
             'subscriber_mode': subscriber_mode,
             'unique_chat_mode': unique_chat_mode
         })
-        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_CHAT_SETTINGS], body)
+        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS], body)
         return result.json()
 
     def create_clip(self,
