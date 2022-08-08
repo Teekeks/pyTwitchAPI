@@ -7,12 +7,12 @@ from twitchAPI.chat import *
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Callable
+    from typing import Callable, Generator
 
 VERSION = (3, 0, 0)
 
 
-def paginator(func: Callable[..., dict], *args, **kwargs) -> dict:
+def paginator(func: Callable[..., dict], *args, **kwargs) -> Generator[dict, None, None]:
     """Generator which allows to automatically paginate forwards for functions that allow that functionality.
     Pass any arguments you would pass to the specified function to this function.
 
