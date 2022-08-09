@@ -12,7 +12,7 @@ from .types import AuthScope
 from urllib.parse import urlparse, parse_qs
 
 if TYPE_CHECKING:
-    from typing import Union, List, Type, Optional
+    from typing import Union, List, Type, Optional, Callable, Generator
 
 __all__ = ['TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 'TWITCH_CHAT_URL',
            'extract_uuid_str_from_url', 'build_url', 'get_uuid', 'get_json', 'make_fields_datetime', 'build_scope', 'fields_to_enum', 'make_enum',
@@ -203,3 +203,25 @@ def remove_none_values(d: dict) -> dict:
     """Removes items where the value is None from the dict.
     This returns a new dict and does not manipulate the one given."""
     return {k: v for k, v in d.items() if v is not None}
+
+
+def paginator(func: Callable[..., dict], *args, **kwargs) -> Generator[dict, None, None]:
+    """Generator which allows to automatically paginate forwards for functions that allow that functionality.
+    Pass any arguments you would pass to the specified function to this function.
+
+    Example usage:
+    .. code-block:: python
+        for page in paginator(twitch.get_users, to_id=user_id):
+            print(page)
+
+    :param Callable func: The function you want to paginate over
+    :raises ValueError: if the given function does not support pagination
+    """
+    if 'after' not in func.__code__.co_varnames:
+        raise ValueError('The passed function does not support forward pagination')
+    result = func(*args, **kwargs)
+    yield result
+    while result.get('pagination', {}).get('cursor') is not None:
+        pag = result.get('pagination', {}).get('cursor')
+        result = func(*args, after=pag, **kwargs)
+        yield result
