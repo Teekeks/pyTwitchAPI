@@ -3052,6 +3052,27 @@ class Twitch:
         result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS])
         return make_fields_datetime(result.json(), ['created_at'])
 
+    def cancel_raid(self,
+                    broadcaster_id: str) -> bool:
+        """Cancel a pending raid.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_RAIDS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#cancel-a-raid
+
+        :param str broadcaster_id: The ID of the broadcaster that sent the raiding party.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: bool
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'raids', {'broadcaster_id': broadcaster_id})
+        result = self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS])
+        return result.status_code == 204
+
     def manage_held_automod_message(self,
                                     user_id: str,
                                     msg_id: str,
