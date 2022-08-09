@@ -215,6 +215,8 @@ class AutoModCheckEntry(TypedDict):
 class ChatEvent(Enum):
     READY = 'ready'
     MESSAGE = 'message'
+    SUB = 'sub'
+    RAID = 'raid'
 
 
 @dataclass

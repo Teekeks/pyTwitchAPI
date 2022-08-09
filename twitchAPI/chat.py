@@ -54,7 +54,6 @@ class ChatMessage:
 
     async def reply(self, text: str):
         await self.chat._send_message(f'@reply-parent-msg-id={self.id} PRIVMSG {self.room.name} :{text}')
-        pass
 
 
 class ChatCommand(ChatMessage):
@@ -63,6 +62,22 @@ class ChatCommand(ChatMessage):
         super(ChatCommand, self).__init__(chat, parsed)
         self.name: str = parsed['command'].get('bot_command')
         self.parameter: str = parsed['command'].get('bot_command_params', '')
+
+
+class ChatSub:
+
+    def __init__(self, chat, parsed):
+        self.chat: 'Chat' = chat
+        self._parsed = parsed
+        self.sub_type: str = parsed['tags'].get('msg-id')
+        self.sub_message: str = parsed['parameters'] if parsed['parameters'] is not None else ''
+        self.sub_plan: str = parsed['tags'].get('msg-param-sub-plan')
+        self.sub_plan_name: str = parsed['tags'].get('msg-param-sub-plan-name')
+        self.system_message: str = parsed['tags'].get('system-msg', '').replace('\\\\s', ' ')
+
+    @property
+    def room(self):
+        return self.chat.room_cache.get(self._parsed['command']['channel'])
 
 
 class Chat:
@@ -219,7 +234,7 @@ class Chat:
     def parse_irc_command(self, raw_command_component: str):
         command_parts = raw_command_component.split(' ')
 
-        if command_parts[0] in ('JOIN', 'PART', 'NOTICE', 'CLEARCHAT', 'HOSTTARGET', 'PRIVMSG', 'USERSTATE', 'ROOMSTATE', '001'):
+        if command_parts[0] in ('JOIN', 'PART', 'NOTICE', 'CLEARCHAT', 'HOSTTARGET', 'PRIVMSG', 'USERSTATE', 'ROOMSTATE', '001', 'USERNOTICE'):
             parsed_command = {
                 'command': command_parts[0],
                 'channel': command_parts[1]
@@ -237,9 +252,9 @@ class Chat:
             # unsupported command in parts 2
             self.logger.warning(f'Unsupported IRC command: {command_parts[0]}')
             return None
-        elif command_parts[0] in ('002', '003', '004', '353', '366', '372', '375', '376'):
+        elif command_parts[0] in ('002', '003', '004', '366', '353', '372', '375', '376'):
             # FIXME maybe parse 353?
-            self.logger.info(f'numeric message: {command_parts[0]}')
+            self.logger.info(f'numeric message: {command_parts[0]}\n{raw_command_component}')
             return None
         else:
             # unexpected command
@@ -342,11 +357,23 @@ class Chat:
                     'PING': self._handle_ping,
                     'PRIVMSG': self._handle_msg,
                     '001': self._handle_ready,
-                    'ROOMSTATE': self._handle_room_state
+                    'ROOMSTATE': self._handle_room_state,
+                    'USERNOTICE': self._handle_user_notice
                 }
                 handler = handlers.get(parsed['command']['command'])
                 if handler is not None:
                     asyncio.ensure_future(handler(parsed))
+
+    async def _handle_user_notice(self, parsed: dict):
+        pprint(parsed)
+        if parsed['tags'].get('msg-id') == 'raid':
+            handlers = self._event_handler.get(ChatEvent.RAID, [])
+            for handler in handlers:
+                asyncio.ensure_future(handler(parsed))
+        elif parsed['tags'].get('msg-id') in ('sub', 'resub', 'subgift'):
+            sub = ChatSub(self, parsed)
+            for handler in self._event_handler.get(ChatEvent.SUB):
+                asyncio.ensure_future(handler(sub))
 
     async def _handle_room_state(self, parsed: dict):
         state = ChatRoom(
@@ -379,7 +406,6 @@ class Chat:
                 asyncio.ensure_future(handler(ChatCommand(self, parsed)))
             else:
                 self.logger.info(f'no handler registered for command "{command_name}"')
-            return
         handler = self._event_handler.get(ChatEvent.MESSAGE, [])
         message = ChatMessage(self, parsed)
         for h in handler:
