@@ -51,7 +51,7 @@ Class Documentation:
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL, fields_to_enum
 from .types import AuthScope, InvalidRefreshTokenException, UnauthorizedException, TwitchAPIException
-from typing import List, Union
+from typing import TYPE_CHECKING
 import webbrowser
 from aiohttp import web
 import asyncio
@@ -60,6 +60,9 @@ from time import sleep
 import requests
 from concurrent.futures._base import CancelledError
 from logging import getLogger, Logger
+
+if TYPE_CHECKING:
+    from typing import List, Union
 
 
 def refresh_access_token(refresh_token: str,

@@ -115,12 +115,15 @@ Class Documentation:
 ********************
 """
 import requests
-from typing import Union, List, Optional, Callable
+from typing import TYPE_CHECKING
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
     fields_to_enum, enum_value_or_none, datetime_to_str, remove_none_values
 from datetime import datetime
 from logging import getLogger, Logger
 from .types import *
+
+if TYPE_CHECKING:
+    from typing import Union, List, Optional, Callable
 
 
 class Twitch:

@@ -4,11 +4,14 @@ import threading
 from logging import getLogger, Logger
 from pprint import pprint
 from time import sleep
-from typing import List, Optional, Union, Callable, Dict
+from typing import TYPE_CHECKING
 import websockets
 from twitchAPI import TwitchBackendException, Twitch, AuthType, AuthScope, ChatEvent
 from twitchAPI.helper import TWITCH_CHAT_URL
 from twitchAPI.types import ChatRoom
+
+if TYPE_CHECKING:
+    from typing import List, Optional, Union, Callable, Dict
 
 
 class ChatUser:

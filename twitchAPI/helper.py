@@ -3,13 +3,16 @@
 
 import urllib.parse
 import uuid
-from typing import Union, List, Type, Optional
+from typing import TYPE_CHECKING
 from json import JSONDecodeError
 from aiohttp.web import Request
 from dateutil import parser as du_parser
 from enum import Enum
 from .types import AuthScope
 from urllib.parse import urlparse, parse_qs
+
+if TYPE_CHECKING:
+    from typing import Union, List, Type, Optional
 
 
 TWITCH_API_BASE_URL = "https://api.twitch.tv/helix/"

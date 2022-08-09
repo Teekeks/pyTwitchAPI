@@ -75,7 +75,7 @@ import datetime
 import random
 import string
 import time
-from typing import Union, Callable, Optional, Awaitable
+from typing import TYPE_CHECKING
 from .helper import TWITCH_API_BASE_URL, remove_none_values
 from .types import *
 import requests
@@ -89,6 +89,9 @@ from ssl import SSLContext
 from .types import EventSubSubscriptionTimeout, EventSubSubscriptionConflict, EventSubSubscriptionError
 import hmac
 import hashlib
+
+if TYPE_CHECKING:
+    from typing import Union, Callable, Optional, Awaitable
 
 
 CALLBACK_TYPE = Callable[[dict], Awaitable[None]]
