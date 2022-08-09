@@ -55,6 +55,7 @@ class AuthScope(Enum):
     MODERATOR_MANAGE_BANNED_USERS = 'moderator:manage:banned_users'
     MODERATOR_READ_BLOCKED_TERMS = 'moderator:read:blocked_terms'
     MODERATOR_MANAGE_BLOCKED_TERMS = 'moderator:manage:blocked_terms'
+    CHANNEL_MANAGE_RAIDS = 'channel:manage:raids'
 
 
 class ModerationEventType(Enum):
