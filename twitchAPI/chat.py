@@ -13,6 +13,8 @@ from twitchAPI.types import ChatRoom
 if TYPE_CHECKING:
     from typing import List, Optional, Union, Callable, Dict
 
+__all__ = ['ChatUser', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent']
+
 
 class ChatUser:
 

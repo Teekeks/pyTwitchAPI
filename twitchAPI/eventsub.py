@@ -94,6 +94,9 @@ if TYPE_CHECKING:
     from typing import Union, Callable, Optional, Awaitable
 
 
+__all__ = ['CALLBACK_TYPE', 'EventSub']
+
+
 CALLBACK_TYPE = Callable[[dict], Awaitable[None]]
 
 

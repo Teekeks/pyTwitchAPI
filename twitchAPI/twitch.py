@@ -125,6 +125,8 @@ from .types import *
 if TYPE_CHECKING:
     from typing import Union, List, Optional, Callable
 
+__all__ = ['Twitch']
+
 
 class Twitch:
     """

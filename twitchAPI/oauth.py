@@ -65,6 +65,9 @@ if TYPE_CHECKING:
     from typing import List, Union
 
 
+__all__ = ['refresh_access_token', 'validate_token', 'revoke_token', 'UserAuthenticator']
+
+
 def refresh_access_token(refresh_token: str,
                          app_id: str,
                          app_secret: str):

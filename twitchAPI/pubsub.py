@@ -65,6 +65,8 @@ from time import sleep
 if TYPE_CHECKING:
     from typing import Callable, List, Dict
 
+__all__ = ['PubSub']
+
 
 class PubSub:
     """The PubSub client

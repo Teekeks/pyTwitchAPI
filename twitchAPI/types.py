@@ -4,6 +4,15 @@ from dataclasses import dataclass
 from enum import Enum
 from typing_extensions import TypedDict
 
+__all__ = ['AnalyticsReportType', 'AuthScope', 'ModerationEventType', 'TimePeriod', 'SortMethod', 'HypeTrainContributionMethod',
+           'VideoType', 'AuthType', 'CodeStatus', 'PubSubResponseError', 'CustomRewardRedemptionStatus', 'SortOrder',
+           'BlockSourceContext', 'BlockReason', 'EntitlementFulfillmentStatus', 'PollStatus', 'PredictionStatus', 'AutoModAction',
+           'AutoModCheckEntry',
+           'ChatEvent', 'ChatRoom',
+           'TwitchAPIException', 'InvalidRefreshTokenException', 'InvalidTokenException', 'NotFoundException', 'TwitchAuthorizationException',
+           'UnauthorizedException', 'MissingScopeException', 'TwitchBackendException', 'PubSubListenTimeoutException', 'MissingAppSecretException',
+           'EventSubSubscriptionTimeout', 'EventSubSubscriptionConflict', 'EventSubSubscriptionError', 'DeprecatedError']
+
 
 class AnalyticsReportType(Enum):
     """Enum of all Analytics report types
