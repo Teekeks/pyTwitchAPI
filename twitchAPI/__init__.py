@@ -1,8 +1,8 @@
-from twitchAPI.twitch import Twitch
-from twitchAPI.oauth import UserAuthenticator, refresh_access_token, validate_token, revoke_token
+from twitchAPI.twitch import *
+from twitchAPI.oauth import *
 from twitchAPI.types import *
-from twitchAPI.pubsub import PubSub
-from twitchAPI.eventsub import EventSub
+from twitchAPI.pubsub import *
+from twitchAPI.eventsub import *
 from twitchAPI.chat import *
 
 VERSION = (3, 0, 0)
