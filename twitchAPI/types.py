@@ -56,6 +56,13 @@ class AuthScope(Enum):
     MODERATOR_READ_BLOCKED_TERMS = 'moderator:read:blocked_terms'
     MODERATOR_MANAGE_BLOCKED_TERMS = 'moderator:manage:blocked_terms'
     CHANNEL_MANAGE_RAIDS = 'channel:manage:raids'
+    MODERATOR_MANAGE_ANNOUNCEMENTS = 'moderator:manage:announcements'
+    MODERATOR_MANAGE_CHAT_MESSAGES = 'moderator:manage:chat_messages'
+    USER_MANAGE_CHAT_COLOR = 'user:manage:chat_color'
+    CHANNEL_MANAGE_MODERATORS = 'channel:manage:moderators'
+    CHANNEL_READ_VIPS = 'channel:read:vips'
+    CHANNEL_MANAGE_VIPS = 'channel:manage:vips'
+    USER_MANAGE_WHISPERS = 'user:manage:whispers'
 
 
 class ModerationEventType(Enum):
