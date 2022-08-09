@@ -83,28 +83,22 @@ class PubSub:
                                         |default| :code:`30`
     """
 
-    ping_frequency: int = 120
-    ping_jitter: int = 4
-    listen_confirm_timeout: int = 30
-    reconnect_delay_steps: List[int] = [1, 2, 4, 8, 16, 32, 64, 128]
-
-    __twitch: Twitch = None
-    __connection = None
-    __socket_thread: threading.Thread = None
-    __running: bool = False
-    __socket_loop = None
-    __topics: dict = {}
-    __startup_complete: bool = False
-
-    __tasks = None
-
-    __waiting_for_pong: bool = False
-    __logger: Logger = None
-    __nonce_waiting_confirm: dict = {}
-
     def __init__(self, twitch: Twitch):
-        self.__twitch = twitch
-        self.__logger = getLogger('twitchAPI.pubsub')
+        self.__twitch: Twitch = twitch
+        self.__logger: Logger = getLogger('twitchAPI.pubsub')
+        self.ping_frequency: int = 120
+        self.ping_jitter: int = 4
+        self.listen_confirm_timeout: int = 30
+        self.reconnect_delay_steps: List[int] = [1, 2, 4, 8, 16, 32, 64, 128]
+        self.__connection = None
+        self.__socket_thread: threading.Thread = None
+        self.__running: bool = False
+        self.__socket_loop = None
+        self.__topics: dict = {}
+        self.__startup_complete: bool = False
+        self.__tasks = None
+        self.__waiting_for_pong: bool = False
+        self.__nonce_waiting_confirm: dict = {}
 
     def start(self) -> None:
         """

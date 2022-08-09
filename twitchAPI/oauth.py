@@ -146,51 +146,38 @@ class UserAuthenticator:
         :var str host: the host the webserver will bind to. |default| :code:`0.0.0.0`
        """
 
-    __document: str = """<!DOCTYPE html>
- <html lang="en">
- <head>
-     <meta charset="UTF-8">
-     <title>pyTwitchAPI OAuth</title>
- </head>
- <body>
-     <h1>Thanks for Authenticating with pyTwitchAPI!</h1>
- You may now close this page.
- </body>
- </html>"""
-
-    __twitch: 'Twitch' = None
-    port: int = 17563
-    url: str = 'http://localhost:17563'
-    host: str = '0.0.0.0'
-    scopes: List[AuthScope] = []
-    force_verify: bool = False
-    __state: str = str(get_uuid())
-    __logger: Logger = None
-
-    __client_id: str = None
-
-    __callback_func = None
-
-    __server_running: bool = False
-    __loop: Union['asyncio.AbstractEventLoop', None] = None
-    __runner: Union['web.AppRunner', None] = None
-    __thread: Union['threading.Thread', None] = None
-
-    __user_token: Union[str, None] = None
-
-    __can_close: bool = False
-
     def __init__(self,
                  twitch: 'Twitch',
                  scopes: List[AuthScope],
                  force_verify: bool = False,
                  url: str = 'http://localhost:17563'):
-        self.__twitch = twitch
-        self.__client_id = twitch.app_id
-        self.scopes = scopes
-        self.force_verify = force_verify
-        self.__logger = getLogger('twitchAPI.oauth')
+        self.__twitch: 'Twitch' = twitch
+        self.__client_id: str = twitch.app_id
+        self.scopes: List[AuthScope] = scopes
+        self.force_verify: bool = force_verify
+        self.__logger: Logger = getLogger('twitchAPI.oauth')
         self.url = url
+        self.__document: str = """<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>pyTwitchAPI OAuth</title>
+        </head>
+        <body>
+            <h1>Thanks for Authenticating with pyTwitchAPI!</h1>
+        You may now close this page.
+        </body>
+        </html>"""
+        self.port: int = 17563
+        self.host: str = '0.0.0.0'
+        self.__state: str = str(get_uuid())
+        self.__callback_func = None
+        self.__server_running: bool = False
+        self.__loop: Union[asyncio.AbstractEventLoop, None] = None
+        self.__runner: Union[web.AppRunner, None] = None
+        self.__thread: Union[Thread, None] = None
+        self.__user_token: Union[str, None] = None
+        self.__can_close: bool = False
 
     def __build_auth_url(self):
         params = {
@@ -217,7 +204,7 @@ class UserAuthenticator:
         for task in asyncio.all_tasks(self.__loop):
             task.cancel()
 
-    def __run(self, runner: 'web.AppRunner'):
+    def __run(self, runner: web.AppRunner):
         self.__runner = runner
         self.__loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.__loop)
@@ -242,7 +229,7 @@ class UserAuthenticator:
         """
         self.__can_close = True
 
-    async def __handle_callback(self, request: 'web.Request'):
+    async def __handle_callback(self, request: web.Request):
         val = request.rel_url.query.get('state')
         self.__logger.debug(f'got callback with state {val}')
         # invalid state!

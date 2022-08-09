@@ -118,36 +118,29 @@ class EventSub:
                     |default| :code:`True`
     """
 
-    secret = ''.join(random.choice(string.ascii_lowercase) for i in range(20))
-    callback_url = None
-    wait_for_subscription_confirm: bool = True
-    wait_for_subscription_confirm_timeout: int = 30
-    unsubscribe_on_stop: bool = True
-    _port: int = 80
-    _host: str = '0.0.0.0'
-    __twitch: Twitch = None
-    __ssl_context = None
-    __client_id = None
-    __running = False
-    __callbacks = {}
-    __active_webhooks = {}
-    __hook_thread: Union['threading.Thread', None] = None
-    __hook_loop: Union['asyncio.AbstractEventLoop', None] = None
-    __hook_runner: Union['web.AppRunner', None] = None
-    __logger: Logger = None
-
     def __init__(self,
                  callback_url: str,
                  api_client_id: str,
                  port: int,
                  twitch: Twitch,
                  ssl_context: Optional[SSLContext] = None):
-        self.callback_url = callback_url
-        self.__client_id = api_client_id
-        self._port = port
-        self.__ssl_context = ssl_context
-        self.__twitch = twitch
-        self.__logger = getLogger('twitchAPI.eventsub')
+        self.callback_url: str = callback_url
+        self.__client_id: str = api_client_id
+        self._port: int = port
+        self.__ssl_context: Optional[SSLContext] = ssl_context
+        self.__twitch: Twitch = twitch
+        self.__logger: Logger = getLogger('twitchAPI.eventsub')
+        self.secret = ''.join(random.choice(string.ascii_lowercase) for i in range(20))
+        self.wait_for_subscription_confirm: bool = True
+        self.wait_for_subscription_confirm_timeout: int = 30
+        self.unsubscribe_on_stop: bool = True
+        self._host: str = '0.0.0.0'
+        self.__running = False
+        self.__callbacks = {}
+        self.__active_webhooks = {}
+        self.__hook_thread: Union['threading.Thread', None] = None
+        self.__hook_loop: Union['asyncio.AbstractEventLoop', None] = None
+        self.__hook_runner: Union['web.AppRunner', None] = None
         if not self.callback_url.startswith('https'):
             raise RuntimeError('HTTPS is required for authenticated webhook.\n'
                                + 'Either use non authenticated webhook or use a HTTPS proxy!')

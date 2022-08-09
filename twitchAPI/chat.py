@@ -87,37 +87,30 @@ class ChatSub:
 
 class Chat:
 
-    ping_frequency: int = 120
-    ping_jitter: int = 4
-    listen_confirm_timeout: int = 30
-    reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
-
-    __connection = None
-    __socket_thread: threading.Thread = None
-    __running: bool = False
-    __socket_loop = None
-    __topics: dict = {}
-    __startup_complete: bool = False
-
-    __tasks = None
-
-    __waiting_for_pong: bool = False
-    logger: Logger = None
-    __nonce_waiting_confirm: dict = {}
-    connection_url: str = TWITCH_CHAT_URL
-    _event_handler = {}
-    _command_handler = {}
-    room_cache: Dict[str, ChatRoom] = {}
-
     def __init__(self, twitch: Twitch, connection_url: Optional[str] = None):
-        self.logger = getLogger('twitchAPI.chat')
-        self.twitch = twitch
+        self.logger: Logger = getLogger('twitchAPI.chat')
+        self.twitch: Twitch = twitch
         if not self.twitch.has_required_auth(AuthType.USER, [AuthScope.CHAT_READ]):
             raise ValueError('passed twitch instance is missing User Auth.')
         data = self.twitch.get_users()
         self.username: str = data['data'][0]['login'].lower()
-        if connection_url is not None:
-            self.connection_url = connection_url
+        self.connection_url: str = connection_url if connection_url is not None else TWITCH_CHAT_URL
+        self.ping_frequency: int = 120
+        self.ping_jitter: int = 4
+        self.listen_confirm_timeout: int = 30
+        self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
+        self.__connection = None
+        self.__socket_thread: threading.Thread = None
+        self.__running: bool = False
+        self.__socket_loop = None
+        self.__topics: dict = {}
+        self.__startup_complete: bool = False
+        self.__tasks = None
+        self.__waiting_for_pong: bool = False
+        self.__nonce_waiting_confirm: dict = {}
+        self._event_handler = {}
+        self._command_handler = {}
+        self.room_cache: Dict[str, ChatRoom] = {}
 
     ##################################################################################################################################################
     # command parsing

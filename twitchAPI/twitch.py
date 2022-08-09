@@ -144,31 +144,26 @@ class Twitch:
     :var Callable[[str,str],None] app_auth_refresh_callback: If set, gets called whenever a app auth token gets
         refreshed. Parameter: Auth Token |default| :code:`None`
     """
-    app_id: Optional[str] = None
-    app_secret: Optional[str] = None
-    user_auth_refresh_callback: Optional[Callable[[str, str], None]] = None
-    app_auth_refresh_callback: Optional[Callable[[str], None]] = None
-    __app_auth_token: Optional[str] = None
-    __app_auth_scope: List[AuthScope] = []
-    __has_app_auth: bool = False
-
-    __user_auth_token: Optional[str] = None
-    __user_auth_refresh_token: Optional[str] = None
-    __user_auth_scope: List[AuthScope] = []
-    __has_user_auth: bool = False
-
-    __logger: Logger = None
-
-    auto_refresh_auth: bool = True
 
     def __init__(self,
                  app_id: str,
                  app_secret: Optional[str] = None,
                  authenticate_app: bool = True,
                  target_app_auth_scope: Optional[List[AuthScope]] = None):
-        self.app_id = app_id
-        self.app_secret = app_secret
+        self.app_id: Optional[str] = app_id
+        self.app_secret: Optional[str] = app_secret
         self.__logger = getLogger('twitchAPI.twitch')
+        self.user_auth_refresh_callback: Optional[Callable[[str, str], None]] = None
+        self.app_auth_refresh_callback: Optional[Callable[[str], None]] = None
+        self.__app_auth_token: Optional[str] = None
+        self.__app_auth_scope: List[AuthScope] = []
+        self.__has_app_auth: bool = False
+
+        self.__user_auth_token: Optional[str] = None
+        self.__user_auth_refresh_token: Optional[str] = None
+        self.__user_auth_scope: List[AuthScope] = []
+        self.__has_user_auth: bool = False
+        self.auto_refresh_auth: bool = True
         if authenticate_app:
             self.authenticate_app(target_app_auth_scope if target_app_auth_scope is not None else [])
 
