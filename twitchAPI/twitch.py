@@ -114,8 +114,11 @@ Optionally you can set a callback for both user access token refresh and app acc
 Class Documentation:
 ********************
 """
-import requests
+import asyncio
 from typing import TYPE_CHECKING
+
+from aiohttp import ClientSession, ClientResponse
+
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
     fields_to_enum, enum_value_or_none, datetime_to_str, remove_none_values
 from datetime import datetime
@@ -152,13 +155,13 @@ class Twitch:
                  target_app_auth_scope: Optional[List[AuthScope]] = None):
         self.app_id: Optional[str] = app_id
         self.app_secret: Optional[str] = app_secret
-        self.__logger = getLogger('twitchAPI.twitch')
+        self.__logger: Logger = getLogger('twitchAPI.twitch')
         self.user_auth_refresh_callback: Optional[Callable[[str, str], None]] = None
         self.app_auth_refresh_callback: Optional[Callable[[str], None]] = None
         self.__app_auth_token: Optional[str] = None
         self.__app_auth_scope: List[AuthScope] = []
         self.__has_app_auth: bool = False
-
+        self._session: Optional[ClientSession] = None
         self.__user_auth_token: Optional[str] = None
         self.__user_auth_refresh_token: Optional[str] = None
         self.__user_auth_scope: List[AuthScope] = []
@@ -231,179 +234,155 @@ class Twitch:
         return False
 
     # FIXME rewrite refresh_used_token
-    def refresh_used_token(self):
+    async def refresh_used_token(self):
         """Refreshes the currently used token"""
         if self.__has_user_auth:
             self.__logger.debug('refreshing user token')
             from .oauth import refresh_access_token
             self.__user_auth_token, \
-                self.__user_auth_refresh_token = refresh_access_token(self.__user_auth_refresh_token,
-                                                                      self.app_id,
-                                                                      self.app_secret)
+            self.__user_auth_refresh_token = refresh_access_token(self.__user_auth_refresh_token,
+                                                                  self.app_id,
+                                                                  self.app_secret)
             if self.user_auth_refresh_callback is not None:
                 self.user_auth_refresh_callback(self.__user_auth_token, self.__user_auth_refresh_token)
         else:
-            self.__generate_app_token()
+            await self.__generate_app_token()
             if self.app_auth_refresh_callback is not None:
                 self.app_auth_refresh_callback(self.__app_auth_token)
 
-    def __check_request_return(self,
-                               response: requests.Response,
-                               retry_func: Callable,
-                               reply_func_has_data: bool,
-                               url: str,
-                               auth_type: 'AuthType',
-                               required_scope: List[AuthScope],
-                               data: Optional[dict] = None,
-                               retries: int = 1
-                               ) -> requests.Response:
+    async def __check_request_return(self,
+                                     response: ClientResponse,
+                                     retry_func: Callable,
+                                     reply_func_has_data: bool,
+                                     url: str,
+                                     auth_type: 'AuthType',
+                                     required_scope: List[AuthScope],
+                                     data: Optional[dict] = None,
+                                     retries: int = 1
+                                     ) -> ClientResponse:
         if self.auto_refresh_auth and retries > 0:
-            if response.status_code == 401:
+            if response.status == 401:
                 # unauthorized, lets try to refresh the token once
                 self.__logger.debug('got 401 response -> try to refresh token')
-                self.refresh_used_token()
+                await self.refresh_used_token()
                 if reply_func_has_data:
-                    return retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
+                    return await retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
                 else:
-                    return retry_func(url, auth_type, required_scope, retries=retries - 1)
-            elif response.status_code == 503:
+                    return await retry_func(url, auth_type, required_scope, retries=retries - 1)
+            elif response.status == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 self.__logger.debug('got 503 response -> retry once')
                 if reply_func_has_data:
-                    return retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
+                    return await retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
                 else:
-                    return retry_func(url, auth_type, required_scope, retries=retries - 1)
+                    return await retry_func(url, auth_type, required_scope, retries=retries - 1)
         elif self.auto_refresh_auth and retries <= 0:
-            if response.status_code == 503:
+            if response.status == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
-            if response.status_code == 401:
-                msg = response.json().get('message', '')
+            if response.status == 401:
+                msg = (await response.json()).get('message', '')
                 self.__logger.debug(f'got 401 response and can\'t refresh. Message: "{msg}"')
                 raise UnauthorizedException(msg)
-        if response.status_code == 500:
+        if response.status == 500:
             raise TwitchBackendException('Internal Server Error')
-        if response.status_code == 400:
+        if response.status == 400:
             msg = None
             try:
-                msg = response.json().get('message')
+                msg = (await response.json()).get('message')
             except:
                 pass
             raise TwitchAPIException('Bad Request' + '' if msg is None else f'- {msg}')
 
-        if response.status_code == 429 or str(response.headers.get('Ratelimit-Remaining', '')) == '0':
+        if response.status == 429 or str(response.headers.get('Ratelimit-Remaining', '')) == '0':
             self.__logger.warning('reached rate limit, waiting for reset')
             import time
             reset = int(response.headers['Ratelimit-Reset'])
             while int(time.time()) <= reset:
-                time.sleep(0.01)
+                await asyncio.sleep(0.01)
         return response
 
-    def __api_post_request(self,
-                           url: str,
-                           auth_type: 'AuthType',
-                           required_scope: List[AuthScope],
-                           data: Optional[dict] = None,
-                           retries: int = 1) -> requests.Response:
+    async def __api_post_request(self,
+                                 url: str,
+                                 auth_type: 'AuthType',
+                                 required_scope: List[AuthScope],
+                                 data: Optional[dict] = None,
+                                 retries: int = 1) -> ClientResponse:
         """Make POST request with authorization"""
+        if self._session is None:
+            self._session = ClientSession()
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making POST request to {url}')
         if data is None:
-            req = requests.post(url, headers=headers)
+            req = await self._session.post(url, headers=headers)
         else:
-            req = requests.post(url, headers=headers, json=data)
-        return self.__check_request_return(req,
-                                           self.__api_post_request,
-                                           True,
-                                           url,
-                                           auth_type,
-                                           required_scope,
-                                           data,
-                                           retries)
+            req = await self._session.post(url, headers=headers, json=data)
+        return await self.__check_request_return(req, self.__api_post_request, True, url, auth_type, required_scope, data, retries)
 
-    def __api_put_request(self,
-                          url: str,
-                          auth_type: 'AuthType',
-                          required_scope: List[AuthScope],
-                          data: Optional[dict] = None,
-                          retries: int = 1) -> requests.Response:
+    async def __api_put_request(self,
+                                url: str,
+                                auth_type: 'AuthType',
+                                required_scope: List[AuthScope],
+                                data: Optional[dict] = None,
+                                retries: int = 1) -> ClientResponse:
         """Make PUT request with authorization"""
+        if self._session is None:
+            self._session = ClientSession()
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making PUT request to {url}')
         if data is None:
-            req = requests.put(url, headers=headers)
+            req = await self._session.put(url, headers=headers)
         else:
-            req = requests.put(url, headers=headers, json=data)
-        return self.__check_request_return(req,
-                                           self.__api_put_request,
-                                           True,
-                                           url,
-                                           auth_type,
-                                           required_scope,
-                                           data,
-                                           retries)
+            req = await self._session.put(url, headers=headers, json=data)
+        return await self.__check_request_return(req, self.__api_put_request, True, url, auth_type, required_scope, data, retries)
 
-    def __api_patch_request(self,
-                            url: str,
-                            auth_type: 'AuthType',
-                            required_scope: List[AuthScope],
-                            data: Optional[dict] = None,
-                            retries: int = 1) -> requests.Response:
+    async def __api_patch_request(self,
+                                  url: str,
+                                  auth_type: 'AuthType',
+                                  required_scope: List[AuthScope],
+                                  data: Optional[dict] = None,
+                                  retries: int = 1) -> ClientResponse:
         """Make PATCH request with authorization"""
+        if self._session is None:
+            self._session = ClientSession()
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making PATCH request to {url}')
         if data is None:
-            req = requests.patch(url, headers=headers)
+            req = await self._session.patch(url, headers=headers)
         else:
-            req = requests.patch(url, headers=headers, json=data)
-        return self.__check_request_return(req,
-                                           self.__api_patch_request,
-                                           True,
-                                           url,
-                                           auth_type,
-                                           required_scope,
-                                           data,
-                                           retries)
+            req = await self._session.patch(url, headers=headers, json=data)
+        return await self.__check_request_return(req, self.__api_patch_request, True, url, auth_type, required_scope, data, retries)
 
-    def __api_delete_request(self,
-                             url: str,
-                             auth_type: 'AuthType',
-                             required_scope: List[AuthScope],
-                             data: Optional[dict] = None,
-                             retries: int = 1) -> requests.Response:
+    async def __api_delete_request(self,
+                                   url: str,
+                                   auth_type: 'AuthType',
+                                   required_scope: List[AuthScope],
+                                   data: Optional[dict] = None,
+                                   retries: int = 1) -> ClientResponse:
         """Make DELETE request with authorization"""
+        if self._session is None:
+            self._session = ClientSession()
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making DELETE request to {url}')
         if data is None:
-            req = requests.delete(url, headers=headers)
+            req = await self._session.delete(url, headers=headers)
         else:
-            req = requests.delete(url, headers=headers, json=data)
-        return self.__check_request_return(req,
-                                           self.__api_delete_request,
-                                           True,
-                                           url,
-                                           auth_type,
-                                           required_scope,
-                                           data,
-                                           retries)
+            req = await self._session.delete(url, headers=headers, json=data)
+        return await self.__check_request_return(req, self.__api_delete_request, True, url, auth_type, required_scope, data, retries)
 
-    def __api_get_request(self, url: str,
-                          auth_type: 'AuthType',
-                          required_scope: List[AuthScope],
-                          retries: int = 1) -> requests.Response:
+    async def __api_get_request(self,
+                                url: str,
+                                auth_type: 'AuthType',
+                                required_scope: List[AuthScope],
+                                retries: int = 1) -> ClientResponse:
         """Make GET request with authorization"""
+        if self._session is None:
+            self._session = ClientSession()
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making GET request to {url}')
-        req = requests.get(url, headers=headers)
-        return self.__check_request_return(req,
-                                           self.__api_get_request,
-                                           False,
-                                           url,
-                                           auth_type,
-                                           required_scope,
-                                           None,
-                                           retries)
+        req = await self._session.get(url, headers=headers)
+        return await self.__check_request_return(req, self.__api_get_request, False, url, auth_type, required_scope, None, retries)
 
-    def __generate_app_token(self) -> None:
+    async def __generate_app_token(self) -> None:
         if self.app_secret is None:
             raise MissingAppSecretException()
         params = {
@@ -412,20 +391,22 @@ class Twitch:
             'grant_type': 'client_credentials',
             'scope': build_scope(self.__app_auth_scope)
         }
+        if self._session is None:
+            self._session = ClientSession()
         self.__logger.debug('generating fresh app token')
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', params)
-        result = requests.post(url)
-        if result.status_code != 200:
-            raise TwitchAuthorizationException(f'Authentication failed with code {result.status_code} ({result.text})')
+        result = await self._session.post(url)
+        if result.status != 200:
+            raise TwitchAuthorizationException(f'Authentication failed with code {result.status} ({result.text})')
         try:
-            data = result.json()
+            data = await result.json()
             self.__app_auth_token = data['access_token']
         except ValueError:
             raise TwitchAuthorizationException('Authentication response did not have a valid json body')
         except KeyError:
             raise TwitchAuthorizationException('Authentication response did not contain access_token')
 
-    def authenticate_app(self, scope: List[AuthScope]) -> None:
+    async def authenticate_app(self, scope: List[AuthScope]) -> None:
         """Authenticate with a fresh generated app token
 
         :param list[~twitchAPI.types.AuthScope] scope: List of Authorization scopes to use
@@ -433,7 +414,7 @@ class Twitch:
         :return: None
         """
         self.__app_auth_scope = scope
-        self.__generate_app_token()
+        await self.__generate_app_token()
         self.__has_app_auth = True
 
     def set_user_authentication(self,
@@ -503,13 +484,13 @@ class Twitch:
     # API calls
     # ======================================================================================================================
 
-    def get_extension_analytics(self,
-                                after: Optional[str] = None,
-                                extension_id: Optional[str] = None,
-                                first: int = 20,
-                                ended_at: Optional[datetime] = None,
-                                started_at: Optional[datetime] = None,
-                                report_type: Optional[AnalyticsReportType] = None) -> dict:
+    async def get_extension_analytics(self,
+                                      after: Optional[str] = None,
+                                      extension_id: Optional[str] = None,
+                                      first: int = 20,
+                                      ended_at: Optional[datetime] = None,
+                                      started_at: Optional[datetime] = None,
+                                      report_type: Optional[AnalyticsReportType] = None) -> dict:
         """Gets a URL that extension developers can use to download analytics reports (CSV files) for their extensions.
         The URL is valid for 5 minutes.\n\n
 
@@ -555,17 +536,17 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'analytics/extensions',
                         url_params,
                         remove_none=True)
-        response = self.__api_get_request(url, AuthType.USER, required_scope=[AuthScope.ANALYTICS_READ_EXTENSION])
-        data = response.json()
+        response = await self.__api_get_request(url, AuthType.USER, required_scope=[AuthScope.ANALYTICS_READ_EXTENSION])
+        data = await response.json()
         return make_fields_datetime(data, ['started_at', 'ended_at'])
 
-    def get_game_analytics(self,
-                           after: Optional[str] = None,
-                           first: int = 20,
-                           game_id: Optional[str] = None,
-                           ended_at: Optional[datetime] = None,
-                           started_at: Optional[datetime] = None,
-                           report_type: Optional[AnalyticsReportType] = None) -> dict:
+    async def get_game_analytics(self,
+                                 after: Optional[str] = None,
+                                 first: int = 20,
+                                 game_id: Optional[str] = None,
+                                 ended_at: Optional[datetime] = None,
+                                 started_at: Optional[datetime] = None,
+                                 report_type: Optional[AnalyticsReportType] = None) -> dict:
         """Gets a URL that game developers can use to download analytics reports (CSV files) for their games.
         The URL is valid for 5 minutes.\n\n
 
@@ -609,11 +590,11 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'analytics/games',
                         url_params,
                         remove_none=True)
-        response = self.__api_get_request(url, AuthType.USER, [AuthScope.ANALYTICS_READ_GAMES])
-        data = response.json()
+        response = await self.__api_get_request(url, AuthType.USER, [AuthScope.ANALYTICS_READ_GAMES])
+        data = await response.json()
         return make_fields_datetime(data, ['ended_at', 'started_at'])
 
-    def get_creator_goals(self, broadcaster_id: str) -> dict:
+    async def get_creator_goals(self, broadcaster_id: str) -> dict:
         """Gets Creator Goal Details for the specified channel.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_READ_GOALS`\n
@@ -629,15 +610,15 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'goals', {'broadcaster_id': broadcaster_id})
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_GOALS])
-        data = result.json()
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_GOALS])
+        data = await result.json()
         return make_fields_datetime(data, ['created_at'])
-    
-    def get_bits_leaderboard(self,
-                             count: Optional[int] = 10,
-                             period: Optional[TimePeriod] = TimePeriod.ALL,
-                             started_at: Optional[datetime] = None,
-                             user_id: Optional[str] = None) -> dict:
+
+    async def get_bits_leaderboard(self,
+                                   count: Optional[int] = 10,
+                                   period: Optional[TimePeriod] = TimePeriod.ALL,
+                                   started_at: Optional[datetime] = None,
+                                   user_id: Optional[str] = None) -> dict:
         """Gets a ranked list of Bits leaderboard information for an authorized broadcaster.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.BITS_READ`\n
@@ -668,15 +649,15 @@ class Twitch:
             'user_id': user_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'bits/leaderboard', url_params, remove_none=True)
-        response = self.__api_get_request(url, AuthType.USER, [AuthScope.BITS_READ])
-        data = response.json()
+        response = await self.__api_get_request(url, AuthType.USER, [AuthScope.BITS_READ])
+        data = await response.json()
         return make_fields_datetime(data, ['ended_at', 'started_at'])
 
-    def get_extension_transactions(self,
-                                   extension_id: str,
-                                   transaction_id: Optional[Union[str, List[str]]] = None,
-                                   after: Optional[str] = None,
-                                   first: int = 20) -> dict:
+    async def get_extension_transactions(self,
+                                         extension_id: str,
+                                         transaction_id: Optional[Union[str, List[str]]] = None,
+                                         after: Optional[str] = None,
+                                         first: int = 20) -> dict:
         """Get Extension Transactions allows extension back end servers to fetch a list of transactions that have
         occurred for their extension across all of Twitch.
         A transaction is a record of a user exchanging Bits for an in-Extension digital good.\n\n
@@ -709,13 +690,13 @@ class Twitch:
             'first': first
         }
         url = build_url(TWITCH_API_BASE_URL + 'extensions/transactions', url_param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        data = result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        data = await result.json()
         return make_fields_datetime(data, ['timestamp'])
 
-    def get_chat_settings(self,
-                          broadcaster_id: str,
-                          moderator_id: Optional[str] = None):
+    async def get_chat_settings(self,
+                                broadcaster_id: str,
+                                moderator_id: Optional[str] = None):
         """Gets the broadcaster’s chat settings.
 
         Requires App authentication\n
@@ -736,21 +717,21 @@ class Twitch:
             'moderator_id': moderator_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'chat/settings', url_param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return await result.json()
 
-    def update_chat_settings(self,
-                             broadcaster_id: str,
-                             moderator_id: str,
-                             emote_mode: Optional[bool] = None,
-                             follower_mode: Optional[bool] = None,
-                             follower_mode_duration: Optional[int] = None,
-                             non_moderator_chat_delay: Optional[bool] = None,
-                             non_moderator_chat_delay_duration: Optional[int] = None,
-                             slow_mode: Optional[bool] = None,
-                             slow_mode_wait_time: Optional[int] = None,
-                             subscriber_mode: Optional[bool] = None,
-                             unique_chat_mode: Optional[bool] = None):
+    async def update_chat_settings(self,
+                                   broadcaster_id: str,
+                                   moderator_id: str,
+                                   emote_mode: Optional[bool] = None,
+                                   follower_mode: Optional[bool] = None,
+                                   follower_mode_duration: Optional[int] = None,
+                                   non_moderator_chat_delay: Optional[bool] = None,
+                                   non_moderator_chat_delay_duration: Optional[int] = None,
+                                   slow_mode: Optional[bool] = None,
+                                   slow_mode_wait_time: Optional[int] = None,
+                                   subscriber_mode: Optional[bool] = None,
+                                   unique_chat_mode: Optional[bool] = None):
         """Updates the broadcaster’s chat settings.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS`\n
@@ -804,12 +785,12 @@ class Twitch:
             'subscriber_mode': subscriber_mode,
             'unique_chat_mode': unique_chat_mode
         })
-        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS], body)
-        return result.json()
+        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS], body)
+        return await result.json()
 
-    def create_clip(self,
-                    broadcaster_id: str,
-                    has_delay: bool = False) -> dict:
+    async def create_clip(self,
+                          broadcaster_id: str,
+                          has_delay: bool = False) -> dict:
         """Creates a clip programmatically. This returns both an ID and an edit URL for the new clip.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CLIPS_EDIT`\n
@@ -832,18 +813,18 @@ class Twitch:
             'has_delay': has_delay
         }
         url = build_url(TWITCH_API_BASE_URL + 'clips', param)
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CLIPS_EDIT])
-        return result.json()
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CLIPS_EDIT])
+        return await result.json()
 
-    def get_clips(self,
-                  broadcaster_id: Optional[str] = None,
-                  game_id: Optional[str] = None,
-                  clip_id: Optional[List[str]] = None,
-                  after: Optional[str] = None,
-                  before: Optional[str] = None,
-                  ended_at: Optional[datetime] = None,
-                  started_at: Optional[datetime] = None,
-                  first: int = 20) -> dict:
+    async def get_clips(self,
+                        broadcaster_id: Optional[str] = None,
+                        game_id: Optional[str] = None,
+                        clip_id: Optional[List[str]] = None,
+                        after: Optional[str] = None,
+                        before: Optional[str] = None,
+                        ended_at: Optional[datetime] = None,
+                        started_at: Optional[datetime] = None,
+                        first: int = 20) -> dict:
         """Gets clip information by clip ID (one or more), broadcaster ID (one only), or game ID (one only).
         Clips are returned sorted by view count, in descending order.\n\n
 
@@ -885,13 +866,13 @@ class Twitch:
             'started_at': datetime_to_str(started_at)
         }
         url = build_url(TWITCH_API_BASE_URL + 'clips', param, split_lists=True, remove_none=True)
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        data = result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        data = await result.json()
         return make_fields_datetime(data, ['created_at'])
 
-    def get_code_status(self,
-                        code: List[str],
-                        user_id: int) -> dict:
+    async def get_code_status(self,
+                              code: List[str],
+                              user_id: int) -> dict:
         """Gets the status of one or more provided Bits codes.\n\n
 
         Requires App authentication\n
@@ -915,13 +896,13 @@ class Twitch:
             'user_id': user_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'entitlements/codes', param, split_lists=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
-        data = result.json()
+        result = await self.__api_get_request(url, AuthType.APP, [])
+        data = await result.json()
         return fields_to_enum(data, ['status'], CodeStatus, CodeStatus.UNKNOWN_VALUE)
 
-    def redeem_code(self,
-                    code: List[str],
-                    user_id: int) -> dict:
+    async def redeem_code(self,
+                          code: List[str],
+                          user_id: int) -> dict:
         """Redeems one or more provided Bits codes to the authenticated Twitch user.\n\n
 
         Requires App authentication\n
@@ -945,14 +926,14 @@ class Twitch:
             'user_id': user_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'entitlements/code', param, split_lists=True)
-        result = self.__api_post_request(url, AuthType.APP, [])
-        data = result.json()
+        result = await self.__api_post_request(url, AuthType.APP, [])
+        data = await result.json()
         return fields_to_enum(data, ['status'], CodeStatus, CodeStatus.UNKNOWN_VALUE)
 
-    def get_top_games(self,
-                      after: Optional[str] = None,
-                      before: Optional[str] = None,
-                      first: int = 20) -> dict:
+    async def get_top_games(self,
+                            after: Optional[str] = None,
+                            before: Optional[str] = None,
+                            first: int = 20) -> dict:
         """Gets games sorted by number of current viewers on Twitch, most popular first.\n\n
 
         Requires App or User authentication\n
@@ -977,12 +958,12 @@ class Twitch:
             'first': first
         }
         url = build_url(TWITCH_API_BASE_URL + 'games/top', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return await result.json()
 
-    def get_games(self,
-                  game_ids: Optional[List[str]] = None,
-                  names: Optional[List[str]] = None) -> dict:
+    async def get_games(self,
+                        game_ids: Optional[List[str]] = None,
+                        names: Optional[List[str]] = None) -> dict:
         """Gets game information by game ID or name.\n\n
 
         Requires User or App authentication.
@@ -1010,12 +991,12 @@ class Twitch:
             'name': names
         }
         url = build_url(TWITCH_API_BASE_URL + 'games', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return await result.json()
 
-    def check_automod_status(self,
-                             broadcaster_id: str,
-                             automod_check_entries: List[AutoModCheckEntry]) -> dict:
+    async def check_automod_status(self,
+                                   broadcaster_id: str,
+                                   automod_check_entries: List[AutoModCheckEntry]) -> dict:
         """Determines whether a string message meets the channel’s AutoMod requirements.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
@@ -1034,14 +1015,14 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'moderation/enforcements/status',
                         {'broadcaster_id': broadcaster_id})
         body = {'data': automod_check_entries}
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATION_READ], data=body)
-        return result.json()
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATION_READ], data=body)
+        return await result.json()
 
-    def get_banned_events(self,
-                          broadcaster_id: str,
-                          user_id: Optional[str] = None,
-                          after: Optional[str] = None,
-                          first: int = 20) -> dict:
+    async def get_banned_events(self,
+                                broadcaster_id: str,
+                                user_id: Optional[str] = None,
+                                after: Optional[str] = None,
+                                first: int = 20) -> dict:
         """Returns all user bans and un-bans in a channel.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
@@ -1070,18 +1051,17 @@ class Twitch:
             'first': first
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/banned/events', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
-        data = result.json()
-        data = fields_to_enum(data, ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
+        data = fields_to_enum(await result.json(), ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
         data = make_fields_datetime(data, ['event_timestamp', 'expires_at'])
         return data
 
-    def get_banned_users(self,
-                         broadcaster_id: str,
-                         user_id: Optional[str] = None,
-                         after: Optional[str] = None,
-                         first: Optional[int] = 20,
-                         before: Optional[str] = None) -> dict:
+    async def get_banned_users(self,
+                               broadcaster_id: str,
+                               user_id: Optional[str] = None,
+                               after: Optional[str] = None,
+                               first: Optional[int] = 20,
+                               before: Optional[str] = None) -> dict:
         """Returns all banned and timed-out users in a channel.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
@@ -1112,15 +1092,15 @@ class Twitch:
             'before': before
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/banned', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
-        return make_fields_datetime(result.json(), ['expires_at', 'created_at'])
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
+        return make_fields_datetime(await result.json(), ['expires_at', 'created_at'])
 
-    def ban_user(self,
-                 broadcaster_id: str,
-                 moderator_id: str,
-                 user_id: str,
-                 reason: str,
-                 duration: Optional[int] = None) -> dict:
+    async def ban_user(self,
+                       broadcaster_id: str,
+                       moderator_id: str,
+                       user_id: str,
+                       reason: str,
+                       duration: Optional[int] = None) -> dict:
         """Bans a user from participating in a broadcaster’s chat room, or puts them in a timeout.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BANNED_USERS`\n
@@ -1160,13 +1140,13 @@ class Twitch:
                 'user_id': user_id
             })
         }
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS], data=body)
-        return make_fields_datetime(result.json(), ['created_at', 'end_time'])
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS], data=body)
+        return make_fields_datetime(await result.json(), ['created_at', 'end_time'])
 
-    def unban_user(self,
-                   broadcaster_id: str,
-                   moderator_id: str,
-                   user_id: str) -> bool:
+    async def unban_user(self,
+                         broadcaster_id: str,
+                         moderator_id: str,
+                         user_id: str) -> bool:
         """Removes the ban or timeout that was placed on the specified user
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BANNED_USERS`\n
@@ -1190,14 +1170,14 @@ class Twitch:
             'user_id': user_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/bans', param)
-        result = self.__api_delete_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS])
-        return result.status_code == 204
+        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS])
+        return result.status == 204
 
-    def get_blocked_terms(self,
-                          broadcaster_id: str,
-                          moderator_id: str,
-                          after: Optional[str] = None,
-                          first: Optional[int] = None) -> dict:
+    async def get_blocked_terms(self,
+                                broadcaster_id: str,
+                                moderator_id: str,
+                                after: Optional[str] = None,
+                                first: Optional[int] = None) -> dict:
         """Gets the broadcaster’s list of non-private, blocked words or phrases.
         These are the terms that the broadcaster or moderator added manually, or that were denied by AutoMod.
 
@@ -1227,13 +1207,13 @@ class Twitch:
             'after': after
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/blocked_terms', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATOR_READ_BLOCKED_TERMS])
-        return make_fields_datetime(result.json(), ['created_at', 'expires_at', 'updated_at'])
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATOR_READ_BLOCKED_TERMS])
+        return make_fields_datetime(await result.json(), ['created_at', 'expires_at', 'updated_at'])
 
-    def add_blocked_term(self,
-                         broadcaster_id: str,
-                         moderator_id: str,
-                         text: str) -> dict:
+    async def add_blocked_term(self,
+                               broadcaster_id: str,
+                               moderator_id: str,
+                               text: str) -> dict:
         """Adds a word or phrase to the broadcaster’s list of blocked terms. These are the terms that broadcasters don’t want used in their chat room.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS`\n
@@ -1260,13 +1240,13 @@ class Twitch:
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/blocked_terms', param)
         body = {'text': text}
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS], data=body)
-        return make_fields_datetime(result.json(), ['created_at', 'expires_at', 'updated_at'])
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS], data=body)
+        return make_fields_datetime(await result.json(), ['created_at', 'expires_at', 'updated_at'])
 
-    def remove_blocked_term(self,
-                            broadcaster_id: str,
-                            moderator_id: str,
-                            term_id: str) -> bool:
+    async def remove_blocked_term(self,
+                                  broadcaster_id: str,
+                                  moderator_id: str,
+                                  term_id: str) -> bool:
         """Removes the word or phrase that the broadcaster is blocking users from using in their chat room.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS`\n
@@ -1290,14 +1270,14 @@ class Twitch:
             'id': term_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/blocked_terms', param)
-        result = self.__api_delete_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS])
-        return result.status_code == 204
+        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS])
+        return result.status == 204
 
-    def get_moderators(self,
-                       broadcaster_id: str,
-                       user_ids: Optional[List[str]] = None,
-                       first: Optional[int] = 20,
-                       after: Optional[str] = None) -> dict:
+    async def get_moderators(self,
+                             broadcaster_id: str,
+                             user_ids: Optional[List[str]] = None,
+                             first: Optional[int] = 20,
+                             after: Optional[str] = None) -> dict:
         """Returns all moderators in a channel.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
@@ -1329,14 +1309,14 @@ class Twitch:
             'after': after
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
+        return await result.json()
 
-    def get_moderator_events(self,
-                             broadcaster_id: str,
-                             user_ids: Optional[List[str]] = None,
-                             after: Optional[str] = None,
-                             first: Optional[int] = 20) -> dict:
+    async def get_moderator_events(self,
+                                   broadcaster_id: str,
+                                   user_ids: Optional[List[str]] = None,
+                                   after: Optional[str] = None,
+                                   first: Optional[int] = 20) -> dict:
         """Returns a list of moderators or users added and removed as moderators from a channel.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
@@ -1368,15 +1348,15 @@ class Twitch:
             'first': first
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators/events', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
-        data = result.json()
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
+        data = await result.json()
         data = fields_to_enum(data, ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
         data = make_fields_datetime(data, ['event_timestamp'])
         return data
 
-    def create_stream_marker(self,
-                             user_id: str,
-                             description: Optional[str] = None) -> dict:
+    async def create_stream_marker(self,
+                                   user_id: str,
+                                   description: Optional[str] = None) -> dict:
         """Creates a marker in the stream of a user specified by user ID.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
@@ -1400,18 +1380,18 @@ class Twitch:
         body = {'user_id': user_id}
         if description is not None:
             body['description'] = description
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data=body)
-        data = result.json()
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data=body)
+        data = await result.json()
         return make_fields_datetime(data, ['created_at'])
 
-    def get_streams(self,
-                    after: Optional[str] = None,
-                    before: Optional[str] = None,
-                    first: int = 20,
-                    game_id: Optional[List[str]] = None,
-                    language: Optional[List[str]] = None,
-                    user_id: Optional[List[str]] = None,
-                    user_login: Optional[List[str]] = None) -> dict:
+    async def get_streams(self,
+                          after: Optional[str] = None,
+                          before: Optional[str] = None,
+                          first: int = 20,
+                          game_id: Optional[List[str]] = None,
+                          language: Optional[List[str]] = None,
+                          user_id: Optional[List[str]] = None,
+                          user_login: Optional[List[str]] = None) -> dict:
         """Gets information about active streams. Streams are returned sorted by number of current viewers, in
         descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join
         and leave streams.\n\n
@@ -1458,16 +1438,16 @@ class Twitch:
             'user_login': user_login
         }
         url = build_url(TWITCH_API_BASE_URL + 'streams', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        data = result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        data = await result.json()
         return make_fields_datetime(data, ['started_at'])
 
-    def get_stream_markers(self,
-                           user_id: str,
-                           video_id: str,
-                           after: Optional[str] = None,
-                           before: Optional[str] = None,
-                           first: int = 20) -> dict:
+    async def get_stream_markers(self,
+                                 user_id: str,
+                                 video_id: str,
+                                 after: Optional[str] = None,
+                                 before: Optional[str] = None,
+                                 first: int = 20) -> dict:
         """Gets a list of markers for either a specified user’s most recent stream or a specified VOD/video (stream),
         ordered by recency.\n\n
 
@@ -1503,14 +1483,14 @@ class Twitch:
             'first': first
         }
         url = build_url(TWITCH_API_BASE_URL + 'streams/markers', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
-        return make_fields_datetime(result.json(), ['created_at'])
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
+        return make_fields_datetime(await result.json(), ['created_at'])
 
-    def get_broadcaster_subscriptions(self,
-                                      broadcaster_id: str,
-                                      user_ids: Optional[List[str]] = None,
-                                      after: Optional[str] = None,
-                                      first: Optional[int] = 20) -> dict:
+    async def get_broadcaster_subscriptions(self,
+                                            broadcaster_id: str,
+                                            user_ids: Optional[List[str]] = None,
+                                            after: Optional[str] = None,
+                                            first: Optional[int] = 20) -> dict:
         """Get all of a broadcaster’s subscriptions.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS`\n
@@ -1542,12 +1522,12 @@ class Twitch:
             'after': after
         }
         url = build_url(TWITCH_API_BASE_URL + 'subscriptions', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_SUBSCRIPTIONS])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_SUBSCRIPTIONS])
+        return await result.json()
 
-    def check_user_subscription(self,
-                                broadcaster_id: str,
-                                user_id: str) -> dict:
+    async def check_user_subscription(self,
+                                      broadcaster_id: str,
+                                      user_id: str) -> dict:
         """Checks if a specific user (user_id) is subscribed to a specific channel (broadcaster_id).
 
         Requires User or App Authorization with scope :const:`twitchAPI.types.AuthScope.USER_READ_SUBSCRIPTIONS`
@@ -1569,13 +1549,13 @@ class Twitch:
             'user_id': user_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'subscriptions/user', param)
-        result = self.__api_get_request(url, AuthType.EITHER, [AuthScope.USER_READ_SUBSCRIPTIONS])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [AuthScope.USER_READ_SUBSCRIPTIONS])
+        return await result.json()
 
-    def get_all_stream_tags(self,
-                            after: Optional[str] = None,
-                            first: int = 20,
-                            tag_ids: Optional[List[str]] = None) -> dict:
+    async def get_all_stream_tags(self,
+                                  after: Optional[str] = None,
+                                  first: int = 20,
+                                  tag_ids: Optional[List[str]] = None) -> dict:
         """Gets the list of all stream tags defined by Twitch, optionally filtered by tag ID(s).\n\n
 
         Requires App authentication\n
@@ -1602,11 +1582,11 @@ class Twitch:
             'tag_id': tag_ids
         }
         url = build_url(TWITCH_API_BASE_URL + 'tags/streams', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.APP, [])
+        return await result.json()
 
-    def get_stream_tags(self,
-                        broadcaster_id: str) -> dict:
+    async def get_stream_tags(self,
+                              broadcaster_id: str) -> dict:
         """Gets the list of tags for a specified stream (channel).\n\n
 
         Requires User authentication\n
@@ -1621,12 +1601,12 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
-        result = self.__api_get_request(url, AuthType.USER, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.USER, [])
+        return await result.json()
 
-    def replace_stream_tags(self,
-                            broadcaster_id: str,
-                            tag_ids: List[str]) -> dict:
+    async def replace_stream_tags(self,
+                                  broadcaster_id: str,
+                                  tag_ids: List[str]) -> dict:
         """Applies specified tags to a specified stream, overwriting any existing tags applied to that stream.
         If no tags are specified, all tags previously applied to the stream are removed.
         Automated tags are not affected by this operation.\n\n
@@ -1649,12 +1629,12 @@ class Twitch:
         if len(tag_ids) > 100:
             raise ValueError('tag_ids can not have more than 100 entries')
         url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
-        self.__api_put_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data={'tag_ids': tag_ids})
+        await self.__api_put_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data={'tag_ids': tag_ids})
         # this returns nothing
         return {}
 
-    def get_channel_teams(self,
-                          broadcaster_id: str) -> dict:
+    async def get_channel_teams(self,
+                                broadcaster_id: str) -> dict:
         """Retrieves a list of Twitch Teams of which the specified channel/broadcaster is a member.\n\n
 
         Requires User or App authentication.
@@ -1670,12 +1650,12 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         """
         url = build_url(TWITCH_API_BASE_URL + 'teams/channel', {'broadcaster_id': broadcaster_id})
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(result.json(), ['created_at', 'updated_at'])
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return make_fields_datetime(await result.json(), ['created_at', 'updated_at'])
 
-    def get_teams(self,
-                  team_id: Optional[str] = None,
-                  name: Optional[str] = None) -> dict:
+    async def get_teams(self,
+                        team_id: Optional[str] = None,
+                        name: Optional[str] = None) -> dict:
         """Gets information for a specific Twitch Team.\n\n
 
         Requires User or App authentication.
@@ -1702,12 +1682,12 @@ class Twitch:
             'name': name
         }
         url = build_url(TWITCH_API_BASE_URL + 'teams', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(result.json(), ['created_at', 'updated_at'])
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return make_fields_datetime(await result.json(), ['created_at', 'updated_at'])
 
-    def get_users(self,
-                  user_ids: Optional[List[str]] = None,
-                  logins: Optional[List[str]] = None) -> dict:
+    async def get_users(self,
+                        user_ids: Optional[List[str]] = None,
+                        logins: Optional[List[str]] = None) -> dict:
         """Gets information about one or more specified Twitch users.
         Users are identified by optional user IDs and/or login name.
         If neither a user ID nor a login name is specified, the user is the one authenticated.\n\n
@@ -1738,17 +1718,17 @@ class Twitch:
             'login': logins
         }
         url = build_url(TWITCH_API_BASE_URL + 'users', url_params, remove_none=True, split_lists=True)
-        response = self.__api_get_request(url,
-                                          AuthType.USER if (user_ids is None or len(user_ids) == 0) and (
-                                                      logins is None or len(logins) == 0) else AuthType.EITHER,
-                                          [])
-        return response.json()
+        response = await self.__api_get_request(url,
+                                                AuthType.USER if (user_ids is None or len(user_ids) == 0) and (
+                                                        logins is None or len(logins) == 0) else AuthType.EITHER,
+                                                [])
+        return await response.json()
 
-    def get_users_follows(self,
-                          after: Optional[str] = None,
-                          first: int = 20,
-                          from_id: Optional[str] = None,
-                          to_id: Optional[str] = None) -> dict:
+    async def get_users_follows(self,
+                                after: Optional[str] = None,
+                                first: int = 20,
+                                from_id: Optional[str] = None,
+                                to_id: Optional[str] = None) -> dict:
         """Gets information on follow relationships between two Twitch users.
         Information returned is sorted in order, most recent follow first.\n\n
 
@@ -1781,11 +1761,11 @@ class Twitch:
             'to_id': to_id
         }
         url = build_url(TWITCH_API_BASE_URL + 'users/follows', param, remove_none=True)
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(result.json(), ['followed_at'])
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return make_fields_datetime(await result.json(), ['followed_at'])
 
-    def update_user(self,
-                    description: str) -> dict:
+    async def update_user(self,
+                          description: str) -> dict:
         """Updates the description of the Authenticated user.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT`\n
@@ -1801,10 +1781,10 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'users', {'description': description})
-        result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT])
-        return result.json()
+        result = await self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT])
+        return await result.json()
 
-    def get_user_extensions(self) -> dict:
+    async def get_user_extensions(self) -> dict:
         """Gets a list of all extensions (both active and inactive) for the authenticated user\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
@@ -1819,11 +1799,11 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions/list', {})
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
+        return await result.json()
 
-    def get_user_active_extensions(self,
-                                   user_id: Optional[str] = None) -> dict:
+    async def get_user_active_extensions(self,
+                                         user_id: Optional[str] = None) -> dict:
         """Gets information about active extensions installed by a specified user, identified by a user ID or the
         authenticated user.\n\n
 
@@ -1840,11 +1820,11 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {'user_id': user_id}, remove_none=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
+        return await result.json()
 
-    def update_user_extensions(self,
-                               data: dict) -> dict:
+    async def update_user_extensions(self,
+                                     data: dict) -> dict:
         """"Updates the activation state, extension ID, and/or version number of installed extensions
         for the authenticated user.\n\n
 
@@ -1861,23 +1841,23 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {})
-        result = self.__api_put_request(url,
-                                        AuthType.USER,
-                                        [AuthScope.USER_EDIT_BROADCAST],
-                                        data=data)
-        return result.json()
+        result = await self.__api_put_request(url,
+                                              AuthType.USER,
+                                              [AuthScope.USER_EDIT_BROADCAST],
+                                              data=data)
+        return await result.json()
 
-    def get_videos(self,
-                   ids: Optional[List[str]] = None,
-                   user_id: Optional[str] = None,
-                   game_id: Optional[str] = None,
-                   after: Optional[str] = None,
-                   before: Optional[str] = None,
-                   first: Optional[int] = 20,
-                   language: Optional[str] = None,
-                   period: TimePeriod = TimePeriod.ALL,
-                   sort: SortMethod = SortMethod.TIME,
-                   video_type: VideoType = VideoType.ALL) -> dict:
+    async def get_videos(self,
+                         ids: Optional[List[str]] = None,
+                         user_id: Optional[str] = None,
+                         game_id: Optional[str] = None,
+                         after: Optional[str] = None,
+                         before: Optional[str] = None,
+                         first: Optional[int] = 20,
+                         language: Optional[str] = None,
+                         period: TimePeriod = TimePeriod.ALL,
+                         sort: SortMethod = SortMethod.TIME,
+                         video_type: VideoType = VideoType.ALL) -> dict:
         """Gets video information by video ID (one or more), user ID (one only), or game ID (one only).\n\n
 
         Requires App authentication.\n
@@ -1925,15 +1905,15 @@ class Twitch:
             'type': video_type.value
         }
         url = build_url(TWITCH_API_BASE_URL + 'videos', param, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        data = result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        data = await result.json()
         data = make_fields_datetime(data, ['created_at', 'published_at'])
         data = fields_to_enum(data, ['type'], VideoType, VideoType.UNKNOWN)
         return data
 
-    def get_webhook_subscriptions(self,
-                                  first: Optional[int] = 20,
-                                  after: Optional[str] = None) -> dict:
+    async def get_webhook_subscriptions(self,
+                                        first: Optional[int] = 20,
+                                        after: Optional[str] = None) -> dict:
         """Gets the Webhook subscriptions of the authenticated user, in order of expiration.\n\n
 
         Requires App authentication\n
@@ -1954,11 +1934,11 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'webhooks/subscriptions',
                         {'first': first, 'after': after},
                         remove_none=True)
-        response = self.__api_get_request(url, AuthType.APP, [])
-        return response.json()
+        response = await self.__api_get_request(url, AuthType.APP, [])
+        return await response.json()
 
-    def get_channel_information(self,
-                                broadcaster_id: Union[str, List[str]]) -> dict:
+    async def get_channel_information(self,
+                                      broadcaster_id: Union[str, List[str]]) -> dict:
         """Gets channel information for users.\n\n
 
         Requires App or user authentication\n
@@ -1978,15 +1958,15 @@ class Twitch:
             if len(broadcaster_id) == 0 or len(broadcaster_id) > 100:
                 raise ValueError('broadcaster_id has to have between 1 and 100 entries')
         url = build_url(TWITCH_API_BASE_URL + 'channels', {'broadcaster_id': broadcaster_id}, split_lists=True)
-        response = self.__api_get_request(url, AuthType.EITHER, [])
-        return response.json()
+        response = await self.__api_get_request(url, AuthType.EITHER, [])
+        return await response.json()
 
-    def modify_channel_information(self,
-                                   broadcaster_id: str,
-                                   game_id: Optional[str] = None,
-                                   broadcaster_language: Optional[str] = None,
-                                   title: Optional[str] = None,
-                                   delay: Optional[int] = None) -> bool:
+    async def modify_channel_information(self,
+                                         broadcaster_id: str,
+                                         game_id: Optional[str] = None,
+                                         broadcaster_language: Optional[str] = None,
+                                         title: Optional[str] = None,
+                                         delay: Optional[int] = None) -> bool:
         """Modifies channel information for users.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
@@ -2018,14 +1998,14 @@ class Twitch:
                                   'broadcaster_language': broadcaster_language,
                                   'title': title,
                                   'delay': delay}.items() if v is not None}
-        response = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data=body)
-        return response.status_code == 204
+        response = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data=body)
+        return response.status == 204
 
-    def search_channels(self,
-                        query: str,
-                        first: Optional[int] = 20,
-                        after: Optional[str] = None,
-                        live_only: Optional[bool] = False) -> dict:
+    async def search_channels(self,
+                              query: str,
+                              first: Optional[int] = 20,
+                              after: Optional[str] = None,
+                              live_only: Optional[bool] = False) -> dict:
         """Returns a list of channels (users who have streamed within the past 6 months) that match the query via
         channel name or description either entirely or partially.\n\n
 
@@ -2051,13 +2031,13 @@ class Twitch:
                          'first': first,
                          'after': after,
                          'live_only': live_only}, remove_none=True)
-        response = self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(response.json(), ['started_at'])
+        response = await self.__api_get_request(url, AuthType.EITHER, [])
+        return make_fields_datetime(await response.json(), ['started_at'])
 
-    def search_categories(self,
-                          query: str,
-                          first: Optional[int] = 20,
-                          after: Optional[str] = None) -> dict:
+    async def search_categories(self,
+                                query: str,
+                                first: Optional[int] = 20,
+                                after: Optional[str] = None) -> dict:
         """Returns a list of games or categories that match the query via name either entirely or partially.\n\n
 
         Requires App authentication\n
@@ -2080,11 +2060,11 @@ class Twitch:
                         {'query': query,
                          'first': first,
                          'after': after}, remove_none=True)
-        response = self.__api_get_request(url, AuthType.EITHER, [])
-        return response.json()
+        response = await self.__api_get_request(url, AuthType.EITHER, [])
+        return await response.json()
 
-    def get_stream_key(self,
-                       broadcaster_id: str) -> dict:
+    async def get_stream_key(self,
+                             broadcaster_id: str) -> dict:
         """Gets the channel stream key for a user.\n\n
 
         Requires User authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_STREAM_KEY`\n
@@ -2100,12 +2080,12 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'streams/key', {'broadcaster_id': broadcaster_id})
-        response = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_STREAM_KEY])
-        return response.json()
+        response = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_STREAM_KEY])
+        return await response.json()
 
-    def start_commercial(self,
-                         broadcaster_id: str,
-                         length: int) -> dict:
+    async def start_commercial(self,
+                               broadcaster_id: str,
+                               length: int) -> dict:
         """Starts a commercial on a specified channel.\n\n
 
         Requires User authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_EDIT_COMMERCIAL`\n
@@ -2127,11 +2107,11 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'channels/commercial',
                         {'broadcaster_id': broadcaster_id,
                          'length': length})
-        response = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_EDIT_COMMERCIAL])
-        return response.json()
+        response = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_EDIT_COMMERCIAL])
+        return await response.json()
 
-    def get_cheermotes(self,
-                       broadcaster_id: str) -> dict:
+    async def get_cheermotes(self,
+                             broadcaster_id: str) -> dict:
         """Retrieves the list of available Cheermotes, animated emotes to which viewers can assign Bits,
         to cheer in chat.\n\n
 
@@ -2148,14 +2128,14 @@ class Twitch:
         """
         url = build_url(TWITCH_API_BASE_URL + 'bits/cheermotes',
                         {'broadcaster_id': broadcaster_id})
-        response = self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(response.json(), ['last_updated'])
+        response = await self.__api_get_request(url, AuthType.EITHER, [])
+        return make_fields_datetime(await response.json(), ['last_updated'])
 
-    def get_hype_train_events(self,
-                              broadcaster_id: str,
-                              first: Optional[int] = 1,
-                              id: Optional[str] = None,
-                              cursor: Optional[str] = None) -> dict:
+    async def get_hype_train_events(self,
+                                    broadcaster_id: str,
+                                    first: Optional[int] = 1,
+                                    id: Optional[str] = None,
+                                    cursor: Optional[str] = None) -> dict:
         """Gets the information of the most recent Hype Train of the given channel ID.
         When there is currently an active Hype Train, it returns information about that Hype Train.
         When there is currently no active Hype Train, it returns information about the most recent Hype Train.
@@ -2184,20 +2164,20 @@ class Twitch:
                          'first': first,
                          'id': id,
                          'cursor': cursor}, remove_none=True)
-        response = self.__api_get_request(url, AuthType.EITHER, [AuthScope.CHANNEL_READ_HYPE_TRAIN])
-        data = make_fields_datetime(response.json(), ['event_timestamp',
-                                                      'started_at',
-                                                      'expires_at',
-                                                      'cooldown_end_time'])
+        response = await self.__api_get_request(url, AuthType.EITHER, [AuthScope.CHANNEL_READ_HYPE_TRAIN])
+        data = make_fields_datetime(await response.json(), ['event_timestamp',
+                                                            'started_at',
+                                                            'expires_at',
+                                                            'cooldown_end_time'])
         data = fields_to_enum(data, ['type'], HypeTrainContributionMethod, HypeTrainContributionMethod.UNKNOWN)
         return data
 
-    def get_drops_entitlements(self,
-                               id: Optional[str] = None,
-                               user_id: Optional[str] = None,
-                               game_id: Optional[str] = None,
-                               after: Optional[str] = None,
-                               first: Optional[int] = 20) -> dict:
+    async def get_drops_entitlements(self,
+                                     id: Optional[str] = None,
+                                     user_id: Optional[str] = None,
+                                     game_id: Optional[str] = None,
+                                     after: Optional[str] = None,
+                                     first: Optional[int] = 20) -> dict:
         """Gets a list of entitlements for a given organization that have been granted to a game, user, or both.
 
         OAuth Token Client ID must have ownership of Game\n\n
@@ -2233,25 +2213,25 @@ class Twitch:
                             'after': after,
                             'first': first
                         }, remove_none=True)
-        response = self.__api_get_request(url, AuthType.EITHER, [])
-        data = make_fields_datetime(response.json(), ['timestamp'])
+        response = await self.__api_get_request(url, AuthType.EITHER, [])
+        data = make_fields_datetime(await response.json(), ['timestamp'])
         return data
 
-    def create_custom_reward(self,
-                             broadcaster_id: str,
-                             title: str,
-                             cost: int,
-                             prompt: Optional[str] = None,
-                             is_enabled: Optional[bool] = True,
-                             background_color: Optional[str] = None,
-                             is_user_input_required: Optional[bool] = False,
-                             is_max_per_stream_enabled: Optional[bool] = False,
-                             max_per_stream: Optional[int] = None,
-                             is_max_per_user_per_stream_enabled: Optional[bool] = False,
-                             max_per_user_per_stream: Optional[int] = None,
-                             is_global_cooldown_enabled: Optional[bool] = False,
-                             global_cooldown_seconds: Optional[int] = None,
-                             should_redemptions_skip_request_queue: Optional[bool] = False) -> dict:
+    async def create_custom_reward(self,
+                                   broadcaster_id: str,
+                                   title: str,
+                                   cost: int,
+                                   prompt: Optional[str] = None,
+                                   is_enabled: Optional[bool] = True,
+                                   background_color: Optional[str] = None,
+                                   is_user_input_required: Optional[bool] = False,
+                                   is_max_per_stream_enabled: Optional[bool] = False,
+                                   max_per_stream: Optional[int] = None,
+                                   is_max_per_user_per_stream_enabled: Optional[bool] = False,
+                                   max_per_user_per_stream: Optional[int] = None,
+                                   is_global_cooldown_enabled: Optional[bool] = False,
+                                   global_cooldown_seconds: Optional[int] = None,
+                                   should_redemptions_skip_request_queue: Optional[bool] = False) -> dict:
         """Creates a Custom Reward on a channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
@@ -2315,15 +2295,15 @@ class Twitch:
             'global_cooldown_seconds': global_cooldown_seconds,
             'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
         }.items() if y is not None}
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
-        if result.status_code == 403:
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
+        if result.status == 403:
             raise TwitchAPIException('Forbidden: Channel Points are not available for the broadcaster')
-        data = result.json()
+        data = await result.json()
         return make_fields_datetime(data, ['cooldown_expires_at'])
 
-    def delete_custom_reward(self,
-                             broadcaster_id: str,
-                             reward_id: str):
+    async def delete_custom_reward(self,
+                                   broadcaster_id: str,
+                                   reward_id: str):
         """Deletes a Custom Reward on a channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
@@ -2344,17 +2324,17 @@ class Twitch:
         url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
                         {'broadcaster_id': broadcaster_id,
                          'id': reward_id})
-        result = self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS])
+        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS])
 
-        if result.status_code == 200:
+        if result.status == 200:
             return
-        if result.status_code == 404:
+        if result.status == 404:
             raise NotFoundException()
 
-    def get_custom_reward(self,
-                          broadcaster_id: str,
-                          reward_id: Optional[Union[str,List[str]]] = None,
-                          only_manageable_rewards: Optional[bool] = False) -> dict:
+    async def get_custom_reward(self,
+                                broadcaster_id: str,
+                                reward_id: Optional[Union[str, List[str]]] = None,
+                                only_manageable_rewards: Optional[bool] = False) -> dict:
         """Returns a list of Custom Reward objects for the Custom Rewards on a channel.
         Developers only have access to update and delete rewards that the same/calling client_id created.
 
@@ -2386,17 +2366,17 @@ class Twitch:
                             'only_manageable_rewards': only_manageable_rewards
                         }, remove_none=True, split_lists=True)
 
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_REDEMPTIONS])
-        return make_fields_datetime(result.json(), ['cooldown_expires_at'])
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_REDEMPTIONS])
+        return make_fields_datetime(await result.json(), ['cooldown_expires_at'])
 
-    def get_custom_reward_redemption(self,
-                                     broadcaster_id: str,
-                                     reward_id: str,
-                                     id: Optional[List[str]] = None,
-                                     status: Optional[CustomRewardRedemptionStatus] = None,
-                                     sort: Optional[SortOrder] = SortOrder.OLDEST,
-                                     after: Optional[str] = None,
-                                     first: Optional[int] = 20) -> dict:
+    async def get_custom_reward_redemption(self,
+                                           broadcaster_id: str,
+                                           reward_id: str,
+                                           id: Optional[List[str]] = None,
+                                           status: Optional[CustomRewardRedemptionStatus] = None,
+                                           sort: Optional[SortOrder] = SortOrder.OLDEST,
+                                           after: Optional[str] = None,
+                                           first: Optional[int] = 20) -> dict:
         """Returns Custom Reward Redemption objects for a Custom Reward on a channel that was created by the
         same client_id.
 
@@ -2448,30 +2428,30 @@ class Twitch:
                             'after': after,
                             'first': first
                         }, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_REDEMPTIONS])
-        data = make_fields_datetime(result.json(), ['redeemed_at'])
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_REDEMPTIONS])
+        data = make_fields_datetime(await result.json(), ['redeemed_at'])
         data = fields_to_enum(data,
                               ['status'],
                               CustomRewardRedemptionStatus,
                               CustomRewardRedemptionStatus.CANCELED)
         return data
 
-    def update_custom_reward(self,
-                             broadcaster_id: str,
-                             reward_id: str,
-                             title: Optional[str] = None,
-                             prompt: Optional[str] = None,
-                             cost: Optional[int] = None,
-                             is_enabled: Optional[bool] = True,
-                             background_color: Optional[str] = None,
-                             is_user_input_required: Optional[bool] = False,
-                             is_max_per_stream_enabled: Optional[bool] = False,
-                             max_per_stream: Optional[int] = None,
-                             is_max_per_user_per_stream_enabled: Optional[bool] = False,
-                             max_per_user_per_stream: Optional[int] = None,
-                             is_global_cooldown_enabled: Optional[bool] = False,
-                             global_cooldown_seconds: Optional[int] = None,
-                             should_redemptions_skip_request_queue: Optional[bool] = False) -> dict:
+    async def update_custom_reward(self,
+                                   broadcaster_id: str,
+                                   reward_id: str,
+                                   title: Optional[str] = None,
+                                   prompt: Optional[str] = None,
+                                   cost: Optional[int] = None,
+                                   is_enabled: Optional[bool] = True,
+                                   background_color: Optional[str] = None,
+                                   is_user_input_required: Optional[bool] = False,
+                                   is_max_per_stream_enabled: Optional[bool] = False,
+                                   max_per_stream: Optional[int] = None,
+                                   is_max_per_user_per_stream_enabled: Optional[bool] = False,
+                                   max_per_user_per_stream: Optional[int] = None,
+                                   is_global_cooldown_enabled: Optional[bool] = False,
+                                   global_cooldown_seconds: Optional[int] = None,
+                                   should_redemptions_skip_request_queue: Optional[bool] = False) -> dict:
         """Updates a Custom Reward created on a channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
@@ -2539,20 +2519,20 @@ class Twitch:
             'global_cooldown_seconds': global_cooldown_seconds,
             'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
         }.items() if y is not None}
-        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
-        if result.status_code == 404:
+        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
+        if result.status == 404:
             raise ValueError('Custom reward does not exist with the given reward_id for the given broadcaster')
-        elif result.status_code == 403:
+        elif result.status == 403:
             raise TwitchAPIException('This custom reward was created by a different broadcaster or channel points are'
                                      'not available for the broadcaster')
-        data = result.json()
+        data = await result.json()
         return make_fields_datetime(data, ['cooldown_expires_at'])
 
-    def update_redemption_status(self,
-                                 broadcaster_id: str,
-                                 reward_id: str,
-                                 redemption_ids: Union[List[str], str],
-                                 status: CustomRewardRedemptionStatus) -> dict:
+    async def update_redemption_status(self,
+                                       broadcaster_id: str,
+                                       reward_id: str,
+                                       redemption_ids: Union[List[str], str],
+                                       status: CustomRewardRedemptionStatus) -> dict:
         """Updates the status of Custom Reward Redemption objects on a channel that
                 are in the :code:`UNFULFILLED` status.
 
@@ -2589,18 +2569,18 @@ class Twitch:
                             'reward_id': reward_id
                         }, split_lists=True)
         body = {'status': status.value}
-        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], data=body)
-        if result.status_code == 404:
+        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], data=body)
+        if result.status == 404:
             raise ValueError('no custom reward redemptions with the specified ids where found '
                              'with a status of UNFULFILLED')
-        if result.status_code == 403:
+        if result.status == 403:
             raise TwitchAPIException('This custom reward was created by a different broadcaster or channel points are'
                                      'not available for the broadcaster')
-        data = make_fields_datetime(result.json(), ['redeemed_at'])
+        data = make_fields_datetime(await result.json(), ['redeemed_at'])
         return fields_to_enum(data, ['status'], CustomRewardRedemptionStatus, CustomRewardRedemptionStatus.CANCELED)
 
-    def get_channel_editors(self,
-                            broadcaster_id: str) -> dict:
+    async def get_channel_editors(self,
+                                  broadcaster_id: str) -> dict:
         """Gets a list of users who have editor permissions for a specific channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_EDITORS`\n
@@ -2618,11 +2598,11 @@ class Twitch:
         """
 
         url = build_url(TWITCH_API_BASE_URL + 'channels/editors', {'broadcaster_id': broadcaster_id})
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_EDITORS])
-        return make_fields_datetime(result.json(), ['created_at'])
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_EDITORS])
+        return make_fields_datetime(await result.json(), ['created_at'])
 
-    def delete_videos(self,
-                      video_ids: List[str]) -> Union[bool, dict]:
+    async def delete_videos(self,
+                            video_ids: List[str]) -> Union[bool, dict]:
         """Deletes one or more videos. Videos are past broadcasts, Highlights, or uploads.
         Returns False if the User was not Authorized to delete at least one of the given videos.
 
@@ -2643,16 +2623,16 @@ class Twitch:
         if video_ids is None or len(video_ids) == 0 or len(video_ids) > 5:
             raise ValueError('video_ids must contain between 1 and 5 entries')
         url = build_url(TWITCH_API_BASE_URL + 'videos', {'id': video_ids}, split_lists=True)
-        result = self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_VIDEOS])
-        if result.status_code == 200:
-            return result.json()
+        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_VIDEOS])
+        if result.status == 200:
+            return await result.json()
         else:
             return False
 
-    def get_user_block_list(self,
-                            broadcaster_id: str,
-                            first: Optional[int] = 20,
-                            after: Optional[str] = None) -> dict:
+    async def get_user_block_list(self,
+                                  broadcaster_id: str,
+                                  first: Optional[int] = 20,
+                                  after: Optional[str] = None) -> dict:
         """Gets a specified user’s block list. The list is sorted by when the block occurred in descending order
         (i.e. most recent block first).
 
@@ -2679,13 +2659,13 @@ class Twitch:
                         {'broadcaster_id': broadcaster_id,
                          'first': first,
                          'after': after}, remove_none=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BLOCKED_USERS])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BLOCKED_USERS])
+        return await result.json()
 
-    def block_user(self,
-                   target_user_id: str,
-                   source_context: Optional[BlockSourceContext] = None,
-                   reason: Optional[BlockReason] = None) -> bool:
+    async def block_user(self,
+                         target_user_id: str,
+                         source_context: Optional[BlockSourceContext] = None,
+                         reason: Optional[BlockReason] = None) -> bool:
         """Blocks the specified user on behalf of the authenticated user.
 
          Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_MANAGE_BLOCKED_USERS`\n
@@ -2709,11 +2689,11 @@ class Twitch:
                          'source_context': enum_value_or_none(source_context),
                          'reason': enum_value_or_none(reason)},
                         remove_none=True)
-        result = self.__api_put_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
-        return result.status_code == 204
+        result = await self.__api_put_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
+        return result.status == 204
 
-    def unblock_user(self,
-                     target_user_id: str) -> bool:
+    async def unblock_user(self,
+                           target_user_id: str) -> bool:
         """Unblocks the specified user on behalf of the authenticated user.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_MANAGE_BLOCKED_USERS`\n
@@ -2730,13 +2710,13 @@ class Twitch:
         :rtype: bool
         """
         url = build_url(TWITCH_API_BASE_URL + 'users/blocks', {'target_user_id': target_user_id})
-        result = self.__api_delete_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
-        return result.status_code == 204
+        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
+        return result.status == 204
 
-    def get_followed_streams(self,
-                             user_id: str,
-                             after: Optional[str] = None,
-                             first: Optional[int] = 100) -> dict:
+    async def get_followed_streams(self,
+                                   user_id: str,
+                                   after: Optional[str] = None,
+                                   first: Optional[int] = 100) -> dict:
         """Gets information about active streams belonging to channels that the authenticated user follows.
         Streams are returned sorted by number of current viewers, in descending order.
         Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
@@ -2766,14 +2746,14 @@ class Twitch:
                             'after': after,
                             'first': first},
                         remove_none=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_FOLLOWS])
-        return make_fields_datetime(result.json(), ['started_at'])
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_FOLLOWS])
+        return make_fields_datetime(await result.json(), ['started_at'])
 
-    def get_polls(self,
-                  broadcaster_id: str,
-                  poll_id: Optional[str] = None,
-                  after: Optional[str] = None,
-                  first: Optional[int] = 20) -> dict:
+    async def get_polls(self,
+                        broadcaster_id: str,
+                        poll_id: Optional[str] = None,
+                        after: Optional[str] = None,
+                        first: Optional[int] = 20) -> dict:
         """Get information about all polls or specific polls for a Twitch channel.
         Poll information is available for 90 days.
 
@@ -2805,18 +2785,18 @@ class Twitch:
                             'first': first
                         },
                         remove_none=True)
-        result = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_POLLS]).json()
-        return make_fields_datetime(result, ['started_at', 'ended_at'])
+        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_POLLS])
+        return make_fields_datetime(await result.json(), ['started_at', 'ended_at'])
 
-    def create_poll(self,
-                    broadcaster_id: str,
-                    title: str,
-                    choices: List[str],
-                    duration: int,
-                    bits_voting_enabled: bool = False,
-                    bits_per_vote: Optional[int] = None,
-                    channel_points_voting_enabled: bool = False,
-                    channel_points_per_vote: Optional[int] = None) -> dict:
+    async def create_poll(self,
+                          broadcaster_id: str,
+                          title: str,
+                          choices: List[str],
+                          duration: int,
+                          bits_voting_enabled: bool = False,
+                          bits_per_vote: Optional[int] = None,
+                          channel_points_voting_enabled: bool = False,
+                          channel_points_per_vote: Optional[int] = None) -> dict:
         """Create a poll for a specific Twitch channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS`\n
@@ -2855,24 +2835,24 @@ class Twitch:
         if len(choices) < 0 or len(choices) > 5:
             raise ValueError('require between 2 and 5 choices')
         body = {k: v for k, v in {
-                    'broadcaster_id': broadcaster_id,
-                    'title': title,
-                    'choices': [{'title': x} for x in choices],
-                    'duration': duration,
-                    'bits_voting_enabled': bits_voting_enabled,
-                    'bits_per_vote': bits_per_vote,
-                    'channel_points_voting_enabled': channel_points_voting_enabled,
-                    'channel_points_per_vote': channel_points_per_vote
-                }.items() if v is not None}
+            'broadcaster_id': broadcaster_id,
+            'title': title,
+            'choices': [{'title': x} for x in choices],
+            'duration': duration,
+            'bits_voting_enabled': bits_voting_enabled,
+            'bits_per_vote': bits_per_vote,
+            'channel_points_voting_enabled': channel_points_voting_enabled,
+            'channel_points_per_vote': channel_points_per_vote
+        }.items() if v is not None}
 
         url = build_url(TWITCH_API_BASE_URL + 'polls', {})
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body).json()
-        return make_fields_datetime(result, ['started_at', 'ended_at'])
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body)
+        return make_fields_datetime(await result.json(), ['started_at', 'ended_at'])
 
-    def end_poll(self,
-                 broadcaster_id: str,
-                 poll_id: str,
-                 status: PollStatus) -> dict:
+    async def end_poll(self,
+                       broadcaster_id: str,
+                       poll_id: str,
+                       status: PollStatus) -> dict:
         """End a poll that is currently active.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS`\n
@@ -2899,15 +2879,15 @@ class Twitch:
             'id': poll_id,
             'status': status.value
         }
-        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body).json()
-        result = fields_to_enum(result, ['status'], PollStatus, PollStatus.ACTIVE)
+        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body)
+        result = fields_to_enum(await result.json(), ['status'], PollStatus, PollStatus.ACTIVE)
         return make_fields_datetime(result, ['started_at', 'ended_at'])
 
-    def get_predictions(self,
-                        broadcaster_id: str,
-                        prediction_ids: Optional[List[str]] = None,
-                        after: Optional[str] = None,
-                        first: Optional[int] = 20) -> dict:
+    async def get_predictions(self,
+                              broadcaster_id: str,
+                              prediction_ids: Optional[List[str]] = None,
+                              after: Optional[str] = None,
+                              first: Optional[int] = 20) -> dict:
         """Get information about all Channel Points Predictions or specific Channel Points Predictions for a Twitch channel.
         Results are ordered by most recent, so it can be assumed that the currently active or locked Prediction will be the first item.
 
@@ -2942,14 +2922,14 @@ class Twitch:
                             'after': after,
                             'first': first
                         }, remove_none=True, split_lists=True)
-        data = self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_PREDICTIONS])
-        return make_fields_datetime(data.json(), ['created_at', 'ended_at', 'locked_at'])
+        data = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_PREDICTIONS])
+        return make_fields_datetime(await data.json(), ['created_at', 'ended_at', 'locked_at'])
 
-    def create_prediction(self,
-                          broadcaster_id: str,
-                          title: str,
-                          outcomes: List[str],
-                          prediction_window: int) -> dict:
+    async def create_prediction(self,
+                                broadcaster_id: str,
+                                title: str,
+                                outcomes: List[str],
+                                prediction_window: int) -> dict:
         """Create a Channel Points Prediction for a specific Twitch channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS`\n
@@ -2981,14 +2961,14 @@ class Twitch:
             'prediction_window': prediction_window
         }
         url = build_url(TWITCH_API_BASE_URL + 'predictions', {})
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
-        return make_fields_datetime(result.json(), ['created_at', 'ended_at', 'locked_at'])
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
+        return make_fields_datetime(await result.json(), ['created_at', 'ended_at', 'locked_at'])
 
-    def end_prediction(self,
-                       broadcaster_id: str,
-                       prediction_id: str,
-                       status: PredictionStatus,
-                       winning_outcome_id: Optional[str] = None):
+    async def end_prediction(self,
+                             broadcaster_id: str,
+                             prediction_id: str,
+                             status: PredictionStatus,
+                             winning_outcome_id: Optional[str] = None):
         """Lock, resolve, or cancel a Channel Points Prediction.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS`\n
@@ -3022,12 +3002,12 @@ class Twitch:
         if winning_outcome_id is not None:
             body['winning_outcome_id'] = winning_outcome_id
         url = build_url(TWITCH_API_BASE_URL + 'predictions', {})
-        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
-        return make_fields_datetime(result.json(), ['created_at', 'ended_at', 'locked_at'])
+        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
+        return make_fields_datetime(await result.json(), ['created_at', 'ended_at', 'locked_at'])
 
-    def start_raid(self,
-                   from_broadcaster_id: str,
-                   to_broadcaster_id: str) -> dict:
+    async def start_raid(self,
+                         from_broadcaster_id: str,
+                         to_broadcaster_id: str) -> dict:
         """ Raid another channel by sending the broadcaster’s viewers to the targeted channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_RAIDS`\n
@@ -3049,11 +3029,11 @@ class Twitch:
                             'from_broadcaster_id': from_broadcaster_id,
                             'to_broadcaster_id': to_broadcaster_id
                         })
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS])
-        return make_fields_datetime(result.json(), ['created_at'])
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS])
+        return make_fields_datetime(await result.json(), ['created_at'])
 
-    def cancel_raid(self,
-                    broadcaster_id: str) -> bool:
+    async def cancel_raid(self,
+                          broadcaster_id: str) -> bool:
         """Cancel a pending raid.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_RAIDS`\n
@@ -3070,13 +3050,13 @@ class Twitch:
         :rtype: bool
         """
         url = build_url(TWITCH_API_BASE_URL + 'raids', {'broadcaster_id': broadcaster_id})
-        result = self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS])
-        return result.status_code == 204
+        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS])
+        return result.status == 204
 
-    def manage_held_automod_message(self,
-                                    user_id: str,
-                                    msg_id: str,
-                                    action: AutoModAction) -> bool:
+    async def manage_held_automod_message(self,
+                                          user_id: str,
+                                          msg_id: str,
+                                          action: AutoModAction) -> bool:
         """Allow or deny a message that was held for review by AutoMod.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_AUTOMOD`\n
@@ -3100,10 +3080,10 @@ class Twitch:
             'action': action.value
         }
         url = build_url(TWITCH_API_BASE_URL + 'moderation/automod/message', {})
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_AUTOMOD], data=body)
-        return result.status_code == 200
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_AUTOMOD], data=body)
+        return result.status == 200
 
-    def get_chat_badges(self, broadcaster_id: str) -> dict:
+    async def get_chat_badges(self, broadcaster_id: str) -> dict:
         """Gets a list of custom chat badges that can be used in chat for the specified channel.
 
         Requires User or App Authentication\n
@@ -3119,10 +3099,10 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'chat/badges', {'broadcaster_id': broadcaster_id})
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return await result.json()
 
-    def get_global_chat_badges(self) -> dict:
+    async def get_global_chat_badges(self) -> dict:
         """Gets a list of chat badges that can be used in chat for any channel.
 
         Requires User or App Authentication\n
@@ -3137,10 +3117,10 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'chat/badges/global', {})
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return await result.json()
 
-    def get_channel_emotes(self, broadcaster_id: str) -> dict:
+    async def get_channel_emotes(self, broadcaster_id: str) -> dict:
         """Gets all emotes that the specified Twitch channel created.
 
         Requires User or App Authentication\n
@@ -3157,10 +3137,10 @@ class Twitch:
         """
         url = build_url(TWITCH_API_BASE_URL + 'chat/emotes',
                         {'broadcaster_id': broadcaster_id})
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return await result.json()
 
-    def get_global_emotes(self) -> dict:
+    async def get_global_emotes(self) -> dict:
         """Gets all global emotes.
 
         Requires User or App Authentication\n
@@ -3175,10 +3155,10 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'chat/emotes/global', {})
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return await result.json()
 
-    def get_emote_sets(self, emote_set_id: List[str]) -> dict:
+    async def get_emote_sets(self, emote_set_id: List[str]) -> dict:
         """Gets emotes for one or more specified emote sets.
 
         Requires User or App Authentication\n
@@ -3194,10 +3174,10 @@ class Twitch:
         :rtype: dict
         """
         url = build_url(TWITCH_API_BASE_URL + 'chat/emotes/set', {'emote_set_id': emote_set_id}, split_lists=True)
-        result = self.__api_get_request(url, AuthType.EITHER, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return await result.json()
 
-    def delete_eventsub_subscription(self, subscription_id: str) -> bool:
+    async def delete_eventsub_subscription(self, subscription_id: str) -> bool:
         """Deletes an EventSub subscription.
 
         Requires App Authentication\n
@@ -3213,14 +3193,14 @@ class Twitch:
         :rtype: bool
         """
         url = build_url(TWITCH_API_BASE_URL + 'eventsub/subscriptions', {'id': subscription_id})
-        result = self.__api_delete_request(url, AuthType.APP, [])
-        return result.status_code == 204
+        result = await self.__api_delete_request(url, AuthType.APP, [])
+        return result.status == 204
 
-    def get_eventsub_subscriptions(self,
-                                   status: Optional[str] = None,
-                                   sub_type: Optional[str] = None,
-                                   user_id: Optional[str] = None,
-                                   after: Optional[str] = None):
+    async def get_eventsub_subscriptions(self,
+                                         status: Optional[str] = None,
+                                         sub_type: Optional[str] = None,
+                                         user_id: Optional[str] = None,
+                                         after: Optional[str] = None):
         """Gets a list of your EventSub subscriptions.
         The list is paginated and ordered by the oldest subscription first.
 
@@ -3246,16 +3226,16 @@ class Twitch:
                             'user_id': user_id,
                             'after': after
                         }, remove_none=True)
-        result = self.__api_get_request(url, AuthType.APP, [])
-        return result.json()
+        result = await self.__api_get_request(url, AuthType.APP, [])
+        return await result.json()
 
-    def get_channel_stream_schedule(self,
-                                    broadcaster_id: str,
-                                    stream_segment_ids: Optional[List[str]] = None,
-                                    start_time: Optional[datetime] = None,
-                                    utc_offset: Optional[str] = None,
-                                    first: Optional[int] = 20,
-                                    after: Optional[str] = None) -> dict:
+    async def get_channel_stream_schedule(self,
+                                          broadcaster_id: str,
+                                          stream_segment_ids: Optional[List[str]] = None,
+                                          start_time: Optional[datetime] = None,
+                                          utc_offset: Optional[str] = None,
+                                          first: Optional[int] = 20,
+                                          after: Optional[str] = None) -> dict:
         """Gets all scheduled broadcasts or specific scheduled broadcasts from a channel’s stream schedule.
 
         Requires App or User Authentication\n
@@ -3290,10 +3270,10 @@ class Twitch:
                             'first': first,
                             'after': after
                         }, remove_none=True, split_lists=True)
-        result = self.__api_get_request(url, AuthType.EITHER, []).json()
-        return make_fields_datetime(result, ['start_time', 'end_time'])
+        result = await self.__api_get_request(url, AuthType.EITHER, [])
+        return make_fields_datetime(await result.json(), ['start_time', 'end_time'])
 
-    def get_channel_icalendar(self, broadcaster_id: str) -> str:
+    async def get_channel_icalendar(self, broadcaster_id: str) -> str:
         """Gets all scheduled broadcasts from a channel’s stream schedule as an iCalendar.
 
         Does not require Authorization\n
@@ -3306,14 +3286,15 @@ class Twitch:
         :rtype: str
         """
         url = build_url(TWITCH_API_BASE_URL + 'schedule/icalendar', {'broadcaster_id': broadcaster_id})
-        return self.__api_get_request(url, AuthType.NONE, []).text
+        response = await self.__api_get_request(url, AuthType.NONE, [])
+        return await response.text()
 
-    def update_channel_stream_schedule(self,
-                                       broadcaster_id: str,
-                                       is_vacation_enabled: Optional[bool] = None,
-                                       vacation_start_time: Optional[datetime] = None,
-                                       vacation_end_time: Optional[datetime] = None,
-                                       timezone: Optional[str] = None) -> bool:
+    async def update_channel_stream_schedule(self,
+                                             broadcaster_id: str,
+                                             is_vacation_enabled: Optional[bool] = None,
+                                             vacation_start_time: Optional[datetime] = None,
+                                             vacation_end_time: Optional[datetime] = None,
+                                             timezone: Optional[str] = None) -> bool:
         """Update the settings for a channel’s stream schedule. This can be used for setting vacation details.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
@@ -3341,16 +3322,16 @@ class Twitch:
                             'vacation_end_time': datetime_to_str(vacation_end_time),
                             'timezone': timezone
                         }, remove_none=True)
-        return self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE]).status_code == 200
+        return (await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE])).status == 200
 
-    def create_channel_stream_schedule_segment(self,
-                                               broadcaster_id: str,
-                                               start_time: datetime,
-                                               timezone: str,
-                                               is_recurring: bool,
-                                               duration: Optional[str] = None,
-                                               category_id: Optional[str] = None,
-                                               title: Optional[str] = None) -> dict:
+    async def create_channel_stream_schedule_segment(self,
+                                                     broadcaster_id: str,
+                                                     start_time: datetime,
+                                                     timezone: str,
+                                                     is_recurring: bool,
+                                                     duration: Optional[str] = None,
+                                                     category_id: Optional[str] = None,
+                                                     title: Optional[str] = None) -> dict:
         """Create a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
@@ -3381,18 +3362,18 @@ class Twitch:
             'category_id': category_id,
             'title': title
         })
-        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE], data=body).json()
-        return make_fields_datetime(result, ['start_time', 'end_time'])
+        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE], data=body)
+        return make_fields_datetime(await result.json(), ['start_time', 'end_time'])
 
-    def update_channel_stream_schedule_segment(self,
-                                               broadcaster_id: str,
-                                               stream_segment_id: str,
-                                               start_time: Optional[datetime] = None,
-                                               duration: Optional[str] = None,
-                                               category_id: Optional[str] = None,
-                                               title: Optional[str] = None,
-                                               is_canceled: Optional[bool] = None,
-                                               timezone: Optional[str] = None) -> dict:
+    async def update_channel_stream_schedule_segment(self,
+                                                     broadcaster_id: str,
+                                                     stream_segment_id: str,
+                                                     start_time: Optional[datetime] = None,
+                                                     duration: Optional[str] = None,
+                                                     category_id: Optional[str] = None,
+                                                     title: Optional[str] = None,
+                                                     is_canceled: Optional[bool] = None,
+                                                     timezone: Optional[str] = None) -> dict:
         """Update a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
@@ -3428,12 +3409,12 @@ class Twitch:
             'is_canceled': is_canceled,
             'timezone': timezone
         })
-        result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE], data=body)
-        return make_fields_datetime(result.json(), ['start_time', 'end_time'])
+        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE], data=body)
+        return make_fields_datetime(await result.json(), ['start_time', 'end_time'])
 
-    def delete_channel_stream_schedule_segment(self,
-                                               broadcaster_id: str,
-                                               stream_segment_id: str) -> bool:
+    async def delete_channel_stream_schedule_segment(self,
+                                                     broadcaster_id: str,
+                                                     stream_segment_id: str) -> bool:
         """Delete a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
@@ -3455,11 +3436,11 @@ class Twitch:
                             'broadcaster_id': broadcaster_id,
                             'id': stream_segment_id
                         })
-        return self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE]).status_code == 204
+        return (await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE])).status == 204
 
-    def update_drops_entitlements(self,
-                                  entitlement_ids: List[str],
-                                  fulfillment_status: EntitlementFulfillmentStatus) -> dict:
+    async def update_drops_entitlements(self,
+                                        entitlement_ids: List[str],
+                                        fulfillment_status: EntitlementFulfillmentStatus) -> dict:
         """Updates the fulfillment status on a set of Drops entitlements, specified by their entitlement IDs.
 
         Requires User or App Authentication\n
@@ -3483,5 +3464,5 @@ class Twitch:
             'entitlement_ids': entitlement_ids,
             'fulfillment_status': fulfillment_status.value
         })
-        return self.__api_patch_request(url, AuthType.EITHER, [], data=body).json()
-
+        response = await self.__api_patch_request(url, AuthType.EITHER, [], data=body)
+        return await response.json()
