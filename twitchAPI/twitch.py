@@ -3025,6 +3025,33 @@ class Twitch:
         result = self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
         return make_fields_datetime(result.json(), ['created_at', 'ended_at', 'locked_at'])
 
+    def start_raid(self,
+                   from_broadcaster_id: str,
+                   to_broadcaster_id: str) -> dict:
+        """ Raid another channel by sending the broadcaster’s viewers to the targeted channel.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_RAIDS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#start-a-raid
+
+        :param str from_broadcaster_id: The ID of the broadcaster that's sending the raiding party.
+        :param str to_broadcaster_id: The ID of the broadcaster to raid.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: dict
+        """
+        url = build_url(TWITCH_API_BASE_URL + 'raids',
+                        {
+                            'from_broadcaster_id': from_broadcaster_id,
+                            'to_broadcaster_id': to_broadcaster_id
+                        })
+        result = self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS])
+        return make_fields_datetime(result.json(), ['created_at'])
+
     def manage_held_automod_message(self,
                                     user_id: str,
                                     msg_id: str,
