@@ -3219,6 +3219,7 @@ class Twitch:
     def get_eventsub_subscriptions(self,
                                    status: Optional[str] = None,
                                    sub_type: Optional[str] = None,
+                                   user_id: Optional[str] = None,
                                    after: Optional[str] = None):
         """Gets a list of your EventSub subscriptions.
         The list is paginated and ordered by the oldest subscription first.
@@ -3228,6 +3229,7 @@ class Twitch:
 
         :param str status: Filter subscriptions by its status. |default| :code:`None`
         :param str sub_type: Filter subscriptions by subscription type. |default| :code:`None`
+        :param str user_id: Filter subscriptions by user ID. |default| :code:`None`
         :param str after: The cursor used to get the next page of results. |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
@@ -3241,6 +3243,7 @@ class Twitch:
                         {
                             'status': status,
                             'type': sub_type,
+                            'user_id': user_id,
                             'after': after
                         }, remove_none=True)
         result = self.__api_get_request(url, AuthType.APP, [])
