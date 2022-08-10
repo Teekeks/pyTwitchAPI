@@ -3,7 +3,7 @@
 
 import urllib.parse
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Coroutine, Any
 from json import JSONDecodeError
 from aiohttp.web import Request
 from dateutil import parser as du_parser
@@ -11,8 +11,7 @@ from enum import Enum
 from .types import AuthScope
 from urllib.parse import urlparse, parse_qs
 
-if TYPE_CHECKING:
-    from typing import Union, List, Type, Optional, Callable, Generator
+from typing import Union, List, Type, Optional, Callable, Generator
 
 __all__ = ['TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 'TWITCH_CHAT_URL',
            'extract_uuid_str_from_url', 'build_url', 'get_uuid', 'get_json', 'make_fields_datetime', 'build_scope', 'fields_to_enum', 'make_enum',
@@ -205,7 +204,7 @@ def remove_none_values(d: dict) -> dict:
     return {k: v for k, v in d.items() if v is not None}
 
 
-def paginator(func: Callable[..., dict], *args, **kwargs) -> Generator[dict, None, None]:
+async def paginator(func: Callable[..., Coroutine], *args, **kwargs) -> Generator[dict, None, None]:
     """Generator which allows to automatically paginate forwards for functions that allow that functionality.
     Pass any arguments you would pass to the specified function to this function.
 
@@ -219,9 +218,9 @@ def paginator(func: Callable[..., dict], *args, **kwargs) -> Generator[dict, Non
     """
     if 'after' not in func.__code__.co_varnames:
         raise ValueError('The passed function does not support forward pagination')
-    result = func(*args, **kwargs)
+    result = await func(*args, **kwargs)
     yield result
     while result.get('pagination', {}).get('cursor') is not None:
         pag = result.get('pagination', {}).get('cursor')
-        result = func(*args, after=pag, **kwargs)
+        result = await func(*args, after=pag, **kwargs)
         yield result
