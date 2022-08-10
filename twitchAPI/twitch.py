@@ -125,8 +125,7 @@ from datetime import datetime
 from logging import getLogger, Logger
 from .types import *
 
-if TYPE_CHECKING:
-    from typing import Union, List, Optional, Callable
+from typing import Union, List, Optional, Callable
 
 __all__ = ['Twitch']
 
@@ -152,7 +151,8 @@ class Twitch:
                  app_id: str,
                  app_secret: Optional[str] = None,
                  authenticate_app: bool = True,
-                 target_app_auth_scope: Optional[List[AuthScope]] = None):
+                 target_app_auth_scope: Optional[List[AuthScope]] = None,
+                 base_url: str = TWITCH_API_BASE_URL):
         self.app_id: Optional[str] = app_id
         self.app_secret: Optional[str] = app_secret
         self.__logger: Logger = getLogger('twitchAPI.twitch')
@@ -167,8 +167,19 @@ class Twitch:
         self.__user_auth_scope: List[AuthScope] = []
         self.__has_user_auth: bool = False
         self.auto_refresh_auth: bool = True
-        if authenticate_app:
-            self.authenticate_app(target_app_auth_scope if target_app_auth_scope is not None else [])
+        self._authenticate_app = authenticate_app
+        self._target_app_scope = target_app_auth_scope
+        self.base_url = base_url
+
+    def __await__(self):
+        if self._authenticate_app:
+            t = asyncio.create_task(self.authenticate_app(self._target_app_scope if self._target_app_scope is not None else []))
+            yield from t
+        return self
+
+    async def close(self):
+        if self._session is not None:
+            await self._session.close()
 
     def __generate_header(self, auth_type: 'AuthType', required_scope: List[AuthScope]) -> dict:
         header = {"Client-ID": self.app_id}
@@ -417,6 +428,14 @@ class Twitch:
         await self.__generate_app_token()
         self.__has_app_auth = True
 
+    def set_app_authentication(self,
+                               token,
+                               scope: List[AuthScope]):
+        # TODO annotate
+        self.__app_auth_token = token
+        self.__app_auth_scope = scope
+        self.__has_app_auth = True
+
     def set_user_authentication(self,
                                 token: str,
                                 scope: List[AuthScope],
@@ -533,7 +552,7 @@ class Twitch:
             'started_at': datetime_to_str(started_at),
             'type': enum_value_or_none(report_type)
         }
-        url = build_url(TWITCH_API_BASE_URL + 'analytics/extensions',
+        url = build_url(self.base_url + 'analytics/extensions',
                         url_params,
                         remove_none=True)
         response = await self.__api_get_request(url, AuthType.USER, required_scope=[AuthScope.ANALYTICS_READ_EXTENSION])
@@ -587,7 +606,7 @@ class Twitch:
             'started_at': datetime_to_str(started_at),
             'type': enum_value_or_none(report_type)
         }
-        url = build_url(TWITCH_API_BASE_URL + 'analytics/games',
+        url = build_url(self.base_url + 'analytics/games',
                         url_params,
                         remove_none=True)
         response = await self.__api_get_request(url, AuthType.USER, [AuthScope.ANALYTICS_READ_GAMES])
@@ -609,7 +628,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'goals', {'broadcaster_id': broadcaster_id})
+        url = build_url(self.base_url + 'goals', {'broadcaster_id': broadcaster_id})
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_GOALS])
         data = await result.json()
         return make_fields_datetime(data, ['created_at'])
@@ -648,7 +667,7 @@ class Twitch:
             'started_at': datetime_to_str(started_at),
             'user_id': user_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'bits/leaderboard', url_params, remove_none=True)
+        url = build_url(self.base_url + 'bits/leaderboard', url_params, remove_none=True)
         response = await self.__api_get_request(url, AuthType.USER, [AuthScope.BITS_READ])
         data = await response.json()
         return make_fields_datetime(data, ['ended_at', 'started_at'])
@@ -689,7 +708,7 @@ class Twitch:
             'after': after,
             'first': first
         }
-        url = build_url(TWITCH_API_BASE_URL + 'extensions/transactions', url_param, remove_none=True, split_lists=True)
+        url = build_url(self.base_url + 'extensions/transactions', url_param, remove_none=True, split_lists=True)
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         data = await result.json()
         return make_fields_datetime(data, ['timestamp'])
@@ -716,7 +735,7 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'moderator_id': moderator_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'chat/settings', url_param, remove_none=True)
+        url = build_url(self.base_url + 'chat/settings', url_param, remove_none=True)
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return await result.json()
 
@@ -773,7 +792,7 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'moderator_id': moderator_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'chat/settings', url_param, remove_none=True)
+        url = build_url(self.base_url + 'chat/settings', url_param, remove_none=True)
         body = remove_none_values({
             'emote_mode': emote_mode,
             'follower_mode': follower_mode,
@@ -812,7 +831,7 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'has_delay': has_delay
         }
-        url = build_url(TWITCH_API_BASE_URL + 'clips', param)
+        url = build_url(self.base_url + 'clips', param)
         result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CLIPS_EDIT])
         return await result.json()
 
@@ -865,7 +884,7 @@ class Twitch:
             'ended_at': datetime_to_str(ended_at),
             'started_at': datetime_to_str(started_at)
         }
-        url = build_url(TWITCH_API_BASE_URL + 'clips', param, split_lists=True, remove_none=True)
+        url = build_url(self.base_url + 'clips', param, split_lists=True, remove_none=True)
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         data = await result.json()
         return make_fields_datetime(data, ['created_at'])
@@ -895,7 +914,7 @@ class Twitch:
             'code': code,
             'user_id': user_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'entitlements/codes', param, split_lists=True)
+        url = build_url(self.base_url + 'entitlements/codes', param, split_lists=True)
         result = await self.__api_get_request(url, AuthType.APP, [])
         data = await result.json()
         return fields_to_enum(data, ['status'], CodeStatus, CodeStatus.UNKNOWN_VALUE)
@@ -925,7 +944,7 @@ class Twitch:
             'code': code,
             'user_id': user_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'entitlements/code', param, split_lists=True)
+        url = build_url(self.base_url + 'entitlements/code', param, split_lists=True)
         result = await self.__api_post_request(url, AuthType.APP, [])
         data = await result.json()
         return fields_to_enum(data, ['status'], CodeStatus, CodeStatus.UNKNOWN_VALUE)
@@ -957,7 +976,7 @@ class Twitch:
             'before': before,
             'first': first
         }
-        url = build_url(TWITCH_API_BASE_URL + 'games/top', param, remove_none=True)
+        url = build_url(self.base_url + 'games/top', param, remove_none=True)
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return await result.json()
 
@@ -990,7 +1009,7 @@ class Twitch:
             'id': game_ids,
             'name': names
         }
-        url = build_url(TWITCH_API_BASE_URL + 'games', param, remove_none=True, split_lists=True)
+        url = build_url(self.base_url + 'games', param, remove_none=True, split_lists=True)
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return await result.json()
 
@@ -1012,7 +1031,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/enforcements/status',
+        url = build_url(self.base_url + 'moderation/enforcements/status',
                         {'broadcaster_id': broadcaster_id})
         body = {'data': automod_check_entries}
         result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATION_READ], data=body)
@@ -1050,7 +1069,7 @@ class Twitch:
             'after': after,
             'first': first
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/banned/events', param, remove_none=True)
+        url = build_url(self.base_url + 'moderation/banned/events', param, remove_none=True)
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
         data = fields_to_enum(await result.json(), ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
         data = make_fields_datetime(data, ['event_timestamp', 'expires_at'])
@@ -1091,7 +1110,7 @@ class Twitch:
             'first': first,
             'before': before
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/banned', param, remove_none=True)
+        url = build_url(self.base_url + 'moderation/banned', param, remove_none=True)
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
         return make_fields_datetime(await result.json(), ['expires_at', 'created_at'])
 
@@ -1132,7 +1151,7 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'moderator_id': moderator_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/bans', param, remove_none=False)
+        url = build_url(self.base_url + 'moderation/bans', param, remove_none=False)
         body = {
             'data': remove_none_values({
                 'duration': duration,
@@ -1169,7 +1188,7 @@ class Twitch:
             'moderator_id': moderator_id,
             'user_id': user_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/bans', param)
+        url = build_url(self.base_url + 'moderation/bans', param)
         result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS])
         return result.status == 204
 
@@ -1206,7 +1225,7 @@ class Twitch:
             'first': first,
             'after': after
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/blocked_terms', param, remove_none=True)
+        url = build_url(self.base_url + 'moderation/blocked_terms', param, remove_none=True)
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATOR_READ_BLOCKED_TERMS])
         return make_fields_datetime(await result.json(), ['created_at', 'expires_at', 'updated_at'])
 
@@ -1238,7 +1257,7 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'moderator_id': moderator_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/blocked_terms', param)
+        url = build_url(self.base_url + 'moderation/blocked_terms', param)
         body = {'text': text}
         result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS], data=body)
         return make_fields_datetime(await result.json(), ['created_at', 'expires_at', 'updated_at'])
@@ -1269,7 +1288,7 @@ class Twitch:
             'moderator_id': moderator_id,
             'id': term_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/blocked_terms', param)
+        url = build_url(self.base_url + 'moderation/blocked_terms', param)
         result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS])
         return result.status == 204
 
@@ -1308,7 +1327,7 @@ class Twitch:
             'first': first,
             'after': after
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators', param, remove_none=True, split_lists=True)
+        url = build_url(self.base_url + 'moderation/moderators', param, remove_none=True, split_lists=True)
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
         return await result.json()
 
@@ -1347,7 +1366,7 @@ class Twitch:
             'after': after,
             'first': first
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/moderators/events', param, remove_none=True, split_lists=True)
+        url = build_url(self.base_url + 'moderation/moderators/events', param, remove_none=True, split_lists=True)
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
         data = await result.json()
         data = fields_to_enum(data, ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
@@ -1376,7 +1395,7 @@ class Twitch:
         """
         if description is not None and len(description) > 140:
             raise ValueError('max length for description is 140')
-        url = build_url(TWITCH_API_BASE_URL + 'streams/markers', {})
+        url = build_url(self.base_url + 'streams/markers', {})
         body = {'user_id': user_id}
         if description is not None:
             body['description'] = description
@@ -1437,7 +1456,7 @@ class Twitch:
             'user_id': user_id,
             'user_login': user_login
         }
-        url = build_url(TWITCH_API_BASE_URL + 'streams', param, remove_none=True, split_lists=True)
+        url = build_url(self.base_url + 'streams', param, remove_none=True, split_lists=True)
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         data = await result.json()
         return make_fields_datetime(data, ['started_at'])
@@ -1482,7 +1501,7 @@ class Twitch:
             'before': before,
             'first': first
         }
-        url = build_url(TWITCH_API_BASE_URL + 'streams/markers', param, remove_none=True)
+        url = build_url(self.base_url + 'streams/markers', param, remove_none=True)
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
         return make_fields_datetime(await result.json(), ['created_at'])
 
@@ -1521,7 +1540,7 @@ class Twitch:
             'first': first,
             'after': after
         }
-        url = build_url(TWITCH_API_BASE_URL + 'subscriptions', param, remove_none=True, split_lists=True)
+        url = build_url(self.base_url + 'subscriptions', param, remove_none=True, split_lists=True)
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_SUBSCRIPTIONS])
         return await result.json()
 
@@ -1548,7 +1567,7 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'user_id': user_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'subscriptions/user', param)
+        url = build_url(self.base_url + 'subscriptions/user', param)
         result = await self.__api_get_request(url, AuthType.EITHER, [AuthScope.USER_READ_SUBSCRIPTIONS])
         return await result.json()
 
@@ -1581,7 +1600,7 @@ class Twitch:
             'first': first,
             'tag_id': tag_ids
         }
-        url = build_url(TWITCH_API_BASE_URL + 'tags/streams', param, remove_none=True, split_lists=True)
+        url = build_url(self.base_url + 'tags/streams', param, remove_none=True, split_lists=True)
         result = await self.__api_get_request(url, AuthType.APP, [])
         return await result.json()
 
@@ -1600,7 +1619,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
+        url = build_url(self.base_url + 'streams/tags', {'broadcaster_id': broadcaster_id})
         result = await self.__api_get_request(url, AuthType.USER, [])
         return await result.json()
 
@@ -1628,7 +1647,7 @@ class Twitch:
         """
         if len(tag_ids) > 100:
             raise ValueError('tag_ids can not have more than 100 entries')
-        url = build_url(TWITCH_API_BASE_URL + 'streams/tags', {'broadcaster_id': broadcaster_id})
+        url = build_url(self.base_url + 'streams/tags', {'broadcaster_id': broadcaster_id})
         await self.__api_put_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data={'tag_ids': tag_ids})
         # this returns nothing
         return {}
@@ -1649,7 +1668,7 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         """
-        url = build_url(TWITCH_API_BASE_URL + 'teams/channel', {'broadcaster_id': broadcaster_id})
+        url = build_url(self.base_url + 'teams/channel', {'broadcaster_id': broadcaster_id})
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return make_fields_datetime(await result.json(), ['created_at', 'updated_at'])
 
@@ -1681,7 +1700,7 @@ class Twitch:
             'id': team_id,
             'name': name
         }
-        url = build_url(TWITCH_API_BASE_URL + 'teams', param, remove_none=True, split_lists=True)
+        url = build_url(self.base_url + 'teams', param, remove_none=True, split_lists=True)
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return make_fields_datetime(await result.json(), ['created_at', 'updated_at'])
 
@@ -1717,7 +1736,7 @@ class Twitch:
             'id': user_ids,
             'login': logins
         }
-        url = build_url(TWITCH_API_BASE_URL + 'users', url_params, remove_none=True, split_lists=True)
+        url = build_url(self.base_url + 'users', url_params, remove_none=True, split_lists=True)
         response = await self.__api_get_request(url,
                                                 AuthType.USER if (user_ids is None or len(user_ids) == 0) and (
                                                         logins is None or len(logins) == 0) else AuthType.EITHER,
@@ -1760,7 +1779,7 @@ class Twitch:
             'from_id': from_id,
             'to_id': to_id
         }
-        url = build_url(TWITCH_API_BASE_URL + 'users/follows', param, remove_none=True)
+        url = build_url(self.base_url + 'users/follows', param, remove_none=True)
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return make_fields_datetime(await result.json(), ['followed_at'])
 
@@ -1780,7 +1799,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'users', {'description': description})
+        url = build_url(self.base_url + 'users', {'description': description})
         result = await self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT])
         return await result.json()
 
@@ -1798,7 +1817,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'users/extensions/list', {})
+        url = build_url(self.base_url + 'users/extensions/list', {})
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
         return await result.json()
 
@@ -1819,7 +1838,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {'user_id': user_id}, remove_none=True)
+        url = build_url(self.base_url + 'users/extensions', {'user_id': user_id}, remove_none=True)
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
         return await result.json()
 
@@ -1840,7 +1859,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'users/extensions', {})
+        url = build_url(self.base_url + 'users/extensions', {})
         result = await self.__api_put_request(url,
                                               AuthType.USER,
                                               [AuthScope.USER_EDIT_BROADCAST],
@@ -1904,7 +1923,7 @@ class Twitch:
             'sort': sort.value,
             'type': video_type.value
         }
-        url = build_url(TWITCH_API_BASE_URL + 'videos', param, remove_none=True, split_lists=True)
+        url = build_url(self.base_url + 'videos', param, remove_none=True, split_lists=True)
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         data = await result.json()
         data = make_fields_datetime(data, ['created_at', 'published_at'])
@@ -1931,7 +1950,7 @@ class Twitch:
         """
         if first < 1 or first > 100:
             raise ValueError('first must be in range 1 to 100')
-        url = build_url(TWITCH_API_BASE_URL + 'webhooks/subscriptions',
+        url = build_url(self.base_url + 'webhooks/subscriptions',
                         {'first': first, 'after': after},
                         remove_none=True)
         response = await self.__api_get_request(url, AuthType.APP, [])
@@ -1957,7 +1976,7 @@ class Twitch:
         if isinstance(broadcaster_id, list):
             if len(broadcaster_id) == 0 or len(broadcaster_id) > 100:
                 raise ValueError('broadcaster_id has to have between 1 and 100 entries')
-        url = build_url(TWITCH_API_BASE_URL + 'channels', {'broadcaster_id': broadcaster_id}, split_lists=True)
+        url = build_url(self.base_url + 'channels', {'broadcaster_id': broadcaster_id}, split_lists=True)
         response = await self.__api_get_request(url, AuthType.EITHER, [])
         return await response.json()
 
@@ -1992,7 +2011,7 @@ class Twitch:
             raise ValueError('You need to specify at least one of the optional parameter')
         if title is not None and len(title) == 0:
             raise ValueError('title cant be a empty string')
-        url = build_url(TWITCH_API_BASE_URL + 'channels',
+        url = build_url(self.base_url + 'channels',
                         {'broadcaster_id': broadcaster_id}, remove_none=True)
         body = {k: v for k, v in {'game_id': game_id,
                                   'broadcaster_language': broadcaster_language,
@@ -2026,7 +2045,7 @@ class Twitch:
         """
         if first < 1 or first > 100:
             raise ValueError('first must be between 1 and 100')
-        url = build_url(TWITCH_API_BASE_URL + 'search/channels',
+        url = build_url(self.base_url + 'search/channels',
                         {'query': query,
                          'first': first,
                          'after': after,
@@ -2056,7 +2075,7 @@ class Twitch:
         """
         if first < 1 or first > 100:
             raise ValueError('first must be between 1 and 100')
-        url = build_url(TWITCH_API_BASE_URL + 'search/categories',
+        url = build_url(self.base_url + 'search/categories',
                         {'query': query,
                          'first': first,
                          'after': after}, remove_none=True)
@@ -2079,7 +2098,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'streams/key', {'broadcaster_id': broadcaster_id})
+        url = build_url(self.base_url + 'streams/key', {'broadcaster_id': broadcaster_id})
         response = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_STREAM_KEY])
         return await response.json()
 
@@ -2104,7 +2123,7 @@ class Twitch:
         """
         if length not in [30, 60, 90, 120, 150, 180]:
             raise ValueError('length needs to be one of these: [30, 60, 90, 120, 150, 180]')
-        url = build_url(TWITCH_API_BASE_URL + 'channels/commercial',
+        url = build_url(self.base_url + 'channels/commercial',
                         {'broadcaster_id': broadcaster_id,
                          'length': length})
         response = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_EDIT_COMMERCIAL])
@@ -2126,7 +2145,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'bits/cheermotes',
+        url = build_url(self.base_url + 'bits/cheermotes',
                         {'broadcaster_id': broadcaster_id})
         response = await self.__api_get_request(url, AuthType.EITHER, [])
         return make_fields_datetime(await response.json(), ['last_updated'])
@@ -2159,7 +2178,7 @@ class Twitch:
         """
         if first < 1 or first > 100:
             raise ValueError('first must be between 1 and 100')
-        url = build_url(TWITCH_API_BASE_URL + 'hypetrain/events',
+        url = build_url(self.base_url + 'hypetrain/events',
                         {'broadcaster_id': broadcaster_id,
                          'first': first,
                          'id': id,
@@ -2205,7 +2224,7 @@ class Twitch:
         if auth_type == AuthType.USER:
             if user_id is not None:
                 raise ValueError('cant use user_id when using User Authentication')
-        url = build_url(TWITCH_API_BASE_URL + 'entitlements/drops',
+        url = build_url(self.base_url + 'entitlements/drops',
                         {
                             'id': id,
                             'user_id': user_id,
@@ -2278,7 +2297,7 @@ class Twitch:
         if is_max_per_user_per_stream_enabled and max_per_user_per_stream is None:
             raise ValueError('please specify max_per_user_per_stream')
 
-        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
+        url = build_url(self.base_url + 'channel_points/custom_rewards',
                         {'broadcaster_id': broadcaster_id})
         body = {x: y for x, y in {
             'title': title,
@@ -2321,7 +2340,7 @@ class Twitch:
         :raises ~twitchAPI.types.NotFoundException: if the broadcaster has no custom reward with the given id
         """
 
-        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
+        url = build_url(self.base_url + 'channel_points/custom_rewards',
                         {'broadcaster_id': broadcaster_id,
                          'id': reward_id})
         result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS])
@@ -2359,7 +2378,7 @@ class Twitch:
 
         if reward_id is not None and isinstance(reward_id, list) and len(reward_id) > 50:
             raise ValueError('reward_id can not contain more than 50 entries')
-        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
+        url = build_url(self.base_url + 'channel_points/custom_rewards',
                         {
                             'broadcaster_id': broadcaster_id,
                             'id': reward_id,
@@ -2418,7 +2437,7 @@ class Twitch:
         if status is None and id is None:
             raise ValueError('you have to set at least one of status or id')
 
-        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards/redemptions',
+        url = build_url(self.base_url + 'channel_points/custom_rewards/redemptions',
                         {
                             'broadcaster_id': broadcaster_id,
                             'reward_id': reward_id,
@@ -2501,7 +2520,7 @@ class Twitch:
         if is_max_per_user_per_stream_enabled and max_per_user_per_stream is None:
             raise ValueError('please specify max_per_user_per_stream')
 
-        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards',
+        url = build_url(self.base_url + 'channel_points/custom_rewards',
                         {'broadcaster_id': broadcaster_id,
                          'id': reward_id})
         body = {x: y for x, y in {
@@ -2562,7 +2581,7 @@ class Twitch:
         if isinstance(redemption_ids, list) and len(redemption_ids) > 50:
             raise ValueError('redemption_ids cant have more than 50 entries')
 
-        url = build_url(TWITCH_API_BASE_URL + 'channel_points/custom_rewards/redemptions',
+        url = build_url(self.base_url + 'channel_points/custom_rewards/redemptions',
                         {
                             'id': redemption_ids,
                             'broadcaster_id': broadcaster_id,
@@ -2597,7 +2616,7 @@ class Twitch:
         :rtype: dict
         """
 
-        url = build_url(TWITCH_API_BASE_URL + 'channels/editors', {'broadcaster_id': broadcaster_id})
+        url = build_url(self.base_url + 'channels/editors', {'broadcaster_id': broadcaster_id})
         result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_EDITORS])
         return make_fields_datetime(await result.json(), ['created_at'])
 
@@ -2622,7 +2641,7 @@ class Twitch:
         """
         if video_ids is None or len(video_ids) == 0 or len(video_ids) > 5:
             raise ValueError('video_ids must contain between 1 and 5 entries')
-        url = build_url(TWITCH_API_BASE_URL + 'videos', {'id': video_ids}, split_lists=True)
+        url = build_url(self.base_url + 'videos', {'id': video_ids}, split_lists=True)
         result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_VIDEOS])
         if result.status == 200:
             return await result.json()
@@ -2655,7 +2674,7 @@ class Twitch:
 
         if first < 1 or first > 100:
             raise ValueError('first must be in range 1 to 100')
-        url = build_url(TWITCH_API_BASE_URL + 'users/blocks',
+        url = build_url(self.base_url + 'users/blocks',
                         {'broadcaster_id': broadcaster_id,
                          'first': first,
                          'after': after}, remove_none=True)
@@ -2684,7 +2703,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(TWITCH_API_BASE_URL + 'users/blocks',
+        url = build_url(self.base_url + 'users/blocks',
                         {'target_user_id': target_user_id,
                          'source_context': enum_value_or_none(source_context),
                          'reason': enum_value_or_none(reason)},
@@ -2709,7 +2728,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(TWITCH_API_BASE_URL + 'users/blocks', {'target_user_id': target_user_id})
+        url = build_url(self.base_url + 'users/blocks', {'target_user_id': target_user_id})
         result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
         return result.status == 204
 
@@ -2740,7 +2759,7 @@ class Twitch:
         """
         if first < 1 or first > 100:
             raise ValueError('first must be in range 1 to 100')
-        url = build_url(TWITCH_API_BASE_URL + 'streams/followed',
+        url = build_url(self.base_url + 'streams/followed',
                         {
                             'user_id': user_id,
                             'after': after,
@@ -2777,7 +2796,7 @@ class Twitch:
         """
         if first is not None and (first < 1 or first > 20):
             raise ValueError('first must be in range 1 to 20')
-        url = build_url(TWITCH_API_BASE_URL + 'polls',
+        url = build_url(self.base_url + 'polls',
                         {
                             'broadcaster_id': broadcaster_id,
                             'id': poll_id,
@@ -2845,7 +2864,7 @@ class Twitch:
             'channel_points_per_vote': channel_points_per_vote
         }.items() if v is not None}
 
-        url = build_url(TWITCH_API_BASE_URL + 'polls', {})
+        url = build_url(self.base_url + 'polls', {})
         result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body)
         return make_fields_datetime(await result.json(), ['started_at', 'ended_at'])
 
@@ -2873,7 +2892,7 @@ class Twitch:
         """
         if status not in (PollStatus.TERMINATED, PollStatus.ARCHIVED):
             raise ValueError('status must be either TERMINATED or ARCHIVED')
-        url = build_url(TWITCH_API_BASE_URL + 'polls', {})
+        url = build_url(self.base_url + 'polls', {})
         body = {
             'broadcaster_id': broadcaster_id,
             'id': poll_id,
@@ -2915,7 +2934,7 @@ class Twitch:
             if len(prediction_ids) > 100:
                 raise ValueError('maximum of 100 prediction ids allowed')
 
-        url = build_url(TWITCH_API_BASE_URL + 'predictions',
+        url = build_url(self.base_url + 'predictions',
                         {
                             'broadcaster_id': broadcaster_id,
                             'id': prediction_ids,
@@ -2960,7 +2979,7 @@ class Twitch:
             'outcomes': [{'title': x} for x in outcomes],
             'prediction_window': prediction_window
         }
-        url = build_url(TWITCH_API_BASE_URL + 'predictions', {})
+        url = build_url(self.base_url + 'predictions', {})
         result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
         return make_fields_datetime(await result.json(), ['created_at', 'ended_at', 'locked_at'])
 
@@ -3001,7 +3020,7 @@ class Twitch:
         }
         if winning_outcome_id is not None:
             body['winning_outcome_id'] = winning_outcome_id
-        url = build_url(TWITCH_API_BASE_URL + 'predictions', {})
+        url = build_url(self.base_url + 'predictions', {})
         result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
         return make_fields_datetime(await result.json(), ['created_at', 'ended_at', 'locked_at'])
 
@@ -3024,7 +3043,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'raids',
+        url = build_url(self.base_url + 'raids',
                         {
                             'from_broadcaster_id': from_broadcaster_id,
                             'to_broadcaster_id': to_broadcaster_id
@@ -3049,7 +3068,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(TWITCH_API_BASE_URL + 'raids', {'broadcaster_id': broadcaster_id})
+        url = build_url(self.base_url + 'raids', {'broadcaster_id': broadcaster_id})
         result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS])
         return result.status == 204
 
@@ -3079,7 +3098,7 @@ class Twitch:
             'msg_id': msg_id,
             'action': action.value
         }
-        url = build_url(TWITCH_API_BASE_URL + 'moderation/automod/message', {})
+        url = build_url(self.base_url + 'moderation/automod/message', {})
         result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_AUTOMOD], data=body)
         return result.status == 200
 
@@ -3098,7 +3117,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'chat/badges', {'broadcaster_id': broadcaster_id})
+        url = build_url(self.base_url + 'chat/badges', {'broadcaster_id': broadcaster_id})
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return await result.json()
 
@@ -3116,7 +3135,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'chat/badges/global', {})
+        url = build_url(self.base_url + 'chat/badges/global', {})
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return await result.json()
 
@@ -3135,7 +3154,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'chat/emotes',
+        url = build_url(self.base_url + 'chat/emotes',
                         {'broadcaster_id': broadcaster_id})
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return await result.json()
@@ -3154,7 +3173,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'chat/emotes/global', {})
+        url = build_url(self.base_url + 'chat/emotes/global', {})
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return await result.json()
 
@@ -3173,7 +3192,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'chat/emotes/set', {'emote_set_id': emote_set_id}, split_lists=True)
+        url = build_url(self.base_url + 'chat/emotes/set', {'emote_set_id': emote_set_id}, split_lists=True)
         result = await self.__api_get_request(url, AuthType.EITHER, [])
         return await result.json()
 
@@ -3192,7 +3211,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(TWITCH_API_BASE_URL + 'eventsub/subscriptions', {'id': subscription_id})
+        url = build_url(self.base_url + 'eventsub/subscriptions', {'id': subscription_id})
         result = await self.__api_delete_request(url, AuthType.APP, [])
         return result.status == 204
 
@@ -3219,7 +3238,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'eventsub/subscriptions',
+        url = build_url(self.base_url + 'eventsub/subscriptions',
                         {
                             'status': status,
                             'type': sub_type,
@@ -3261,7 +3280,7 @@ class Twitch:
             raise ValueError('stream_segment_ids can only have 100 entries')
         if first is not None and (first > 25 or first < 1):
             raise ValueError('first has to be in range 1 to 25')
-        url = build_url(TWITCH_API_BASE_URL + 'schedule',
+        url = build_url(self.base_url + 'schedule',
                         {
                             'broadcaster_id': broadcaster_id,
                             'id': stream_segment_ids,
@@ -3285,7 +3304,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: str
         """
-        url = build_url(TWITCH_API_BASE_URL + 'schedule/icalendar', {'broadcaster_id': broadcaster_id})
+        url = build_url(self.base_url + 'schedule/icalendar', {'broadcaster_id': broadcaster_id})
         response = await self.__api_get_request(url, AuthType.NONE, [])
         return await response.text()
 
@@ -3314,7 +3333,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(TWITCH_API_BASE_URL + 'schedule/settings',
+        url = build_url(self.base_url + 'schedule/settings',
                         {
                             'broadcaster_id': broadcaster_id,
                             'is_vacation_enabled': is_vacation_enabled,
@@ -3353,7 +3372,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'schedule/segment', {'broadcaster_id': broadcaster_id})
+        url = build_url(self.base_url + 'schedule/segment', {'broadcaster_id': broadcaster_id})
         body = remove_none_values({
             'start_time': datetime_to_str(start_time),
             'timezone': timezone,
@@ -3396,7 +3415,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(TWITCH_API_BASE_URL + 'schedule/segment',
+        url = build_url(self.base_url + 'schedule/segment',
                         {
                             'broadcaster_id': broadcaster_id,
                             'id': stream_segment_id
@@ -3431,7 +3450,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(TWITCH_API_BASE_URL + 'schedule/segment',
+        url = build_url(self.base_url + 'schedule/segment',
                         {
                             'broadcaster_id': broadcaster_id,
                             'id': stream_segment_id
@@ -3459,7 +3478,7 @@ class Twitch:
         """
         if len(entitlement_ids) > 100:
             raise ValueError('entitlement_ids can only have a maximum of 100 entries')
-        url = build_url(TWITCH_API_BASE_URL + 'entitlements/drops', {})
+        url = build_url(self.base_url + 'entitlements/drops', {})
         body = remove_none_values({
             'entitlement_ids': entitlement_ids,
             'fulfillment_status': fulfillment_status.value
