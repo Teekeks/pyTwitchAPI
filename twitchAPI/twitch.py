@@ -121,6 +121,7 @@ from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_f
 from datetime import datetime
 from logging import getLogger, Logger
 from .types import *
+from .objects import *
 
 if TYPE_CHECKING:
     from typing import Union, List, Optional, Callable
@@ -1707,7 +1708,7 @@ class Twitch:
 
     def get_users(self,
                   user_ids: Optional[List[str]] = None,
-                  logins: Optional[List[str]] = None) -> dict:
+                  logins: Optional[List[str]] = None) -> list[User]:
         """Gets information about one or more specified Twitch users.
         Users are identified by optional user IDs and/or login name.
         If neither a user ID nor a login name is specified, the user is the one authenticated.\n\n
@@ -1742,7 +1743,8 @@ class Twitch:
                                           AuthType.USER if (user_ids is None or len(user_ids) == 0) and (
                                                       logins is None or len(logins) == 0) else AuthType.EITHER,
                                           [])
-        return response.json()
+        # Create all users objects
+        return [User(**item) for item in response.json().get('data')]
 
     def get_users_follows(self,
                           after: Optional[str] = None,
@@ -1782,7 +1784,7 @@ class Twitch:
         }
         url = build_url(TWITCH_API_BASE_URL + 'users/follows', param, remove_none=True)
         result = self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(result.json(), ['followed_at'])
+        return Response(FollowUsers,result.json()['data'], result.json()["pagination"])
 
     def update_user(self,
                     description: str) -> dict:
