@@ -48,34 +48,35 @@ Code example
 Class Documentation:
 ********************
 """
+import aiohttp
+
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL, fields_to_enum
 from .types import AuthScope, InvalidRefreshTokenException, UnauthorizedException, TwitchAPIException
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 import webbrowser
 from aiohttp import web
 import asyncio
 from threading import Thread
 from time import sleep
-import requests
 from concurrent.futures._base import CancelledError
 from logging import getLogger, Logger
 
-if TYPE_CHECKING:
-    from typing import List, Union
-
+from typing import List, Union
 
 __all__ = ['refresh_access_token', 'validate_token', 'revoke_token', 'UserAuthenticator']
 
 
-def refresh_access_token(refresh_token: str,
-                         app_id: str,
-                         app_secret: str):
+async def refresh_access_token(refresh_token: str,
+                               app_id: str,
+                               app_secret: str,
+                               session: Optional[aiohttp.ClientSession] = None):
     """Simple helper function for refreshing a user access token.
 
     :param str refresh_token: the current refresh_token
     :param str app_id: the id of your app
     :param str app_secret: the secret key of your app
+    :param ~aiohttp.ClientSession session: optionally a active client session to be used for the web request to avoid having to open a new one
     :return: access_token, refresh_token
     :raises ~twitchAPI.types.InvalidRefreshTokenException: if refresh token is invalid
     :raises ~twitchAPI.types.UnauthorizedException: if both refresh and access token are invalid (eg if the user changes
@@ -89,8 +90,11 @@ def refresh_access_token(refresh_token: str,
         'client_secret': app_secret
     }
     url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', {})
-    result = requests.post(url, data=param)
-    data = result.json()
+    ses = session if session is not None else aiohttp.ClientSession()
+    async with ses.post(url, data=param) as result:
+        data = await result.json()
+    if session is None:
+        await ses.close()
     if data.get('status', 200) == 400:
         raise InvalidRefreshTokenException(data.get('message', ''))
     if data.get('status', 200) == 401:
@@ -98,29 +102,37 @@ def refresh_access_token(refresh_token: str,
     return data['access_token'], data['refresh_token']
 
 
-def validate_token(access_token: str) -> dict:
+async def validate_token(access_token: str,
+                         session: Optional[aiohttp.ClientSession] = None) -> dict:
     """Helper function for validating a user or app access token.
 
     https://dev.twitch.tv/docs/authentication#validating-requests
 
     :param str access_token: either a user or app OAuth access token
+    :param ~aiohttp.ClientSession session: optionally a active client session to be used for the web request to avoid having to open a new one
     :return: response from the api
     :rtype: dict
     """
     header = {'Authorization': f'OAuth {access_token}'}
     url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/validate', {})
-    result = requests.get(url, headers=header)
-    data = result.json()
+    ses = session if session is not None else aiohttp.ClientSession()
+    async with ses.get(url, headers=header) as result:
+        data = await result.json()
+    if session is None:
+        await ses.close()
     return fields_to_enum(data, ['scopes'], AuthScope, None)
 
 
-def revoke_token(client_id: str, access_token: str) -> bool:
+async def revoke_token(client_id: str,
+                       access_token: str,
+                       session: Optional[aiohttp.ClientSession] = None) -> bool:
     """Helper function for revoking a user or app OAuth access token.
 
     https://dev.twitch.tv/docs/authentication#revoking-access-tokens
 
     :param str client_id: client id belonging to the access token
     :param str access_token: user or app OAuth access token
+    :param ~aiohttp.ClientSession session: optionally a active client session to be used for the web request to avoid having to open a new one
     :rtype: bool
     :return: :code:`True` if revoking succeeded, otherwise :code:`False`
     """
@@ -128,8 +140,12 @@ def revoke_token(client_id: str, access_token: str) -> bool:
         'client_id': client_id,
         'token': access_token
     })
-    result = requests.post(url)
-    return result.status_code == 200
+    ses = session if session is not None else aiohttp.ClientSession()
+    async with ses.post(url) as result:
+        ret = result.status == 200
+    if session is None:
+        await ses.close()
+    return ret
 
 
 class UserAuthenticator:
@@ -282,8 +298,9 @@ class UserAuthenticator:
             'redirect_uri': self.url
         }
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', param)
-        response = requests.post(url)
-        data: dict = response.json()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url) as response:
+                data: dict = await response.json()
         if callback_func is None:
             self.stop()
             if data.get('access_token') is None:
