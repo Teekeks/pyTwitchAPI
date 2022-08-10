@@ -10,8 +10,7 @@ from twitchAPI import TwitchBackendException, Twitch, AuthType, AuthScope, ChatE
 from twitchAPI.helper import TWITCH_CHAT_URL
 from twitchAPI.types import ChatRoom
 
-if TYPE_CHECKING:
-    from typing import List, Optional, Union, Callable, Dict
+from typing import List, Optional, Union, Callable, Dict
 
 __all__ = ['ChatUser', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent']
 

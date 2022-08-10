@@ -90,8 +90,7 @@ from .types import EventSubSubscriptionTimeout, EventSubSubscriptionConflict, Ev
 import hmac
 import hashlib
 
-if TYPE_CHECKING:
-    from typing import Union, Callable, Optional, Awaitable
+from typing import Union, Callable, Optional, Awaitable
 
 
 __all__ = ['CALLBACK_TYPE', 'EventSub']

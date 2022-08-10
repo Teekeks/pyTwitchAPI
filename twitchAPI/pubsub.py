@@ -62,8 +62,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 from time import sleep
 
-if TYPE_CHECKING:
-    from typing import Callable, List, Dict
+from typing import Callable, List, Dict
 
 __all__ = ['PubSub']
 
