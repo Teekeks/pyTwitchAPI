@@ -3,7 +3,7 @@
 
 import urllib.parse
 import uuid
-from typing import TYPE_CHECKING, Coroutine, Any
+from typing import Coroutine
 from json import JSONDecodeError
 from aiohttp.web import Request
 from dateutil import parser as du_parser

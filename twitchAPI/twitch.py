@@ -115,7 +115,6 @@ Class Documentation:
 ********************
 """
 import asyncio
-from typing import TYPE_CHECKING
 
 from aiohttp import ClientSession, ClientResponse
 

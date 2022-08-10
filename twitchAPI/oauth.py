@@ -53,7 +53,7 @@ import aiohttp
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL, fields_to_enum
 from .types import AuthScope, InvalidRefreshTokenException, UnauthorizedException, TwitchAPIException
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 import webbrowser
 from aiohttp import web
 import asyncio

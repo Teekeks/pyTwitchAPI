@@ -75,7 +75,6 @@ import datetime
 import random
 import string
 import time
-from typing import TYPE_CHECKING
 from .helper import TWITCH_API_BASE_URL, remove_none_values
 from .types import *
 import requests
