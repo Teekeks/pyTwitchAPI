@@ -249,10 +249,10 @@ class Twitch:
         if self.__has_user_auth:
             self.__logger.debug('refreshing user token')
             from .oauth import refresh_access_token
-            self.__user_auth_token, \
-            self.__user_auth_refresh_token = refresh_access_token(self.__user_auth_refresh_token,
-                                                                  self.app_id,
-                                                                  self.app_secret)
+            self.__user_auth_token, self.__user_auth_refresh_token = await refresh_access_token(self.__user_auth_refresh_token,
+                                                                                                self.app_id,
+                                                                                                self.app_secret,
+                                                                                                self._session)
             if self.user_auth_refresh_callback is not None:
                 self.user_auth_refresh_callback(self.__user_auth_token, self.__user_auth_refresh_token)
         else:
@@ -427,19 +427,20 @@ class Twitch:
         await self.__generate_app_token()
         self.__has_app_auth = True
 
-    def set_app_authentication(self,
-                               token,
-                               scope: List[AuthScope]):
-        # TODO annotate
+    async def set_app_authentication(self, token: str, scope: List[AuthScope]):
+        """Set a app token, most likely only used for testing purposes
+
+        :param str token: the app token
+        :param list[~twitchAPI.types.AuthScope] scope: List of Authorization scopes that the given app token has"""
         self.__app_auth_token = token
         self.__app_auth_scope = scope
         self.__has_app_auth = True
 
-    def set_user_authentication(self,
-                                token: str,
-                                scope: List[AuthScope],
-                                refresh_token: Optional[str] = None,
-                                validate: bool = True):
+    async def set_user_authentication(self,
+                                      token: str,
+                                      scope: List[AuthScope],
+                                      refresh_token: Optional[str] = None,
+                                      validate: bool = True):
         """Set a user token to be used.
 
         :param str token: the generated user token
@@ -456,7 +457,7 @@ class Twitch:
             raise ValueError('refresh_token has to be provided when auto_refresh_user_auth is True')
         if validate:
             from .oauth import validate_token
-            val_result = validate_token(token)
+            val_result = await validate_token(token, self._session)
             if val_result.get('status', 200) == 401:
                 raise InvalidTokenException(val_result.get('message', ''))
             if 'login' not in val_result or 'user_id' not in val_result:
