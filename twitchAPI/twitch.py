@@ -307,8 +307,8 @@ class Twitch:
             self.__logger.warning('reached rate limit, waiting for reset')
             import time
             reset = int(response.headers['Ratelimit-Reset'])
-            while int(time.time()) <= reset:
-                await asyncio.sleep(0.01)
+            # wait a tiny bit longer to ensure that we are definitely beyond the rate limit
+            await asyncio.sleep((reset - time.time()) + 0.1)
         return response
 
     async def __api_post_request(self,
