@@ -119,12 +119,14 @@ import asyncio
 from aiohttp import ClientSession, ClientResponse
 
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
-    fields_to_enum, enum_value_or_none, datetime_to_str, remove_none_values
+    fields_to_enum, enum_value_or_none, datetime_to_str, remove_none_values, page_generator
 from datetime import datetime
 from logging import getLogger, Logger
+
+from .object import *
 from .types import *
 
-from typing import Union, List, Optional, Callable
+from typing import Union, List, Optional, Callable, Generator, AsyncGenerator, T
 
 __all__ = ['Twitch']
 
@@ -301,7 +303,7 @@ class Twitch:
                 msg = (await response.json()).get('message')
             except:
                 pass
-            raise TwitchAPIException('Bad Request' + '' if msg is None else f'- {msg}')
+            raise TwitchAPIException('Bad Request' + ('' if msg is None else f' - {str(msg)}'))
 
         if response.status == 429 or str(response.headers.get('Ratelimit-Remaining', '')) == '0':
             self.__logger.warning('reached rate limit, waiting for reset')
@@ -391,6 +393,38 @@ class Twitch:
         self.__logger.debug(f'making GET request to {url}')
         req = await self._session.get(url, headers=headers)
         return await self.__check_request_return(req, self.__api_get_request, False, url, auth_type, required_scope, None, retries)
+
+    async def _build_generator(self,
+                               req,
+                               url: str,
+                               url_params: dict,
+                               auth_type: AuthType,
+                               auth_scope: List[AuthScope],
+                               return_type: T,
+                               body_data: Optional[dict] = None,
+                               split_lists: bool = False) -> AsyncGenerator[T, None]:
+        r_lookup = {
+            'get': self.__api_get_request,
+            'post': self.__api_post_request,
+            'delete': self.__api_delete_request,
+            'patch': self.__api_patch_request,
+            'put': self.__api_put_request
+        }
+        req = r_lookup.get(req.lower())
+        _after = url_params.get('after')
+        _first = True
+        while _first or _after is not None:
+            url_params['after'] = _after
+            _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
+            if body_data is None:
+                response = await req(_url, auth_type, auth_scope)
+            else:
+                response = await req(_url, auth_type, auth_scope, data=body_data)
+            data = await response.json()
+            for entry in data.get('data', []):
+                yield return_type(**entry)
+            _after = data.get('pagination', {}).get('cursor')
+            _first = False
 
     async def __generate_app_token(self) -> None:
         if self.app_secret is None:
@@ -509,7 +543,7 @@ class Twitch:
                                       first: int = 20,
                                       ended_at: Optional[datetime] = None,
                                       started_at: Optional[datetime] = None,
-                                      report_type: Optional[AnalyticsReportType] = None) -> dict:
+                                      report_type: Optional[AnalyticsReportType] = None) -> AsyncGenerator[ExtensionAnalytic, None]:
         """Gets a URL that extension developers can use to download analytics reports (CSV files) for their extensions.
         The URL is valid for 5 minutes.\n\n
 
@@ -544,20 +578,26 @@ class Twitch:
                 raise ValueError('started_at must be before ended_at')
         if first > 100 or first < 1:
             raise ValueError('first must be between 1 and 100')
-        url_params = {
-            'after': after,
-            'ended_at': datetime_to_str(ended_at),
-            'extension_id': extension_id,
-            'first': first,
-            'started_at': datetime_to_str(started_at),
-            'type': enum_value_or_none(report_type)
-        }
-        url = build_url(self.base_url + 'analytics/extensions',
-                        url_params,
-                        remove_none=True)
-        response = await self.__api_get_request(url, AuthType.USER, required_scope=[AuthScope.ANALYTICS_READ_EXTENSION])
-        data = await response.json()
-        return make_fields_datetime(data, ['started_at', 'ended_at'])
+        _after = after
+        _first = True
+        while _first or _after is not None:
+            url_params = {
+                'after': _after,
+                'ended_at': datetime_to_str(ended_at),
+                'extension_id': extension_id,
+                'first': first,
+                'started_at': datetime_to_str(started_at),
+                'type': enum_value_or_none(report_type)
+            }
+            url = build_url(self.base_url + 'analytics/extensions',
+                            url_params,
+                            remove_none=True)
+            response = await self.__api_get_request(url, AuthType.USER, required_scope=[AuthScope.ANALYTICS_READ_EXTENSION])
+            data = await response.json()
+            async for u in page_generator(data, ExtensionAnalytic):
+                yield u
+            _after = data.get('pagination', {}).get('cursor')
+            _first = False
 
     async def get_game_analytics(self,
                                  after: Optional[str] = None,
@@ -1706,7 +1746,7 @@ class Twitch:
 
     async def get_users(self,
                         user_ids: Optional[List[str]] = None,
-                        logins: Optional[List[str]] = None) -> dict:
+                        logins: Optional[List[str]] = None) -> AsyncGenerator[TwitchUser, None]:
         """Gets information about one or more specified Twitch users.
         Users are identified by optional user IDs and/or login name.
         If neither a user ID nor a login name is specified, the user is the one authenticated.\n\n
@@ -1736,18 +1776,15 @@ class Twitch:
             'id': user_ids,
             'login': logins
         }
-        url = build_url(self.base_url + 'users', url_params, remove_none=True, split_lists=True)
-        response = await self.__api_get_request(url,
-                                                AuthType.USER if (user_ids is None or len(user_ids) == 0) and (
-                                                        logins is None or len(logins) == 0) else AuthType.EITHER,
-                                                [])
-        return await response.json()
+        at = AuthType.USER if (user_ids is None or len(user_ids) == 0) and (logins is None or len(logins) == 0) else AuthType.EITHER
+        async for f in self._build_generator('GET', 'users', url_params, at, [], TwitchUser, split_lists=True):
+            yield f
 
     async def get_users_follows(self,
                                 after: Optional[str] = None,
                                 first: int = 20,
                                 from_id: Optional[str] = None,
-                                to_id: Optional[str] = None) -> dict:
+                                to_id: Optional[str] = None) -> AsyncGenerator[TwitchUserFollow, None]:
         """Gets information on follow relationships between two Twitch users.
         Information returned is sorted in order, most recent follow first.\n\n
 
@@ -1779,9 +1816,8 @@ class Twitch:
             'from_id': from_id,
             'to_id': to_id
         }
-        url = build_url(self.base_url + 'users/follows', param, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(await result.json(), ['followed_at'])
+        async for f in self._build_generator('GET', 'users/follows', param, AuthType.EITHER, [], TwitchUserFollow):
+            yield f
 
     async def update_user(self,
                           description: str) -> dict:

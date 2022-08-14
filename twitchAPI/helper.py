@@ -3,12 +3,13 @@
 
 import urllib.parse
 import uuid
-from typing import Coroutine
+from typing import Coroutine, T, AsyncGenerator, Type
 from json import JSONDecodeError
 from aiohttp.web import Request
 from dateutil import parser as du_parser
 from enum import Enum
-from .types import AuthScope
+
+from .types import AuthScope, AuthType
 from urllib.parse import urlparse, parse_qs
 
 from typing import Union, List, Type, Optional, Callable, Generator
@@ -16,7 +17,6 @@ from typing import Union, List, Type, Optional, Callable, Generator
 __all__ = ['TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 'TWITCH_CHAT_URL',
            'extract_uuid_str_from_url', 'build_url', 'get_uuid', 'get_json', 'make_fields_datetime', 'build_scope', 'fields_to_enum', 'make_enum',
            'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'paginator']
-
 
 TWITCH_API_BASE_URL = "https://api.twitch.tv/helix/"
 TWITCH_AUTH_BASE_URL = "https://id.twitch.tv/"
@@ -47,6 +47,7 @@ def build_url(url: str, params: dict, remove_none=False, split_lists=False, enum
     :return: URL
     :rtype: str
     """
+
     def get_val(val):
         if not enum_value:
             return str(val)
@@ -61,6 +62,7 @@ def build_url(url: str, params: dict, remove_none=False, split_lists=False, enum
         if v is not None:
             res += "=" + urllib.parse.quote(get_val(v))
         return res
+
     result = ""
     for key, value in params.items():
         if value is None and remove_none:
@@ -176,6 +178,7 @@ def fields_to_enum(data: Union[dict, list],
             elif isinstance(value, list):
                 fd[key] = fields_to_enum(value, fields, _enum, default)
         return fd
+
     if isinstance(data, list):
         return [make_dict_field_enum(d, fields, _enum, default) for d in data]
     else:
@@ -202,6 +205,15 @@ def remove_none_values(d: dict) -> dict:
     """Removes items where the value is None from the dict.
     This returns a new dict and does not manipulate the one given."""
     return {k: v for k, v in d.items() if v is not None}
+
+
+async def page_generator(page_data, _type: Type[T]) -> Generator[T, None, None]:
+    for dat in page_data.get('data', []):
+        yield _type(**dat)
+
+
+async def first(gen: AsyncGenerator[T, None]) -> T:
+    return await gen.__anext__()
 
 
 async def paginator(func: Callable[..., Coroutine], *args, **kwargs) -> Generator[dict, None, None]:
