@@ -207,11 +207,6 @@ def remove_none_values(d: dict) -> dict:
     return {k: v for k, v in d.items() if v is not None}
 
 
-async def page_generator(page_data, _type: Type[T]) -> Generator[T, None, None]:
-    for dat in page_data.get('data', []):
-        yield _type(**dat)
-
-
 async def first(gen: AsyncGenerator[T, None]) -> T:
     return await gen.__anext__()
 
