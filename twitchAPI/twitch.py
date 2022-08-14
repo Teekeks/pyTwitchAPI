@@ -119,7 +119,7 @@ import asyncio
 from aiohttp import ClientSession, ClientResponse
 
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
-    fields_to_enum, enum_value_or_none, datetime_to_str, remove_none_values, page_generator
+    fields_to_enum, enum_value_or_none, datetime_to_str, remove_none_values
 from datetime import datetime
 from logging import getLogger, Logger
 
@@ -578,26 +578,18 @@ class Twitch:
                 raise ValueError('started_at must be before ended_at')
         if first > 100 or first < 1:
             raise ValueError('first must be between 1 and 100')
-        _after = after
-        _first = True
-        while _first or _after is not None:
-            url_params = {
-                'after': _after,
-                'ended_at': datetime_to_str(ended_at),
-                'extension_id': extension_id,
-                'first': first,
-                'started_at': datetime_to_str(started_at),
-                'type': enum_value_or_none(report_type)
-            }
-            url = build_url(self.base_url + 'analytics/extensions',
-                            url_params,
-                            remove_none=True)
-            response = await self.__api_get_request(url, AuthType.USER, required_scope=[AuthScope.ANALYTICS_READ_EXTENSION])
-            data = await response.json()
-            async for u in page_generator(data, ExtensionAnalytic):
-                yield u
-            _after = data.get('pagination', {}).get('cursor')
-            _first = False
+
+        url_params = {
+            'after': after,
+            'ended_at': datetime_to_str(ended_at),
+            'extension_id': extension_id,
+            'first': first,
+            'started_at': datetime_to_str(started_at),
+            'type': enum_value_or_none(report_type)
+        }
+        async for y in self._build_generator('GET', 'analytics/extensions', url_params, AuthType.USER,
+                                             [AuthScope.ANALYTICS_READ_EXTENSION], ExtensionAnalytic):
+            yield y
 
     async def get_game_analytics(self,
                                  after: Optional[str] = None,
