@@ -641,7 +641,7 @@ class Twitch:
         async for y in self._build_generator('GET', 'analytics/game', url_params, AuthType.USER, [AuthScope.ANALYTICS_READ_GAMES], GameAnalytics):
             yield y
 
-    async def get_creator_goals(self, broadcaster_id: str) -> dict:
+    async def get_creator_goals(self, broadcaster_id: str) -> AsyncGenerator[CreatorGoal, None]:
         """Gets Creator Goal Details for the specified channel.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_READ_GOALS`\n
@@ -656,10 +656,9 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(self.base_url + 'goals', {'broadcaster_id': broadcaster_id})
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_GOALS])
-        data = await result.json()
-        return make_fields_datetime(data, ['created_at'])
+        async for y in self._build_generator('GET', 'goals', {'broadcaster_id': broadcaster_id}, AuthType.USER,
+                                             [AuthScope.CHANNEL_READ_GOALS], CreatorGoal):
+            yield y
 
     async def get_bits_leaderboard(self,
                                    count: Optional[int] = 10,

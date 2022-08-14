@@ -58,3 +58,15 @@ class GameAnalytics(TwitchObject):
     URL: str
     type: str
     date_range: DateRange
+
+
+class CreatorGoal(TwitchObject):
+    id: str
+    broadcaster_id: str
+    broadcaster_name: str
+    broadcaster_login: str
+    type: str
+    description: str
+    current_amount: int
+    target_amount: int
+    created_at: datetime
