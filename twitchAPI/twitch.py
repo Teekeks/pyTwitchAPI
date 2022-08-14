@@ -597,7 +597,7 @@ class Twitch:
                                  game_id: Optional[str] = None,
                                  ended_at: Optional[datetime] = None,
                                  started_at: Optional[datetime] = None,
-                                 report_type: Optional[AnalyticsReportType] = None) -> dict:
+                                 report_type: Optional[AnalyticsReportType] = None) -> AsyncGenerator[GameAnalytics, None]:
         """Gets a URL that game developers can use to download analytics reports (CSV files) for their games.
         The URL is valid for 5 minutes.\n\n
 
@@ -636,14 +636,10 @@ class Twitch:
             'first': first,
             'game_id': game_id,
             'started_at': datetime_to_str(started_at),
-            'type': enum_value_or_none(report_type)
+            'type': report_type
         }
-        url = build_url(self.base_url + 'analytics/games',
-                        url_params,
-                        remove_none=True)
-        response = await self.__api_get_request(url, AuthType.USER, [AuthScope.ANALYTICS_READ_GAMES])
-        data = await response.json()
-        return make_fields_datetime(data, ['ended_at', 'started_at'])
+        async for y in self._build_generator('GET', 'analytics/game', url_params, AuthType.USER, [AuthScope.ANALYTICS_READ_GAMES], GameAnalytics):
+            yield y
 
     async def get_creator_goals(self, broadcaster_id: str) -> dict:
         """Gets Creator Goal Details for the specified channel.

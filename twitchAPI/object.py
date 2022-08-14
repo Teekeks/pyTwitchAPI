@@ -51,3 +51,10 @@ class ExtensionAnalytic(TwitchObject):
     URL: str
     type: str
     date_range: DateRange
+
+
+class GameAnalytics(TwitchObject):
+    game_id: str
+    URL: str
+    type: str
+    date_range: DateRange
