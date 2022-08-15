@@ -126,7 +126,7 @@ from logging import getLogger, Logger
 from .object import *
 from .types import *
 
-from typing import Union, List, Optional, Callable, Generator, AsyncGenerator, T
+from typing import Union, List, Optional, Callable, Generator, AsyncGenerator, T, Dict
 
 __all__ = ['Twitch']
 
@@ -403,7 +403,7 @@ class Twitch:
                                return_type: T,
                                body_data: Optional[dict] = None,
                                split_lists: bool = False) -> AsyncGenerator[T, None]:
-        r_lookup = {
+        r_lookup: Dict[str, Callable] = {
             'get': self.__api_get_request,
             'post': self.__api_post_request,
             'delete': self.__api_delete_request,
@@ -425,6 +425,31 @@ class Twitch:
                 yield return_type(**entry)
             _after = data.get('pagination', {}).get('cursor')
             _first = False
+
+    async def _build_result(self,
+                            req,
+                            url: str,
+                            url_params: dict,
+                            auth_type: AuthType,
+                            auth_scope: List[AuthScope],
+                            return_type: T,
+                            body_data: Optional[dict] = None,
+                            split_lists: bool = False):
+        r_lookup: Dict[str, Callable] = {
+            'get': self.__api_get_request,
+            'post': self.__api_post_request,
+            'delete': self.__api_delete_request,
+            'patch': self.__api_patch_request,
+            'put': self.__api_put_request
+        }
+        req = r_lookup.get(req.lower())
+        _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
+        if body_data is None:
+            response = await req(_url, auth_type, auth_scope)
+        else:
+            response = await req(_url, auth_type, auth_scope, data=body_data)
+        data = await response.json()
+        return return_type(**data)
 
     async def __generate_app_token(self) -> None:
         if self.app_secret is None:
@@ -664,7 +689,7 @@ class Twitch:
                                    count: Optional[int] = 10,
                                    period: Optional[TimePeriod] = TimePeriod.ALL,
                                    started_at: Optional[datetime] = None,
-                                   user_id: Optional[str] = None) -> dict:
+                                   user_id: Optional[str] = None) -> BitsLeaderboard:
         """Gets a ranked list of Bits leaderboard information for an authorized broadcaster.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.BITS_READ`\n
@@ -694,10 +719,7 @@ class Twitch:
             'started_at': datetime_to_str(started_at),
             'user_id': user_id
         }
-        url = build_url(self.base_url + 'bits/leaderboard', url_params, remove_none=True)
-        response = await self.__api_get_request(url, AuthType.USER, [AuthScope.BITS_READ])
-        data = await response.json()
-        return make_fields_datetime(data, ['ended_at', 'started_at'])
+        return await self._build_result('GET', 'bits/leaderboard', url_params, AuthType.USER, [AuthScope.BITS_READ], BitsLeaderboard)
 
     async def get_extension_transactions(self,
                                          extension_id: str,

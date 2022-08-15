@@ -1,21 +1,29 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 from datetime import datetime
-from typing import Optional, get_type_hints, Union
+from typing import Optional, get_type_hints, Union, List, get_origin
 from dateutil import parser as du_parser
 from pprint import pprint
 
 
 class TwitchObject:
+    @staticmethod
+    def _val_by_instance(instance, val):
+        origin = get_origin(instance)
+        if instance == datetime:
+            return du_parser.isoparse(val) if len(val) > 0 else None
+        elif origin == list:
+            c = instance.__args__[0]
+            return [TwitchObject._val_by_instance(c, x) for x in val]
+        elif issubclass(instance, TwitchObject):
+            return instance(**val)
+        else:
+            return instance(val)
+
     def __init__(self, **kwargs):
         for name, cls in self.__annotations__.items():
             if kwargs.get(name) is None:
                 continue
-            if cls == datetime:
-                self.__setattr__(name, du_parser.isoparse(kwargs.get(name)))
-            elif cls == TwitchObject:
-                self.__setattr__(name, cls(**kwargs.get(name)))
-            else:
-                self.__setattr__(name, cls(kwargs.get(name)))
+            self.__setattr__(name, TwitchObject._val_by_instance(cls, kwargs.get(name)))
 
 
 class TwitchUser(TwitchObject):
@@ -70,3 +78,17 @@ class CreatorGoal(TwitchObject):
     current_amount: int
     target_amount: int
     created_at: datetime
+
+
+class BitsLeaderboardEntry(TwitchObject):
+    user_id: str
+    user_login: str
+    user_name: str
+    rank: int
+    score: int
+
+
+class BitsLeaderboard(TwitchObject):
+    data: List[BitsLeaderboardEntry]
+    date_range: DateRange
+    total: int
