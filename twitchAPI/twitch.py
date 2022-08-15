@@ -776,7 +776,7 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :rtype: ~twitchAPI.objects.ChatSettings
+        :rtype: ~twitchAPI.object.ChatSettings
         """
         url_param = {
             'broadcaster_id': broadcaster_id,
