@@ -71,7 +71,6 @@ Indices and tables
    :toctree: modules
 
    twitchAPI.twitch
-   twitchAPI.eventsub
    twitchAPI.pubsub
    twitchAPI.webhook
    twitchAPI.oauth
