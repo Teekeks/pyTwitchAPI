@@ -123,6 +123,7 @@ class ExtensionTransaction(TwitchObject):
 
 
 class ChatSettings(TwitchObject):
+    """"""
     broadcaster_id: str
     moderator_id: str
     slow_mode: bool
