@@ -75,9 +75,11 @@ import datetime
 import random
 import string
 import time
+
+import aiohttp
+
 from .helper import TWITCH_API_BASE_URL, remove_none_values
 from .types import *
-import requests
 from aiohttp import web
 import threading
 import asyncio
@@ -139,6 +141,7 @@ class EventSub:
         self.__hook_thread: Union['threading.Thread', None] = None
         self.__hook_loop: Union['asyncio.AbstractEventLoop', None] = None
         self.__hook_runner: Union['web.AppRunner', None] = None
+        self._session: aiohttp.ClientSession = None
         if not self.callback_url.startswith('https'):
             raise RuntimeError('HTTPS is required for authenticated webhook.\n'
                                + 'Either use non authenticated webhook or use a HTTPS proxy!')
@@ -150,9 +153,12 @@ class EventSub:
         return web.AppRunner(hook_app)
 
     def __run_hook(self, runner: 'web.AppRunner'):
+        async def _mk_session():
+            self._session = aiohttp.ClientSession()
         self.__hook_runner = runner
         self.__hook_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.__hook_loop)
+        self.__hook_loop.run_until_complete(_mk_session())
         self.__hook_loop.run_until_complete(runner.setup())
         site = web.TCPSite(runner, str(self._host), self._port, ssl_context=self.__ssl_context)
         self.__hook_loop.run_until_complete(site.start())
@@ -204,17 +210,18 @@ class EventSub:
             'Authorization': f'Bearer {token}'
         }
 
-    def __api_post_request(self, url: str, data: Union[dict, None] = None):
+    # FIXME requires port
+    async def __api_post_request(self, url: str, data: Union[dict, None] = None):
         headers = self.__build_request_header()
-        return requests.post(url, headers=headers, json=data)
+        # return requests.post(url, headers=headers, json=data)
 
     def __api_get_request(self, url: str):
         headers = self.__build_request_header()
-        return requests.get(url, headers=headers)
+        # return requests.get(url, headers=headers)
 
     def __api_delete_request(self, url: str):
         headers = self.__build_request_header()
-        return requests.delete(url, headers=headers)
+        # return requests.delete(url, headers=headers)
 
     def __add_callback(self, c_id: str, callback):
         self.__callbacks[c_id] = {'id': c_id, 'callback': callback, 'active': False}
