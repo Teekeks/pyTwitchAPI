@@ -262,8 +262,8 @@ class UserAuthenticator:
     def return_auth_url(self):
         return self.__build_auth_url()
 
-    def authenticate(self,
-                     callback_func=None, user_token=None):
+    async def authenticate(self,
+                           callback_func=None, user_token=None):
         """Start the user authentication flow\n
         If callback_func is not set, authenticate will wait till the authentication process finished and then return
         the access_token and the refresh_token
