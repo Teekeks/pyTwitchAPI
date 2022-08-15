@@ -1,6 +1,6 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 from datetime import datetime
-from typing import Optional, get_type_hints, Union, List, get_origin
+from typing import Optional, get_type_hints, Union, List
 from dateutil import parser as du_parser
 from pprint import pprint
 
@@ -8,7 +8,7 @@ from pprint import pprint
 class TwitchObject:
     @staticmethod
     def _val_by_instance(instance, val):
-        origin = get_origin(instance)
+        origin = instance.__origin__ if hasattr(instance, '__origin__') else None
         if instance == datetime:
             return du_parser.isoparse(val) if len(val) > 0 else None
         elif origin == list:
