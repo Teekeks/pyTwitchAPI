@@ -92,3 +92,31 @@ class BitsLeaderboard(TwitchObject):
     data: List[BitsLeaderboardEntry]
     date_range: DateRange
     total: int
+
+
+class ProductCost(TwitchObject):
+    amount: int
+    type: str
+
+
+class ProductData(TwitchObject):
+    domain: str
+    sku: str
+    cost: ProductCost
+
+
+class ExtensionTransaction(TwitchObject):
+    id: str
+    timestamp: datetime
+    broadcaster_id: str
+    broadcaster_login: str
+    broadcaster_name: str
+    user_id: str
+    user_login: str
+    user_name: str
+    product_type: str
+    product_data: ProductData
+    inDevelopment: bool
+    displayName: str
+    expiration: str
+    broadcast: str

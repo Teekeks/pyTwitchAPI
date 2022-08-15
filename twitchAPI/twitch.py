@@ -725,7 +725,7 @@ class Twitch:
                                          extension_id: str,
                                          transaction_id: Optional[Union[str, List[str]]] = None,
                                          after: Optional[str] = None,
-                                         first: int = 20) -> dict:
+                                         first: int = 20) -> AsyncGenerator[ExtensionTransaction, None]:
         """Get Extension Transactions allows extension back end servers to fetch a list of transactions that have
         occurred for their extension across all of Twitch.
         A transaction is a record of a user exchanging Bits for an in-Extension digital good.\n\n
@@ -757,10 +757,8 @@ class Twitch:
             'after': after,
             'first': first
         }
-        url = build_url(self.base_url + 'extensions/transactions', url_param, remove_none=True, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        data = await result.json()
-        return make_fields_datetime(data, ['timestamp'])
+        async for y in self._build_generator('GET', 'extensions/transactions', url_param, AuthType.EITHER, [], ExtensionTransaction):
+            yield y
 
     async def get_chat_settings(self,
                                 broadcaster_id: str,
