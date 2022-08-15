@@ -120,3 +120,16 @@ class ExtensionTransaction(TwitchObject):
     displayName: str
     expiration: str
     broadcast: str
+
+
+class ChatSettings(TwitchObject):
+    broadcaster_id: str
+    moderator_id: str
+    slow_mode: bool
+    slow_mode_wait_time: int
+    follower_mode: bool
+    follower_mode_duration: int
+    subscriber_mode: bool
+    unique_chat_mode: bool
+    non_moderator_chat_delay: bool
+    non_moderator_chat_delay_duration: int

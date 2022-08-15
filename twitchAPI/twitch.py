@@ -762,7 +762,7 @@ class Twitch:
 
     async def get_chat_settings(self,
                                 broadcaster_id: str,
-                                moderator_id: Optional[str] = None):
+                                moderator_id: Optional[str] = None) -> ChatSettings:
         """Gets the broadcaster’s chat settings.
 
         Requires App authentication\n
@@ -776,15 +776,13 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :rtype: dict
+        :rtype: ~twitchAPI.objects.ChatSettings
         """
         url_param = {
             'broadcaster_id': broadcaster_id,
             'moderator_id': moderator_id
         }
-        url = build_url(self.base_url + 'chat/settings', url_param, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return await result.json()
+        return await self._build_result('GET', 'chat/settings', url_param, AuthType.EITHER, [], ChatSettings)
 
     async def update_chat_settings(self,
                                    broadcaster_id: str,
