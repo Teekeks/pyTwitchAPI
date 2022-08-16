@@ -795,7 +795,7 @@ class Twitch:
                                    slow_mode: Optional[bool] = None,
                                    slow_mode_wait_time: Optional[int] = None,
                                    subscriber_mode: Optional[bool] = None,
-                                   unique_chat_mode: Optional[bool] = None):
+                                   unique_chat_mode: Optional[bool] = None) -> ChatSettings:
         """Updates the broadcaster’s chat settings.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS`\n
@@ -828,7 +828,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if non_moderator_chat_delay_duration is not one of 2, 4 or 6
-        :rtype: dict
+        :rtype: ~twitchAPI.object.ChatSettings
         """
         if non_moderator_chat_delay_duration is not None:
             if non_moderator_chat_delay_duration not in (2, 4, 6):
@@ -837,7 +837,6 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'moderator_id': moderator_id
         }
-        url = build_url(self.base_url + 'chat/settings', url_param, remove_none=True)
         body = remove_none_values({
             'emote_mode': emote_mode,
             'follower_mode': follower_mode,
@@ -849,8 +848,8 @@ class Twitch:
             'subscriber_mode': subscriber_mode,
             'unique_chat_mode': unique_chat_mode
         })
-        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS], body)
-        return await result.json()
+        return await self._build_result('PATCH', 'chat/settings', url_param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS],
+                                        ChatSettings, body_data=body)
 
     async def create_clip(self,
                           broadcaster_id: str,
