@@ -138,3 +138,22 @@ class ChatSettings(TwitchObject):
 class CreatedClip(TwitchObject):
     id: str
     edit_url: str
+
+
+class Clip(TwitchObject):
+    id: str
+    url: str
+    embed_url: str
+    broadcaster_id: str
+    broadcaster_name: str
+    creator_id: str
+    creator_name: str
+    video_id: str
+    game_id: str
+    language: str
+    title: str
+    view_count: int
+    created_at: datetime
+    thumbnail_url: str
+    duration: float
+    vod_offset: int

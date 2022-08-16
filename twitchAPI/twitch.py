@@ -885,7 +885,7 @@ class Twitch:
                         before: Optional[str] = None,
                         ended_at: Optional[datetime] = None,
                         started_at: Optional[datetime] = None,
-                        first: int = 20) -> dict:
+                        first: int = 20) -> AsyncGenerator[Clip, None]:
         """Gets clip information by clip ID (one or more), broadcaster ID (one only), or game ID (one only).
         Clips are returned sorted by view count, in descending order.\n\n
 
@@ -926,10 +926,8 @@ class Twitch:
             'ended_at': datetime_to_str(ended_at),
             'started_at': datetime_to_str(started_at)
         }
-        url = build_url(self.base_url + 'clips', param, split_lists=True, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        data = await result.json()
-        return make_fields_datetime(data, ['created_at'])
+        async for y in self._build_generator('GET', 'clips', param, AuthType.EITHER, [], Clip, split_lists=True):
+            yield y
 
     async def get_code_status(self,
                               code: List[str],
