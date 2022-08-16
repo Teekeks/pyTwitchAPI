@@ -853,7 +853,7 @@ class Twitch:
 
     async def create_clip(self,
                           broadcaster_id: str,
-                          has_delay: bool = False) -> Clip:
+                          has_delay: bool = False) -> CreatedClip:
         """Creates a clip programmatically. This returns both an ID and an edit URL for the new clip.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CLIPS_EDIT`\n
@@ -869,13 +869,13 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :rtype: ~twitchAPI.object.Clip
+        :rtype: ~twitchAPI.object.CreatedClip
         """
         param = {
             'broadcaster_id': broadcaster_id,
             'has_delay': has_delay
         }
-        return await self._build_result('POST', 'clips', param, AuthType.USER, [AuthScope.CLIPS_EDIT], Clip)
+        return await self._build_result('POST', 'clips', param, AuthType.USER, [AuthScope.CLIPS_EDIT], CreatedClip)
 
     async def get_clips(self,
                         broadcaster_id: Optional[str] = None,

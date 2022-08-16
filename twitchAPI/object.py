@@ -135,6 +135,6 @@ class ChatSettings(TwitchObject):
     non_moderator_chat_delay_duration: int
 
 
-class Clip(TwitchObject):
+class CreatedClip(TwitchObject):
     id: str
     edit_url: str
