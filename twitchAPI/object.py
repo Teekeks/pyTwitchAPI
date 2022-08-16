@@ -123,7 +123,6 @@ class ExtensionTransaction(TwitchObject):
 
 
 class ChatSettings(TwitchObject):
-    """"""
     broadcaster_id: str
     moderator_id: str
     slow_mode: bool
@@ -134,3 +133,8 @@ class ChatSettings(TwitchObject):
     unique_chat_mode: bool
     non_moderator_chat_delay: bool
     non_moderator_chat_delay_duration: int
+
+
+class Clip(TwitchObject):
+    id: str
+    edit_url: str
