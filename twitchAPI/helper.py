@@ -208,26 +208,7 @@ def remove_none_values(d: dict) -> dict:
 
 
 async def first(gen: AsyncGenerator[T, None]) -> T:
+    """Returns the first value of the given AsyncGenerator
+
+    :param ~typing.AsyncGenerator gen: The generator from which you want the first value"""
     return await gen.__anext__()
-
-
-async def paginator(func: Callable[..., Coroutine], *args, **kwargs) -> Generator[dict, None, None]:
-    """Generator which allows to automatically paginate forwards for functions that allow that functionality.
-    Pass any arguments you would pass to the specified function to this function.
-
-    Example usage:
-    .. code-block:: python
-        for page in paginator(twitch.get_users, to_id=user_id):
-            print(page)
-
-    :param Callable func: The function you want to paginate over
-    :raises ValueError: if the given function does not support pagination
-    """
-    if 'after' not in func.__code__.co_varnames:
-        raise ValueError('The passed function does not support forward pagination')
-    result = await func(*args, **kwargs)
-    yield result
-    while result.get('pagination', {}).get('cursor') is not None:
-        pag = result.get('pagination', {}).get('cursor')
-        result = await func(*args, after=pag, **kwargs)
-        yield result
