@@ -128,7 +128,7 @@ class AuthType(Enum):
     EITHER = 3
 
 
-class CodeStatus(Enum):
+class StatusCode(Enum):
     """Enum Code Status, see https://dev.twitch.tv/docs/api/reference#get-code-status for more documentation
     """
     SUCCESSFULLY_REDEEMED = 'SUCCESSFULLY_REDEEMED'

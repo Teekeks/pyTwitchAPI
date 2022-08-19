@@ -4,6 +4,8 @@ from typing import Optional, get_type_hints, Union, List
 from dateutil import parser as du_parser
 from pprint import pprint
 
+from twitchAPI.types import StatusCode
+
 
 class TwitchObject:
     @staticmethod
@@ -24,6 +26,15 @@ class TwitchObject:
             if kwargs.get(name) is None:
                 continue
             self.__setattr__(name, TwitchObject._val_by_instance(cls, kwargs.get(name)))
+
+
+class IterTwitchObject(TwitchObject):
+
+    def __iter__(self):
+        if not hasattr(self, 'data') or not isinstance(self.__getattribute__('data'), list):
+            raise ValueError('Object is missing data attribute of type list')
+        for i in self.__getattribute__('data'):
+            yield i
 
 
 class TwitchUser(TwitchObject):
@@ -88,7 +99,7 @@ class BitsLeaderboardEntry(TwitchObject):
     score: int
 
 
-class BitsLeaderboard(TwitchObject):
+class BitsLeaderboard(IterTwitchObject):
     data: List[BitsLeaderboardEntry]
     date_range: DateRange
     total: int
@@ -157,3 +168,8 @@ class Clip(TwitchObject):
     thumbnail_url: str
     duration: float
     vod_offset: int
+
+
+class CodeStatus(TwitchObject):
+    code: str
+    status: StatusCode

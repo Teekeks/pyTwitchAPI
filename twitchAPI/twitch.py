@@ -931,7 +931,7 @@ class Twitch:
 
     async def get_code_status(self,
                               code: List[str],
-                              user_id: int) -> dict:
+                              user_id: int) -> AsyncGenerator[StatusCode, None]:
         """Gets the status of one or more provided Bits codes.\n\n
 
         Requires App authentication\n
@@ -954,10 +954,8 @@ class Twitch:
             'code': code,
             'user_id': user_id
         }
-        url = build_url(self.base_url + 'entitlements/codes', param, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.APP, [])
-        data = await result.json()
-        return fields_to_enum(data, ['status'], CodeStatus, CodeStatus.UNKNOWN_VALUE)
+        async for y in self._build_generator('GET', 'entitlements/codes', param, AuthType.APP, [], StatusCode):
+            yield y
 
     async def redeem_code(self,
                           code: List[str],
