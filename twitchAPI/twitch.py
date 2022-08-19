@@ -954,12 +954,12 @@ class Twitch:
             'code': code,
             'user_id': user_id
         }
-        async for y in self._build_generator('GET', 'entitlements/codes', param, AuthType.APP, [], StatusCode):
+        async for y in self._build_generator('GET', 'entitlements/codes', param, AuthType.APP, [], StatusCode, split_lists=True):
             yield y
 
     async def redeem_code(self,
                           code: List[str],
-                          user_id: int) -> dict:
+                          user_id: int) -> AsyncGenerator[StatusCode, None]:
         """Redeems one or more provided Bits codes to the authenticated Twitch user.\n\n
 
         Requires App authentication\n
@@ -982,10 +982,8 @@ class Twitch:
             'code': code,
             'user_id': user_id
         }
-        url = build_url(self.base_url + 'entitlements/code', param, split_lists=True)
-        result = await self.__api_post_request(url, AuthType.APP, [])
-        data = await result.json()
-        return fields_to_enum(data, ['status'], CodeStatus, CodeStatus.UNKNOWN_VALUE)
+        async for y in self._build_generator('POST', 'entitlements/code', param, AuthType.APP, [], StatusCode, split_lists=True):
+            yield y
 
     async def get_top_games(self,
                             after: Optional[str] = None,
