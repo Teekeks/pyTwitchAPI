@@ -1072,44 +1072,6 @@ class Twitch:
                                              AuthType.USER, [AuthScope.MODERATION_READ], AutoModStatus, body_data=body):
             yield y
 
-    async def get_banned_events(self,
-                                broadcaster_id: str,
-                                user_id: Optional[str] = None,
-                                after: Optional[str] = None,
-                                first: int = 20) -> dict:
-        """Returns all user bans and un-bans in a channel.\n\n
-
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-banned-events
-
-        :param str broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
-        :param str user_id: Filters the results and only returns a status object for users who are banned in
-                        this channel and have a matching user_id |default| :code:`None`
-        :param str after: Cursor for forward pagination |default| :code:`None`
-        :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
-        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
-        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
-                        and a re authentication failed
-        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if first is not in range 1 ot 100
-        :rtype: dict
-        """
-        if first > 100 or first < 1:
-            raise ValueError('first must be between 1 and 100')
-        param = {
-            'broadcaster_id': broadcaster_id,
-            'user_id': user_id,
-            'after': after,
-            'first': first
-        }
-        url = build_url(self.base_url + 'moderation/banned/events', param, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
-        data = fields_to_enum(await result.json(), ['event_type'], ModerationEventType, ModerationEventType.UNKNOWN)
-        data = make_fields_datetime(data, ['event_timestamp', 'expires_at'])
-        return data
-
     async def get_banned_users(self,
                                broadcaster_id: str,
                                user_id: Optional[str] = None,
