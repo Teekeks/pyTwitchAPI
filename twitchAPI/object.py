@@ -184,3 +184,15 @@ class Game(TwitchObject):
 class AutoModStatus(TwitchObject):
     msg_id: str
     is_permitted: bool
+
+
+class BannedUser(TwitchObject):
+    user_id: str
+    user_login: str
+    user_name: str
+    expires_at: datetime
+    created_at: datetime
+    reason: str
+    moderator_id: str
+    moderator_login: str
+    moderator_name: str

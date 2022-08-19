@@ -126,7 +126,7 @@ from logging import getLogger, Logger
 from .object import *
 from .types import *
 
-from typing import Union, List, Optional, Callable, Generator, AsyncGenerator, T, Dict
+from typing import Union, List, Optional, Callable, AsyncGenerator, T, Dict
 
 __all__ = ['Twitch']
 
@@ -1077,7 +1077,7 @@ class Twitch:
                                user_id: Optional[str] = None,
                                after: Optional[str] = None,
                                first: Optional[int] = 20,
-                               before: Optional[str] = None) -> dict:
+                               before: Optional[str] = None) -> AsyncGenerator[BannedUser, None]:
         """Returns all banned and timed-out users in a channel.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
@@ -1107,9 +1107,8 @@ class Twitch:
             'first': first,
             'before': before
         }
-        url = build_url(self.base_url + 'moderation/banned', param, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
-        return make_fields_datetime(await result.json(), ['expires_at', 'created_at'])
+        async for y in self._build_generator('GET', 'moderation/banned', param, AuthType.USER, [AuthScope.MODERATION_READ], BannedUser):
+            yield y
 
     async def ban_user(self,
                        broadcaster_id: str,
