@@ -1017,7 +1017,7 @@ class Twitch:
 
     async def get_games(self,
                         game_ids: Optional[List[str]] = None,
-                        names: Optional[List[str]] = None) -> dict:
+                        names: Optional[List[str]] = None) -> AsyncGenerator[Game, None]:
         """Gets game information by game ID or name.\n\n
 
         Requires User or App authentication.
@@ -1044,9 +1044,8 @@ class Twitch:
             'id': game_ids,
             'name': names
         }
-        url = build_url(self.base_url + 'games', param, remove_none=True, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return await result.json()
+        async for y in self._build_generator('GET', 'games', param, AuthType.EITHER, [], Game, split_lists=True):
+            yield y
 
     async def check_automod_status(self,
                                    broadcaster_id: str,
