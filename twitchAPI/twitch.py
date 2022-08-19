@@ -1925,7 +1925,7 @@ class Twitch:
         :rtype: dict
         """
         if isinstance(broadcaster_id, list):
-            if len(broadcaster_id) == 0 or len(broadcaster_id) > 100:
+            if len(broadcaster_id) < 1 or len(broadcaster_id) > 100:
                 raise ValueError('broadcaster_id has to have between 1 and 100 entries')
         url = build_url(self.base_url + 'channels', {'broadcaster_id': broadcaster_id}, split_lists=True)
         response = await self.__api_get_request(url, AuthType.EITHER, [])
