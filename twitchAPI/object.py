@@ -173,3 +173,9 @@ class Clip(TwitchObject):
 class CodeStatus(TwitchObject):
     code: str
     status: StatusCode
+
+
+class Game(TwitchObject):
+    box_art_url: str
+    id: str
+    name: str

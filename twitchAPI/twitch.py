@@ -988,7 +988,7 @@ class Twitch:
     async def get_top_games(self,
                             after: Optional[str] = None,
                             before: Optional[str] = None,
-                            first: int = 20) -> dict:
+                            first: int = 20) -> AsyncGenerator[Game, None]:
         """Gets games sorted by number of current viewers on Twitch, most popular first.\n\n
 
         Requires App or User authentication\n
@@ -1012,9 +1012,8 @@ class Twitch:
             'before': before,
             'first': first
         }
-        url = build_url(self.base_url + 'games/top', param, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return await result.json()
+        async for y in self._build_generator('GET', 'games/top', param, AuthType.EITHER, [], Game):
+            yield y
 
     async def get_games(self,
                         game_ids: Optional[List[str]] = None,
