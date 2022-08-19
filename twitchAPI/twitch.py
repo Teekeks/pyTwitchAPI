@@ -1049,7 +1049,7 @@ class Twitch:
 
     async def check_automod_status(self,
                                    broadcaster_id: str,
-                                   automod_check_entries: List[AutoModCheckEntry]) -> dict:
+                                   automod_check_entries: List[AutoModCheckEntry]) -> AsyncGenerator[AutoModStatus, None]:
         """Determines whether a string message meets the channel’s AutoMod requirements.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
@@ -1068,8 +1068,9 @@ class Twitch:
         url = build_url(self.base_url + 'moderation/enforcements/status',
                         {'broadcaster_id': broadcaster_id})
         body = {'data': automod_check_entries}
-        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATION_READ], data=body)
-        return await result.json()
+        async for y in self._build_generator('POST', 'moderation/enforcements/status', {'broadcaster_id': broadcaster_id},
+                                             AuthType.USER, [AuthScope.MODERATION_READ], AutoModStatus, body_data=body):
+            yield y
 
     async def get_banned_events(self,
                                 broadcaster_id: str,

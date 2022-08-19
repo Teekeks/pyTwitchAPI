@@ -179,3 +179,8 @@ class Game(TwitchObject):
     box_art_url: str
     id: str
     name: str
+
+
+class AutoModStatus(TwitchObject):
+    msg_id: str
+    is_permitted: bool
