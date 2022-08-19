@@ -2104,7 +2104,6 @@ class Twitch:
     async def get_hype_train_events(self,
                                     broadcaster_id: str,
                                     first: Optional[int] = 1,
-                                    id: Optional[str] = None,
                                     cursor: Optional[str] = None) -> dict:
         """Gets the information of the most recent Hype Train of the given channel ID.
         When there is currently an active Hype Train, it returns information about that Hype Train.
@@ -2116,7 +2115,6 @@ class Twitch:
 
         :param str broadcaster_id: User ID of the broadcaster.
         :param int first: Maximum number of objects to return. Maximum: 100. |default| :code:`1`
-        :param str id: The id of the wanted event, if known |default| :code:`None`
         :param str cursor: Cursor for forward pagination |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
@@ -2132,7 +2130,6 @@ class Twitch:
         url = build_url(self.base_url + 'hypetrain/events',
                         {'broadcaster_id': broadcaster_id,
                          'first': first,
-                         'id': id,
                          'cursor': cursor}, remove_none=True)
         response = await self.__api_get_request(url, AuthType.EITHER, [AuthScope.CHANNEL_READ_HYPE_TRAIN])
         data = make_fields_datetime(await response.json(), ['event_timestamp',
