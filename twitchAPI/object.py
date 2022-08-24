@@ -204,3 +204,13 @@ class BanUserResponse(TwitchObject):
     user_id: str
     created_at: datetime
     end_time: datetime
+
+
+class BlockedTerm(TwitchObject):
+    broadcaster_id: str
+    moderator_id: str
+    id: str
+    text: str
+    created_at: datetime
+    updated_at: datetime
+    expires_at: datetime

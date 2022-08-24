@@ -1192,7 +1192,7 @@ class Twitch:
                                 broadcaster_id: str,
                                 moderator_id: str,
                                 after: Optional[str] = None,
-                                first: Optional[int] = None) -> dict:
+                                first: Optional[int] = None) -> AsyncGenerator[BlockedTerm]:
         """Gets the broadcaster’s list of non-private, blocked words or phrases.
         These are the terms that the broadcaster or moderator added manually, or that were denied by AutoMod.
 
@@ -1221,9 +1221,9 @@ class Twitch:
             'first': first,
             'after': after
         }
-        url = build_url(self.base_url + 'moderation/blocked_terms', param, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATOR_READ_BLOCKED_TERMS])
-        return make_fields_datetime(await result.json(), ['created_at', 'expires_at', 'updated_at'])
+        async for y in self._build_generator('GET', 'moderation/blocked_terms', param, AuthType.USER, [AuthScope.MODERATOR_READ_BLOCKED_TERMS],
+                                             BlockedTerm):
+            yield y
 
     async def add_blocked_term(self,
                                broadcaster_id: str,
