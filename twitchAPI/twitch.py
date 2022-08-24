@@ -1228,7 +1228,7 @@ class Twitch:
     async def add_blocked_term(self,
                                broadcaster_id: str,
                                moderator_id: str,
-                               text: str) -> dict:
+                               text: str) -> BlockedTerm:
         """Adds a word or phrase to the broadcaster’s list of blocked terms. These are the terms that broadcasters don’t want used in their chat room.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS`\n
@@ -1253,10 +1253,9 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'moderator_id': moderator_id
         }
-        url = build_url(self.base_url + 'moderation/blocked_terms', param)
         body = {'text': text}
-        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS], data=body)
-        return make_fields_datetime(await result.json(), ['created_at', 'expires_at', 'updated_at'])
+        return await self._build_result('POST', 'moderation/blocked_terms', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS],
+                                        BlockedTerm, body_data=body)
 
     async def remove_blocked_term(self,
                                   broadcaster_id: str,
