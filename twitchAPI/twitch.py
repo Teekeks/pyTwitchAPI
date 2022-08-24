@@ -1192,7 +1192,7 @@ class Twitch:
                                 broadcaster_id: str,
                                 moderator_id: str,
                                 after: Optional[str] = None,
-                                first: Optional[int] = None) -> AsyncGenerator[BlockedTerm]:
+                                first: Optional[int] = None) -> AsyncGenerator[BlockedTerm, None]:
         """Gets the broadcaster’s list of non-private, blocked words or phrases.
         These are the terms that the broadcaster or moderator added manually, or that were denied by AutoMod.
 
@@ -1291,7 +1291,7 @@ class Twitch:
                              broadcaster_id: str,
                              user_ids: Optional[List[str]] = None,
                              first: Optional[int] = 20,
-                             after: Optional[str] = None) -> dict:
+                             after: Optional[str] = None) -> AsyncGenerator[Moderator, None]:
         """Returns all moderators in a channel.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
@@ -1322,9 +1322,9 @@ class Twitch:
             'first': first,
             'after': after
         }
-        url = build_url(self.base_url + 'moderation/moderators', param, remove_none=True, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.MODERATION_READ])
-        return await result.json()
+        async for y in self._build_generator('GET', 'moderation/moderators', param, AuthType.USER, [AuthScope.MODERATION_READ], Moderator,
+                                             split_lists=True):
+            yield y
 
     async def create_stream_marker(self,
                                    user_id: str,

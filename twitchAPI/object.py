@@ -214,3 +214,9 @@ class BlockedTerm(TwitchObject):
     created_at: datetime
     updated_at: datetime
     expires_at: datetime
+
+
+class Moderator(TwitchObject):
+    user_id: str
+    user_login: str
+    user_name: str
