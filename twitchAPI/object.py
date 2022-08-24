@@ -220,3 +220,10 @@ class Moderator(TwitchObject):
     user_id: str
     user_login: str
     user_name: str
+
+
+class StreamMarker(TwitchObject):
+    id: str
+    created_at: datetime
+    description: str
+    position_seconds: int

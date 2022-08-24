@@ -1328,7 +1328,7 @@ class Twitch:
 
     async def create_stream_marker(self,
                                    user_id: str,
-                                   description: Optional[str] = None) -> dict:
+                                   description: Optional[str] = None) -> StreamMarker:
         """Creates a marker in the stream of a user specified by user ID.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
@@ -1348,13 +1348,10 @@ class Twitch:
         """
         if description is not None and len(description) > 140:
             raise ValueError('max length for description is 140')
-        url = build_url(self.base_url + 'streams/markers', {})
         body = {'user_id': user_id}
         if description is not None:
             body['description'] = description
-        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data=body)
-        data = await result.json()
-        return make_fields_datetime(data, ['created_at'])
+        return await self._build_result('POST', 'streams/markers', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], StreamMarker, body_data=body)
 
     async def get_streams(self,
                           after: Optional[str] = None,
