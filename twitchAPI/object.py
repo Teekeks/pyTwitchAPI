@@ -227,3 +227,20 @@ class StreamMarker(TwitchObject):
     created_at: datetime
     description: str
     position_seconds: int
+
+
+class Stream(TwitchObject):
+    id: str
+    user_id: str
+    user_login: str
+    user_name: str
+    game_id: str
+    game_name: str
+    type: str
+    title: str
+    viewer_count: int
+    started_at: datetime
+    language: str
+    thumbnail_url: str
+    tag_ids: List[str]
+    is_mature: bool

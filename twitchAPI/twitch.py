@@ -1360,7 +1360,7 @@ class Twitch:
                           game_id: Optional[List[str]] = None,
                           language: Optional[List[str]] = None,
                           user_id: Optional[List[str]] = None,
-                          user_login: Optional[List[str]] = None) -> dict:
+                          user_login: Optional[List[str]] = None) -> AsyncGenerator[Stream, None]:
         """Gets information about active streams. Streams are returned sorted by number of current viewers, in
         descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join
         and leave streams.\n\n
@@ -1406,10 +1406,8 @@ class Twitch:
             'user_id': user_id,
             'user_login': user_login
         }
-        url = build_url(self.base_url + 'streams', param, remove_none=True, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        data = await result.json()
-        return make_fields_datetime(data, ['started_at'])
+        async for y in self._build_generator('GET', 'streams', param, AuthType.EITHER, [], Stream, split_lists=True):
+            yield y
 
     async def get_stream_markers(self,
                                  user_id: str,
