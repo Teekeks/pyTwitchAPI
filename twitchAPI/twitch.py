@@ -1115,7 +1115,7 @@ class Twitch:
                        moderator_id: str,
                        user_id: str,
                        reason: str,
-                       duration: Optional[int] = None) -> dict:
+                       duration: Optional[int] = None) -> BanUserResponse:
         """Bans a user from participating in a broadcaster’s chat room, or puts them in a timeout.
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BANNED_USERS`\n
@@ -1155,8 +1155,8 @@ class Twitch:
                 'user_id': user_id
             })
         }
-        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS], data=body)
-        return make_fields_datetime(await result.json(), ['created_at', 'end_time'])
+        return await self._build_result('POST', 'moderation/bans', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS], BanUserResponse,
+                                        body_data=body)
 
     async def unban_user(self,
                          broadcaster_id: str,

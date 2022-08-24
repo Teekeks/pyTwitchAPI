@@ -196,3 +196,11 @@ class BannedUser(TwitchObject):
     moderator_id: str
     moderator_login: str
     moderator_name: str
+
+
+class BanUserResponse(TwitchObject):
+    broadcaster_id: str
+    moderator_id: str
+    user_id: str
+    created_at: datetime
+    end_time: datetime
