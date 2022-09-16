@@ -1414,7 +1414,7 @@ class Twitch:
                                  video_id: str,
                                  after: Optional[str] = None,
                                  before: Optional[str] = None,
-                                 first: int = 20) -> dict:
+                                 first: int = 20) -> AsyncGenerator[GetStreamMarkerResponse, None]:
         """Gets a list of markers for either a specified user’s most recent stream or a specified VOD/video (stream),
         ordered by recency.\n\n
 
@@ -1456,7 +1456,7 @@ class Twitch:
                                             broadcaster_id: str,
                                             user_ids: Optional[List[str]] = None,
                                             after: Optional[str] = None,
-                                            first: Optional[int] = 20) -> dict:
+                                            first: Optional[int] = 20) -> AsyncGenerator[BroadcasterSubscriptions, None]:
         """Get all of a broadcaster’s subscriptions.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS`\n
