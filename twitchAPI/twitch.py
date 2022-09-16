@@ -1493,7 +1493,7 @@ class Twitch:
 
     async def check_user_subscription(self,
                                       broadcaster_id: str,
-                                      user_id: str) -> dict:
+                                      user_id: str) -> UserSubscription:
         """Checks if a specific user (user_id) is subscribed to a specific channel (broadcaster_id).
 
         Requires User or App Authorization with scope :const:`twitchAPI.types.AuthScope.USER_READ_SUBSCRIPTIONS`
@@ -1514,9 +1514,7 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'user_id': user_id
         }
-        url = build_url(self.base_url + 'subscriptions/user', param)
-        result = await self.__api_get_request(url, AuthType.EITHER, [AuthScope.USER_READ_SUBSCRIPTIONS])
-        return await result.json()
+        return await self._build_result('GET', 'subscriptions/user', param, AuthType.EITHER, [AuthScope.USER_READ_SUBSCRIPTIONS], UserSubscription)
 
     async def get_all_stream_tags(self,
                                   after: Optional[str] = None,

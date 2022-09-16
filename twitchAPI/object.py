@@ -285,3 +285,12 @@ class BroadcasterSubscriptions(IterTwitchObject):
     total: int
     points: int
     data: List[BroadcasterSubscription]
+
+
+class UserSubscription(TwitchObject):
+    broadcaster_id: str
+    broadcaster_name: str
+    broadcaster_login: str
+    is_gift: bool
+    tier: str
+
