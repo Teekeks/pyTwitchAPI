@@ -1328,7 +1328,7 @@ class Twitch:
 
     async def create_stream_marker(self,
                                    user_id: str,
-                                   description: Optional[str] = None) -> StreamMarker:
+                                   description: Optional[str] = None) -> CreateStreamMarkerResponse:
         """Creates a marker in the stream of a user specified by user ID.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
@@ -1351,7 +1351,7 @@ class Twitch:
         body = {'user_id': user_id}
         if description is not None:
             body['description'] = description
-        return await self._build_result('POST', 'streams/markers', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], StreamMarker, body_data=body)
+        return await self._build_result('POST', 'streams/markers', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], CreateStreamMarkerResponse, body_data=body)
 
     async def get_streams(self,
                           after: Optional[str] = None,
@@ -1449,9 +1449,8 @@ class Twitch:
             'before': before,
             'first': first
         }
-        url = build_url(self.base_url + 'streams/markers', param, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
-        return make_fields_datetime(await result.json(), ['created_at'])
+        async for y in self._build_generator('GET', 'streams/markers', param, AuthType.USER, [AuthScope.USER_READ_BROADCAST], GetStreamMarkerResponse):
+            yield y
 
     async def get_broadcaster_subscriptions(self,
                                             broadcaster_id: str,

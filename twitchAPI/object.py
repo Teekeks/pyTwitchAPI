@@ -222,7 +222,7 @@ class Moderator(TwitchObject):
     user_name: str
 
 
-class StreamMarker(TwitchObject):
+class CreateStreamMarkerResponse(TwitchObject):
     id: str
     created_at: datetime
     description: str
@@ -244,3 +244,23 @@ class Stream(TwitchObject):
     thumbnail_url: str
     tag_ids: List[str]
     is_mature: bool
+
+
+class StreamMarker(TwitchObject):
+    id: str
+    created_at: datetime
+    description: str
+    position_seconds: int
+    URL: str
+
+
+class StreamMarkers(TwitchObject):
+    video_id: str
+    markers: List[StreamMarker]
+
+
+class GetStreamMarkerResponse(TwitchObject):
+    user_id: str
+    user_name: str
+    user_login: str
+    videos: List[StreamMarkers]
