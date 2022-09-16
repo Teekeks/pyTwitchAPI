@@ -1487,9 +1487,9 @@ class Twitch:
             'first': first,
             'after': after
         }
-        url = build_url(self.base_url + 'subscriptions', param, remove_none=True, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_SUBSCRIPTIONS])
-        return await result.json()
+        async for y in self._build_generator('GET', 'subscriptions', param, AuthType.USER, [AuthScope.CHANNEL_READ_SUBSCRIPTIONS],
+                                             BroadcasterSubscriptions, split_lists=True):
+            yield y
 
     async def check_user_subscription(self,
                                       broadcaster_id: str,

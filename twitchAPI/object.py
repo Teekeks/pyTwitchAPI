@@ -264,3 +264,24 @@ class GetStreamMarkerResponse(TwitchObject):
     user_name: str
     user_login: str
     videos: List[StreamMarkers]
+
+
+class BroadcasterSubscription(TwitchObject):
+    broadcaster_id: str
+    broadcaster_login: str
+    broadcaster_name: str
+    gifter_id: str
+    gifter_login: str
+    gifter_name: str
+    is_gift: bool
+    tier: str
+    plan_name: str
+    user_id: str
+    user_name: str
+    user_login: str
+
+
+class BroadcasterSubscriptions(TwitchObject):
+    total: int
+    points: int
+    data: List[BroadcasterSubscription]
