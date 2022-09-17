@@ -451,6 +451,10 @@ class Twitch:
             response = await req(_url, auth_type, auth_scope, data=body_data)
         if return_type is not None:
             data = await response.json()
+            origin = return_type.__origin__ if hasattr(return_type, '__origin__') else None
+            if origin == list:
+                c = return_type.__args__[0]
+                return [c(**x) for x in data['data']]
             return return_type(**data)
 
     async def __generate_app_token(self) -> None:
