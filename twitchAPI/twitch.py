@@ -1601,7 +1601,7 @@ class Twitch:
                                         None, body_data={'tag_ids': tag_ids})
 
     async def get_channel_teams(self,
-                                broadcaster_id: str) -> dict:
+                                broadcaster_id: str) -> List[ChannelTeam]:
         """Retrieves a list of Twitch Teams of which the specified channel/broadcaster is a member.\n\n
 
         Requires User or App authentication.
@@ -1616,9 +1616,7 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         """
-        url = build_url(self.base_url + 'teams/channel', {'broadcaster_id': broadcaster_id})
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(await result.json(), ['created_at', 'updated_at'])
+        return await self._build_result('GET', 'teams/channel', {'broadcaster_id': broadcaster_id}, AuthType.EITHER, [], List[ChannelTeam])
 
     async def get_teams(self,
                         team_id: Optional[str] = None,
