@@ -1571,7 +1571,7 @@ class Twitch:
 
     async def replace_stream_tags(self,
                                   broadcaster_id: str,
-                                  tag_ids: List[str]) -> dict:
+                                  tag_ids: List[str]) -> None:
         """Applies specified tags to a specified stream, overwriting any existing tags applied to that stream.
         If no tags are specified, all tags previously applied to the stream are removed.
         Automated tags are not affected by this operation.\n\n
@@ -1593,10 +1593,8 @@ class Twitch:
         """
         if len(tag_ids) > 100:
             raise ValueError('tag_ids can not have more than 100 entries')
-        url = build_url(self.base_url + 'streams/tags', {'broadcaster_id': broadcaster_id})
-        await self.__api_put_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data={'tag_ids': tag_ids})
-        # this returns nothing
-        return {}
+        return await self._build_result('PUT', 'streams/tags', {'broadcaster_id': broadcaster_id}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST],
+                                        None, body_data={'tag_ids': tag_ids})
 
     async def get_channel_teams(self,
                                 broadcaster_id: str) -> dict:
