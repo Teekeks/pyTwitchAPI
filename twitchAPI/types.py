@@ -11,7 +11,7 @@ __all__ = ['AnalyticsReportType', 'AuthScope', 'ModerationEventType', 'TimePerio
            'ChatEvent', 'ChatRoom',
            'TwitchAPIException', 'InvalidRefreshTokenException', 'InvalidTokenException', 'NotFoundException', 'TwitchAuthorizationException',
            'UnauthorizedException', 'MissingScopeException', 'TwitchBackendException', 'PubSubListenTimeoutException', 'MissingAppSecretException',
-           'EventSubSubscriptionTimeout', 'EventSubSubscriptionConflict', 'EventSubSubscriptionError', 'DeprecatedError']
+           'EventSubSubscriptionTimeout', 'EventSubSubscriptionConflict', 'EventSubSubscriptionError', 'DeprecatedError', 'TwitchResourceNotFound']
 
 
 class AnalyticsReportType(Enum):
@@ -318,4 +318,9 @@ class EventSubSubscriptionError(TwitchAPIException):
 
 class DeprecatedError(TwitchAPIException):
     """If something has been marked as deprecated by the Twitch API"""
+    pass
+
+
+class TwitchResourceNotFound(TwitchAPIException):
+    """If a requested resource was not found"""
     pass

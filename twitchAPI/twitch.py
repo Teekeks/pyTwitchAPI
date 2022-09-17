@@ -304,7 +304,8 @@ class Twitch:
             except:
                 pass
             raise TwitchAPIException('Bad Request' + ('' if msg is None else f' - {str(msg)}'))
-
+        if response.status == 404:
+            raise TwitchResourceNotFound()
         if response.status == 429 or str(response.headers.get('Ratelimit-Remaining', '')) == '0':
             self.__logger.warning('reached rate limit, waiting for reset')
             import time
