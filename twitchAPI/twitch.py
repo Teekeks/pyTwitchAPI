@@ -1521,7 +1521,7 @@ class Twitch:
     async def get_all_stream_tags(self,
                                   after: Optional[str] = None,
                                   first: int = 20,
-                                  tag_ids: Optional[List[str]] = None) -> dict:
+                                  tag_ids: Optional[List[str]] = None) -> AsyncGenerator[StreamTag, None]:
         """Gets the list of all stream tags defined by Twitch, optionally filtered by tag ID(s).\n\n
 
         Requires App authentication\n
@@ -1547,9 +1547,8 @@ class Twitch:
             'first': first,
             'tag_id': tag_ids
         }
-        url = build_url(self.base_url + 'tags/streams', param, remove_none=True, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.APP, [])
-        return await result.json()
+        async for y in self._build_generator('GET', 'tags/streams', param, AuthType.APP, [], StreamTag, split_lists=True):
+            yield y
 
     async def get_stream_tags(self,
                               broadcaster_id: str) -> dict:
