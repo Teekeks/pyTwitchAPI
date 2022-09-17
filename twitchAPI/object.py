@@ -304,3 +304,18 @@ class StreamTag(TwitchObject):
     is_auto: bool
     localization_names: Dict[str, str]
     localization_descriptions: Dict[str, str]
+
+
+class ChannelTeam(TwitchObject):
+    broadcaster_id: str
+    broadcaster_name: str
+    broadcaster_login: str
+    background_image_url: str
+    banner: str
+    created_at: datetime
+    updated_at: datetime
+    info: str
+    thumbnail_url: str
+    team_name: str
+    team_display_name: str
+    id: str
