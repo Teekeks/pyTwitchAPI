@@ -1551,7 +1551,7 @@ class Twitch:
             yield y
 
     async def get_stream_tags(self,
-                              broadcaster_id: str) -> dict:
+                              broadcaster_id: str) -> AsyncGenerator[StreamTag, None]:
         """Gets the list of tags for a specified stream (channel).\n\n
 
         Requires User authentication\n
@@ -1565,9 +1565,8 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(self.base_url + 'streams/tags', {'broadcaster_id': broadcaster_id})
-        result = await self.__api_get_request(url, AuthType.USER, [])
-        return await result.json()
+        async for y in self._build_generator('GET', 'streams/tags', {'broadcaster_id': broadcaster_id}, AuthType.USER, [], StreamTag):
+            yield y
 
     async def replace_stream_tags(self,
                                   broadcaster_id: str,
