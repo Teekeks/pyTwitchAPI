@@ -449,8 +449,9 @@ class Twitch:
             response = await req(_url, auth_type, auth_scope)
         else:
             response = await req(_url, auth_type, auth_scope, data=body_data)
-        data = await response.json()
-        return return_type(**data)
+        if return_type is not None:
+            data = await response.json()
+            return return_type(**data)
 
     async def __generate_app_token(self) -> None:
         if self.app_secret is None:
