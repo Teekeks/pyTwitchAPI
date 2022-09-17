@@ -5,7 +5,7 @@ from enum import Enum
 from typing_extensions import TypedDict
 
 __all__ = ['AnalyticsReportType', 'AuthScope', 'ModerationEventType', 'TimePeriod', 'SortMethod', 'HypeTrainContributionMethod',
-           'VideoType', 'AuthType', 'CodeStatus', 'PubSubResponseError', 'CustomRewardRedemptionStatus', 'SortOrder',
+           'VideoType', 'AuthType', 'PubSubResponseError', 'CustomRewardRedemptionStatus', 'SortOrder',
            'BlockSourceContext', 'BlockReason', 'EntitlementFulfillmentStatus', 'PollStatus', 'PredictionStatus', 'AutoModAction',
            'AutoModCheckEntry',
            'ChatEvent', 'ChatRoom',
