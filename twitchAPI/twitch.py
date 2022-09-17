@@ -1510,6 +1510,7 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if user is not subscribed to the given broadcaster
         """
         param = {
             'broadcaster_id': broadcaster_id,
