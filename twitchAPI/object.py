@@ -1,6 +1,6 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 from datetime import datetime
-from typing import Optional, get_type_hints, Union, List
+from typing import Optional, get_type_hints, Union, List, Dict
 from dateutil import parser as du_parser
 from pprint import pprint
 
@@ -16,6 +16,10 @@ class TwitchObject:
         elif origin == list:
             c = instance.__args__[0]
             return [TwitchObject._val_by_instance(c, x) for x in val]
+        elif origin == dict:
+            c1 = instance.__args__[0]
+            c2 = instance.__args__[1]
+            return {TwitchObject._val_by_instance(c1, x1): TwitchObject._val_by_instance(c2, x2) for x1, x2 in val.items()}
         elif issubclass(instance, TwitchObject):
             return instance(**val)
         else:
@@ -294,3 +298,9 @@ class UserSubscription(TwitchObject):
     is_gift: bool
     tier: str
 
+
+class StreamTag(TwitchObject):
+    tag_id: str
+    is_auto: bool
+    localization_names: Dict[str, str]
+    localization_descriptions: Dict[str, str]
