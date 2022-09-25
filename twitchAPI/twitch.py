@@ -1790,7 +1790,7 @@ class Twitch:
                                         UserActiveExtensions)
 
     async def update_user_extensions(self,
-                                     data: dict) -> dict:
+                                     data: UserActiveExtensions) -> UserActiveExtensions:
         """"Updates the activation state, extension ID, and/or version number of installed extensions
         for the authenticated user.\n\n
 
@@ -1806,12 +1806,9 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(self.base_url + 'users/extensions', {})
-        result = await self.__api_put_request(url,
-                                              AuthType.USER,
-                                              [AuthScope.USER_EDIT_BROADCAST],
-                                              data=data)
-        return await result.json()
+        dat = {'data': data.to_dict(False)}
+        return await self._build_result('PUT', 'users/extensions', {}, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], UserActiveExtensions,
+                                        body_data=dat)
 
     async def get_videos(self,
                          ids: Optional[List[str]] = None,
