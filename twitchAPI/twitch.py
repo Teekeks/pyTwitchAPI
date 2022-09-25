@@ -457,7 +457,11 @@ class Twitch:
                 c = return_type.__args__[0]
                 return [c(**x) for x in data['data']]
             if get_from_data:
-                return return_type(**data['data'])
+                d = data['data']
+                if isinstance(d, list):
+                    return return_type(**d[0])
+                else:
+                    return return_type(**d)
             else:
                 return return_type(**data)
 
