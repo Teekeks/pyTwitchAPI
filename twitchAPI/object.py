@@ -2,7 +2,6 @@
 from datetime import datetime
 from typing import Optional, get_type_hints, Union, List, Dict
 from dateutil import parser as du_parser
-from pprint import pprint
 
 from twitchAPI.types import StatusCode
 
@@ -25,8 +24,52 @@ class TwitchObject:
         else:
             return instance(val)
 
+    @staticmethod
+    def _dict_val_by_instance(instance, val, include_none_values):
+        origin = instance.__origin__ if hasattr(instance, '__origin__') else None
+        if instance == datetime:
+            return val.isoformat() if val is not None else None
+        elif origin == list:
+            c = instance.__args__[0]
+            return [TwitchObject._dict_val_by_instance(c, x, include_none_values) for x in val]
+        elif origin == dict:
+            c1 = instance.__args__[0]
+            c2 = instance.__args__[1]
+            return {TwitchObject._dict_val_by_instance(c1, x1, include_none_values):
+                    TwitchObject._dict_val_by_instance(c2, x2, include_none_values) for x1, x2 in val.items()}
+        elif issubclass(instance, TwitchObject):
+            return val.to_dict(include_none_values)
+        return instance(val)
+
+    @classmethod
+    def _get_annotations(cls):
+        d = {}
+        for c in cls.mro():
+            try:
+                d.update(**c.__annotations__)
+            except AttributeError:
+                pass
+        return d
+
+    def to_dict(self, include_none_values: bool = False) -> dict:
+        """build dict based on annotation types"""
+        d = {}
+        annotations = self._get_annotations()
+        for name, val in self.__dict__.items():
+            val = None
+            cls = annotations.get(name)
+            try:
+                val = getattr(self, name)
+            except AttributeError:
+                pass
+            if val is None and not include_none_values:
+                continue
+            d[name] = TwitchObject._dict_val_by_instance(cls, val, include_none_values)
+        return d
+
     def __init__(self, **kwargs):
-        for name, cls in self.__annotations__.items():
+        merged_annotations = self._get_annotations()
+        for name, cls in merged_annotations.items():
             if kwargs.get(name) is None:
                 continue
             self.__setattr__(name, TwitchObject._val_by_instance(cls, kwargs.get(name)))
@@ -327,11 +370,15 @@ class UserExtension(TwitchObject):
     can_activate: bool
     type: List[str]
     name: str
+
+
+class ActiveUserExtension(UserExtension):
     x: int
     y: int
+    active: bool
 
 
 class UserActiveExtensions(TwitchObject):
-    panel: Dict[str, UserExtension]
-    overlay: Dict[str, UserExtension]
-    component: Dict[str, UserExtension]
+    panel: Dict[str, ActiveUserExtension]
+    overlay: Dict[str, ActiveUserExtension]
+    component: Dict[str, ActiveUserExtension]
