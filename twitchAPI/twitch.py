@@ -126,9 +126,10 @@ from logging import getLogger, Logger
 from .object import *
 from .types import *
 
-from typing import Union, List, Optional, Callable, AsyncGenerator, T, Dict
+from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict
 
 __all__ = ['Twitch']
+T = TypeVar('T')
 
 
 class Twitch:
