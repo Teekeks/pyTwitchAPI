@@ -1748,7 +1748,7 @@ class Twitch:
         """
         return await self._build_result('PUT', 'users', {'description': description}, AuthType.USER, [AuthScope.USER_EDIT], TwitchUser)
 
-    async def get_user_extensions(self) -> dict:
+    async def get_user_extensions(self) -> List[UserExtension]:
         """Gets a list of all extensions (both active and inactive) for the authenticated user\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
@@ -1762,9 +1762,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(self.base_url + 'users/extensions/list', {})
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
-        return await result.json()
+        return await self._build_result('GET', 'users/extensions/list', {}, AuthType.USER, [AuthScope.USER_READ_BROADCAST], List[UserExtension])
 
     async def get_user_active_extensions(self,
                                          user_id: Optional[str] = None) -> dict:

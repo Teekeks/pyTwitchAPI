@@ -319,3 +319,11 @@ class ChannelTeam(TwitchObject):
     team_name: str
     team_display_name: str
     id: str
+
+
+class UserExtension(TwitchObject):
+    id: str
+    version: str
+    can_activate: bool
+    type: List[str]
+    name: str
