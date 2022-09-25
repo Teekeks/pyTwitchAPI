@@ -435,7 +435,8 @@ class Twitch:
                             auth_scope: List[AuthScope],
                             return_type: T,
                             body_data: Optional[dict] = None,
-                            split_lists: bool = False):
+                            split_lists: bool = False,
+                            get_from_data: bool = False):
         r_lookup: Dict[str, Callable] = {
             'get': self.__api_get_request,
             'post': self.__api_post_request,
@@ -455,7 +456,10 @@ class Twitch:
             if origin == list:
                 c = return_type.__args__[0]
                 return [c(**x) for x in data['data']]
-            return return_type(**data)
+            if get_from_data:
+                return return_type(**data['data'])
+            else:
+                return return_type(**data)
 
     async def __generate_app_token(self) -> None:
         if self.app_secret is None:
