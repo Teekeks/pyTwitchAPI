@@ -436,7 +436,7 @@ class Twitch:
                             return_type: T,
                             body_data: Optional[dict] = None,
                             split_lists: bool = False,
-                            get_from_data: bool = False):
+                            get_from_data: bool = True):
         r_lookup: Dict[str, Callable] = {
             'get': self.__api_get_request,
             'post': self.__api_post_request,
@@ -729,7 +729,7 @@ class Twitch:
             'started_at': datetime_to_str(started_at),
             'user_id': user_id
         }
-        return await self._build_result('GET', 'bits/leaderboard', url_params, AuthType.USER, [AuthScope.BITS_READ], BitsLeaderboard)
+        return await self._build_result('GET', 'bits/leaderboard', url_params, AuthType.USER, [AuthScope.BITS_READ], BitsLeaderboard, get_from_data=False)
 
     async def get_extension_transactions(self,
                                          extension_id: str,
@@ -1166,7 +1166,7 @@ class Twitch:
             })
         }
         return await self._build_result('POST', 'moderation/bans', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS], BanUserResponse,
-                                        body_data=body)
+                                        body_data=body, get_from_data=True)
 
     async def unban_user(self,
                          broadcaster_id: str,
@@ -1361,7 +1361,8 @@ class Twitch:
         body = {'user_id': user_id}
         if description is not None:
             body['description'] = description
-        return await self._build_result('POST', 'streams/markers', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], CreateStreamMarkerResponse, body_data=body)
+        return await self._build_result('POST', 'streams/markers', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST],
+                                        CreateStreamMarkerResponse, body_data=body)
 
     async def get_streams(self,
                           after: Optional[str] = None,
