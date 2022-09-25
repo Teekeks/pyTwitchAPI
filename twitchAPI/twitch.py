@@ -1765,7 +1765,7 @@ class Twitch:
         return await self._build_result('GET', 'users/extensions/list', {}, AuthType.USER, [AuthScope.USER_READ_BROADCAST], List[UserExtension])
 
     async def get_user_active_extensions(self,
-                                         user_id: Optional[str] = None) -> dict:
+                                         user_id: Optional[str] = None) -> UserActiveExtensions:
         """Gets information about active extensions installed by a specified user, identified by a user ID or the
         authenticated user.\n\n
 
@@ -1781,9 +1781,8 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(self.base_url + 'users/extensions', {'user_id': user_id}, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BROADCAST])
-        return await result.json()
+        return await self._build_result('GET', 'users/extensions', {'user_id': user_id}, AuthType.USER, [AuthScope.USER_READ_BROADCAST],
+                                        UserActiveExtensions)
 
     async def update_user_extensions(self,
                                      data: dict) -> dict:

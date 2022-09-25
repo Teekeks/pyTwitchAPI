@@ -327,3 +327,11 @@ class UserExtension(TwitchObject):
     can_activate: bool
     type: List[str]
     name: str
+    x: int
+    y: int
+
+
+class UserActiveExtensions(TwitchObject):
+    panel: Dict[str, UserExtension]
+    overlay: Dict[str, UserExtension]
+    component: Dict[str, UserExtension]
