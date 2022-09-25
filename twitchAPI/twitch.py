@@ -1726,7 +1726,7 @@ class Twitch:
             yield f
 
     async def update_user(self,
-                          description: str) -> dict:
+                          description: str) -> TwitchUser:
         """Updates the description of the Authenticated user.\n\n
 
         Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT`\n
@@ -1741,9 +1741,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(self.base_url + 'users', {'description': description})
-        result = await self.__api_put_request(url, AuthType.USER, [AuthScope.USER_EDIT])
-        return await result.json()
+        return await self._build_result('PUT', 'users', {'description': description}, AuthType.USER, [AuthScope.USER_EDIT], TwitchUser)
 
     async def get_user_extensions(self) -> dict:
         """Gets a list of all extensions (both active and inactive) for the authenticated user\n\n
