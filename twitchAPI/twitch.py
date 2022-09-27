@@ -3026,7 +3026,7 @@ class Twitch:
         """
         return await self._build_result('GET', 'chat/emotes/global', {}, AuthType.EITHER, [], GetEmotesResponse, get_from_data=False)
 
-    async def get_emote_sets(self, emote_set_id: List[str]) -> dict:
+    async def get_emote_sets(self, emote_set_id: List[str]) -> GetEmotesResponse:
         """Gets emotes for one or more specified emote sets.
 
         Requires User or App Authentication\n
@@ -3041,9 +3041,10 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(self.base_url + 'chat/emotes/set', {'emote_set_id': emote_set_id}, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return await result.json()
+        if len(emote_set_id) == 0 or len(emote_set_id) > 25:
+            raise ValueError('you need to specify between 1 and 25 emote_set_ids')
+        return await self._build_result('GET', 'chat/emotes/set', {'emote_set_id': emote_set_id}, AuthType.EITHER, [], GetEmotesResponse,
+                                        split_lists=True)
 
     async def delete_eventsub_subscription(self, subscription_id: str) -> bool:
         """Deletes an EventSub subscription.
