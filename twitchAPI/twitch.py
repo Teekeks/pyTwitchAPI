@@ -1936,7 +1936,7 @@ class Twitch:
                               query: str,
                               first: Optional[int] = 20,
                               after: Optional[str] = None,
-                              live_only: Optional[bool] = False) -> dict:
+                              live_only: Optional[bool] = False) -> AsyncGenerator[SearchChannelResult, None]:
         """Returns a list of channels (users who have streamed within the past 6 months) that match the query via
         channel name or description either entirely or partially.\n\n
 
@@ -1957,13 +1957,12 @@ class Twitch:
         """
         if first < 1 or first > 100:
             raise ValueError('first must be between 1 and 100')
-        url = build_url(self.base_url + 'search/channels',
-                        {'query': query,
-                         'first': first,
-                         'after': after,
-                         'live_only': live_only}, remove_none=True)
-        response = await self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(await response.json(), ['started_at'])
+        param = {'query': query,
+                 'first': first,
+                 'after': after,
+                 'live_only': live_only}
+        async for y in self._build_generator('GET', 'search/channels', param, AuthType.EITHER, [], SearchChannelResult):
+            yield y
 
     async def search_categories(self,
                                 query: str,

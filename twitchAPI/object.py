@@ -421,3 +421,9 @@ class ChannelInformation(TwitchObject):
     broadcaster_language: str
     title: str
     delay: int
+
+
+class SearchChannelResult(ChannelInformation):
+    is_live: bool
+    tags_ids: List[str]
+    started_at: datetime
