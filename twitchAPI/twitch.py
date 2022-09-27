@@ -2237,18 +2237,11 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
-        :raises ~twitchAPI.types.NotFoundException: if the broadcaster has no custom reward with the given id
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the broadcaster has no custom reward with the given id
         """
 
-        url = build_url(self.base_url + 'channel_points/custom_rewards',
-                        {'broadcaster_id': broadcaster_id,
-                         'id': reward_id})
-        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS])
-
-        if result.status == 200:
-            return
-        if result.status == 404:
-            raise NotFoundException()
+        await self._build_result('DELETE', 'channel_points/custom_rewards', {'broadcaster_id': broadcaster_id, 'id': reward_id}, AuthType.USER,
+                                 [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], None)
 
     async def get_custom_reward(self,
                                 broadcaster_id: str,
