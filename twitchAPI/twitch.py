@@ -2610,7 +2610,7 @@ class Twitch:
     async def get_followed_streams(self,
                                    user_id: str,
                                    after: Optional[str] = None,
-                                   first: Optional[int] = 100) -> dict:
+                                   first: Optional[int] = 100) -> AsyncGenerator[Stream, None]:
         """Gets information about active streams belonging to channels that the authenticated user follows.
         Streams are returned sorted by number of current viewers, in descending order.
         Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
@@ -2634,14 +2634,13 @@ class Twitch:
         """
         if first < 1 or first > 100:
             raise ValueError('first must be in range 1 to 100')
-        url = build_url(self.base_url + 'streams/followed',
-                        {
-                            'user_id': user_id,
-                            'after': after,
-                            'first': first},
-                        remove_none=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_FOLLOWS])
-        return make_fields_datetime(await result.json(), ['started_at'])
+        param = {
+            'user_id': user_id,
+            'after': after,
+            'first': first
+        }
+        async for y in self._build_generator('GET', 'streams/followed', param, AuthType.USER, [AuthScope.USER_READ_FOLLOWS], Stream):
+            yield y
 
     async def get_polls(self,
                         broadcaster_id: str,
