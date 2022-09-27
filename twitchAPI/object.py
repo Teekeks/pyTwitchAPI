@@ -410,3 +410,14 @@ class Video(TwitchObject):
     type: VideoType
     duration: str
     muted_segments: List[VideoMutedSegments]
+
+
+class ChannelInformation(TwitchObject):
+    broadcaster_id: str
+    broadcaster_login: str
+    broadcaster_name: str
+    game_name: str
+    game_id: str
+    broadcaster_language: str
+    title: str
+    delay: int

@@ -1871,7 +1871,7 @@ class Twitch:
             yield y
 
     async def get_channel_information(self,
-                                      broadcaster_id: Union[str, List[str]]) -> dict:
+                                      broadcaster_id: Union[str, List[str]]) -> List[ChannelInformation]:
         """Gets channel information for users.\n\n
 
         Requires App or user authentication\n
@@ -1890,9 +1890,8 @@ class Twitch:
         if isinstance(broadcaster_id, list):
             if len(broadcaster_id) < 1 or len(broadcaster_id) > 100:
                 raise ValueError('broadcaster_id has to have between 1 and 100 entries')
-        url = build_url(self.base_url + 'channels', {'broadcaster_id': broadcaster_id}, split_lists=True)
-        response = await self.__api_get_request(url, AuthType.EITHER, [])
-        return await response.json()
+        return await self._build_result('GET', 'channels', {'broadcaster_id': broadcaster_id}, AuthType.EITHER, [], List[ChannelInformation],
+                                        split_lists=True)
 
     async def modify_channel_information(self,
                                          broadcaster_id: str,
