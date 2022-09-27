@@ -2772,7 +2772,7 @@ class Twitch:
                               broadcaster_id: str,
                               prediction_ids: Optional[List[str]] = None,
                               after: Optional[str] = None,
-                              first: Optional[int] = 20) -> dict:
+                              first: Optional[int] = 20) -> AsyncGenerator[Prediction, None]:
         """Get information about all Channel Points Predictions or specific Channel Points Predictions for a Twitch channel.
         Results are ordered by most recent, so it can be assumed that the currently active or locked Prediction will be the first item.
 
@@ -2800,15 +2800,15 @@ class Twitch:
             if len(prediction_ids) > 100:
                 raise ValueError('maximum of 100 prediction ids allowed')
 
-        url = build_url(self.base_url + 'predictions',
-                        {
-                            'broadcaster_id': broadcaster_id,
-                            'id': prediction_ids,
-                            'after': after,
-                            'first': first
-                        }, remove_none=True, split_lists=True)
-        data = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_PREDICTIONS])
-        return make_fields_datetime(await data.json(), ['created_at', 'ended_at', 'locked_at'])
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'id': prediction_ids,
+            'after': after,
+            'first': first
+        }
+        async for y in self._build_generator('GET', 'predictions', param, AuthType.USER, [AuthScope.CHANNEL_READ_PREDICTIONS], Prediction,
+                                             split_lists=True):
+            yield y
 
     async def create_prediction(self,
                                 broadcaster_id: str,

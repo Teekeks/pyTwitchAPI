@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Optional, get_type_hints, Union, List, Dict
 from dateutil import parser as du_parser
 
+from twitchAPI import PredictionStatus
 from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus, CustomRewardRedemptionStatus,\
     PollStatus
 
@@ -589,3 +590,35 @@ class Poll(TwitchObject):
     status: PollStatus
     duration: int
     started_at: datetime
+
+
+class Predictor(TwitchObject):
+    user_id: str
+    user_name: str
+    user_login: str
+    channel_points_used: int
+    channel_points_won: int
+
+
+class PredictionOutcome(TwitchObject):
+    id: str
+    title: str
+    users: int
+    channel_points: 0
+    top_predictors: List[Predictor]
+    color: str
+
+
+class Prediction(TwitchObject):
+    id: str
+    broadcaster_id: str
+    broadcaster_name: str
+    broadcaster_login: str
+    title: str
+    winning_outcome_id: str
+    outcomes: List[PredictionOutcome]
+    prediction_window: int
+    status: PredictionStatus
+    created_at: datetime
+    ended_at: datetime
+    locked_at: datetime
