@@ -23,6 +23,12 @@ class TwitchObject:
             c1 = instance.__args__[0]
             c2 = instance.__args__[1]
             return {TwitchObject._val_by_instance(c1, x1): TwitchObject._val_by_instance(c2, x2) for x1, x2 in val.items()}
+        elif origin == Union:
+            # TODO: only works for optional pattern, fix to try out all possible patterns?
+            c1 = instance.__args__[0]
+            print(c1)
+            print(val)
+            return TwitchObject._val_by_instance(c1, val)
         elif issubclass(instance, TwitchObject):
             return instance(**val)
         else:
@@ -43,6 +49,10 @@ class TwitchObject:
             c2 = instance.__args__[1]
             return {TwitchObject._dict_val_by_instance(c1, x1, include_none_values):
                     TwitchObject._dict_val_by_instance(c2, x2, include_none_values) for x1, x2 in val.items()}
+        elif origin == Union:
+            # TODO: only works for optional pattern, fix to try out all possible patterns?
+            c1 = instance.__args__[0]
+            return TwitchObject._dict_val_by_instance(c1, val, include_none_values)
         elif issubclass(instance, TwitchObject):
             return val.to_dict(include_none_values)
         elif isinstance(val, Enum):
@@ -608,7 +618,7 @@ class PredictionOutcome(TwitchObject):
     title: str
     users: int
     channel_points: int
-    top_predictors: List[Predictor]
+    top_predictors: Optional[List[Predictor]]
     color: str
 
 
@@ -618,10 +628,10 @@ class Prediction(TwitchObject):
     broadcaster_name: str
     broadcaster_login: str
     title: str
-    winning_outcome_id: str
+    winning_outcome_id: Optional[str]
     outcomes: List[PredictionOutcome]
     prediction_window: int
     status: PredictionStatus
     created_at: datetime
-    ended_at: datetime
-    locked_at: datetime
+    ended_at: Optional[datetime]
+    locked_at: Optional[datetime]
