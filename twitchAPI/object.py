@@ -640,3 +640,15 @@ class Prediction(TwitchObject):
 class RaidStartResult(TwitchObject):
     created_at: datetime
     is_mature: bool
+
+
+class ChatBadgeVersion(TwitchObject):
+    id: str
+    image_url_1x: str
+    image_url_2x: str
+    image_url_4x: str
+
+
+class ChatBadge(TwitchObject):
+    set_id: str
+    versions: List[ChatBadgeVersion]

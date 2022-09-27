@@ -2959,7 +2959,7 @@ class Twitch:
         }
         await self._build_result('POST', 'moderation/automod/message', {}, AuthType.USER, [AuthScope.MODERATOR_MANAGE_AUTOMOD], None, body_data=body)
 
-    async def get_chat_badges(self, broadcaster_id: str) -> dict:
+    async def get_chat_badges(self, broadcaster_id: str) -> List[ChatBadge]:
         """Gets a list of custom chat badges that can be used in chat for the specified channel.
 
         Requires User or App Authentication\n
@@ -2974,9 +2974,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(self.base_url + 'chat/badges', {'broadcaster_id': broadcaster_id})
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return await result.json()
+        return await self._build_result('GET', 'chat/badges', {'broadcaster_id': broadcaster_id}, AuthType.EITHER, [], List[ChatBadge])
 
     async def get_global_chat_badges(self) -> dict:
         """Gets a list of chat badges that can be used in chat for any channel.
