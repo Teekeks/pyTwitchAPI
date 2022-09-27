@@ -1925,13 +1925,11 @@ class Twitch:
             raise ValueError('You need to specify at least one of the optional parameter')
         if title is not None and len(title) == 0:
             raise ValueError('title cant be a empty string')
-        url = build_url(self.base_url + 'channels',
-                        {'broadcaster_id': broadcaster_id}, remove_none=True)
         body = {k: v for k, v in {'game_id': game_id,
                                   'broadcaster_language': broadcaster_language,
                                   'title': title,
                                   'delay': delay}.items() if v is not None}
-        return await self._build_result('PATCH', 'channels', {'broadcaster_id': broadcaster_id}, AuthType.USER
+        return await self._build_result('PATCH', 'channels', {'broadcaster_id': broadcaster_id}, AuthType.USER,
                                         [AuthScope.CHANNEL_MANAGE_BROADCAST], None, body_data=body, return_status_code=True) == 204
 
     async def search_channels(self,
@@ -2619,6 +2617,7 @@ class Twitch:
                          'source_context': enum_value_or_none(source_context),
                          'reason': enum_value_or_none(reason)},
                         remove_none=True)
+        return await self._build_result('PUT', 'users/blocks', )
         result = await self.__api_put_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
         return result.status == 204
 
