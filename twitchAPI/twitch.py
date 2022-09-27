@@ -2580,14 +2580,12 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(self.base_url + 'users/blocks',
-                        {'target_user_id': target_user_id,
-                         'source_context': enum_value_or_none(source_context),
-                         'reason': enum_value_or_none(reason)},
-                        remove_none=True)
-        return await self._build_result('PUT', 'users/blocks', )
-        result = await self.__api_put_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
-        return result.status == 204
+        param = {
+            'target_user_id': target_user_id,
+            'source_context': enum_value_or_none(source_context),
+            'reason': enum_value_or_none(reason)}
+        return await self._build_result('PUT', 'users/blocks', param, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS], None,
+                                        return_status_code=True) == 204
 
     async def unblock_user(self,
                            target_user_id: str) -> bool:
