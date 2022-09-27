@@ -437,7 +437,8 @@ class Twitch:
                             return_type: T,
                             body_data: Optional[dict] = None,
                             split_lists: bool = False,
-                            get_from_data: bool = True):
+                            get_from_data: bool = True,
+                            return_status_code: bool = False):
         r_lookup: Dict[str, Callable] = {
             'get': self.__api_get_request,
             'post': self.__api_post_request,
@@ -451,6 +452,8 @@ class Twitch:
             response = await req(_url, auth_type, auth_scope)
         else:
             response = await req(_url, auth_type, auth_scope, data=body_data)
+        if return_status_code:
+            return response.status
         if return_type is not None:
             data = await response.json()
             origin = return_type.__origin__ if hasattr(return_type, '__origin__') else None
@@ -1199,9 +1202,8 @@ class Twitch:
             'moderator_id': moderator_id,
             'user_id': user_id
         }
-        url = build_url(self.base_url + 'moderation/bans', param)
-        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS])
-        return result.status == 204
+        return await self._build_result('DELETE', 'moderation/bans', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS], None,
+                                        return_status_code=True) == 204
 
     async def get_blocked_terms(self,
                                 broadcaster_id: str,
