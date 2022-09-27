@@ -456,6 +456,8 @@ class Twitch:
             return response.status
         if return_type is not None:
             data = await response.json()
+            if isinstance(return_type, dict):
+                return data
             origin = return_type.__origin__ if hasattr(return_type, '__origin__') else None
             if origin == list:
                 c = return_type.__args__[0]
@@ -1993,7 +1995,7 @@ class Twitch:
             yield y
 
     async def get_stream_key(self,
-                             broadcaster_id: str) -> dict:
+                             broadcaster_id: str) -> str:
         """Gets the channel stream key for a user.\n\n
 
         Requires User authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_STREAM_KEY`\n
@@ -2008,9 +2010,9 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(self.base_url + 'streams/key', {'broadcaster_id': broadcaster_id})
-        response = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_STREAM_KEY])
-        return await response.json()
+        data = await self._build_result('GET', 'streams/key', {'broadcaster_id': broadcaster_id}, AuthType.USER, [AuthScope.CHANNEL_READ_STREAM_KEY],
+                                        dict)
+        return data[0]['stream_key']
 
     async def start_commercial(self,
                                broadcaster_id: str,
