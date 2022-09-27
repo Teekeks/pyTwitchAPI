@@ -2740,7 +2740,7 @@ class Twitch:
     async def end_poll(self,
                        broadcaster_id: str,
                        poll_id: str,
-                       status: PollStatus) -> dict:
+                       status: PollStatus) -> Poll:
         """End a poll that is currently active.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS`\n
@@ -2761,15 +2761,12 @@ class Twitch:
         """
         if status not in (PollStatus.TERMINATED, PollStatus.ARCHIVED):
             raise ValueError('status must be either TERMINATED or ARCHIVED')
-        url = build_url(self.base_url + 'polls', {})
         body = {
             'broadcaster_id': broadcaster_id,
             'id': poll_id,
             'status': status.value
         }
-        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body)
-        result = fields_to_enum(await result.json(), ['status'], PollStatus, PollStatus.ACTIVE)
-        return make_fields_datetime(result, ['started_at', 'ended_at'])
+        return await self._build_result('PATCH', 'polls', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], Poll, body_data=body)
 
     async def get_predictions(self,
                               broadcaster_id: str,
