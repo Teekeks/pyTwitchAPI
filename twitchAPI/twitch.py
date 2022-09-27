@@ -1300,9 +1300,8 @@ class Twitch:
             'moderator_id': moderator_id,
             'id': term_id
         }
-        url = build_url(self.base_url + 'moderation/blocked_terms', param)
-        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS])
-        return result.status == 204
+        return await self._build_result('DELETE', 'moderation/blocked_terms', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS],
+                                        None, return_status_code=True) == 204
 
     async def get_moderators(self,
                              broadcaster_id: str,
