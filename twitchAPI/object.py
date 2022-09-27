@@ -439,3 +439,21 @@ class StartCommercialResult(TwitchObject):
     length: int
     message: str
     retry_after: int
+
+
+class Cheermote(TwitchObject):
+    min_bits: int
+    id: str
+    color: str
+    images: Dict[str, Dict[str, Dict[str, str]]]
+    can_cheer: bool
+    show_in_bits_card: bool
+
+
+class GetCheermotesResponse(TwitchObject):
+    prefix: str
+    tiers: List[Cheermote]
+    type: str
+    order: int
+    last_updated: datetime
+    is_charitable: bool

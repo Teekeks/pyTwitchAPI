@@ -2043,7 +2043,7 @@ class Twitch:
                                         StartCommercialResult)
 
     async def get_cheermotes(self,
-                             broadcaster_id: str) -> dict:
+                             broadcaster_id: str) -> GetCheermotesResponse:
         """Retrieves the list of available Cheermotes, animated emotes to which viewers can assign Bits,
         to cheer in chat.\n\n
 
@@ -2058,10 +2058,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :rtype: dict
         """
-        url = build_url(self.base_url + 'bits/cheermotes',
-                        {'broadcaster_id': broadcaster_id})
-        response = await self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(await response.json(), ['last_updated'])
+        return await self._build_result('GET', 'bits/cheermotes', {'broadcaster_id': broadcaster_id}, AuthType.EITHER, [], GetCheermotesResponse)
 
     async def get_hype_train_events(self,
                                     broadcaster_id: str,
