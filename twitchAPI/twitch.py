@@ -2246,7 +2246,7 @@ class Twitch:
     async def get_custom_reward(self,
                                 broadcaster_id: str,
                                 reward_id: Optional[Union[str, List[str]]] = None,
-                                only_manageable_rewards: Optional[bool] = False) -> dict:
+                                only_manageable_rewards: Optional[bool] = False) -> List[CustomReward]:
         """Returns a list of Custom Reward objects for the Custom Rewards on a channel.
         Developers only have access to update and delete rewards that the same/calling client_id created.
 
@@ -2271,15 +2271,13 @@ class Twitch:
 
         if reward_id is not None and isinstance(reward_id, list) and len(reward_id) > 50:
             raise ValueError('reward_id can not contain more than 50 entries')
-        url = build_url(self.base_url + 'channel_points/custom_rewards',
-                        {
-                            'broadcaster_id': broadcaster_id,
-                            'id': reward_id,
-                            'only_manageable_rewards': only_manageable_rewards
-                        }, remove_none=True, split_lists=True)
-
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_REDEMPTIONS])
-        return make_fields_datetime(await result.json(), ['cooldown_expires_at'])
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'id': reward_id,
+            'only_manageable_rewards': only_manageable_rewards
+        }
+        return await self._build_result('GET', 'channel_points/custom_rewards', param, AuthType.USER, [AuthScope.CHANNEL_READ_REDEMPTIONS],
+                                        List[CustomReward], split_lists=True)
 
     async def get_custom_reward_redemption(self,
                                            broadcaster_id: str,
