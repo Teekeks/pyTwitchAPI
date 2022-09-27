@@ -2852,7 +2852,7 @@ class Twitch:
                              broadcaster_id: str,
                              prediction_id: str,
                              status: PredictionStatus,
-                             winning_outcome_id: Optional[str] = None):
+                             winning_outcome_id: Optional[str] = None) -> Prediction:
         """Lock, resolve, or cancel a Channel Points Prediction.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS`\n
@@ -2885,9 +2885,7 @@ class Twitch:
         }
         if winning_outcome_id is not None:
             body['winning_outcome_id'] = winning_outcome_id
-        url = build_url(self.base_url + 'predictions', {})
-        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
-        return make_fields_datetime(await result.json(), ['created_at', 'ended_at', 'locked_at'])
+        return await self._build_result('PATH', 'predictions', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], Prediction, body_data=body)
 
     async def start_raid(self,
                          from_broadcaster_id: str,
