@@ -428,6 +428,41 @@ class Twitch:
             _after = data.get('pagination', {}).get('cursor')
             _first = False
 
+    async def _build_iter_result(self,
+                                 req,
+                                 url: str,
+                                 url_params: dict,
+                                 auth_type: AuthType,
+                                 auth_scope: List[AuthScope],
+                                 return_type: T,
+                                 body_data: Optional[dict] = None,
+                                 split_lists: bool = False):
+        r_lookup: Dict[str, Callable] = {
+            'get': self.__api_get_request,
+            'post': self.__api_post_request,
+            'delete': self.__api_delete_request,
+            'patch': self.__api_patch_request,
+            'put': self.__api_put_request
+        }
+        req = r_lookup.get(req.lower())
+        _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
+        if body_data is None:
+            response = await req(_url, auth_type, auth_scope)
+        else:
+            response = await req(_url, auth_type, auth_scope, data=body_data)
+        data = await response.json()
+        url_params['after'] = data.get('pagination', {}).get('cursor')
+        cont_data = {
+            'req': req,
+            'url': self.base_url + url,
+            'param': url_params,
+            'split': split_lists,
+            'auth_t': auth_type,
+            'auth_s': auth_scope,
+            'body': body_data
+        }
+        return return_type(cont_data, **data)
+
     async def _build_result(self,
                             req,
                             url: str,
@@ -3067,7 +3102,7 @@ class Twitch:
                                          status: Optional[str] = None,
                                          sub_type: Optional[str] = None,
                                          user_id: Optional[str] = None,
-                                         after: Optional[str] = None):
+                                         after: Optional[str] = None) -> GetEventSubSubscriptionResult:
         """Gets a list of your EventSub subscriptions.
         The list is paginated and ordered by the oldest subscription first.
 
@@ -3086,15 +3121,13 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(self.base_url + 'eventsub/subscriptions',
-                        {
-                            'status': status,
-                            'type': sub_type,
-                            'user_id': user_id,
-                            'after': after
-                        }, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.APP, [])
-        return await result.json()
+        param = {
+            'status': status,
+            'type': sub_type,
+            'user_id': user_id,
+            'after': after
+        }
+        return await self._build_iter_result('GET', 'eventsub/subscriptions', param, AuthType.APP, [], GetEventSubSubscriptionResult)
 
     async def get_channel_stream_schedule(self,
                                           broadcaster_id: str,

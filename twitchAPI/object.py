@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Optional, get_type_hints, Union, List, Dict
 from dateutil import parser as du_parser
 
+from twitchAPI.helper import build_url
 from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus, CustomRewardRedemptionStatus,\
     PollStatus, PredictionStatus
 
@@ -100,6 +101,45 @@ class IterTwitchObject(TwitchObject):
             raise ValueError('Object is missing data attribute of type list')
         for i in self.__getattribute__('data'):
             yield i
+
+
+class AsyncIterTwitchObject(TwitchObject):
+
+    def __init__(self, _data, **kwargs):
+        super(AsyncIterTwitchObject, self).__init__(**kwargs)
+        self.__idx = 0
+        self._data = _data
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        if not hasattr(self, 'data') or not isinstance(self.__getattribute__('data'), list):
+            raise ValueError('Object is missing data attribute of type list')
+        data = self.__getattribute__('data')
+        if len(data) < self.__idx:
+            self.__idx += 1
+            return data[self.__idx - 1]
+        # make request
+        if self._data['param']['after'] is None:
+            raise StopAsyncIteration()
+        _url = build_url(self._data['url'], self._data['param'], remove_none=True, split_lists=self._data['split'])
+        if self._data['body'] is None:
+            response = await self._data['req'](_url, self._data['auth_t'], self._data['auth_s'])
+        else:
+            response = await self._data['req'](_url, self._data['auth_t'], self._data['auth_s'], body=self._data['body'])
+        _data = await response.json()
+        _after = _data.get('pagination', {}).get('cursor')
+        self._data['param']['after'] = _after
+        # refill data
+        merged_annotations = self._get_annotations()
+        for name, cls in merged_annotations.items():
+            if name not in _data.keys():
+                continue
+            self.__setattr__(name, TwitchObject._val_by_instance(cls, _data.get(name)))
+        data = self.__getattribute__('data')
+        self.__idx = 0
+        return data[self.__idx]
 
 
 class TwitchUser(TwitchObject):
@@ -669,3 +709,21 @@ class Emote(TwitchObject):
 class GetEmotesResponse(IterTwitchObject):
     data: List[Emote]
     template: str
+
+
+class EventSubSubscription(TwitchObject):
+    id: str
+    status: str
+    type: str
+    version: str
+    condition: Dict[str, str]
+    created_at: datetime
+    transport: Dict[str, str]
+    cost: int
+
+
+class GetEventSubSubscriptionResult(AsyncIterTwitchObject):
+    total: int
+    total_cost: int
+    max_total_cost: int
+    data: List[EventSubSubscription]
