@@ -2482,7 +2482,7 @@ class Twitch:
                                         error_handler=error_handler)
 
     async def get_channel_editors(self,
-                                  broadcaster_id: str) -> dict:
+                                  broadcaster_id: str) -> List[ChannelEditor]:
         """Gets a list of users who have editor permissions for a specific channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_EDITORS`\n
@@ -2498,10 +2498,8 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-
-        url = build_url(self.base_url + 'channels/editors', {'broadcaster_id': broadcaster_id})
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_EDITORS])
-        return make_fields_datetime(await result.json(), ['created_at'])
+        return await self._build_result('GET', 'channel/editors', {'broadcaster_id': broadcaster_id}, AuthType.USER, [AuthScope.CHANNEL_READ_EDITORS],
+                                        List[ChannelEditor])
 
     async def delete_videos(self,
                             video_ids: List[str]) -> Union[bool, dict]:

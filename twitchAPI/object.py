@@ -553,3 +553,9 @@ class CustomRewardRedemption(TwitchObject):
     status: CustomRewardRedemptionStatus
     redeemed_at: datetime
     reward: PartialCustomReward
+
+
+class ChannelEditor(TwitchObject):
+    user_id: str
+    user_name: str
+    created_at: datetime
