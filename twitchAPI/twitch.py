@@ -1967,7 +1967,7 @@ class Twitch:
     async def search_categories(self,
                                 query: str,
                                 first: Optional[int] = 20,
-                                after: Optional[str] = None) -> dict:
+                                after: Optional[str] = None) -> AsyncGenerator[SearchCategoryResult, None]:
         """Returns a list of games or categories that match the query via name either entirely or partially.\n\n
 
         Requires App authentication\n
@@ -1986,12 +1986,11 @@ class Twitch:
         """
         if first < 1 or first > 100:
             raise ValueError('first must be between 1 and 100')
-        url = build_url(self.base_url + 'search/categories',
-                        {'query': query,
-                         'first': first,
-                         'after': after}, remove_none=True)
-        response = await self.__api_get_request(url, AuthType.EITHER, [])
-        return await response.json()
+        param = {'query': query,
+                 'first': first,
+                 'after': after}
+        async for y in self._build_generator('GET', 'search/categories', param, AuthType.EITHER, [], SearchCategoryResult):
+            yield y
 
     async def get_stream_key(self,
                              broadcaster_id: str) -> dict:

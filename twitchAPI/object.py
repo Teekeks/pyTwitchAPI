@@ -427,3 +427,9 @@ class SearchChannelResult(ChannelInformation):
     is_live: bool
     tags_ids: List[str]
     started_at: datetime
+
+
+class SearchCategoryResult(TwitchObject):
+    id: str
+    name: str
+    box_art_url: str
