@@ -494,3 +494,41 @@ class DropsEntitlement(TwitchObject):
     game_id: str
     fulfillment_status: DropsEntitlementFulfillmentStatus
     updated_at: datetime
+
+
+class MaxPerStreamSetting(TwitchObject):
+    is_enabled: bool
+    max_per_stream: int
+
+
+class MaxPerUserPerStreamSetting(TwitchObject):
+    is_enabled: bool
+    max_per_user_per_stream: int
+
+
+class GlobalCooldownSetting(TwitchObject):
+    is_enabled: bool
+    global_cooldown_seconds: int
+
+
+class CustomReward(TwitchObject):
+    broadcaster_name: str
+    broadcaster_login: str
+    broadcaster_id: str
+    id: str
+    image: str
+    background_color: str
+    is_enabled: bool
+    cost: int
+    title: str
+    prompt: str
+    is_user_input_required: bool
+    max_per_stream_setting: MaxPerStreamSetting
+    max_per_user_per_stream_setting: MaxPerUserPerStreamSetting
+    global_cooldown_setting: GlobalCooldownSetting
+    is_paused: bool
+    is_in_stock: bool
+    default_image: Dict[str, str]
+    should_redemptions_skip_request_queue: bool
+    redemptions_redeemed_current_stream: int
+    cooldown_expires_at: datetime

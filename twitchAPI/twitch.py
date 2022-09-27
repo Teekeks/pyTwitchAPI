@@ -438,7 +438,8 @@ class Twitch:
                             body_data: Optional[dict] = None,
                             split_lists: bool = False,
                             get_from_data: bool = True,
-                            return_status_code: bool = False):
+                            return_status_code: bool = False,
+                            error_handler: Optional[Dict[int, BaseException]] = None):
         r_lookup: Dict[str, Callable] = {
             'get': self.__api_get_request,
             'post': self.__api_post_request,
@@ -452,6 +453,9 @@ class Twitch:
             response = await req(_url, auth_type, auth_scope)
         else:
             response = await req(_url, auth_type, auth_scope, data=body_data)
+        if error_handler is not None:
+            if response.status in error_handler.keys():
+                raise error_handler[response.status]
         if return_status_code:
             return response.status
         if return_type is not None:
@@ -2149,7 +2153,7 @@ class Twitch:
                                    max_per_user_per_stream: Optional[int] = None,
                                    is_global_cooldown_enabled: Optional[bool] = False,
                                    global_cooldown_seconds: Optional[int] = None,
-                                   should_redemptions_skip_request_queue: Optional[bool] = False) -> dict:
+                                   should_redemptions_skip_request_queue: Optional[bool] = False) -> CustomReward:
         """Creates a Custom Reward on a channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
@@ -2196,8 +2200,7 @@ class Twitch:
         if is_max_per_user_per_stream_enabled and max_per_user_per_stream is None:
             raise ValueError('please specify max_per_user_per_stream')
 
-        url = build_url(self.base_url + 'channel_points/custom_rewards',
-                        {'broadcaster_id': broadcaster_id})
+        param = {'broadcaster_id': broadcaster_id}
         body = {x: y for x, y in {
             'title': title,
             'prompt': prompt,
@@ -2213,11 +2216,9 @@ class Twitch:
             'global_cooldown_seconds': global_cooldown_seconds,
             'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
         }.items() if y is not None}
-        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
-        if result.status == 403:
-            raise TwitchAPIException('Forbidden: Channel Points are not available for the broadcaster')
-        data = await result.json()
-        return make_fields_datetime(data, ['cooldown_expires_at'])
+        error_handler = {403: TwitchAPIException('Forbidden: Channel Points are not available for the broadcaster')}
+        return await self._build_result('POST', 'channel_points/custom/rewards', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS],
+                                        CustomReward, body_data=body, error_handler=error_handler)
 
     async def delete_custom_reward(self,
                                    broadcaster_id: str,
