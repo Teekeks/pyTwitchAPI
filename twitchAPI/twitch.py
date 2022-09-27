@@ -3046,7 +3046,7 @@ class Twitch:
         return await self._build_result('GET', 'chat/emotes/set', {'emote_set_id': emote_set_id}, AuthType.EITHER, [], GetEmotesResponse,
                                         split_lists=True)
 
-    async def delete_eventsub_subscription(self, subscription_id: str) -> bool:
+    async def delete_eventsub_subscription(self, subscription_id: str):
         """Deletes an EventSub subscription.
 
         Requires App Authentication\n
@@ -3061,9 +3061,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(self.base_url + 'eventsub/subscriptions', {'id': subscription_id})
-        result = await self.__api_delete_request(url, AuthType.APP, [])
-        return result.status == 204
+        await self._build_result('DELETE', 'eventsub/subscriptions', {'id': subscription_id}, AuthType.APP, [], None)
 
     async def get_eventsub_subscriptions(self,
                                          status: Optional[str] = None,
