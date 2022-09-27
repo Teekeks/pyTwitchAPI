@@ -465,7 +465,7 @@ class Twitch:
             origin = return_type.__origin__ if hasattr(return_type, '__origin__') else None
             if origin == list:
                 c = return_type.__args__[0]
-                return [c(**x) for x in data['data']]
+                return [x if isinstance(x, c) else c(**x) for x in data['data']]
             if get_from_data:
                 d = data['data']
                 if isinstance(d, list):
@@ -2502,7 +2502,7 @@ class Twitch:
                                         List[ChannelEditor])
 
     async def delete_videos(self,
-                            video_ids: List[str]) -> Union[bool, dict]:
+                            video_ids: List[str]) -> List[str]:
         """Deletes one or more videos. Videos are past broadcasts, Highlights, or uploads.
         Returns False if the User was not Authorized to delete at least one of the given videos.
 
@@ -2522,12 +2522,8 @@ class Twitch:
         """
         if video_ids is None or len(video_ids) == 0 or len(video_ids) > 5:
             raise ValueError('video_ids must contain between 1 and 5 entries')
-        url = build_url(self.base_url + 'videos', {'id': video_ids}, split_lists=True)
-        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_VIDEOS])
-        if result.status == 200:
-            return await result.json()
-        else:
-            return False
+        return await self._build_result('DELETE', 'videos', {'id': video_ids}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_VIDEOS], List[str],
+                                        split_lists=True)
 
     async def get_user_block_list(self,
                                   broadcaster_id: str,
