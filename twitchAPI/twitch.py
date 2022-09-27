@@ -2356,11 +2356,11 @@ class Twitch:
                                    max_per_user_per_stream: Optional[int] = None,
                                    is_global_cooldown_enabled: Optional[bool] = False,
                                    global_cooldown_seconds: Optional[int] = None,
-                                   should_redemptions_skip_request_queue: Optional[bool] = False) -> dict:
+                                   should_redemptions_skip_request_queue: Optional[bool] = False) -> CustomReward:
         """Updates a Custom Reward created on a channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-custom-rewards
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-custom-reward
 
         :param str broadcaster_id: ID of the broadcaster, must be same as user_id of auth token
         :param str reward_id: ID of the reward that you want to update
@@ -2393,7 +2393,7 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
-        :raises ~twitchAPI.types.TwitchAPIException: if Channel Points are not available for the broadcaster or
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if Channel Points are not available for the broadcaster or
                         the custom reward belongs to a different broadcaster
         :raises ValueError: if the given reward_id does not match a custom reward by the given broadcaster
         :rtype: dict
@@ -2406,9 +2406,10 @@ class Twitch:
         if is_max_per_user_per_stream_enabled and max_per_user_per_stream is None:
             raise ValueError('please specify max_per_user_per_stream')
 
-        url = build_url(self.base_url + 'channel_points/custom_rewards',
-                        {'broadcaster_id': broadcaster_id,
-                         'id': reward_id})
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'id': reward_id
+        }
         body = {x: y for x, y in {
             'title': title,
             'prompt': prompt,
@@ -2424,14 +2425,14 @@ class Twitch:
             'global_cooldown_seconds': global_cooldown_seconds,
             'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
         }.items() if y is not None}
-        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], body)
-        if result.status == 404:
-            raise ValueError('Custom reward does not exist with the given reward_id for the given broadcaster')
-        elif result.status == 403:
-            raise TwitchAPIException('This custom reward was created by a different broadcaster or channel points are'
-                                     'not available for the broadcaster')
-        data = await result.json()
-        return make_fields_datetime(data, ['cooldown_expires_at'])
+        error_handler = {
+            403: TwitchAPIException('This custom reward was created by a different broadcaster or channel points are'
+                                    'not available for the broadcaster')
+        }
+
+        return await self._build_result('PATCH', 'channel_points/custom_rewards', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS],
+                                        CustomReward, body_data=body, error_handler=error_handler)
+
 
     async def update_redemption_status(self,
                                        broadcaster_id: str,
