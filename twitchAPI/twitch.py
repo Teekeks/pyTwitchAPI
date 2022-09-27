@@ -2433,12 +2433,11 @@ class Twitch:
         return await self._build_result('PATCH', 'channel_points/custom_rewards', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS],
                                         CustomReward, body_data=body, error_handler=error_handler)
 
-
     async def update_redemption_status(self,
                                        broadcaster_id: str,
                                        reward_id: str,
                                        redemption_ids: Union[List[str], str],
-                                       status: CustomRewardRedemptionStatus) -> dict:
+                                       status: CustomRewardRedemptionStatus) -> CustomRewardRedemption:
         """Updates the status of Custom Reward Redemption objects on a channel that
                 are in the :code:`UNFULFILLED` status.
 
@@ -2460,7 +2459,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if Channel Points are not available for the broadcaster or
                         the custom reward belongs to a different broadcaster
         :raises ValueError: if redemption_ids is longer than 50 entries
-        :raises ValueError: if no custom reward redemptions with status UNFULFILLED where found for the given ids
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if no custom reward redemptions with status UNFULFILLED where found for the given ids
         :raises ~twitchAPI.types.TwitchAPIException: if Channel Points are not available for the broadcaster or
                         the custom reward belongs to a different broadcaster
         :rtype: dict
@@ -2468,22 +2467,19 @@ class Twitch:
         if isinstance(redemption_ids, list) and len(redemption_ids) > 50:
             raise ValueError('redemption_ids cant have more than 50 entries')
 
-        url = build_url(self.base_url + 'channel_points/custom_rewards/redemptions',
-                        {
-                            'id': redemption_ids,
-                            'broadcaster_id': broadcaster_id,
-                            'reward_id': reward_id
-                        }, split_lists=True)
+        param = {
+            'id': redemption_ids,
+            'broadcaster_id': broadcaster_id,
+            'reward_id': reward_id
+        }
         body = {'status': status.value}
-        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], data=body)
-        if result.status == 404:
-            raise ValueError('no custom reward redemptions with the specified ids where found '
-                             'with a status of UNFULFILLED')
-        if result.status == 403:
-            raise TwitchAPIException('This custom reward was created by a different broadcaster or channel points are'
-                                     'not available for the broadcaster')
-        data = make_fields_datetime(await result.json(), ['redeemed_at'])
-        return fields_to_enum(data, ['status'], CustomRewardRedemptionStatus, CustomRewardRedemptionStatus.CANCELED)
+        error_handler = {
+            403: TwitchAPIException('This custom reward was created by a different broadcaster or channel points are '
+                                    'not available for the broadcaster')
+        }
+        return await self._build_result('PATCH', 'channel_points/custom_rewards/redemptions', param, AuthType.USER,
+                                        [AuthScope.CHANNEL_MANAGE_REDEMPTIONS], CustomRewardRedemption, body_data=body, split_lists=True,
+                                        error_handler=error_handler)
 
     async def get_channel_editors(self,
                                   broadcaster_id: str) -> dict:
