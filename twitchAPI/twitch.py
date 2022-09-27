@@ -2913,7 +2913,7 @@ class Twitch:
         return await self._build_result('POST', 'raids', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS], RaidStartResult)
 
     async def cancel_raid(self,
-                          broadcaster_id: str) -> bool:
+                          broadcaster_id: str):
         """Cancel a pending raid.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_RAIDS`\n
@@ -2929,9 +2929,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(self.base_url + 'raids', {'broadcaster_id': broadcaster_id})
-        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS])
-        return result.status == 204
+        await self._build_result('DELETE', 'raids', {'broadcaster_id': broadcaster_id}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS], None)
 
     async def manage_held_automod_message(self,
                                           user_id: str,
