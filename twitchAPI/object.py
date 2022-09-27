@@ -1,9 +1,10 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 from datetime import datetime
+from enum import Enum
 from typing import Optional, get_type_hints, Union, List, Dict
 from dateutil import parser as du_parser
 
-from twitchAPI.types import StatusCode
+from twitchAPI.types import StatusCode, VideoType
 
 
 class TwitchObject:
@@ -39,6 +40,8 @@ class TwitchObject:
                     TwitchObject._dict_val_by_instance(c2, x2, include_none_values) for x1, x2 in val.items()}
         elif issubclass(instance, TwitchObject):
             return val.to_dict(include_none_values)
+        elif isinstance(val, Enum):
+            return val.value
         return instance(val)
 
     @classmethod
@@ -382,3 +385,28 @@ class UserActiveExtensions(TwitchObject):
     panel: Dict[str, ActiveUserExtension]
     overlay: Dict[str, ActiveUserExtension]
     component: Dict[str, ActiveUserExtension]
+
+
+class VideoMutedSegments(TwitchObject):
+    duration: int
+    offset: int
+
+
+class Video(TwitchObject):
+    id: str
+    stream_id: str
+    user_id: str
+    user_login: str
+    user_name: str
+    title: str
+    description: str
+    created_at: datetime
+    published_at: datetime
+    url: str
+    thumbnail_url: str
+    viewable: str
+    view_count: int
+    language: str
+    type: VideoType
+    duration: str
+    muted_segments: List[VideoMutedSegments]
