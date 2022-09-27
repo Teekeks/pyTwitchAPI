@@ -2976,7 +2976,7 @@ class Twitch:
         """
         return await self._build_result('GET', 'chat/badges', {'broadcaster_id': broadcaster_id}, AuthType.EITHER, [], List[ChatBadge])
 
-    async def get_global_chat_badges(self) -> dict:
+    async def get_global_chat_badges(self) -> List[ChatBadge]:
         """Gets a list of chat badges that can be used in chat for any channel.
 
         Requires User or App Authentication\n
@@ -2990,9 +2990,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(self.base_url + 'chat/badges/global', {})
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return await result.json()
+        return await self._build_result('GET', 'chat/badges/global', {}, AuthType.EITHER, [], List[ChatBadge])
 
     async def get_channel_emotes(self, broadcaster_id: str) -> dict:
         """Gets all emotes that the specified Twitch channel created.
