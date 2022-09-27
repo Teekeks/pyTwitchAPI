@@ -559,3 +559,9 @@ class ChannelEditor(TwitchObject):
     user_id: str
     user_name: str
     created_at: datetime
+
+
+class BlockListEntry(TwitchObject):
+    user_id: str
+    user_login: str
+    user_name: str

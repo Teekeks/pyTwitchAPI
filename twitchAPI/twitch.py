@@ -2528,7 +2528,7 @@ class Twitch:
     async def get_user_block_list(self,
                                   broadcaster_id: str,
                                   first: Optional[int] = 20,
-                                  after: Optional[str] = None) -> dict:
+                                  after: Optional[str] = None) -> AsyncGenerator[BlockListEntry, None]:
         """Gets a specified user’s block list. The list is sorted by when the block occurred in descending order
         (i.e. most recent block first).
 
@@ -2551,12 +2551,12 @@ class Twitch:
 
         if first < 1 or first > 100:
             raise ValueError('first must be in range 1 to 100')
-        url = build_url(self.base_url + 'users/blocks',
-                        {'broadcaster_id': broadcaster_id,
-                         'first': first,
-                         'after': after}, remove_none=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.USER_READ_BLOCKED_USERS])
-        return await result.json()
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'first': first,
+            'after': after}
+        async for y in self._build_generator('GET', 'users/blocks', param, AuthType.USER, [AuthScope.USER_READ_BLOCKED_USERS], BlockListEntry):
+            yield y
 
     async def block_user(self,
                          target_user_id: str,
