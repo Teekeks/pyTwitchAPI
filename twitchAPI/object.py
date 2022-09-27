@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Optional, get_type_hints, Union, List, Dict
 from dateutil import parser as du_parser
 
-from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod
+from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus
 
 
 class TwitchObject:
@@ -484,3 +484,13 @@ class HypeTrainEvent(TwitchObject):
     event_timestamp: datetime
     version: str
     event_data: HypeTrainEventData
+
+
+class DropsEntitlement(TwitchObject):
+    id: str
+    benefit_id: str
+    timestamp: datetime
+    user_id: str
+    game_id: str
+    fulfillment_status: DropsEntitlementFulfillmentStatus
+    updated_at: datetime

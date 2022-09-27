@@ -2097,7 +2097,7 @@ class Twitch:
                                      user_id: Optional[str] = None,
                                      game_id: Optional[str] = None,
                                      after: Optional[str] = None,
-                                     first: Optional[int] = 20) -> dict:
+                                     first: Optional[int] = 20) -> AsyncGenerator[DropsEntitlement, None]:
         """Gets a list of entitlements for a given organization that have been granted to a game, user, or both.
 
         OAuth Token Client ID must have ownership of Game\n\n
@@ -2125,17 +2125,15 @@ class Twitch:
         if auth_type == AuthType.USER:
             if user_id is not None:
                 raise ValueError('cant use user_id when using User Authentication')
-        url = build_url(self.base_url + 'entitlements/drops',
-                        {
-                            'id': id,
-                            'user_id': user_id,
-                            'game_id': game_id,
-                            'after': after,
-                            'first': first
-                        }, remove_none=True)
-        response = await self.__api_get_request(url, AuthType.EITHER, [])
-        data = make_fields_datetime(await response.json(), ['timestamp'])
-        return data
+        param = {
+            'id': id,
+            'user_id': user_id,
+            'game_id': game_id,
+            'after': after,
+            'first': first
+        }
+        async for y in self._build_generator('GET', 'entitlements/drops', param, AuthType.EITHER, [], DropsEntitlement):
+            yield y
 
     async def create_custom_reward(self,
                                    broadcaster_id: str,

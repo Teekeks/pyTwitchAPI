@@ -7,7 +7,7 @@ from typing_extensions import TypedDict
 __all__ = ['AnalyticsReportType', 'AuthScope', 'ModerationEventType', 'TimePeriod', 'SortMethod', 'HypeTrainContributionMethod',
            'VideoType', 'AuthType', 'StatusCode', 'PubSubResponseError', 'CustomRewardRedemptionStatus', 'SortOrder',
            'BlockSourceContext', 'BlockReason', 'EntitlementFulfillmentStatus', 'PollStatus', 'PredictionStatus', 'AutoModAction',
-           'AutoModCheckEntry',
+           'AutoModCheckEntry', 'DropsEntitlementFulfillmentStatus',
            'ChatEvent', 'ChatRoom',
            'TwitchAPIException', 'InvalidRefreshTokenException', 'InvalidTokenException', 'NotFoundException', 'TwitchAuthorizationException',
            'UnauthorizedException', 'MissingScopeException', 'TwitchBackendException', 'PubSubListenTimeoutException', 'MissingAppSecretException',
@@ -216,6 +216,13 @@ class AutoModAction(Enum):
     """
     ALLOW = 'ALLOW'
     DENY = 'DENY'
+
+
+class DropsEntitlementFulfillmentStatus(Enum):
+    """
+    """
+    CLAIMED = 'CLAIMED'
+    FULFILLED = 'FULFILLED'
 
 
 class AutoModCheckEntry(TypedDict):
