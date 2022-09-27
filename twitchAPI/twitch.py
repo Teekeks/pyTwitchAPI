@@ -2687,11 +2687,11 @@ class Twitch:
                           bits_voting_enabled: bool = False,
                           bits_per_vote: Optional[int] = None,
                           channel_points_voting_enabled: bool = False,
-                          channel_points_per_vote: Optional[int] = None) -> dict:
+                          channel_points_per_vote: Optional[int] = None) -> Poll:
         """Create a poll for a specific Twitch channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS`\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-polls
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-poll
 
         :param str broadcaster_id: The broadcaster running the poll
         :param str title: Question displayed for the poll
@@ -2735,10 +2735,7 @@ class Twitch:
             'channel_points_voting_enabled': channel_points_voting_enabled,
             'channel_points_per_vote': channel_points_per_vote
         }.items() if v is not None}
-
-        url = build_url(self.base_url + 'polls', {})
-        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], data=body)
-        return make_fields_datetime(await result.json(), ['started_at', 'ended_at'])
+        return await self._build_result('POST', 'polls', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_POLLS], Poll, body_data=body)
 
     async def end_poll(self,
                        broadcaster_id: str,
