@@ -1820,7 +1820,7 @@ class Twitch:
                          language: Optional[str] = None,
                          period: TimePeriod = TimePeriod.ALL,
                          sort: SortMethod = SortMethod.TIME,
-                         video_type: VideoType = VideoType.ALL) -> dict:
+                         video_type: VideoType = VideoType.ALL) -> AsyncGenerator[Video, None]:
         """Gets video information by video ID (one or more), user ID (one only), or game ID (one only).\n\n
 
         Requires App authentication.\n
@@ -1867,12 +1867,8 @@ class Twitch:
             'sort': sort.value,
             'type': video_type.value
         }
-        url = build_url(self.base_url + 'videos', param, remove_none=True, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        data = await result.json()
-        data = make_fields_datetime(data, ['created_at', 'published_at'])
-        data = fields_to_enum(data, ['type'], VideoType, VideoType.UNKNOWN)
-        return data
+        async for y in self._build_generator('GET', 'videos', param, AuthType.EITHER, [], Video, split_lists=True):
+            yield y
 
     async def get_webhook_subscriptions(self,
                                         first: Optional[int] = 20,
