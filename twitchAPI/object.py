@@ -4,8 +4,8 @@ from enum import Enum
 from typing import Optional, get_type_hints, Union, List, Dict
 from dateutil import parser as du_parser
 
-from twitchAPI import CustomRewardRedemptionStatus
-from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus
+from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus, CustomRewardRedemptionStatus,\
+    PollStatus
 
 
 class TwitchObject:
@@ -565,3 +565,27 @@ class BlockListEntry(TwitchObject):
     user_id: str
     user_login: str
     user_name: str
+
+
+class PollChoice(TwitchObject):
+    id: str
+    title: str
+    votes: int
+    channel_point_votes: int
+    bits_votes: int
+
+
+class Poll(TwitchObject):
+    id: str
+    broadcaster_name: str
+    broadcaster_id: str
+    broadcaster_login: str
+    title: str
+    choices: List[PollChoice]
+    bits_voting_enabled: bool
+    bits_per_vote: int
+    channel_point_voting_enabled: bool
+    channel_points_per_vote: int
+    status: PollStatus
+    duration: int
+    started_at: datetime

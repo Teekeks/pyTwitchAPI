@@ -2646,7 +2646,7 @@ class Twitch:
                         broadcaster_id: str,
                         poll_id: Optional[str] = None,
                         after: Optional[str] = None,
-                        first: Optional[int] = 20) -> dict:
+                        first: Optional[int] = 20) -> AsyncGenerator[Poll, None]:
         """Get information about all polls or specific polls for a Twitch channel.
         Poll information is available for 90 days.
 
@@ -2670,16 +2670,14 @@ class Twitch:
         """
         if first is not None and (first < 1 or first > 20):
             raise ValueError('first must be in range 1 to 20')
-        url = build_url(self.base_url + 'polls',
-                        {
-                            'broadcaster_id': broadcaster_id,
-                            'id': poll_id,
-                            'after': after,
-                            'first': first
-                        },
-                        remove_none=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_POLLS])
-        return make_fields_datetime(await result.json(), ['started_at', 'ended_at'])
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'id': poll_id,
+            'after': after,
+            'first': first
+        }
+        async for y in self._build_generator('GET', 'polls', param, AuthType.USER, [AuthScope.CHANNEL_READ_POLLS], Poll):
+            yield y
 
     async def create_poll(self,
                           broadcaster_id: str,
