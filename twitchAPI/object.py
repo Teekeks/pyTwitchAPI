@@ -4,14 +4,15 @@ from enum import Enum
 from typing import Optional, get_type_hints, Union, List, Dict
 from dateutil import parser as du_parser
 
-from twitchAPI import PredictionStatus
 from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus, CustomRewardRedemptionStatus,\
-    PollStatus
+    PollStatus, PredictionStatus
 
 
 class TwitchObject:
     @staticmethod
     def _val_by_instance(instance, val):
+        if val is None:
+            return None
         origin = instance.__origin__ if hasattr(instance, '__origin__') else None
         if instance == datetime:
             return du_parser.isoparse(val) if len(val) > 0 else None
@@ -29,6 +30,8 @@ class TwitchObject:
 
     @staticmethod
     def _dict_val_by_instance(instance, val, include_none_values):
+        if val is None:
+            return None
         origin = instance.__origin__ if hasattr(instance, '__origin__') else None
         if instance == datetime:
             return val.isoformat() if val is not None else None
@@ -75,7 +78,7 @@ class TwitchObject:
     def __init__(self, **kwargs):
         merged_annotations = self._get_annotations()
         for name, cls in merged_annotations.items():
-            if kwargs.get(name) is None:
+            if name not in kwargs.keys():
                 continue
             self.__setattr__(name, TwitchObject._val_by_instance(cls, kwargs.get(name)))
 
@@ -604,7 +607,7 @@ class PredictionOutcome(TwitchObject):
     id: str
     title: str
     users: int
-    channel_points: 0
+    channel_points: int
     top_predictors: List[Predictor]
     color: str
 
