@@ -2604,9 +2604,8 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(self.base_url + 'users/blocks', {'target_user_id': target_user_id})
-        result = await self.__api_delete_request(url, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS])
-        return result.status == 204
+        return await self._build_result('DELETE', 'users/blocks', {'target_user_id': target_user_id}, AuthType.USER,
+                                        [AuthScope.USER_MANAGE_BLOCKED_USERS], None, return_status_code=True) == 204
 
     async def get_followed_streams(self,
                                    user_id: str,
