@@ -316,6 +316,7 @@ class EventSub:
             cursor = ret.get('pagination', {}).get('cursor')
             repeat = cursor is not None
         for _id in ids:
+            # FIXME this throws an error if subscription does not exists, returns nothing
             succ = self.__twitch.delete_eventsub_subscription(_id)
             if not succ:
                 self.__logger.warning(f'failed to unsubscribe from event {_id}')
@@ -325,6 +326,7 @@ class EventSub:
         """Unsubscribe from all subscriptions known to this client."""
         for key, value in self.__callbacks.items():
             self.__logger.debug(f'unsubscribe from event {key}')
+            # FIXME this throws an error if subscription does not exists, returns nothing
             succ = self.__twitch.delete_eventsub_subscription(key)
             if not succ:
                 self.__logger.warning(f'failed to unsubscribe from event {key}')
@@ -332,6 +334,7 @@ class EventSub:
 
     def unsubscribe_topic(self, topic_id: str) -> bool:
         """Unsubscribe from a specific topic."""
+        # FIXME this throws an error if subscription does not exists, returns nothing
         result = self.__twitch.delete_eventsub_subscription(topic_id)
         if result:
             self.__callbacks.pop(topic_id, None)
