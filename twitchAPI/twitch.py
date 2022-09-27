@@ -2016,7 +2016,7 @@ class Twitch:
 
     async def start_commercial(self,
                                broadcaster_id: str,
-                               length: int) -> dict:
+                               length: int) -> StartCommercialResult:
         """Starts a commercial on a specified channel.\n\n
 
         Requires User authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_EDIT_COMMERCIAL`\n
@@ -2035,11 +2035,12 @@ class Twitch:
         """
         if length not in [30, 60, 90, 120, 150, 180]:
             raise ValueError('length needs to be one of these: [30, 60, 90, 120, 150, 180]')
-        url = build_url(self.base_url + 'channels/commercial',
-                        {'broadcaster_id': broadcaster_id,
-                         'length': length})
-        response = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_EDIT_COMMERCIAL])
-        return await response.json()
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'length': length
+        }
+        return await self._build_result('POST', 'channels/commercial', param, AuthType.USER, [AuthScope.CHANNEL_EDIT_COMMERCIAL],
+                                        StartCommercialResult)
 
     async def get_cheermotes(self,
                              broadcaster_id: str) -> dict:

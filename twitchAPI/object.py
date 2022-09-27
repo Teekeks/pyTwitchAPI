@@ -433,3 +433,9 @@ class SearchCategoryResult(TwitchObject):
     id: str
     name: str
     box_art_url: str
+
+
+class StartCommercialResult(TwitchObject):
+    length: int
+    message: str
+    retry_after: int
