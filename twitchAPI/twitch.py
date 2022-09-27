@@ -1931,8 +1931,8 @@ class Twitch:
                                   'broadcaster_language': broadcaster_language,
                                   'title': title,
                                   'delay': delay}.items() if v is not None}
-        response = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST], data=body)
-        return response.status == 204
+        return await self._build_result('PATCH', 'channels', {'broadcaster_id': broadcaster_id}, AuthType.USER
+                                        [AuthScope.CHANNEL_MANAGE_BROADCAST], None, body_data=body, return_status_code=True) == 204
 
     async def search_channels(self,
                               query: str,
