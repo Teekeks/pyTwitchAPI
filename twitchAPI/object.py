@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Optional, get_type_hints, Union, List, Dict
 from dateutil import parser as du_parser
 
-from twitchAPI.types import StatusCode, VideoType
+from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod
 
 
 class TwitchObject:
@@ -457,3 +457,30 @@ class GetCheermotesResponse(TwitchObject):
     order: int
     last_updated: datetime
     is_charitable: bool
+
+
+class HypeTrainContribution(TwitchObject):
+    total: int
+    type: HypeTrainContributionMethod
+    user: str
+
+
+class HypeTrainEventData(TwitchObject):
+    broadcaster_id: str
+    cooldown_end_time: datetime
+    expires_at: datetime
+    goal: int
+    id: str
+    last_contribution: HypeTrainContribution
+    level: int
+    started_at: datetime
+    top_contributions: List[HypeTrainContribution]
+    total: int
+
+
+class HypeTrainEvent(TwitchObject):
+    id: str
+    event_type: str
+    event_timestamp: datetime
+    version: str
+    event_data: HypeTrainEventData

@@ -2063,7 +2063,7 @@ class Twitch:
     async def get_hype_train_events(self,
                                     broadcaster_id: str,
                                     first: Optional[int] = 1,
-                                    cursor: Optional[str] = None) -> dict:
+                                    cursor: Optional[str] = None) -> AsyncGenerator[HypeTrainEvent, None]:
         """Gets the information of the most recent Hype Train of the given channel ID.
         When there is currently an active Hype Train, it returns information about that Hype Train.
         When there is currently no active Hype Train, it returns information about the most recent Hype Train.
@@ -2086,17 +2086,11 @@ class Twitch:
         """
         if first < 1 or first > 100:
             raise ValueError('first must be between 1 and 100')
-        url = build_url(self.base_url + 'hypetrain/events',
-                        {'broadcaster_id': broadcaster_id,
-                         'first': first,
-                         'cursor': cursor}, remove_none=True)
-        response = await self.__api_get_request(url, AuthType.EITHER, [AuthScope.CHANNEL_READ_HYPE_TRAIN])
-        data = make_fields_datetime(await response.json(), ['event_timestamp',
-                                                            'started_at',
-                                                            'expires_at',
-                                                            'cooldown_end_time'])
-        data = fields_to_enum(data, ['type'], HypeTrainContributionMethod, HypeTrainContributionMethod.UNKNOWN)
-        return data
+        param = {'broadcaster_id': broadcaster_id,
+                 'first': first,
+                 'cursor': cursor}
+        async for y in self._build_generator('GET', 'hypetrain/events', param, AuthType.EITHER, [AuthScope.CHANNEL_READ_HYPE_TRAIN], HypeTrainEvent):
+            yield y
 
     async def get_drops_entitlements(self,
                                      id: Optional[str] = None,
