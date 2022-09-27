@@ -1870,32 +1870,6 @@ class Twitch:
         async for y in self._build_generator('GET', 'videos', param, AuthType.EITHER, [], Video, split_lists=True):
             yield y
 
-    async def get_webhook_subscriptions(self,
-                                        first: Optional[int] = 20,
-                                        after: Optional[str] = None) -> dict:
-        """Gets the Webhook subscriptions of the authenticated user, in order of expiration.\n\n
-
-        Requires App authentication\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-webhook-subscriptions
-
-        :param int first: Number of values to be returned per page. Limit: 100. |default| :code:`20`
-        :param str after: Cursor for forward pagination |default| :code:`None`
-        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
-                        and a re authentication failed
-        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if first is not in range 1 to 100
-        :rtype: dict
-        """
-        if first < 1 or first > 100:
-            raise ValueError('first must be in range 1 to 100')
-        url = build_url(self.base_url + 'webhooks/subscriptions',
-                        {'first': first, 'after': after},
-                        remove_none=True)
-        response = await self.__api_get_request(url, AuthType.APP, [])
-        return await response.json()
-
     async def get_channel_information(self,
                                       broadcaster_id: Union[str, List[str]]) -> dict:
         """Gets channel information for users.\n\n
