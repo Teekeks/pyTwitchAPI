@@ -2992,7 +2992,7 @@ class Twitch:
         """
         return await self._build_result('GET', 'chat/badges/global', {}, AuthType.EITHER, [], List[ChatBadge])
 
-    async def get_channel_emotes(self, broadcaster_id: str) -> GetChannelEmotesResponse:
+    async def get_channel_emotes(self, broadcaster_id: str) -> GetEmotesResponse:
         """Gets all emotes that the specified Twitch channel created.
 
         Requires User or App Authentication\n
@@ -3007,10 +3007,10 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        return await self._build_result('GET', 'chat/emotes', {'broadcaster_id': broadcaster_id}, AuthType.EITHER, [], GetChannelEmotesResponse,
+        return await self._build_result('GET', 'chat/emotes', {'broadcaster_id': broadcaster_id}, AuthType.EITHER, [], GetEmotesResponse,
                                         get_from_data=False)
 
-    async def get_global_emotes(self) -> dict:
+    async def get_global_emotes(self) -> GetEmotesResponse:
         """Gets all global emotes.
 
         Requires User or App Authentication\n
@@ -3024,9 +3024,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(self.base_url + 'chat/emotes/global', {})
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return await result.json()
+        return await self._build_result('GET', 'chat/emotes/global', {}, AuthType.EITHER, [], GetEmotesResponse, get_from_data=False)
 
     async def get_emote_sets(self, emote_set_id: List[str]) -> dict:
         """Gets emotes for one or more specified emote sets.

@@ -666,6 +666,6 @@ class Emote(TwitchObject):
     theme_mode: List[str]
 
 
-class GetChannelEmotesResponse(IterTwitchObject):
+class GetEmotesResponse(IterTwitchObject):
     data: List[Emote]
     template: str
