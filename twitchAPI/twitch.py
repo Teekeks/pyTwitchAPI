@@ -2934,7 +2934,7 @@ class Twitch:
     async def manage_held_automod_message(self,
                                           user_id: str,
                                           msg_id: str,
-                                          action: AutoModAction) -> bool:
+                                          action: AutoModAction):
         """Allow or deny a message that was held for review by AutoMod.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_AUTOMOD`\n
@@ -2957,9 +2957,7 @@ class Twitch:
             'msg_id': msg_id,
             'action': action.value
         }
-        url = build_url(self.base_url + 'moderation/automod/message', {})
-        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.MODERATOR_MANAGE_AUTOMOD], data=body)
-        return result.status == 200
+        await self._build_result('POST', 'moderation/automod/message', {}, AuthType.USER, [AuthScope.MODERATOR_MANAGE_AUTOMOD], None, body_data=body)
 
     async def get_chat_badges(self, broadcaster_id: str) -> dict:
         """Gets a list of custom chat badges that can be used in chat for the specified channel.
