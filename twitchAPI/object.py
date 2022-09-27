@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Optional, get_type_hints, Union, List, Dict
 from dateutil import parser as du_parser
 
+from twitchAPI import CustomRewardRedemptionStatus
 from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus
 
 
@@ -532,3 +533,23 @@ class CustomReward(TwitchObject):
     should_redemptions_skip_request_queue: bool
     redemptions_redeemed_current_stream: int
     cooldown_expires_at: datetime
+
+
+class PartialCustomReward(TwitchObject):
+    id: str
+    title: str
+    prompt: str
+    cost: int
+
+
+class CustomRewardRedemption(TwitchObject):
+    broadcaster_name: str
+    broadcaster_login: str
+    broadcaster_id: str
+    id: str
+    user_id: str
+    user_name: str
+    user_input: str
+    status: CustomRewardRedemptionStatus
+    redeemed_at: datetime
+    reward: PartialCustomReward

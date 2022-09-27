@@ -2286,7 +2286,7 @@ class Twitch:
                                            status: Optional[CustomRewardRedemptionStatus] = None,
                                            sort: Optional[SortOrder] = SortOrder.OLDEST,
                                            after: Optional[str] = None,
-                                           first: Optional[int] = 20) -> dict:
+                                           first: Optional[int] = 20) -> AsyncGenerator[CustomRewardRedemption, None]:
         """Returns Custom Reward Redemption objects for a Custom Reward on a channel that was created by the
         same client_id.
 
@@ -2328,23 +2328,18 @@ class Twitch:
         if status is None and id is None:
             raise ValueError('you have to set at least one of status or id')
 
-        url = build_url(self.base_url + 'channel_points/custom_rewards/redemptions',
-                        {
-                            'broadcaster_id': broadcaster_id,
-                            'reward_id': reward_id,
-                            'id': id,
-                            'status': status,
-                            'sort': sort,
-                            'after': after,
-                            'first': first
-                        }, remove_none=True, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.USER, [AuthScope.CHANNEL_READ_REDEMPTIONS])
-        data = make_fields_datetime(await result.json(), ['redeemed_at'])
-        data = fields_to_enum(data,
-                              ['status'],
-                              CustomRewardRedemptionStatus,
-                              CustomRewardRedemptionStatus.CANCELED)
-        return data
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'reward_id': reward_id,
+            'id': id,
+            'status': status,
+            'sort': sort,
+            'after': after,
+            'first': first
+        }
+        async for y in self._build_generator('GET', 'channel_points/custom_rewards/redemptions', param, AuthType.USER,
+                                             [AuthScope.CHANNEL_READ_REDEMPTIONS], CustomRewardRedemption, split_lists=True):
+            yield y
 
     async def update_custom_reward(self,
                                    broadcaster_id: str,
