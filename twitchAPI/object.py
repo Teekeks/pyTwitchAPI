@@ -652,3 +652,20 @@ class ChatBadgeVersion(TwitchObject):
 class ChatBadge(TwitchObject):
     set_id: str
     versions: List[ChatBadgeVersion]
+
+
+class Emote(TwitchObject):
+    id: str
+    name: str
+    images: Dict[str, str]
+    tier: str
+    emote_type: str
+    emote_set_id: str
+    format: List[str]
+    scale: List[str]
+    theme_mode: List[str]
+
+
+class GetChannelEmotesResponse(IterTwitchObject):
+    data: List[Emote]
+    template: str
