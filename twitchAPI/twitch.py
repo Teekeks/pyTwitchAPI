@@ -2814,11 +2814,11 @@ class Twitch:
                                 broadcaster_id: str,
                                 title: str,
                                 outcomes: List[str],
-                                prediction_window: int) -> dict:
+                                prediction_window: int) -> Prediction:
         """Create a Channel Points Prediction for a specific Twitch channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS`\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-predictions
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-prediction
 
         :param str broadcaster_id: The broadcaster running the prediction
         :param str title: Title of the Prediction
@@ -2845,9 +2845,8 @@ class Twitch:
             'outcomes': [{'title': x} for x in outcomes],
             'prediction_window': prediction_window
         }
-        url = build_url(self.base_url + 'predictions', {})
-        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], data=body)
-        return make_fields_datetime(await result.json(), ['created_at', 'ended_at', 'locked_at'])
+        return await self._build_result('POST', 'predictions', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], Prediction,
+                                        body_data=body)
 
     async def end_prediction(self,
                              broadcaster_id: str,
