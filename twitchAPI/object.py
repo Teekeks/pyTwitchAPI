@@ -635,3 +635,8 @@ class Prediction(TwitchObject):
     created_at: datetime
     ended_at: Optional[datetime]
     locked_at: Optional[datetime]
+
+
+class RaidStartResult(TwitchObject):
+    created_at: datetime
+    is_mature: bool

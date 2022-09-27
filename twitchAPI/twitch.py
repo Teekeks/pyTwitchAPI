@@ -2889,7 +2889,7 @@ class Twitch:
 
     async def start_raid(self,
                          from_broadcaster_id: str,
-                         to_broadcaster_id: str) -> dict:
+                         to_broadcaster_id: str) -> RaidStartResult:
         """ Raid another channel by sending the broadcaster’s viewers to the targeted channel.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_RAIDS`\n
@@ -2906,13 +2906,11 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(self.base_url + 'raids',
-                        {
-                            'from_broadcaster_id': from_broadcaster_id,
-                            'to_broadcaster_id': to_broadcaster_id
-                        })
-        result = await self.__api_post_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS])
-        return make_fields_datetime(await result.json(), ['created_at'])
+        param = {
+            'from_broadcaster_id': from_broadcaster_id,
+            'to_broadcaster_id': to_broadcaster_id
+        }
+        return await self._build_result('POST', 'raids', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS], RaidStartResult)
 
     async def cancel_raid(self,
                           broadcaster_id: str) -> bool:
