@@ -1,12 +1,15 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 from datetime import datetime
 from enum import Enum
-from typing import Optional, get_type_hints, Union, List, Dict
+from typing import Optional, get_type_hints, Union, List, Dict, Generic, TypeVar
 from dateutil import parser as du_parser
 
 from twitchAPI.helper import build_url
 from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus, CustomRewardRedemptionStatus,\
     PollStatus, PredictionStatus
+
+
+T = TypeVar('T')
 
 
 class TwitchObject:
@@ -27,8 +30,6 @@ class TwitchObject:
         elif origin == Union:
             # TODO: only works for optional pattern, fix to try out all possible patterns?
             c1 = instance.__args__[0]
-            print(c1)
-            print(val)
             return TwitchObject._val_by_instance(c1, val)
         elif issubclass(instance, TwitchObject):
             return instance(**val)
@@ -103,7 +104,7 @@ class IterTwitchObject(TwitchObject):
             yield i
 
 
-class AsyncIterTwitchObject(TwitchObject):
+class AsyncIterTwitchObject(TwitchObject, Generic[T]):
 
     def __init__(self, _data, **kwargs):
         super(AsyncIterTwitchObject, self).__init__(**kwargs)
@@ -113,11 +114,11 @@ class AsyncIterTwitchObject(TwitchObject):
     def __aiter__(self):
         return self
 
-    async def __anext__(self):
-        if not hasattr(self, 'data') or not isinstance(self.__getattribute__('data'), list):
-            raise ValueError('Object is missing data attribute of type list')
-        data = self.__getattribute__('data')
-        if len(data) < self.__idx:
+    async def __anext__(self) -> T:
+        if not hasattr(self, self._data['iter_field']) or not isinstance(self.__getattribute__(self._data['iter_field']), list):
+            raise ValueError(f'Object is missing {self._data["iter_field"]} attribute of type list')
+        data = self.__getattribute__(self._data['iter_field'])
+        if len(data) > self.__idx:
             self.__idx += 1
             return data[self.__idx - 1]
         # make request
@@ -131,13 +132,15 @@ class AsyncIterTwitchObject(TwitchObject):
         _data = await response.json()
         _after = _data.get('pagination', {}).get('cursor')
         self._data['param']['after'] = _after
+        if self._data['in_data']:
+            _data = _data['data']
         # refill data
         merged_annotations = self._get_annotations()
         for name, cls in merged_annotations.items():
             if name not in _data.keys():
                 continue
             self.__setattr__(name, TwitchObject._val_by_instance(cls, _data.get(name)))
-        data = self.__getattribute__('data')
+        data = self.__getattribute__(self._data['iter_field'])
         self.__idx = 0
         return data[self.__idx]
 
@@ -722,8 +725,36 @@ class EventSubSubscription(TwitchObject):
     cost: int
 
 
-class GetEventSubSubscriptionResult(AsyncIterTwitchObject):
+class GetEventSubSubscriptionResult(AsyncIterTwitchObject[EventSubSubscription]):
     total: int
     total_cost: int
     max_total_cost: int
     data: List[EventSubSubscription]
+
+
+class StreamCategory(TwitchObject):
+    id: str
+    name: str
+
+
+class ChannelStreamScheduleSegment(TwitchObject):
+    id: str
+    start_time: datetime
+    end_time: datetime
+    title: str
+    canceled_until: Optional[datetime]
+    category: StreamCategory
+    is_recurring: bool
+
+
+class StreamVacation(TwitchObject):
+    start_time: datetime
+    end_time: datetime
+
+
+class ChannelStreamSchedule(AsyncIterTwitchObject[ChannelStreamScheduleSegment]):
+    segments: List[ChannelStreamScheduleSegment]
+    broadcaster_id: str
+    broadcaster_name: str
+    broadcaster_login: str
+    vacation: Optional[StreamVacation]

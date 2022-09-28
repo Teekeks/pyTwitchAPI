@@ -436,7 +436,9 @@ class Twitch:
                                  auth_scope: List[AuthScope],
                                  return_type: T,
                                  body_data: Optional[dict] = None,
-                                 split_lists: bool = False):
+                                 split_lists: bool = False,
+                                 iter_field: str = 'data',
+                                 in_data: bool = False):
         r_lookup: Dict[str, Callable] = {
             'get': self.__api_get_request,
             'post': self.__api_post_request,
@@ -452,6 +454,8 @@ class Twitch:
             response = await req(_url, auth_type, auth_scope, data=body_data)
         data = await response.json()
         url_params['after'] = data.get('pagination', {}).get('cursor')
+        if in_data:
+            data = data['data']
         cont_data = {
             'req': req,
             'url': self.base_url + url,
@@ -459,7 +463,9 @@ class Twitch:
             'split': split_lists,
             'auth_t': auth_type,
             'auth_s': auth_scope,
-            'body': body_data
+            'body': body_data,
+            'iter_field': iter_field,
+            'in_data': in_data
         }
         return return_type(cont_data, **data)
 
@@ -3135,7 +3141,7 @@ class Twitch:
                                           start_time: Optional[datetime] = None,
                                           utc_offset: Optional[str] = None,
                                           first: Optional[int] = 20,
-                                          after: Optional[str] = None) -> dict:
+                                          after: Optional[str] = None) -> ChannelStreamSchedule:
         """Gets all scheduled broadcasts or specific scheduled broadcasts from a channel’s stream schedule.
 
         Requires App or User Authentication\n
@@ -3161,17 +3167,16 @@ class Twitch:
             raise ValueError('stream_segment_ids can only have 100 entries')
         if first is not None and (first > 25 or first < 1):
             raise ValueError('first has to be in range 1 to 25')
-        url = build_url(self.base_url + 'schedule',
-                        {
-                            'broadcaster_id': broadcaster_id,
-                            'id': stream_segment_ids,
-                            'start_time': datetime_to_str(start_time),
-                            'utc_offset': utc_offset,
-                            'first': first,
-                            'after': after
-                        }, remove_none=True, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(await result.json(), ['start_time', 'end_time'])
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'id': stream_segment_ids,
+            'start_time': datetime_to_str(start_time),
+            'utc_offset': utc_offset,
+            'first': first,
+            'after': after
+        }
+        return await self._build_iter_result('GET', 'schedule', param, AuthType.EITHER, [], ChannelStreamSchedule, split_lists=True,
+                                             in_data=True, iter_field='segments')
 
     async def get_channel_icalendar(self, broadcaster_id: str) -> str:
         """Gets all scheduled broadcasts from a channel’s stream schedule as an iCalendar.
