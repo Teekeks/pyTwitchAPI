@@ -3318,7 +3318,7 @@ class Twitch:
 
     async def delete_channel_stream_schedule_segment(self,
                                                      broadcaster_id: str,
-                                                     stream_segment_id: str) -> bool:
+                                                     stream_segment_id: str):
         """Delete a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
@@ -3335,12 +3335,12 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(self.base_url + 'schedule/segment',
-                        {
-                            'broadcaster_id': broadcaster_id,
-                            'id': stream_segment_id
-                        })
-        return (await self.__api_delete_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE])).status == 204
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'id': stream_segment_id
+        }
+        await self._build_result('DELETE', 'schedule/segment', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE],
+                                 None)
 
     async def update_drops_entitlements(self,
                                         entitlement_ids: List[str],
