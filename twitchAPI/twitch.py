@@ -3200,7 +3200,7 @@ class Twitch:
                                              is_vacation_enabled: Optional[bool] = None,
                                              vacation_start_time: Optional[datetime] = None,
                                              vacation_end_time: Optional[datetime] = None,
-                                             timezone: Optional[str] = None) -> bool:
+                                             timezone: Optional[str] = None):
         """Update the settings for a channel’s stream schedule. This can be used for setting vacation details.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
@@ -3220,15 +3220,14 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: bool
         """
-        url = build_url(self.base_url + 'schedule/settings',
-                        {
-                            'broadcaster_id': broadcaster_id,
-                            'is_vacation_enabled': is_vacation_enabled,
-                            'vacation_start_time': datetime_to_str(vacation_start_time),
-                            'vacation_end_time': datetime_to_str(vacation_end_time),
-                            'timezone': timezone
-                        }, remove_none=True)
-        return (await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE])).status == 200
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'is_vacation_enabled': is_vacation_enabled,
+            'vacation_start_time': datetime_to_str(vacation_start_time),
+            'vacation_end_time': datetime_to_str(vacation_end_time),
+            'timezone': timezone
+        }
+        await self._build_result('PATCH', 'schedule/settings', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE], None)
 
     async def create_channel_stream_schedule_segment(self,
                                                      broadcaster_id: str,
