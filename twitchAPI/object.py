@@ -758,3 +758,9 @@ class ChannelStreamSchedule(AsyncIterTwitchObject[ChannelStreamScheduleSegment])
     broadcaster_name: str
     broadcaster_login: str
     vacation: Optional[StreamVacation]
+
+
+class ChannelVIP(TwitchObject):
+    user_id: str
+    user_name: str
+    user_login: str

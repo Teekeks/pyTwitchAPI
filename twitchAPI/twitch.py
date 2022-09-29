@@ -3458,3 +3458,39 @@ class Twitch:
         }
         return await self._build_result('POST', 'channels/vips', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_VIPS], None,
                                         result_type=ResultType.STATUS_CODE, error_handler=error_handler) == 204
+
+    async def get_vips(self,
+                       broadcaster_id: str,
+                       user_ids: Optional[Union[str, List[str]]] = None,
+                       first: Optional[int] = None,
+                       after: Optional[str] = None) -> AsyncGenerator[ChannelVIP, None]:
+        """Gets a list of the channel’s VIPs.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_VIPS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-vips
+
+        :param str broadcaster_id: The ID of the broadcaster whose list of VIPs you want to get.
+        :param str|List[str] user_ids: Filters the list for specific VIPs. Maximum 100 |default|`None`
+        :param int first: The maximum number of items to return per page in the response. Maximum 100 |default|`None`
+        :param str after: The cursor used to get the next page of results. |default|`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if you specify more than 100 user ids
+        :return:
+        """
+        if user_ids is not None and isinstance(user_ids, list) and len(user_ids) > 100:
+            raise ValueError('you can only specify up to 100 user ids')
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'user_id': user_ids,
+            'first': first,
+            'after': after
+        }
+        async for y in self._build_generator('GET', 'channels/vips', param, AuthType.USER, [AuthScope.CHANNEL_READ_VIPS], ChannelVIP,
+                                             split_lists=True):
+            yield y
