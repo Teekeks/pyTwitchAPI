@@ -3368,3 +3368,34 @@ class Twitch:
             'fulfillment_status': fulfillment_status.value
         })
         return await self._build_result('PATCH', 'entitlements/drops', {}, AuthType.EITHER, [], List[DropsEntitlement], body_data=body)
+
+    async def send_whisper(self,
+                           from_user_id: str,
+                           to_user_id: str,
+                           message: str):
+        """Sends a whisper message to the specified user.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_MANAGE_WHISPERS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#send-whisper
+
+        :param str from_user_id: The ID of the user sending the whisper.
+        :param str to_user_id: The ID of the user to receive the whisper.
+        :param str message: The whisper message to send.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if message is empty
+        :rtype: None
+        """
+        if len(message) == 0:
+            raise ValueError('message can\'t be empty')
+        param = {
+            'from_user_id': from_user_id,
+            'to_user_id': to_user_id
+        }
+        body = {'message': message}
+        await self._build_result('POST', 'whispers', param, AuthType.USER, [AuthScope.USER_MANAGE_WHISPERS], None, body_data=body)
