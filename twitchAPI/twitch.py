@@ -3344,7 +3344,7 @@ class Twitch:
 
     async def update_drops_entitlements(self,
                                         entitlement_ids: List[str],
-                                        fulfillment_status: EntitlementFulfillmentStatus) -> dict:
+                                        fulfillment_status: EntitlementFulfillmentStatus) -> List[DropsEntitlement]:
         """Updates the fulfillment status on a set of Drops entitlements, specified by their entitlement IDs.
 
         Requires User or App Authentication\n
@@ -3363,10 +3363,8 @@ class Twitch:
         """
         if len(entitlement_ids) > 100:
             raise ValueError('entitlement_ids can only have a maximum of 100 entries')
-        url = build_url(self.base_url + 'entitlements/drops', {})
         body = remove_none_values({
             'entitlement_ids': entitlement_ids,
             'fulfillment_status': fulfillment_status.value
         })
-        response = await self.__api_patch_request(url, AuthType.EITHER, [], data=body)
-        return await response.json()
+        return await self._build_result('PATCH', 'entitlements/drops', {}, AuthType.EITHER, [], List[DropsEntitlement], body_data=body)
