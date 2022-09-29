@@ -119,7 +119,7 @@ import asyncio
 from aiohttp import ClientSession, ClientResponse
 
 from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
-    fields_to_enum, enum_value_or_none, datetime_to_str, remove_none_values
+    fields_to_enum, enum_value_or_none, datetime_to_str, remove_none_values, ResultType
 from datetime import datetime
 from logging import getLogger, Logger
 
@@ -479,7 +479,7 @@ class Twitch:
                             body_data: Optional[dict] = None,
                             split_lists: bool = False,
                             get_from_data: bool = True,
-                            return_status_code: bool = False,
+                            result_type: ResultType = ResultType.RETURN_TYPE,
                             error_handler: Optional[Dict[int, BaseException]] = None):
         r_lookup: Dict[str, Callable] = {
             'get': self.__api_get_request,
@@ -497,8 +497,10 @@ class Twitch:
         if error_handler is not None:
             if response.status in error_handler.keys():
                 raise error_handler[response.status]
-        if return_status_code:
+        if result_type == ResultType.STATUS_CODE:
             return response.status
+        if result_type == ResultType.TEXT:
+            return response.text
         if return_type is not None:
             data = await response.json()
             if isinstance(return_type, dict):
@@ -1250,7 +1252,7 @@ class Twitch:
             'user_id': user_id
         }
         return await self._build_result('DELETE', 'moderation/bans', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BANNED_USERS], None,
-                                        return_status_code=True) == 204
+                                        result_type=ResultType.STATUS_CODE) == 204
 
     async def get_blocked_terms(self,
                                 broadcaster_id: str,
@@ -1348,7 +1350,7 @@ class Twitch:
             'id': term_id
         }
         return await self._build_result('DELETE', 'moderation/blocked_terms', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS],
-                                        None, return_status_code=True) == 204
+                                        None, result_type=ResultType.STATUS_CODE) == 204
 
     async def get_moderators(self,
                              broadcaster_id: str,
@@ -1977,7 +1979,7 @@ class Twitch:
                                   'title': title,
                                   'delay': delay}.items() if v is not None}
         return await self._build_result('PATCH', 'channels', {'broadcaster_id': broadcaster_id}, AuthType.USER,
-                                        [AuthScope.CHANNEL_MANAGE_BROADCAST], None, body_data=body, return_status_code=True) == 204
+                                        [AuthScope.CHANNEL_MANAGE_BROADCAST], None, body_data=body, result_type=ResultType.STATUS_CODE) == 204
 
     async def search_channels(self,
                               query: str,
@@ -2626,7 +2628,7 @@ class Twitch:
             'source_context': enum_value_or_none(source_context),
             'reason': enum_value_or_none(reason)}
         return await self._build_result('PUT', 'users/blocks', param, AuthType.USER, [AuthScope.USER_MANAGE_BLOCKED_USERS], None,
-                                        return_status_code=True) == 204
+                                        result_type=ResultType.STATUS_CODE) == 204
 
     async def unblock_user(self,
                            target_user_id: str) -> bool:
@@ -2646,7 +2648,7 @@ class Twitch:
         :rtype: bool
         """
         return await self._build_result('DELETE', 'users/blocks', {'target_user_id': target_user_id}, AuthType.USER,
-                                        [AuthScope.USER_MANAGE_BLOCKED_USERS], None, return_status_code=True) == 204
+                                        [AuthScope.USER_MANAGE_BLOCKED_USERS], None, result_type=ResultType.STATUS_CODE) == 204
 
     async def get_followed_streams(self,
                                    user_id: str,

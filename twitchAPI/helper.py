@@ -16,12 +16,18 @@ from typing import Union, List, Type, Optional, Callable, Generator
 
 __all__ = ['TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 'TWITCH_CHAT_URL',
            'extract_uuid_str_from_url', 'build_url', 'get_uuid', 'get_json', 'make_fields_datetime', 'build_scope', 'fields_to_enum', 'make_enum',
-           'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'paginator']
+           'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'ResultType']
 
 TWITCH_API_BASE_URL = "https://api.twitch.tv/helix/"
 TWITCH_AUTH_BASE_URL = "https://id.twitch.tv/"
 TWITCH_PUB_SUB_URL = "wss://pubsub-edge.twitch.tv"
 TWITCH_CHAT_URL = "wss://irc-ws.chat.twitch.tv:443"
+
+
+class ResultType(Enum):
+    RETURN_TYPE = 0
+    STATUS_CODE = 1
+    TEXT = 2
 
 
 def extract_uuid_str_from_url(url: str) -> Union[str, None]:
