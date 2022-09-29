@@ -3278,7 +3278,7 @@ class Twitch:
                                                      category_id: Optional[str] = None,
                                                      title: Optional[str] = None,
                                                      is_canceled: Optional[bool] = None,
-                                                     timezone: Optional[str] = None) -> dict:
+                                                     timezone: Optional[str] = None) -> ChannelStreamSchedule:
         """Update a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
@@ -3301,11 +3301,10 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: dict
         """
-        url = build_url(self.base_url + 'schedule/segment',
-                        {
-                            'broadcaster_id': broadcaster_id,
-                            'id': stream_segment_id
-                        })
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'id': stream_segment_id
+        }
         body = remove_none_values({
             'start_time': datetime_to_str(start_time),
             'duration': duration,
@@ -3314,8 +3313,8 @@ class Twitch:
             'is_canceled': is_canceled,
             'timezone': timezone
         })
-        result = await self.__api_patch_request(url, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE], data=body)
-        return make_fields_datetime(await result.json(), ['start_time', 'end_time'])
+        return await self._build_iter_result('PATCH', 'schedule/segment', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_SCHEDULE],
+                                             ChannelStreamSchedule, body_data=body, in_data=True, iter_field='segments')
 
     async def delete_channel_stream_schedule_segment(self,
                                                      broadcaster_id: str,
