@@ -263,8 +263,11 @@ class Chat:
             # unsupported command in parts 2
             self.logger.warning(f'Unsupported IRC command: {command_parts[0]}')
             return None
-        elif command_parts[0] in ('002', '003', '004', '366', '353', '372', '375', '376'):
-            # FIXME maybe parse 353?
+        elif command_parts[0] == '353':
+            parsed_command = {
+                'command': command_parts[0]
+            }
+        elif command_parts[0] in ('002', '003', '004', '366', '372', '375', '376'):
             self.logger.info(f'numeric message: {command_parts[0]}\n{raw_command_component}')
             return None
         else:
@@ -369,21 +372,32 @@ class Chat:
                     'PRIVMSG': self._handle_msg,
                     '001': self._handle_ready,
                     'ROOMSTATE': self._handle_room_state,
-                    'USERNOTICE': self._handle_user_notice
+                    'JOIN': self._handle_join,
+                    'USERNOTICE': self._handle_user_notice,
+                    '353': self._handle_user_list,
+                    'CAP': self._handle_cap_reply
                 }
                 handler = handlers.get(parsed['command']['command'])
                 if handler is not None:
                     asyncio.ensure_future(handler(parsed))
 
-    async def _handle_user_notice(self, parsed: dict):
+    async def _handle_user_list(self, parsed: dict):
         pprint(parsed)
+
+    async def _handle_cap_reply(self, parsed: dict):
+        pass
+
+    async def _handle_join(self, parsed: dict):
+        pass
+
+    async def _handle_user_notice(self, parsed: dict):
         if parsed['tags'].get('msg-id') == 'raid':
             handlers = self._event_handler.get(ChatEvent.RAID, [])
             for handler in handlers:
                 asyncio.ensure_future(handler(parsed))
         elif parsed['tags'].get('msg-id') in ('sub', 'resub', 'subgift'):
             sub = ChatSub(self, parsed)
-            for handler in self._event_handler.get(ChatEvent.SUB):
+            for handler in self._event_handler.get(ChatEvent.SUB, []):
                 asyncio.ensure_future(handler(sub))
 
     async def _handle_room_state(self, parsed: dict):
@@ -404,9 +418,8 @@ class Chat:
 
     async def _handle_ready(self, parsed: dict):
         self.logger.debug('got ready event')
-        handler = self._event_handler.get(ChatEvent.READY, [])
         dat = EventData(self)
-        for h in handler:
+        for h in self._event_handler.get(ChatEvent.READY, []):
             asyncio.ensure_future(h(dat))
 
     async def _handle_msg(self, parsed: dict):
