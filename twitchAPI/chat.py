@@ -6,7 +6,8 @@ from pprint import pprint
 from time import sleep
 import websockets
 from twitchAPI import TwitchBackendException, Twitch, AuthType, AuthScope, ChatEvent
-from twitchAPI.helper import TWITCH_CHAT_URL
+from twitchAPI.object import TwitchUser
+from twitchAPI.helper import TWITCH_CHAT_URL, first
 from twitchAPI.types import ChatRoom
 
 from typing import List, Optional, Union, Callable, Dict
@@ -39,10 +40,15 @@ class ChatUser:
         self.user_type: str = parsed['tags'].get('user-type')
 
 
-class ChatMessage:
+class EventData:
+    def __init__(self, chat):
+        self.chat: 'Chat' = chat
+
+
+class ChatMessage(EventData):
 
     def __init__(self, chat, parsed):
-        self.chat: 'Chat' = chat
+        super(ChatMessage, self).__init__(chat)
         self._parsed = parsed
         self.text = parsed['parameters']
         self.id: str = parsed['tags'].get('id')
@@ -90,8 +96,8 @@ class Chat:
         self.twitch: Twitch = twitch
         if not self.twitch.has_required_auth(AuthType.USER, [AuthScope.CHAT_READ]):
             raise ValueError('passed twitch instance is missing User Auth.')
-        data = self.twitch.get_users()
-        self.username: str = data['data'][0]['login'].lower()
+        # data = self.twitch.get_users()
+        # self.username: str = data['data'][0]['login'].lower()
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_CHAT_URL
         self.ping_frequency: int = 120
         self.ping_jitter: int = 4
@@ -109,6 +115,15 @@ class Chat:
         self._event_handler = {}
         self._command_handler = {}
         self.room_cache: Dict[str, ChatRoom] = {}
+
+    def __await__(self):
+        t = asyncio.create_task(self._get_username())
+        yield from t
+        return self
+
+    async def _get_username(self):
+        user: TwitchUser = await first(self.twitch.get_users())
+        self.username = user.login.lower()
 
     ##################################################################################################################################################
     # command parsing
@@ -265,7 +280,7 @@ class Chat:
 
     def start(self) -> None:
         """
-        Start the PubSub Client
+        Start the Chat Client
 
         :raises RuntimeError: if already started
         """
@@ -282,7 +297,7 @@ class Chat:
 
     def stop(self) -> None:
         """
-        Stop the PubSub Client
+        Stop the Chat Client
 
         :raises RuntimeError: if the client is not running
         """
@@ -390,8 +405,9 @@ class Chat:
     async def _handle_ready(self, parsed: dict):
         self.logger.debug('got ready event')
         handler = self._event_handler.get(ChatEvent.READY, [])
+        dat = EventData(self)
         for h in handler:
-            asyncio.ensure_future(h())
+            asyncio.ensure_future(h(dat))
 
     async def _handle_msg(self, parsed: dict):
         self.logger.debug('got new message, call handler')
