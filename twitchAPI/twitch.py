@@ -3399,3 +3399,30 @@ class Twitch:
         }
         body = {'message': message}
         await self._build_result('POST', 'whispers', param, AuthType.USER, [AuthScope.USER_MANAGE_WHISPERS], None, body_data=body)
+
+    async def remove_channel_vip(self,
+                                 broadcaster_id: str,
+                                 user_id: str) -> bool:
+        """Removes a VIP from the broadcaster’s chat room.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIPS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#send-whisper
+
+        :param str broadcaster_id: The ID of the broadcaster that’s removing VIP status from the user.
+        :param str user_id: The ID of the user to remove as a VIP from the broadcaster’s chat room.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :rtype: bool
+        :returns: True if channel vip was removed, False if user was not a channel vip
+        """
+        param = {
+            'user_id': user_id,
+            'broadcaster_id': broadcaster_id
+        }
+        return await self._build_result('DELETE', 'channels/vips', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_VIPS], None,
+                                        result_type=ResultType.STATUS_CODE) == 204
