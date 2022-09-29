@@ -3406,7 +3406,7 @@ class Twitch:
         """Removes a VIP from the broadcaster’s chat room.
 
         Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIPS`\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#send-whisper
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#remove-channel-vip
 
         :param str broadcaster_id: The ID of the broadcaster that’s removing VIP status from the user.
         :param str user_id: The ID of the user to remove as a VIP from the broadcaster’s chat room.
@@ -3426,3 +3426,35 @@ class Twitch:
         }
         return await self._build_result('DELETE', 'channels/vips', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_VIPS], None,
                                         result_type=ResultType.STATUS_CODE) == 204
+
+    async def add_channel_vip(self,
+                              broadcaster_id: str,
+                              user_id: str) -> bool:
+        """Adds a VIP to the broadcaster’s chat room.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIPS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#add-channel-vip
+
+        :param str broadcaster_id: The ID of the broadcaster that’s granting VIP status to the user.
+        :param str user_id: The ID of the user to add as a VIP in the broadcaster’s chat room.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if broadcaster does not have available VIP slots or has not completed the "Build a Community" requirements
+        :rtype: bool
+        :returns: True if user was added as vip, False when user was already vip or is moderator
+        """
+        param = {
+            'user_id': user_id,
+            'broadcaster_id': broadcaster_id
+        }
+        error_handler = {
+            409: ValueError('Broadcaster does not have available VIP slots'),
+            425: ValueError('The broadcaster did not complete the "Build a Community" requirements')
+        }
+        return await self._build_result('POST', 'channels/vips', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_VIPS], None,
+                                        result_type=ResultType.STATUS_CODE, error_handler=error_handler) == 204
