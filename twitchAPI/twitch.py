@@ -500,7 +500,7 @@ class Twitch:
         if result_type == ResultType.STATUS_CODE:
             return response.status
         if result_type == ResultType.TEXT:
-            return response.text
+            return await response.text()
         if return_type is not None:
             data = await response.json()
             if isinstance(return_type, dict):
@@ -3192,9 +3192,8 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :rtype: str
         """
-        url = build_url(self.base_url + 'schedule/icalendar', {'broadcaster_id': broadcaster_id})
-        response = await self.__api_get_request(url, AuthType.NONE, [])
-        return await response.text()
+        return await self._build_result('GET', 'schedule/icalendar', {'broadcaster_id': broadcaster_id}, AuthType.NONE, [], None,
+                                        result_type=ResultType.TEXT)
 
     async def update_channel_stream_schedule(self,
                                              broadcaster_id: str,
