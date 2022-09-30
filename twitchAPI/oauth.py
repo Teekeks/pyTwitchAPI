@@ -53,7 +53,7 @@ import aiohttp
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL, fields_to_enum
 from .types import AuthScope, InvalidRefreshTokenException, UnauthorizedException, TwitchAPIException
-from typing import Optional
+from typing import Optional, Callable
 import webbrowser
 from aiohttp import web
 import asyncio
@@ -263,14 +263,15 @@ class UserAuthenticator:
         return self.__build_auth_url()
 
     async def authenticate(self,
-                           callback_func=None, user_token=None):
+                           callback_func: Optional[Callable[[str, str], None]] = None,
+                           user_token: Optional[str] = None):
         """Start the user authentication flow\n
         If callback_func is not set, authenticate will wait till the authentication process finished and then return
         the access_token and the refresh_token
         If user_token is set, it will be used instead of launching the webserver and opening the browser
 
         :param callback_func: Function to call once the authentication finished.
-        :param str user_token: Code obtained from twitch to request the access and refresh token.
+        :param user_token: Code obtained from twitch to request the access and refresh token.
         :return: None if callback_func is set, otherwise access_token and refresh_token
         :raises ~twitchAPI.types.TwitchAPIException: if authentication fails
         :rtype: None or (str, str)
@@ -307,4 +308,4 @@ class UserAuthenticator:
                 raise TwitchAPIException(f'Authentication failed:\n{str(data)}')
             return data['access_token'], data['refresh_token']
         elif user_token is not None:
-            self.__callback_func(self.__user_token)
+            self.__callback_func(data['access_token'], data['refresh_token'])
