@@ -2727,8 +2727,6 @@ class Twitch:
                           title: str,
                           choices: List[str],
                           duration: int,
-                          bits_voting_enabled: bool = False,
-                          bits_per_vote: Optional[int] = None,
                           channel_points_voting_enabled: bool = False,
                           channel_points_per_vote: Optional[int] = None) -> Poll:
         """Create a poll for a specific Twitch channel.
@@ -2740,9 +2738,6 @@ class Twitch:
         :param str title: Question displayed for the poll
         :param List[str] choices: List of poll choices.
         :param int duration: Total duration for the poll (in seconds). Minimum 15, Maximum 1800
-        :param bool bits_voting_enabled: Indicates if Bits can be used for voting. |default| :code:`False`
-        :param int bits_per_vote: Number of Bits required to vote once with Bits.
-            Minimum: 0. Maximum: 10000. |default| :code:`None`
         :param bool channel_points_voting_enabled: Indicates if Channel Points can be used for voting. |default| :code:`False`
         :param int channel_points_per_vote: Number of Channel Points required to vote once with Channel Points.
             Minimum: 0. Maximum: 1000000. |default| :code:`None`
@@ -2754,15 +2749,11 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ValueError: if duration is not in range 15 to 1800
-        :raises ValueError: if bits_per_vote is not in range 0 to 10000
         :raises ValueError: if channel_points_per_vote is not in range 0 to 1000000
         :rtype: dict
         """
         if duration < 15 or duration > 1800:
             raise ValueError('duration must be between 15 and 1800')
-        if bits_per_vote is not None:
-            if bits_per_vote < 0 or bits_per_vote > 10000:
-                raise ValueError('bits_per_vote must be in range 0 to 10000')
         if channel_points_per_vote is not None:
             if channel_points_per_vote < 0 or channel_points_per_vote > 1_000_000:
                 raise ValueError('channel_points_per_vote must be in range 0 to 1000000')
@@ -2773,8 +2764,6 @@ class Twitch:
             'title': title,
             'choices': [{'title': x} for x in choices],
             'duration': duration,
-            'bits_voting_enabled': bits_voting_enabled,
-            'bits_per_vote': bits_per_vote,
             'channel_points_voting_enabled': channel_points_voting_enabled,
             'channel_points_per_vote': channel_points_per_vote
         }.items() if v is not None}
