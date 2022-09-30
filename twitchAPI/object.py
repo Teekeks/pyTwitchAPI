@@ -410,12 +410,19 @@ class StreamTag(TwitchObject):
     localization_descriptions: Dict[str, str]
 
 
+class TeamUser(TwitchObject):
+    user_id: str
+    user_name: str
+    user_login: str
+
+
 class ChannelTeam(TwitchObject):
     broadcaster_id: str
     broadcaster_name: str
     broadcaster_login: str
     background_image_url: str
     banner: str
+    users: Optional[List[TeamUser]]
     created_at: datetime
     updated_at: datetime
     info: str

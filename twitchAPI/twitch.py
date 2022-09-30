@@ -1622,7 +1622,7 @@ class Twitch:
 
     async def get_teams(self,
                         team_id: Optional[str] = None,
-                        name: Optional[str] = None) -> dict:
+                        name: Optional[str] = None) -> ChannelTeam:
         """Gets information for a specific Twitch Team.\n\n
 
         Requires User or App authentication.
@@ -1646,9 +1646,7 @@ class Twitch:
             'id': team_id,
             'name': name
         }
-        url = build_url(self.base_url + 'teams', param, remove_none=True, split_lists=True)
-        result = await self.__api_get_request(url, AuthType.EITHER, [])
-        return make_fields_datetime(await result.json(), ['created_at', 'updated_at'])
+        return await self._build_result('GET', 'teams', param, AuthType.EITHER, [], ChannelTeam)
 
     async def get_users(self,
                         user_ids: Optional[List[str]] = None,
