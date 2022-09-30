@@ -22,7 +22,8 @@ Example Usage:
         # initialize the twitch instance, this will by default also create a app authentication for you
         twitch = await Twitch('app_id', 'app_secret')
         # call the API for the data of your twitch user
-        # this returns a async generator that can be used to iterate over all results but we are just interested in the first result
+        # this returns a async generator that can be used to iterate over all results
+        # but we are just interested in the first result
         # using the first helper makes this easy.
         user = await first(twitch.get_users(logins='your_twitch_user'))
         # print the ID of your user or do whatever else you want with it
@@ -51,20 +52,20 @@ By default, The lib will try to attempt to create a App Authentication on Initia
 .. code-block:: python
 
     from twitchAPI.twitch import Twitch
-    twitch = Twitch('my_app_id', 'my_app_secret')
+    twitch = await Twitch('my_app_id', 'my_app_secret')
 
 You can set a Auth Scope like this:
 
 .. code-block:: python
 
     from twitchAPI.twitch import Twitch, AuthScope
-    twitch = Twitch('my_app_id', 'my_app_secret', target_app_auth_scope=[AuthScope.USER_EDIT])
+    twitch = await Twitch('my_app_id', 'my_app_secret', target_app_auth_scope=[AuthScope.USER_EDIT])
 
 If you want to change the AuthScope later use this:
 
 .. code-block:: python
 
-    twitch.authenticate_app(my_new_scope)
+    await twitch.authenticate_app(my_new_scope)
 
 
 If you don't want to use App Authentication, Initialize like this:
@@ -85,7 +86,7 @@ Only use a user auth token, use this:
     from twitchAPI.twitch import Twitch
     twitch = Twitch('my_app_id', authenticate_app=False)
     # make sure to set the second parameter as the scope used to generate the token
-    twitch.set_user_authentication('token', [], 'refresh_token')
+    await twitch.set_user_authentication('token', [], 'refresh_token')
 
 
 Use both App and user Authentication:
@@ -93,9 +94,9 @@ Use both App and user Authentication:
 .. code-block:: python
 
     from twitchAPI.twitch import Twitch
-    twitch = Twitch('my_app_id', 'my_app_secret')
+    twitch = await Twitch('my_app_id', 'my_app_secret')
     # make sure to set the second parameter as the scope used to generate the token
-    twitch.set_user_authentication('token', [], 'refresh_token')
+    await twitch.set_user_authentication('token', [], 'refresh_token')
 
 
 To get a user auth token, the user has to explicitly click "Authorize" on the twitch website. You can use various online
@@ -118,7 +119,7 @@ Optionally you can set a callback for both user access token refresh and app acc
     def app_refresh(token: str):
         print(f'my new app token is: {token}')
 
-    twitch = Twitch('my_app_id', 'my_app_secret')
+    twitch = await Twitch('my_app_id', 'my_app_secret')
     twitch.app_auth_refresh_callback = app_refresh
     twitch.user_auth_refresh_callback = user_refresh
 

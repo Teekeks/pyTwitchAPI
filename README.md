@@ -33,7 +33,8 @@ async def twitch_example():
     # initialize the twitch instance, this will by default also create a app authentication for you
     twitch = await Twitch('app_id', 'app_secret')
     # call the API for the data of your twitch user
-    # this returns a async generator that can be used to iterate over all results but we are just interested in the first result
+    # this returns a async generator that can be used to iterate over all results
+    # but we are just interested in the first result
     # using the first helper makes this easy.
     user = await first(twitch.get_users(logins='your_twitch_user'))
     # print the ID of your user or do whatever else you want with it
@@ -58,7 +59,7 @@ App authentication is super simple, just do the following:
 
 ```python
 from twitchAPI.twitch import Twitch
-twitch = Twitch('my_app_id', 'my_app_secret')
+twitch = await Twitch('my_app_id', 'my_app_secret')
 ```
 
 ### User Authentication
@@ -73,21 +74,21 @@ from twitchAPI.twitch import Twitch
 from twitchAPI.oauth import UserAuthenticator
 from twitchAPI.types import AuthScope
 
-twitch = Twitch('my_app_id', 'my_app_secret')
+twitch = await Twitch('my_app_id', 'my_app_secret')
 
 target_scope = [AuthScope.BITS_READ]
 auth = UserAuthenticator(twitch, target_scope, force_verify=False)
 # this will open your default browser and prompt you with the twitch verification website
-token, refresh_token = auth.authenticate()
+token, refresh_token = await auth.authenticate()
 # add User authentication
-twitch.set_user_authentication(token, target_scope, refresh_token)
+await twitch.set_user_authentication(token, target_scope, refresh_token)
 ```
 
 You can reuse this token and use the refresh_token to renew it:
 
 ```python
 from twitchAPI.oauth import refresh_access_token
-new_token, new_refresh_token = refresh_access_token('refresh_token', 'client_id', 'client_secret')
+new_token, new_refresh_token = await refresh_access_token('refresh_token', 'client_id', 'client_secret')
 ```
 
 ### AuthToken refresh callback
@@ -103,7 +104,7 @@ def user_refresh(token: str, refresh_token: str):
 def app_refresh(token: str):
     print(f'my new app token is: {token}')
 
-twitch = Twitch('my_app_id', 'my_app_secret')
+twitch = await Twitch('my_app_id', 'my_app_secret')
 twitch.app_auth_refresh_callback = app_refresh
 twitch.user_auth_refresh_callback = user_refresh
 ```
