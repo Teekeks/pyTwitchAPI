@@ -3561,8 +3561,32 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ValueError: if you specify more than 100 user ids
-        :return:
+        :return: A list of user chat Colors
         """
         if isinstance(user_ids, list) and len(user_ids) > 100:
             raise ValueError('you can only request up to 100 users at the same time')
         return await self._build_result('GET', 'chat/color', {'user_id': user_ids}, AuthType.EITHER, [], List[UserChatColor], split_lists=True)
+
+    async def update_user_chat_color(self,
+                                     user_id: str,
+                                     color: str):
+        """Updates the color used for the user’s name in chat.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_MANAGE_CHAT_COLOR`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-user-chat-color
+
+        :param user_id: The ID of the user whose chat color you want to update.
+        :param color: The color to use for the user’s name in chat. See twitch Docs for valid values.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        """
+        param = {
+            'user_id': user_id,
+            'color': color
+        }
+        await self._build_result('PUT', 'chat/color', param, AuthType.USER, [AuthScope.USER_MANAGE_CHAT_COLOR], None)
