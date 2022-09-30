@@ -3545,3 +3545,24 @@ class Twitch:
             'user_id': user_id
         }
         await self._build_result('DELETE', 'moderation/moderators', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_MODERATORS], None)
+
+    async def get_user_chat_color(self,
+                                  user_ids: Union[str, List[str]]) -> List[UserChatColor]:
+        """Gets the color used for the user’s name in chat.
+
+        Requires User or App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-chat-color
+
+        :param user_ids: The ID of the user whose color you want to get.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if you specify more than 100 user ids
+        :return:
+        """
+        if isinstance(user_ids, list) and len(user_ids) > 100:
+            raise ValueError('you can only request up to 100 users at the same time')
+        return await self._build_result('GET', 'chat/color', {'user_id': user_ids}, AuthType.EITHER, [], List[UserChatColor], split_lists=True)

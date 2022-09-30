@@ -764,3 +764,10 @@ class ChannelVIP(TwitchObject):
     user_id: str
     user_name: str
     user_login: str
+
+
+class UserChatColor(TwitchObject):
+    user_id: str
+    user_name: str
+    user_login: str
+    color: str
