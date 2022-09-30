@@ -3590,3 +3590,33 @@ class Twitch:
             'color': color
         }
         await self._build_result('PUT', 'chat/color', param, AuthType.USER, [AuthScope.USER_MANAGE_CHAT_COLOR], None)
+
+    async def delete_chat_message(self,
+                                  broadcaster_id: str,
+                                  moderator_id: str,
+                                  message_id: Optional[str] = None):
+        """Removes a single chat message or all chat messages from the broadcaster’s chat room.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_MESSAGES`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-chat-messages
+
+        :param broadcaster_id: The ID of the broadcaster that owns the chat room to remove messages from.
+        :param moderator_id: The ID of a user that has permission to moderate the broadcaster’s chat room.
+        :param message_id: The ID of the message to remove. If None, removes all messages from the broadcasters chat. |default|`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+         :raises ~twitchAPI.types.ForbiddenError: if moderator_id is not a moderator of broadcaster_id
+        """
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'moderator_id': moderator_id,
+            'message_id': message_id
+        }
+        error = {403: ForbiddenError('moderator_id is not a moderator of broadcaster_id')}
+        await self._build_result('DELETE', 'moderation/chat', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_CHAT_MESSAGES], None,
+                                 error_handler=error)
