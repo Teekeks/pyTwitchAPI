@@ -3620,3 +3620,38 @@ class Twitch:
         error = {403: ForbiddenError('moderator_id is not a moderator of broadcaster_id')}
         await self._build_result('DELETE', 'moderation/chat', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_CHAT_MESSAGES], None,
                                  error_handler=error)
+
+    async def send_chat_announcement(self,
+                                     broadcaster_id: str,
+                                     moderator_id: str,
+                                     message: str,
+                                     color: Optional[str] = None):
+        """Sends an announcement to the broadcaster’s chat room.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_ANNOUNCEMENTS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#send-chat-announcement
+
+        :param broadcaster_id: The ID of the broadcaster that owns the chat room to send the announcement to.
+        :param moderator_id: The ID of a user who has permission to moderate the broadcaster’s chat room.
+        :param message: The announcement to make in the broadcaster’s chat room.
+        :param color: The color used to highlight the announcement. See twitch Docs for valid values. |default|`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+         :raises ~twitchAPI.types.ForbiddenError: if moderator_id is not a moderator of broadcaster_id
+        """
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'moderator_id': moderator_id
+        }
+        body = remove_none_values({
+            'message': message,
+            'color': color
+        })
+        error = {403: ForbiddenError('moderator_id is not a moderator of broadcaster_id')}
+        await self._build_result('POST', 'chat/announcements', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_ANNOUNCEMENTS], None,
+                                 body_data=body, error_handler=error)
