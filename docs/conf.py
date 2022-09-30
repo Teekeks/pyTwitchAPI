@@ -63,7 +63,6 @@ rst_prolog = """
 
 def setup(app):
     app.add_css_file('css/custom.css')
-    app.add_css_file('css/rtd_dark.css')
 
 # -- Options for HTML output -------------------------------------------------
 
