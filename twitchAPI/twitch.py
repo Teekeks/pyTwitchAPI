@@ -650,7 +650,7 @@ class Twitch:
         """Gets a URL that extension developers can use to download analytics reports (CSV files) for their extensions.
         The URL is valid for 5 minutes.\n\n
 
-        Requires User authentication with scope :py:const:`twitchAPI.types.AuthScope.ANALYTICS_READ_EXTENSION`\n
+        Requires User authentication with scope :py:const:`~twitchAPI.types.AuthScope.ANALYTICS_READ_EXTENSION`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-analytics
 
         :param after: cursor for forward pagination |default| :code:`None`
