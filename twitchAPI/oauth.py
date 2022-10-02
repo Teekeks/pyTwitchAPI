@@ -106,7 +106,7 @@ async def validate_token(access_token: str,
                          session: Optional[aiohttp.ClientSession] = None) -> dict:
     """Helper function for validating a user or app access token.
 
-    https://dev.twitch.tv/docs/authentication#validating-requests
+    https://dev.twitch.tv/docs/authentication/validate-tokens
 
     :param str access_token: either a user or app OAuth access token
     :param ~aiohttp.ClientSession session: optionally a active client session to be used for the web request to avoid having to open a new one
@@ -128,7 +128,7 @@ async def revoke_token(client_id: str,
                        session: Optional[aiohttp.ClientSession] = None) -> bool:
     """Helper function for revoking a user or app OAuth access token.
 
-    https://dev.twitch.tv/docs/authentication#revoking-access-tokens
+    https://dev.twitch.tv/docs/authentication/revoke-tokens
 
     :param str client_id: client id belonging to the access token
     :param str access_token: user or app OAuth access token
