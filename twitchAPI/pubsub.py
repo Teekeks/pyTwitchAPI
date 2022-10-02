@@ -329,7 +329,7 @@ class PubSub:
                         callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         You are notified when anyone whispers the specified user or the specified user whispers to anyone.\n
-        Requires the :const:`twitchAPI.types.AuthScope.WHISPERS_READ` AuthScope.\n
+        Requires the :const:`~twitchAPI.types.AuthScope.WHISPERS_READ` AuthScope.\n
 
         :param user_id: ID of the User
         :param callback_func: Function called on event
@@ -347,7 +347,7 @@ class PubSub:
                        callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         You are notified when anyone cheers in the specified channel.\n
-        Requires the :const:`twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
+        Requires the :const:`~twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
 
         :param channel_id: ID of the Channel
         :param callback_func: Function called on event
@@ -365,7 +365,7 @@ class PubSub:
                     callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         You are notified when anyone cheers in the specified channel.\n
-        Requires the :const:`twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
+        Requires the :const:`~twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
 
         :param channel_id: ID of the Channel
         :param callback_func: Function called on event
@@ -384,7 +384,7 @@ class PubSub:
         """
         You are notified when a user earns a new Bits badge in the given channel,
         and chooses to share the notification with chat.\n
-        Requires the :const:`twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
+        Requires the :const:`~twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
 
         :param channel_id: ID of the Channel
         :param callback_func: Function called on event
@@ -402,7 +402,7 @@ class PubSub:
                               callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         You are notified when a custom reward is redeemed in the channel.\n
-        Requires the :const:`twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` AuthScope.\n
+        Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` AuthScope.\n
 
         :param channel_id: ID of the Channel
         :param callback_func: Function called on event
@@ -423,7 +423,7 @@ class PubSub:
         """
         You are notified when anyone subscribes (first month), resubscribes (subsequent months),
         or gifts a subscription to a channel. Subgift subscription messages contain recipient information.\n
-        Requires the :const:`twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` AuthScope.\n
+        Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` AuthScope.\n
 
         :param channel_id: ID of the Channel
         :param callback_func: Function called on event
@@ -446,7 +446,7 @@ class PubSub:
         Supports moderators listening to the topic, as well as users listening to the topic to receive their own events.
         Examples of moderator actions are bans, unbans, timeouts, deleting messages,
         changing chat mode (followers-only, subs-only), changing AutoMod levels, and adding a mod.\n
-        Requires the :const:`twitchAPI.types.AuthScope.CHANNEL_MODERATE` AuthScope.\n
+        Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_MODERATE` AuthScope.\n
 
         :param user_id: ID of the User
         :param channel_id: ID of the Channel
@@ -468,7 +468,7 @@ class PubSub:
                              callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         AutoMod flags a message as potentially inappropriate, and when a moderator takes action on a message.\n
-        Requires the :const:`twitchAPI.types.AuthScope.CHANNEL_MODERATE` AuthScope.\n
+        Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_MODERATE` AuthScope.\n
 
         :param moderator_id: ID of the Moderator
         :param channel_id: ID of the Channel
@@ -490,7 +490,7 @@ class PubSub:
                                              callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         A user’s message held by AutoMod has been approved or denied.\n
-        Requires the :const:`twitchAPI.types.AuthScope.CHAT_READ` AuthScope.\n
+        Requires the :const:`~twitchAPI.types.AuthScope.CHAT_READ` AuthScope.\n
 
         :param user_id: ID of the User
         :param channel_id: ID of the Channel

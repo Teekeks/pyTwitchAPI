@@ -700,7 +700,7 @@ class Twitch:
         """Gets a URL that game developers can use to download analytics reports (CSV files) for their games.
         The URL is valid for 5 minutes.\n\n
 
-        Requires User authentication with scope :py:const:`twitchAPI.types.AuthScope.ANALYTICS_READ_GAMES`\n
+        Requires User authentication with scope :py:const:`~twitchAPI.types.AuthScope.ANALYTICS_READ_GAMES`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-game-analytics
 
         :param after: cursor for forward pagination |default| :code:`None`
@@ -739,7 +739,7 @@ class Twitch:
     async def get_creator_goals(self, broadcaster_id: str) -> AsyncGenerator[CreatorGoal, None]:
         """Gets Creator Goal Details for the specified channel.
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_READ_GOALS`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_GOALS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-creator-goals
 
         :param broadcaster_id: The ID of the broadcaster that created the goals.
@@ -761,7 +761,7 @@ class Twitch:
                                    user_id: Optional[str] = None) -> BitsLeaderboard:
         """Gets a ranked list of Bits leaderboard information for an authorized broadcaster.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.BITS_READ`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.BITS_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-bits-leaderboard
 
         :param count: Number of results to be returned. In range 1 to 100, |default| :code:`10`
@@ -860,7 +860,7 @@ class Twitch:
                                    unique_chat_mode: Optional[bool] = None) -> ChatSettings:
         """Updates the broadcaster’s chat settings.
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-chat-settings
 
         :param broadcaster_id: The ID of the broadcaster whose chat settings you want to update.
@@ -915,7 +915,7 @@ class Twitch:
                           has_delay: bool = False) -> CreatedClip:
         """Creates a clip programmatically. This returns both an ID and an edit URL for the new clip.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CLIPS_EDIT`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.CLIPS_EDIT`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-clip
 
         :param broadcaster_id: Broadcaster ID of the stream from which the clip will be made.
@@ -1101,7 +1101,7 @@ class Twitch:
                                    automod_check_entries: List[AutoModCheckEntry]) -> AsyncGenerator[AutoModStatus, None]:
         """Determines whether a string message meets the channel’s AutoMod requirements.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.MODERATION_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#check-automod-status
 
         :param broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
@@ -1125,7 +1125,7 @@ class Twitch:
                                before: Optional[str] = None) -> AsyncGenerator[BannedUser, None]:
         """Returns all banned and timed-out users in a channel.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.MODERATION_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-banned-users
 
         :param broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
@@ -1161,7 +1161,7 @@ class Twitch:
                        duration: Optional[int] = None) -> BanUserResponse:
         """Bans a user from participating in a broadcaster’s chat room, or puts them in a timeout.
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BANNED_USERS`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_BANNED_USERS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#ban-user
 
         :param broadcaster_id: The ID of the broadcaster whose chat room the user is being banned from.
@@ -1203,7 +1203,7 @@ class Twitch:
                          user_id: str) -> bool:
         """Removes the ban or timeout that was placed on the specified user
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BANNED_USERS`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_BANNED_USERS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#unban-user
 
         :param broadcaster_id: The ID of the broadcaster whose chat room the user is banned from chatting in.
@@ -1232,7 +1232,7 @@ class Twitch:
         """Gets the broadcaster’s list of non-private, blocked words or phrases.
         These are the terms that the broadcaster or moderator added manually, or that were denied by AutoMod.
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_READ_BLOCKED_TERMS`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_BLOCKED_TERMS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-blocked-terms
 
         :param broadcaster_id: The ID of the broadcaster whose blocked terms you’re getting.
@@ -1265,7 +1265,7 @@ class Twitch:
                                text: str) -> BlockedTerm:
         """Adds a word or phrase to the broadcaster’s list of blocked terms. These are the terms that broadcasters don’t want used in their chat room.
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#add-blocked-term
 
         :param broadcaster_id: The ID of the broadcaster that owns the list of blocked terms.
@@ -1295,7 +1295,7 @@ class Twitch:
                                   term_id: str) -> bool:
         """Removes the word or phrase that the broadcaster is blocking users from using in their chat room.
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#remove-blocked-term
 
         :param broadcaster_id: The ID of the broadcaster that owns the list of blocked terms.
@@ -1323,7 +1323,7 @@ class Twitch:
                              after: Optional[str] = None) -> AsyncGenerator[Moderator, None]:
         """Returns all moderators in a channel.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.MODERATION_READ`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.MODERATION_READ`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-moderators
 
         :param broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
@@ -1358,7 +1358,7 @@ class Twitch:
                                    description: Optional[str] = None) -> CreateStreamMarkerResponse:
         """Creates a marker in the stream of a user specified by user ID.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-stream-marker
 
         :param user_id: ID of the broadcaster in whose live stream the marker is created.
@@ -1439,7 +1439,7 @@ class Twitch:
         """Gets a list of markers for either a specified user’s most recent stream or a specified VOD/video (stream),
         ordered by recency.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-markers
 
         Only one of user_id and video_id must be specified.
@@ -1478,7 +1478,7 @@ class Twitch:
                                             first: Optional[int] = 20) -> AsyncGenerator[BroadcasterSubscriptions, None]:
         """Get all of a broadcaster’s subscriptions.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-broadcaster-subscriptions
 
         :param broadcaster_id: User ID of the broadcaster. Must match the User ID in the Bearer token.
@@ -1512,7 +1512,7 @@ class Twitch:
                                       user_id: str) -> UserSubscription:
         """Checks if a specific user (user_id) is subscribed to a specific channel (broadcaster_id).
 
-        Requires User or App Authorization with scope :const:`twitchAPI.types.AuthScope.USER_READ_SUBSCRIPTIONS`
+        Requires User or App Authorization with scope :const:`~twitchAPI.types.AuthScope.USER_READ_SUBSCRIPTIONS`
 
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#check-user-subscription
 
@@ -1584,7 +1584,7 @@ class Twitch:
         If no tags are specified, all tags previously applied to the stream are removed.
         Automated tags are not affected by this operation.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#replace-stream-tags
 
         :param broadcaster_id: ID of the stream for which tags are to be replaced.
@@ -1655,7 +1655,7 @@ class Twitch:
 
         Requires App authentication if either user_ids or logins is provided, otherwise requires a User authentication.
         If you have user Authentication and want to get your email info, you also need the authentication scope
-        :const:`twitchAPI.types.AuthScope.USER_READ_EMAIL`\n
+        :const:`~twitchAPI.types.AuthScope.USER_READ_EMAIL`\n
         If you provide user_ids and/or logins, the maximum combined entries should not exceed 100.
 
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users
@@ -1718,7 +1718,7 @@ class Twitch:
                           description: str) -> TwitchUser:
         """Updates the description of the Authenticated user.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.USER_EDIT`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-user
 
         :param description: User’s account description
@@ -1733,7 +1733,7 @@ class Twitch:
     async def get_user_extensions(self) -> List[UserExtension]:
         """Gets a list of all extensions (both active and inactive) for the authenticated user\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-extensions
 
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
@@ -1749,7 +1749,7 @@ class Twitch:
         """Gets information about active extensions installed by a specified user, identified by a user ID or the
         authenticated user.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.USER_READ_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-active-extensions
 
         :param user_id: ID of the user whose installed extensions will be returned. |default| :code:`None`
@@ -1767,7 +1767,7 @@ class Twitch:
         """"Updates the activation state, extension ID, and/or version number of installed extensions
         for the authenticated user.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.USER_EDIT_BROADCAST`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.USER_EDIT_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-user-extensions
 
         :param data: The user extension data to be written
@@ -1862,7 +1862,7 @@ class Twitch:
                                          delay: Optional[int] = None) -> bool:
         """Modifies channel information for users.\n\n
 
-        Requires User authentication with scope :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
+        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#modify-channel-information
 
         :param broadcaster_id: ID of the channel to be updated
@@ -1949,7 +1949,7 @@ class Twitch:
                              broadcaster_id: str) -> str:
         """Gets the channel stream key for a user.\n\n
 
-        Requires User authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_STREAM_KEY`\n
+        Requires User authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_STREAM_KEY`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-key
 
         :param broadcaster_id: User ID of the broadcaster
@@ -1968,7 +1968,7 @@ class Twitch:
                                length: int) -> StartCommercialResult:
         """Starts a commercial on a specified channel.\n\n
 
-        Requires User authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_EDIT_COMMERCIAL`\n
+        Requires User authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_EDIT_COMMERCIAL`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#start-commercial
 
         :param broadcaster_id: ID of the channel requesting a commercial
@@ -2014,7 +2014,7 @@ class Twitch:
         When there is currently no active Hype Train, it returns information about the most recent Hype Train.
         After 5 days, if no Hype Train has been active, the endpoint will return an empty response.\n\n
 
-        Requires App or User authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_HYPE_TRAIN`\n
+        Requires App or User authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_HYPE_TRAIN`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-hype-train-events
 
         :param broadcaster_id: User ID of the broadcaster.
@@ -2093,7 +2093,7 @@ class Twitch:
                                    should_redemptions_skip_request_queue: Optional[bool] = False) -> CustomReward:
         """Creates a Custom Reward on a channel.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-custom-rewards
 
         :param broadcaster_id: ID of the broadcaster, must be same as user_id of auth token
@@ -2155,7 +2155,7 @@ class Twitch:
                                    reward_id: str):
         """Deletes a Custom Reward on a channel.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-custom-rewards
 
         :param broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
@@ -2179,7 +2179,7 @@ class Twitch:
         """Returns a list of Custom Reward objects for the Custom Rewards on a channel.
         Developers only have access to update and delete rewards that the same/calling client_id created.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-custom-reward
 
         :param broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
@@ -2215,7 +2215,7 @@ class Twitch:
         """Returns Custom Reward Redemption objects for a Custom Reward on a channel that was created by the
         same client_id.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-custom-reward-redemption
 
         :param broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
@@ -2278,7 +2278,7 @@ class Twitch:
                                    should_redemptions_skip_request_queue: Optional[bool] = False) -> CustomReward:
         """Updates a Custom Reward created on a channel.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-custom-reward
 
         :param broadcaster_id: ID of the broadcaster, must be same as user_id of auth token
@@ -2359,7 +2359,7 @@ class Twitch:
         """Updates the status of Custom Reward Redemption objects on a channel that
                 are in the :code:`UNFULFILLED` status.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-redemption-status
 
         :param broadcaster_id: Provided broadcaster_id must match the user_id in the auth token.
@@ -2401,7 +2401,7 @@ class Twitch:
                                   broadcaster_id: str) -> List[ChannelEditor]:
         """Gets a list of users who have editor permissions for a specific channel.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_EDITORS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_EDITORS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-editors
 
         :param broadcaster_id: Broadcaster’s user ID associated with the channel
@@ -2420,7 +2420,7 @@ class Twitch:
         """Deletes one or more videos. Videos are past broadcasts, Highlights, or uploads.
         Returns False if the User was not Authorized to delete at least one of the given videos.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIDEOS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIDEOS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-videos
 
         :param video_ids: ids of the videos, Limit: 5 ids
@@ -2444,7 +2444,7 @@ class Twitch:
         """Gets a specified user’s block list. The list is sorted by when the block occurred in descending order
         (i.e. most recent block first).
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_READ_BLOCKED_USERS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.USER_READ_BLOCKED_USERS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-block-list
 
         :param broadcaster_id: User ID for a twitch user
@@ -2474,7 +2474,7 @@ class Twitch:
                          reason: Optional[BlockReason] = None) -> bool:
         """Blocks the specified user on behalf of the authenticated user.
 
-         Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_MANAGE_BLOCKED_USERS`\n
+         Requires User Authentication with :const:`~twitchAPI.types.AuthScope.USER_MANAGE_BLOCKED_USERS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#block-user
 
         :param target_user_id: User ID of the user to be blocked.
@@ -2500,7 +2500,7 @@ class Twitch:
                            target_user_id: str) -> bool:
         """Unblocks the specified user on behalf of the authenticated user.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_MANAGE_BLOCKED_USERS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.USER_MANAGE_BLOCKED_USERS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#unblock-user
 
         :param target_user_id: User ID of the user to be unblocked.
@@ -2523,7 +2523,7 @@ class Twitch:
         Streams are returned sorted by number of current viewers, in descending order.
         Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_READ_FOLLOWS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.USER_READ_FOLLOWS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-followed-streams
 
         :param user_id: Results will only include active streams from the channels that this Twitch user follows.
@@ -2556,7 +2556,7 @@ class Twitch:
         """Get information about all polls or specific polls for a Twitch channel.
         Poll information is available for 90 days.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_POLLS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_POLLS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-polls
 
         :param broadcaster_id: The broadcaster running polls.
@@ -2592,7 +2592,7 @@ class Twitch:
                           channel_points_per_vote: Optional[int] = None) -> Poll:
         """Create a poll for a specific Twitch channel.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-poll
 
         :param broadcaster_id: The broadcaster running the poll
@@ -2634,7 +2634,7 @@ class Twitch:
                        status: PollStatus) -> Poll:
         """End a poll that is currently active.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#end-poll
 
         :param broadcaster_id: id of the broadcaster running the poll
@@ -2665,7 +2665,7 @@ class Twitch:
         """Get information about all Channel Points Predictions or specific Channel Points Predictions for a Twitch channel.
         Results are ordered by most recent, so it can be assumed that the currently active or locked Prediction will be the first item.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-predictions
 
         :param broadcaster_id: The broadcaster running the prediction
@@ -2704,7 +2704,7 @@ class Twitch:
                                 prediction_window: int) -> Prediction:
         """Create a Channel Points Prediction for a specific Twitch channel.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-prediction
 
         :param broadcaster_id: The broadcaster running the prediction
@@ -2740,7 +2740,7 @@ class Twitch:
                              winning_outcome_id: Optional[str] = None) -> Prediction:
         """Lock, resolve, or cancel a Channel Points Prediction.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#end-prediction
 
         :param broadcaster_id: ID of the broadcaster
@@ -2775,7 +2775,7 @@ class Twitch:
                          to_broadcaster_id: str) -> RaidStartResult:
         """ Raid another channel by sending the broadcaster’s viewers to the targeted channel.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_RAIDS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_RAIDS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#start-a-raid
 
         :param from_broadcaster_id: The ID of the broadcaster that's sending the raiding party.
@@ -2797,7 +2797,7 @@ class Twitch:
                           broadcaster_id: str):
         """Cancel a pending raid.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_RAIDS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_RAIDS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#cancel-a-raid
 
         :param broadcaster_id: The ID of the broadcaster that sent the raiding party.
@@ -2816,7 +2816,7 @@ class Twitch:
                                           action: AutoModAction):
         """Allow or deny a message that was held for review by AutoMod.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_AUTOMOD`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_AUTOMOD`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#manage-held-automod-messages
 
         :param user_id: The moderator who is approving or rejecting the held message.
@@ -3020,7 +3020,7 @@ class Twitch:
                                              timezone: Optional[str] = None):
         """Update the settings for a channel’s stream schedule. This can be used for setting vacation details.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-channel-stream-schedule
 
         :param broadcaster_id: id of the broadcaster
@@ -3054,7 +3054,7 @@ class Twitch:
                                                      title: Optional[str] = None) -> ChannelStreamSchedule:
         """Create a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-channel-stream-schedule-segment
 
         :param broadcaster_id: id of the broadcaster
@@ -3094,7 +3094,7 @@ class Twitch:
                                                      timezone: Optional[str] = None) -> ChannelStreamSchedule:
         """Update a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-channel-stream-schedule-segment
 
         :param broadcaster_id: id of the broadcaster
@@ -3133,7 +3133,7 @@ class Twitch:
                                                      stream_segment_id: str):
         """Delete a single scheduled broadcast or a recurring scheduled broadcast for a channel’s stream schedule.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_SCHEDULE`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-channel-stream-schedule-segment
 
         :param broadcaster_id: id of the broadcaster
@@ -3183,7 +3183,7 @@ class Twitch:
                            message: str):
         """Sends a whisper message to the specified user.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_MANAGE_WHISPERS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.USER_MANAGE_WHISPERS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#send-whisper
 
         :param from_user_id: The ID of the user sending the whisper.
@@ -3211,7 +3211,7 @@ class Twitch:
                                  user_id: str) -> bool:
         """Removes a VIP from the broadcaster’s chat room.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIPS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIPS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#remove-channel-vip
 
         :param broadcaster_id: The ID of the broadcaster that’s removing VIP status from the user.
@@ -3236,7 +3236,7 @@ class Twitch:
                               user_id: str) -> bool:
         """Adds a VIP to the broadcaster’s chat room.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIPS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIPS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#add-channel-vip
 
         :param broadcaster_id: The ID of the broadcaster that’s granting VIP status to the user.
@@ -3268,7 +3268,7 @@ class Twitch:
                        after: Optional[str] = None) -> AsyncGenerator[ChannelVIP, None]:
         """Gets a list of the channel’s VIPs.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_VIPS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_VIPS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-vips
 
         :param broadcaster_id: The ID of the broadcaster whose list of VIPs you want to get.
@@ -3300,7 +3300,7 @@ class Twitch:
                                     user_id: str):
         """Adds a moderator to the broadcaster’s chat room.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_MODERATORS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_MODERATORS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#add-channel-moderator
 
         :param broadcaster_id: The ID of the broadcaster that owns the chat room.
@@ -3326,7 +3326,7 @@ class Twitch:
                                        user_id: str):
         """Removes a moderator from the broadcaster’s chat room.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_MANAGE_MODERATORS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_MODERATORS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#remove-channel-moderator
 
         :param broadcaster_id: The ID of the broadcaster that owns the chat room.
@@ -3369,7 +3369,7 @@ class Twitch:
                                      color: str):
         """Updates the color used for the user’s name in chat.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.USER_MANAGE_CHAT_COLOR`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.USER_MANAGE_CHAT_COLOR`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-user-chat-color
 
         :param user_id: The ID of the user whose chat color you want to update.
@@ -3393,7 +3393,7 @@ class Twitch:
                                   message_id: Optional[str] = None):
         """Removes a single chat message or all chat messages from the broadcaster’s chat room.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_MESSAGES`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_MESSAGES`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-chat-messages
 
         :param broadcaster_id: The ID of the broadcaster that owns the chat room to remove messages from.
@@ -3423,7 +3423,7 @@ class Twitch:
                                      color: Optional[str] = None):
         """Sends an announcement to the broadcaster’s chat room.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_ANNOUNCEMENTS`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_ANNOUNCEMENTS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#send-chat-announcement
 
         :param broadcaster_id: The ID of the broadcaster that owns the chat room to send the announcement to.
