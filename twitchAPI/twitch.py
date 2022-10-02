@@ -2313,10 +2313,16 @@ class Twitch:
 
         if is_global_cooldown_enabled and global_cooldown_seconds is None:
             raise ValueError('please specify global_cooldown_seconds')
+        elif not is_global_cooldown_enabled and global_cooldown_seconds is None:
+            is_global_cooldown_enabled = None
         if is_max_per_stream_enabled and max_per_stream is None:
             raise ValueError('please specify max_per_stream')
+        elif not is_max_per_stream_enabled and max_per_stream is None:
+            is_max_per_stream_enabled = None
         if is_max_per_user_per_stream_enabled and max_per_user_per_stream is None:
             raise ValueError('please specify max_per_user_per_stream')
+        elif not is_max_per_user_per_stream_enabled and max_per_user_per_stream is None:
+            is_max_per_user_per_stream_enabled = None
 
         param = {
             'broadcaster_id': broadcaster_id,
