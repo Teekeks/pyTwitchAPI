@@ -1,7 +1,7 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 from datetime import datetime
 from enum import Enum
-from typing import Optional, get_type_hints, Union, List, Dict, Generic, TypeVar
+from typing import Optional, Union, List, Dict, Generic, TypeVar
 from dateutil import parser as du_parser
 
 from twitchAPI.helper import build_url

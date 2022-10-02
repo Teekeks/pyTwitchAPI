@@ -131,9 +131,8 @@ import asyncio
 
 from aiohttp import ClientSession, ClientResponse
 
-from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, make_fields_datetime, build_scope, \
-    fields_to_enum, enum_value_or_none, datetime_to_str, remove_none_values, ResultType
-from datetime import datetime
+from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, \
+    enum_value_or_none, datetime_to_str, remove_none_values, ResultType
 from logging import getLogger, Logger
 
 from .object import *
@@ -785,7 +784,8 @@ class Twitch:
             'started_at': datetime_to_str(started_at),
             'user_id': user_id
         }
-        return await self._build_result('GET', 'bits/leaderboard', url_params, AuthType.USER, [AuthScope.BITS_READ], BitsLeaderboard, get_from_data=False)
+        return await self._build_result('GET', 'bits/leaderboard', url_params, AuthType.USER, [AuthScope.BITS_READ], BitsLeaderboard,
+                                        get_from_data=False)
 
     async def get_extension_transactions(self,
                                          extension_id: str,
@@ -832,8 +832,8 @@ class Twitch:
         Requires App authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-chat-settings
 
-        :param broadcaster_id: The ID of the broadcaster whose chat settings you want to get.
-        :param moderator_id: Required only to access the non_moderator_chat_delay or non_moderator_chat_delay_duration settings. |default| :code:`None`
+        :param broadcaster_id: The ID of the broadcaster whose chat settings you want to get
+        :param moderator_id: Required only to access the non_moderator_chat_delay or non_moderator_chat_delay_duration settings |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -1112,8 +1112,6 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         """
-        url = build_url(self.base_url + 'moderation/enforcements/status',
-                        {'broadcaster_id': broadcaster_id})
         body = {'data': automod_check_entries}
         async for y in self._build_generator('POST', 'moderation/enforcements/status', {'broadcaster_id': broadcaster_id},
                                              AuthType.USER, [AuthScope.MODERATION_READ], AutoModStatus, body_data=body):
@@ -1189,7 +1187,6 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'moderator_id': moderator_id
         }
-        url = build_url(self.base_url + 'moderation/bans', param, remove_none=False)
         body = {
             'data': remove_none_values({
                 'duration': duration,
@@ -1470,7 +1467,8 @@ class Twitch:
             'before': before,
             'first': first
         }
-        async for y in self._build_generator('GET', 'streams/markers', param, AuthType.USER, [AuthScope.USER_READ_BROADCAST], GetStreamMarkerResponse):
+        async for y in self._build_generator('GET', 'streams/markers', param, AuthType.USER, [AuthScope.USER_READ_BROADCAST],
+                                             GetStreamMarkerResponse):
             yield y
 
     async def get_broadcaster_subscriptions(self,
@@ -2038,7 +2036,7 @@ class Twitch:
             yield y
 
     async def get_drops_entitlements(self,
-                                     id: Optional[str] = None,
+                                     entitlement_id: Optional[str] = None,
                                      user_id: Optional[str] = None,
                                      game_id: Optional[str] = None,
                                      after: Optional[str] = None,
@@ -2051,7 +2049,7 @@ class Twitch:
         See Twitch documentation for valid parameter combinations!\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-drops-entitlements
 
-        :param id: Unique Identifier of the entitlement |default| :code:`None`
+        :param entitlement_id: Unique Identifier of the entitlement |default| :code:`None`
         :param user_id: A Twitch User ID |default| :code:`None`
         :param game_id: A Twitch Game ID |default| :code:`None`
         :param after: The cursor used to fetch the next page of data. |default| :code:`None`
@@ -2069,7 +2067,7 @@ class Twitch:
             if user_id is not None:
                 raise ValueError('cant use user_id when using User Authentication')
         param = {
-            'id': id,
+            'id': entitlement_id,
             'user_id': user_id,
             'game_id': game_id,
             'after': after,
@@ -2209,7 +2207,7 @@ class Twitch:
     async def get_custom_reward_redemption(self,
                                            broadcaster_id: str,
                                            reward_id: str,
-                                           id: Optional[List[str]] = None,
+                                           redemption_id: Optional[List[str]] = None,
                                            status: Optional[CustomRewardRedemptionStatus] = None,
                                            sort: Optional[SortOrder] = SortOrder.OLDEST,
                                            after: Optional[str] = None,
@@ -2223,7 +2221,7 @@ class Twitch:
         :param broadcaster_id: Provided broadcaster_id must match the user_id in the auth token
         :param reward_id: When ID is not provided, this parameter returns paginated Custom
                 Reward Redemption objects for redemptions of the Custom Reward with ID reward_id
-        :param id: When used, this param filters the results and only returns Custom Reward Redemption objects for the
+        :param redemption_id: When used, this param filters the results and only returns Custom Reward Redemption objects for the
                 redemptions with matching ID. Maximum: 50 ids |default| :code:`None`
         :param status: When id is not provided, this param is required and filters the paginated Custom Reward Redemption objects
                 for redemptions with the matching status. |default| :code:`None`
@@ -2244,15 +2242,15 @@ class Twitch:
 
         if first is not None and (first < 1 or first > 50):
             raise ValueError('first must be in range 1 to 50')
-        if id is not None and len(id) > 50:
+        if redemption_id is not None and len(redemption_id) > 50:
             raise ValueError('id can not have more than 50 entries')
-        if status is None and id is None:
+        if status is None and redemption_id is None:
             raise ValueError('you have to set at least one of status or id')
 
         param = {
             'broadcaster_id': broadcaster_id,
             'reward_id': reward_id,
-            'id': id,
+            'id': redemption_id,
             'status': status,
             'sort': sort,
             'after': after,
@@ -3100,7 +3098,8 @@ class Twitch:
         :param category_id: Game/Category ID for the scheduled broadcast. |default| :code:`None`
         :param title: Title for the scheduled broadcast. |default| :code:`None`
         :param is_canceled: Indicated if the scheduled broadcast is canceled. |default| :code:`None`
-        :param timezone: The timezone of the application creating the scheduled broadcast using the IANA time zone database format. |default| :code:`None`
+        :param timezone: The timezone of the application creating the scheduled broadcast using the IANA time zone database format.
+                    |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
