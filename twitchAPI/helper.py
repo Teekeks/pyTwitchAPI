@@ -3,19 +3,19 @@
 
 import urllib.parse
 import uuid
-from typing import Coroutine, AsyncGenerator, Type, TypeVar
+from typing import AsyncGenerator, TypeVar
 from json import JSONDecodeError
 from aiohttp.web import Request
 from dateutil import parser as du_parser
 from enum import Enum
 
-from .types import AuthScope, AuthType
+from .types import AuthScope
 from urllib.parse import urlparse, parse_qs
 
-from typing import Union, List, Type, Optional, Callable, Generator
+from typing import Union, List, Type, Optional
 
 __all__ = ['TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 'TWITCH_CHAT_URL',
-           'extract_uuid_str_from_url', 'build_url', 'get_uuid', 'get_json', 'make_fields_datetime', 'build_scope', 'fields_to_enum', 'make_enum',
+           'extract_uuid_str_from_url', 'build_url', 'get_uuid', 'get_json', 'build_scope', 'fields_to_enum', 'make_enum',
            'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'ResultType', 'first']
 
 T = TypeVar('T')
@@ -103,40 +103,6 @@ async def get_json(request: 'Request') -> Union[list, dict, None]:
         return data
     except JSONDecodeError:
         return None
-
-
-def make_fields_datetime(data: Union[dict, list], fields: List[str]):
-    """Itterates over dict or list recursivly to replace string fields with datetime
-
-    :param union[dict, list] data: dict or list
-    :param list[str] fields: list of keys to be replaced
-    :rtype: union[dict, list]
-    """
-
-    def make_str_field_datetime(data, fields: list):
-        if isinstance(data, str) and data in fields:
-            if data == '':
-                return None
-            return du_parser.isoparse(data)
-        return data
-
-    def make_dict_field_datetime(data: dict, fields: list) -> dict:
-        fd = data
-        for key, value in data.items():
-            if isinstance(value, str):
-                fd[key] = make_str_field_datetime(value, fields)
-            elif isinstance(value, dict):
-                fd[key] = make_dict_field_datetime(value, fields)
-            elif isinstance(value, list):
-                fd[key] = make_fields_datetime(value, fields)
-        return fd
-
-    if isinstance(data, list):
-        return [make_fields_datetime(d, fields) for d in data]
-    elif isinstance(data, dict):
-        return make_dict_field_datetime(data, fields)
-    else:
-        return make_str_field_datetime(data, fields)
 
 
 def build_scope(scopes: List[AuthScope]) -> str:
