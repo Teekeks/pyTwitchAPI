@@ -33,6 +33,76 @@ Example Usage:
     asyncio.run(twitch_example())
 
 
+****************************
+Working with the API results
+****************************
+
+The API returns a few different types of results.
+
+
+TwitchObject
+============
+
+A lot of API calls return a child of :py:const:`~twitchAPI.object.TwitchObject` in some way (either directly or via generator).
+You can always use the :py:const:`~twitchAPI.object.TwitchObject.to_dict()` method to turn that object to a dictionary.
+
+Example:
+
+.. clode-block: python
+
+    blocked_term = await twitch.add_blocked_term('broadcaster_id', 'moderator_id', 'bad_word')
+    print(blocked_term.id)
+
+
+IterTwitchObject
+================
+
+Some API calls return a special type of TwitchObject.
+These usually have some list inside that you may want to dicrectly itterate over in your API usage but that also contain other usefull data
+outside of that List.
+
+
+Example:
+
+.. code-block: python
+
+    lb = await twitch.get_bits_leaderboard()
+    print(lb.total)
+    for e in lb:
+        print(f'#{e.rank:02d} - {e.user_name}: {e.score}')
+
+
+AsyncIterTwitchObject
+=====================
+
+A few API calls will have usefull data outside of the list the pagination itterates over.
+For those cases, this object exist.
+
+Example:
+
+.. code-block: python
+
+    schedule = await twitch.get_channel_stream_schedule('user_id')
+    print(schedule.broadcaster_name)
+    async for segment in schedule:
+        print(segment.title)
+
+
+AsyncGenerator
+==============
+
+AsyncGenerators are used to automatically itterate over all possible resuts of your API call, this will also automatically handle pagination for you.
+In some cases (for example stream schedules with repeating entries), this may result in a endless stream of entries returned so make sure to add your own
+exit conditions in such cases.
+The generated objects will always be children of :py:const:`~twitchAPI.object.TwitchObject`, see the docs of the API call to see the exact object type.
+
+Example:
+
+.. code-block: python
+
+    async for tag in twitch.get_all_stream_tags():
+        print(tag.tag_id)
+
 **************
 Authentication
 **************
