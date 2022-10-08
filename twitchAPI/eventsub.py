@@ -34,6 +34,7 @@ Short code example:
 *******************
 
 .. code-block:: python
+
     from twitchAPI.twitch import Twitch
     from twitchAPI.helper import first
     from twitchAPI.eventsub import EventSub
