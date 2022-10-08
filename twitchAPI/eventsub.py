@@ -80,7 +80,7 @@ import aiohttp
 
 from .helper import TWITCH_API_BASE_URL, remove_none_values
 from .types import *
-from aiohttp import web
+from aiohttp import web, ClientSession
 import threading
 import asyncio
 from logging import getLogger, Logger
@@ -180,7 +180,7 @@ class EventSub:
         self.__running = True
         self.__hook_thread.start()
 
-    def stop(self):
+    async def stop(self):
         """Stops the EventSub client
 
         This also unsubscribes from all known subscriptions if unsubscribe_on_stop is True
@@ -188,7 +188,7 @@ class EventSub:
         :rtype: None
         """
         if self.__hook_runner is not None and self.unsubscribe_on_stop:
-            self.unsubscribe_all_known()
+            await self.unsubscribe_all_known()
         tasks = {t for t in asyncio.all_tasks(loop=self.__hook_loop) if not t.done()}
         for task in tasks:
             task.cancel()
@@ -213,14 +213,20 @@ class EventSub:
     # FIXME requires port
     async def __api_post_request(self, url: str, data: Union[dict, None] = None):
         headers = self.__build_request_header()
+        if self._session is None:
+            self._session = ClientSession()
         return await self._session.post(url, headers=headers, json=data)
 
     async def __api_get_request(self, url: str):
         headers = self.__build_request_header()
+        if self._session is None:
+            self._session = ClientSession()
         return await self._session.get(url, headers=headers)
 
     async def __api_delete_request(self, url: str):
         headers = self.__build_request_header()
+        if self._session is None:
+            self._session = ClientSession()
         return await self._session.delete(url, headers=headers)
 
     def __add_callback(self, c_id: str, callback):
