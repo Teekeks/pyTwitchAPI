@@ -48,7 +48,7 @@ You can always use the :py:const:`~twitchAPI.object.TwitchObject.to_dict()` meth
 
 Example:
 
-.. clode-block:: python
+.. code-block:: python
 
     blocked_term = await twitch.add_blocked_term('broadcaster_id', 'moderator_id', 'bad_word')
     print(blocked_term.id)
