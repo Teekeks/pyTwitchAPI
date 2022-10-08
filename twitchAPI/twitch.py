@@ -48,7 +48,7 @@ You can always use the :py:const:`~twitchAPI.object.TwitchObject.to_dict()` meth
 
 Example:
 
-.. clode-block: python
+.. clode-block:: python
 
     blocked_term = await twitch.add_blocked_term('broadcaster_id', 'moderator_id', 'bad_word')
     print(blocked_term.id)
@@ -64,7 +64,7 @@ outside of that List.
 
 Example:
 
-.. code-block: python
+.. code-block:: python
 
     lb = await twitch.get_bits_leaderboard()
     print(lb.total)
@@ -80,7 +80,7 @@ For those cases, this object exist.
 
 Example:
 
-.. code-block: python
+.. code-block:: python
 
     schedule = await twitch.get_channel_stream_schedule('user_id')
     print(schedule.broadcaster_name)
@@ -98,7 +98,7 @@ The generated objects will always be children of :py:const:`~twitchAPI.object.Tw
 
 Example:
 
-.. code-block: python
+.. code-block:: python
 
     async for tag in twitch.get_all_stream_tags():
         print(tag.tag_id)
