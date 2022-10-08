@@ -12,12 +12,11 @@ you are interested in.
 Requirements
 ************
 
-You need to have a public IP with a port open. That port will be 80 by default.
-You need app authentication and your Endpoint URL must point to a
-
 .. note:: Please note that Your Endpoint URL has to be HTTPS, has to run on Port 443 and requires a valid, non self signed certificate
             This most likely means, that you need a reverse proxy like nginx. You can also hand in a valid ssl context to be used in the constructor.
 
+In the case that you don't hand in a valid ssl context to the constructor, you can specify any port you want in the constructor and handle the
+bridge between this program and your public URL on port 443 via reverse proxy.\n
 You can check on whether or not your webhook is publicly reachable by navigating to the URL set in `callback_url`.
 You should get a 200 response with the text `pyTwitchAPI eventsub`.
 
