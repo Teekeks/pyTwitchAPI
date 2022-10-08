@@ -181,7 +181,7 @@ APP_SECRET = 'your_app_secret'
 
 
 async def on_follow(data: dict):
-    # out event happend, lets do things with the data we got!
+    # our event happend, lets do things with the data we got!
     print(data)
 
 
