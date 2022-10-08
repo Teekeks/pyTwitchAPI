@@ -34,38 +34,53 @@ Short code example:
 *******************
 
 .. code-block:: python
+    from twitchAPI.twitch import Twitch
+    from twitchAPI.helper import first
+    from twitchAPI.eventsub import EventSub
+    import asyncio
 
-    from pprint import pprint
-    from twitchAPI import Twitch, EventSub
-
-    # this will be called whenever someone follows the target channel
-    async def on_follow(data: dict):
-        pprint(data)
 
     TARGET_USERNAME = 'target_username_here'
-    WEBHOOK_URL = 'https://url.to.your.webhook.com'
+    EVENTSUB_URL = 'https://url.to.your.webhook.com'
     APP_ID = 'your_app_id'
     APP_SECRET = 'your_app_secret'
 
-    twitch = Twitch(APP_ID, APP_SECRET)
-    twitch.authenticate_app([])
 
-    uid = twitch.get_users(logins=[TARGET_USERNAME])
-    user_id = uid['data'][0]['id']
-    # basic setup, will run on port 8080 and a reverse proxy takes care of the https and certificate
-    hook = EventSub(WEBHOOK_URL, APP_ID, 8080, twitch)
-    # unsubscribe from all to get a clean slate
-    hook.unsubscribe_all()
-    # start client
-    hook.start()
-    print('subscribing to hooks:')
-    hook.listen_channel_follow(user_id, on_follow)
+    async def on_follow(data: dict):
+        # out event happend, lets do things with the data we got!
+        print(data)
 
-    try:
-        input('press Enter to shut down...')
-    finally:
-        hook.stop()
-    print('done')
+
+    async def eventsub_example():
+        # create the api instance and get the ID of the target user
+        twitch = await Twitch(APP_ID, APP_SECRET)
+        user = await first(twitch.get_users(logins=TARGET_USERNAME))
+
+        # basic setup, will run on port 8080 and a reverse proxy takes care of the https and certificate
+        event_sub = EventSub(EVENTSUB_URL, APP_ID, 8080, twitch)
+
+        # unsubscribe from all old events that might still be there
+        # this will ensure we have a clean slate
+        await event_sub.unsubscribe_all()
+        # start the eventsub client
+        event_sub.start()
+        # subscribing to the desired eventsub hook for our user
+        # the given function will be called every time this event is triggered
+        await event_sub.listen_channel_follow(user.id, on_follow)
+
+        # eventsub will run in its own process
+        # so lets just wait for user input before shutting it all down again
+        try:
+            input('press Enter to shut down...')
+        finally:
+            # stopping both eventsub as well as gracefully closing the connection to the API
+            await event_sub.stop()
+            await twitch.close()
+        print('done')
+
+
+    # lets run our example
+    asyncio.run(eventsub_example())
 
 ********************
 Class Documentation:
