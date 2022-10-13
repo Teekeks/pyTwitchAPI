@@ -55,14 +55,14 @@ class ChatMessage(EventData):
 
     @property
     def room(self) -> Optional[ChatRoom]:
-        return self.chat.room_cache.get(self._parsed['command']['channel'])
+        return self.chat.room_cache.get(self._parsed['command']['channel'][1:])
 
     @property
     def user(self) -> ChatUser:
         return ChatUser(self.chat, self._parsed)
 
     async def reply(self, text: str):
-        await self.chat._send_message(f'@reply-parent-msg-id={self.id} PRIVMSG {self.room.name} :{text}')
+        await self.chat._send_message(f'@reply-parent-msg-id={self.id} PRIVMSG #{self.room.name} :{text}')
 
 
 class ChatCommand(ChatMessage):
@@ -86,7 +86,7 @@ class ChatSub:
 
     @property
     def room(self):
-        return self.chat.room_cache.get(self._parsed['command']['channel'])
+        return self.chat.room_cache.get(self._parsed['command']['channel'][1:])
 
 
 class Chat:
@@ -115,6 +115,7 @@ class Chat:
         self._event_handler = {}
         self._command_handler = {}
         self.room_cache: Dict[str, ChatRoom] = {}
+        self._room_join_locks = []
 
     def __await__(self):
         t = asyncio.create_task(self._get_username())
@@ -388,7 +389,9 @@ class Chat:
         pass
 
     async def _handle_join(self, parsed: dict):
-        pass
+        ch = parsed['command']['channel'][1:]
+        if ch in self._room_join_locks:
+            self._room_join_locks.remove(ch)
 
     async def _handle_user_notice(self, parsed: dict):
         if parsed['tags'].get('msg-id') == 'raid':
@@ -402,7 +405,7 @@ class Chat:
 
     async def _handle_room_state(self, parsed: dict):
         state = ChatRoom(
-            name=parsed['command']['channel'],
+            name=parsed['command']['channel'][1:],
             is_emote_only=parsed['tags'].get('emote-only') == '1',
             is_subs_only=parsed['tags'].get('subs-only') == '1',
             is_followers_only=parsed['tags'].get('followers-only') != '-1',
@@ -467,8 +470,14 @@ class Chat:
         """
         if isinstance(chat_rooms, str):
             chat_rooms = [chat_rooms]
-        chat_rooms = ','.join([f'#{c}' if c[0] != '#' else c for c in chat_rooms])
-        await self._send_message(f'JOIN {chat_rooms}')
+        room_str = ','.join([f'#{c}' if c[0] != '#' else c for c in chat_rooms])
+        target = [c[1:].lower() if c[0] == '#' else c.lower() for c in chat_rooms]
+        for r in target:
+            self._room_join_locks.append(r)
+        await self._send_message(f'JOIN {room_str}')
+        # wait for us to join all rooms
+        while any([r in self._room_join_locks for r in target]):
+            await asyncio.sleep(0.01)
 
     async def send_message(self, room: Union[str, ChatRoom], text: str):
         if isinstance(room, ChatRoom):
