@@ -242,6 +242,7 @@ class ChatEvent(Enum):
     MESSAGE = 'message'
     SUB = 'sub'
     RAID = 'raid'
+    ROOM_STATE_CHANGE = 'room_state_change'
 
 
 @dataclass

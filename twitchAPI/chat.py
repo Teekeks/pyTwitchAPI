@@ -1,5 +1,6 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 import asyncio
+import dataclasses
 import threading
 from logging import getLogger, Logger
 from pprint import pprint
@@ -43,6 +44,14 @@ class ChatUser:
 class EventData:
     def __init__(self, chat):
         self.chat: 'Chat' = chat
+
+
+class RoomStateChangeEvent(EventData):
+
+    def __init__(self, chat, prev, new):
+        super(RoomStateChangeEvent, self).__init__(chat)
+        self.old: Optional[ChatRoom] = prev
+        self.new: ChatRoom = new
 
 
 class ChatMessage(EventData):
@@ -404,6 +413,7 @@ class Chat:
                 asyncio.ensure_future(handler(sub))
 
     async def _handle_room_state(self, parsed: dict):
+        self.logger.debug('got room state event')
         state = ChatRoom(
             name=parsed['command']['channel'][1:],
             is_emote_only=parsed['tags'].get('emote-only') == '1',
@@ -413,7 +423,14 @@ class Chat:
             follower_only_delay=int(parsed['tags'].get('followers-only', '-1')),
             room_id=parsed['tags'].get('room_id'),
             slow=int(parsed['tags'].get('slow', '0')))
+        prev = self.room_cache.get(state.name)
+        # create copy
+        if prev is not None:
+            prev = dataclasses.replace(prev)
         self.room_cache[state.name] = state
+        dat = RoomStateChangeEvent(self, prev, state)
+        for handler in self._event_handler.get(ChatEvent.ROOM_STATE_CHANGE, []):
+            asyncio.ensure_future(handler(dat))
 
     async def _handle_ping(self, parsed: dict):
         self.logger.debug('got PING')
