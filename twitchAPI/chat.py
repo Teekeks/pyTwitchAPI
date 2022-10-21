@@ -282,7 +282,7 @@ class Chat:
                 'command': command_parts[0]
             }
         elif command_parts[0] in ('002', '003', '004', '366', '372', '375', '376'):
-            self.logger.info(f'numeric message: {command_parts[0]}\n{raw_command_component}')
+            self.logger.debug(f'numeric message: {command_parts[0]}\n{raw_command_component}')
             return None
         else:
             # unexpected command
