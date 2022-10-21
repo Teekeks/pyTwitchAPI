@@ -395,7 +395,7 @@ class Chat:
                     asyncio.ensure_future(handler(parsed))
 
     async def _handle_cap_reply(self, parsed: dict):
-        pass
+        self.logger.debug(f'got CAP reply, granted caps: {parsed["parameters"]}')
 
     async def _handle_join(self, parsed: dict):
         ch = parsed['command']['channel'][1:]
