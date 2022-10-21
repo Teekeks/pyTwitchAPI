@@ -53,6 +53,10 @@ class RoomStateChangeEvent(EventData):
         self.old: Optional[ChatRoom] = prev
         self.new: ChatRoom = new
 
+    @property
+    def room(self):
+        return self.chat.room_cache.get(self.new.name)
+
 
 class ChatMessage(EventData):
 
