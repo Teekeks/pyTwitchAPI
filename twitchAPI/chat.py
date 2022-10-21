@@ -23,19 +23,17 @@ class ChatUser:
         self.name: str = parsed['source']['nick'] if parsed['source']['nick'] is not None else f'{chat.username}'
         if self.name[0] == ':':
             self.name = self.name[1:]
-        # TODO implement badge-info
-        # TODO implement badges
+        self.badge_info = parsed['tags'].get('badge-info')
+        self.badges = parsed['tags'].get('badges')
         self.bits: int = int(parsed['tags'].get('bits', '0'))
         self.color: str = parsed['tags'].get('color')
-        # TODO implement display-name
-        # TODO implement emotes
+        self.display_name: str = parsed['tags'].get('display-name')
         self.mod: bool = parsed['tags'].get('mod', '0') == '1'
         self.reply_parent_msg_id: Optional[str] = parsed['tags'].get('reply-parent-msg-id')
         self.reply_parent_user_id: Optional[str] = parsed['tags'].get('reply-parent-user-id')
         self.reply_parent_display_name: Optional[str] = parsed['tags'].get('reply-parent-display-name')
         self.reply_parent_msg_body: Optional[str] = parsed['tags'].get('reply-parent-msg-body')
         self.subscriber: bool = parsed['tags'].get('subscriber') == '1'
-        # TODO implement tmi-sent-ts
         self.turbo: bool = parsed['tags'].get('turbo') == '1'
         self.id: str = parsed['tags'].get('user-id')
         self.user_type: str = parsed['tags'].get('user-type')
@@ -64,6 +62,8 @@ class ChatMessage(EventData):
         super(ChatMessage, self).__init__(chat)
         self._parsed = parsed
         self.text = parsed['parameters']
+        self.sent_timestamp: int = int(parsed['tags'].get('tmi-sent-ts'))
+        self.emotes = parsed['tags'].get('emotes')
         self.id: str = parsed['tags'].get('id')
 
     @property
@@ -388,15 +388,11 @@ class Chat:
                     'ROOMSTATE': self._handle_room_state,
                     'JOIN': self._handle_join,
                     'USERNOTICE': self._handle_user_notice,
-                    '353': self._handle_user_list,
                     'CAP': self._handle_cap_reply
                 }
                 handler = handlers.get(parsed['command']['command'])
                 if handler is not None:
                     asyncio.ensure_future(handler(parsed))
-
-    async def _handle_user_list(self, parsed: dict):
-        pprint(parsed)
 
     async def _handle_cap_reply(self, parsed: dict):
         pass
