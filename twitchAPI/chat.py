@@ -315,7 +315,7 @@ class Chat:
             sleep(0.01)
         self.logger.debug('chat started up!')
 
-    async def stop(self) -> None:
+    def stop(self) -> None:
         """
         Stop the Chat Client
 
@@ -329,7 +329,6 @@ class Chat:
         self.__running = False
         f = asyncio.run_coroutine_threadsafe(self._stop(), self.__socket_loop)
         f.result()
-        _tasks = asyncio.all_tasks(self.__socket_loop)
 
     async def _stop(self):
         await self.__connection.close()
