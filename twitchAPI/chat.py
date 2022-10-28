@@ -2,10 +2,10 @@
 import asyncio
 import dataclasses
 import threading
+from asyncio import CancelledError
 from logging import getLogger, Logger
-from pprint import pprint
 from time import sleep
-import websockets
+import aiohttp
 from twitchAPI import TwitchBackendException, Twitch, AuthType, AuthScope, ChatEvent
 from twitchAPI.object import TwitchUser
 from twitchAPI.helper import TWITCH_CHAT_URL, first
@@ -13,7 +13,7 @@ from twitchAPI.types import ChatRoom
 
 from typing import List, Optional, Union, Callable, Dict
 
-__all__ = ['ChatUser', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent']
+__all__ = ['ChatUser', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent']
 
 
 class ChatUser:
@@ -117,6 +117,7 @@ class Chat:
         self.listen_confirm_timeout: int = 30
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
         self.__connection = None
+        self._session = None
         self.__socket_thread: threading.Thread = None
         self.__running: bool = False
         self.__socket_loop = None
@@ -129,6 +130,7 @@ class Chat:
         self._command_handler = {}
         self.room_cache: Dict[str, ChatRoom] = {}
         self._room_join_locks = []
+        self._closing: bool = False
 
     def __await__(self):
         t = asyncio.create_task(self._get_username())
@@ -305,6 +307,7 @@ class Chat:
         if self.__running:
             raise RuntimeError('already started')
         self.__startup_complete = False
+        self._closing = False
         self.__socket_thread = threading.Thread(target=self.__run_socket)
         self.__running = True
         self.__socket_thread.start()
@@ -312,7 +315,7 @@ class Chat:
             sleep(0.01)
         self.logger.debug('chat started up!')
 
-    def stop(self) -> None:
+    async def stop(self) -> None:
         """
         Stop the Chat Client
 
@@ -324,11 +327,16 @@ class Chat:
         self.logger.debug('stopping chat...')
         self.__startup_complete = False
         self.__running = False
-        for task in self.__tasks:
-            task.cancel()
-        self.__socket_loop.call_soon_threadsafe(self.__socket_loop.stop)
-        self.logger.debug('chat stopped!')
-        self.__socket_thread.join()
+        f = asyncio.run_coroutine_threadsafe(self._stop(), self.__socket_loop)
+        f.result()
+        _tasks = asyncio.all_tasks(self.__socket_loop)
+
+    async def _stop(self):
+        await self.__connection.close()
+        await self._session.close()
+        # wait for ssl to close as per aiohttp docs...
+        await asyncio.sleep(0.250)
+        self._closing = True
 
     async def __connect(self, is_startup=False):
         self.logger.debug('connecting...')
@@ -336,17 +344,23 @@ class Chat:
             await self.__connection.close()
         retry = 0
         need_retry = True
+        if self._session is None:
+            self._session = aiohttp.ClientSession()
         while need_retry and retry < len(self.reconnect_delay_steps):
             need_retry = False
             try:
-                self.__connection = await websockets.connect(self.connection_url, loop=self.__socket_loop)
-            except websockets.InvalidHandshake:
+                self.__connection = await self._session.ws_connect(self.connection_url)
+            except Exception:
                 self.logger.warning(f'connection attempt failed, retry in {self.reconnect_delay_steps[retry]}s...')
                 await asyncio.sleep(self.reconnect_delay_steps[retry])
                 retry += 1
                 need_retry = True
         if retry >= len(self.reconnect_delay_steps):
             raise TwitchBackendException('can\'t connect')
+
+    async def _keep_loop_alive(self):
+        while not self._closing:
+            await asyncio.sleep(0.1)
 
     def __run_socket(self):
         self.__socket_loop = asyncio.new_event_loop()
@@ -359,40 +373,48 @@ class Chat:
             asyncio.ensure_future(self.__task_receive(), loop=self.__socket_loop),
             asyncio.ensure_future(self.__task_startup(), loop=self.__socket_loop)
         ]
-
-        try:
-            self.__socket_loop.run_forever()
-        except asyncio.CancelledError:
-            pass
-        if self.__connection.open:
-            self.__socket_loop.run_until_complete(self.__connection.close())
+        # keep loop alive
+        self.__socket_loop.run_until_complete(self._keep_loop_alive())
 
     async def _send_message(self, message: str):
         self.logger.debug(f'Sending message "{message}"')
-        await self.__connection.send(message)
+        await self.__connection.send_str(message)
 
     async def __task_receive(self):
-        async for message in self.__connection:
-            messages = message.split('\r\n')
-            for m in messages:
-                if len(m) == 0:
-                    continue
-                parsed = self.parse_irc_message(m)
-                # a message we don't know or don't care about
-                if parsed is None:
-                    continue
-                handlers: Dict[str, Callable] = {
-                    'PING': self._handle_ping,
-                    'PRIVMSG': self._handle_msg,
-                    '001': self._handle_ready,
-                    'ROOMSTATE': self._handle_room_state,
-                    'JOIN': self._handle_join,
-                    'USERNOTICE': self._handle_user_notice,
-                    'CAP': self._handle_cap_reply
-                }
-                handler = handlers.get(parsed['command']['command'])
-                if handler is not None:
-                    asyncio.ensure_future(handler(parsed))
+        try:
+            while not self.__connection.closed:
+                message = await self.__connection.receive()
+                if message.type == aiohttp.WSMsgType.TEXT:
+                    messages = message.data.split('\r\n')
+                    for m in messages:
+                        if len(m) == 0:
+                            continue
+                        parsed = self.parse_irc_message(m)
+                        # a message we don't know or don't care about
+                        if parsed is None:
+                            continue
+                        handlers: Dict[str, Callable] = {
+                            'PING': self._handle_ping,
+                            'PRIVMSG': self._handle_msg,
+                            '001': self._handle_ready,
+                            'ROOMSTATE': self._handle_room_state,
+                            'JOIN': self._handle_join,
+                            'USERNOTICE': self._handle_user_notice,
+                            'CAP': self._handle_cap_reply
+                        }
+                        handler = handlers.get(parsed['command']['command'])
+                        if handler is not None:
+                            asyncio.ensure_future(handler(parsed))
+                elif message.type == aiohttp.WSMsgType.CLOSED:
+                    self.logger.debug('websocket is closing')
+                    break
+                elif message.type == aiohttp.WSMsgType.ERROR:
+                    self.logger.warning('error in websocket')
+                    break
+        except CancelledError:
+            # we are closing down!
+            # print('we are closing down!')
+            return
 
     async def _handle_cap_reply(self, parsed: dict):
         self.logger.debug(f'got CAP reply, granted caps: {parsed["parameters"]}')
