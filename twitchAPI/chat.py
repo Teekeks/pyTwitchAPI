@@ -438,9 +438,10 @@ class Chat:
             return
 
     async def _handle_cap_reply(self, parsed: dict):
-        from pprint import pprint
-        pprint(parsed["parameters"])
         self.logger.debug(f'got CAP reply, granted caps: {parsed["parameters"]}')
+        caps = parsed['parameters'].split()
+        if not all([x in caps for x in ['twitch.tv/membership', 'twitch.tv/tags', 'twitch.tv/commands']]):
+            self.logger.warning(f'chat bot did not get all requested capabilities granted, this might result in weird bot behavior!')
 
     async def _handle_join(self, parsed: dict):
         ch = parsed['command']['channel'][1:]
