@@ -6,7 +6,7 @@ from asyncio import CancelledError
 from logging import getLogger, Logger
 from time import sleep
 import aiohttp
-from twitchAPI import TwitchBackendException, Twitch, AuthType, AuthScope, ChatEvent
+from twitchAPI import TwitchBackendException, Twitch, AuthType, AuthScope, ChatEvent, MissingScopeException, UnauthorizedException
 from twitchAPI.object import TwitchUser
 from twitchAPI.helper import TWITCH_CHAT_URL, first
 from twitchAPI.types import ChatRoom
@@ -326,6 +326,8 @@ class Chat:
         self.logger.debug('starting chat...')
         if self.__running:
             raise RuntimeError('already started')
+        if not self.twitch.has_required_auth(AuthType.USER, [AuthScope.CHAT_READ]):
+            raise UnauthorizedException('CHAT_READ authscope is required to run a chat bot')
         self.__startup_complete = False
         self._closing = False
         self.__socket_thread = threading.Thread(target=self.__run_socket)
