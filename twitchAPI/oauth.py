@@ -64,7 +64,7 @@ from logging import getLogger, Logger
 
 from typing import List, Union
 
-__all__ = ['refresh_access_token', 'validate_token', 'revoke_token', 'UserAuthenticator']
+__all__ = ['refresh_access_token', 'validate_token', 'get_user_info', 'revoke_token', 'UserAuthenticator']
 
 
 async def refresh_access_token(refresh_token: str,
@@ -108,10 +108,9 @@ async def validate_token(access_token: str,
 
     https://dev.twitch.tv/docs/authentication/validate-tokens
 
-    :param str access_token: either a user or app OAuth access token
-    :param ~aiohttp.ClientSession session: optionally a active client session to be used for the web request to avoid having to open a new one
+    :param access_token: either a user or app OAuth access token
+    :param session: optionally a active client session to be used for the web request to avoid having to open a new one
     :return: response from the api
-    :rtype: dict
     """
     header = {'Authorization': f'OAuth {access_token}'}
     url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/validate', {})
@@ -121,6 +120,27 @@ async def validate_token(access_token: str,
     if session is None:
         await ses.close()
     return fields_to_enum(data, ['scopes'], AuthScope, None)
+
+
+async def get_user_info(access_token: str,
+                        session: Optional[aiohttp.ClientSession] = None) -> dict:
+    """Helper function to get claims information from an OAuth2 access token.
+
+    https://dev.twitch.tv/docs/authentication/getting-tokens-oidc/#getting-claims-information-from-an-access-token
+
+    :param access_token: a OAuth2 access token
+    :param session: optionally a active client session to be used for the web request to avoid having to open a new one
+    :return: response from the API
+    """
+    header = {'Authorization': f'Bearer {access_token}',
+              'Content-Type': 'application/json'}
+    url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/userinfo', {})
+    ses = session if session is not None else aiohttp.ClientSession()
+    async with ses.get(url, headers=header) as result:
+        data = await result.json()
+    if session is None:
+        await ses.close()
+    return data
 
 
 async def revoke_token(client_id: str,
