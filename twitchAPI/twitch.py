@@ -265,6 +265,7 @@ class Twitch:
         """Gracefully close the connection to the Twitch API"""
         if self._session is not None:
             await self._session.close()
+            await asyncio.sleep(0.25)
 
     def __generate_header(self, auth_type: 'AuthType', required_scope: List[AuthScope]) -> dict:
         header = {"Client-ID": self.app_id}

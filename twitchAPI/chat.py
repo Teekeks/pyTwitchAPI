@@ -356,7 +356,7 @@ class Chat:
         await self.__connection.close()
         await self._session.close()
         # wait for ssl to close as per aiohttp docs...
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.25)
         self._closing = True
 
     async def __connect(self, is_startup=False):
@@ -438,6 +438,8 @@ class Chat:
             return
 
     async def _handle_cap_reply(self, parsed: dict):
+        from pprint import pprint
+        pprint(parsed["parameters"])
         self.logger.debug(f'got CAP reply, granted caps: {parsed["parameters"]}')
 
     async def _handle_join(self, parsed: dict):
