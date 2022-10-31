@@ -239,10 +239,19 @@ class AutoModCheckEntry(TypedDict):
 
 class ChatEvent(Enum):
     READY = 'ready'
+    """Triggered when the bot is started up and ready"""
     MESSAGE = 'message'
+    """Triggered when someone wrote a message in a chat channel"""
     SUB = 'sub'
+    """Triggered when someone subscribed to a channel"""
     RAID = 'raid'
+    """Triggered when a channel gets raided"""
     ROOM_STATE_CHANGE = 'room_state_change'
+    """Triggered when a chat channel is changed (e.g. sub only mode was enabled)"""
+    JOIN = 'join'
+    """Triggered when someone other than the bot joins a chat channel"""
+    JOINED = 'joined'
+    """Triggered when the bot joins a chat channel"""
 
 
 @dataclass

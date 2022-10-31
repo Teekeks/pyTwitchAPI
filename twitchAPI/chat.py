@@ -56,6 +56,26 @@ class RoomStateChangeEvent(EventData):
         return self.chat.room_cache.get(self.new.name)
 
 
+class JoinEvent(EventData):
+
+    def __init__(self, chat, channel_name, user_name):
+        super(JoinEvent, self).__init__(chat)
+        self._name = channel_name
+        self.user_name: str = user_name
+
+    @property
+    def room(self):
+        return self.chat.room_cache.get(self._name)
+
+
+class JoinedEvent(EventData):
+
+    def __init__(self, chat, channel_name, user_name):
+        super(JoinedEvent, self).__init__(chat)
+        self.room_name = channel_name
+        self.user_name: str = user_name
+
+
 class ChatMessage(EventData):
 
     def __init__(self, chat, parsed):
@@ -334,7 +354,7 @@ class Chat:
         await self.__connection.close()
         await self._session.close()
         # wait for ssl to close as per aiohttp docs...
-        await asyncio.sleep(0.250)
+        await asyncio.sleep(0.5)
         self._closing = True
 
     async def __connect(self, is_startup=False):
@@ -420,8 +440,17 @@ class Chat:
 
     async def _handle_join(self, parsed: dict):
         ch = parsed['command']['channel'][1:]
-        if ch in self._room_join_locks:
+        nick = parsed['source']['nick'][1:]
+        if ch in self._room_join_locks and nick == self.username:
             self._room_join_locks.remove(ch)
+        if nick == self.username:
+            e = JoinedEvent(self, ch, nick)
+            for handler in self._event_handler.get(ChatEvent.JOINED, []):
+                asyncio.ensure_future(handler(e))
+        else:
+            e = JoinEvent(self, ch, nick)
+            for handler in self._event_handler.get(ChatEvent.JOIN, []):
+                asyncio.ensure_future(handler(e))
 
     async def _handle_user_notice(self, parsed: dict):
         if parsed['tags'].get('msg-id') == 'raid':
