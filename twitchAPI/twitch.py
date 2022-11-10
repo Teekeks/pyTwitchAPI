@@ -488,7 +488,8 @@ class Twitch:
                                auth_scope: List[AuthScope],
                                return_type: T,
                                body_data: Optional[dict] = None,
-                               split_lists: bool = False) -> AsyncGenerator[T, None]:
+                               split_lists: bool = False,
+                               error_handler: Optional[Dict[int, BaseException]] = None) -> AsyncGenerator[T, None]:
         r_lookup: Dict[str, Callable] = {
             'get': self.__api_get_request,
             'post': self.__api_post_request,
@@ -506,6 +507,8 @@ class Twitch:
                 response = await req(_url, auth_type, auth_scope)
             else:
                 response = await req(_url, auth_type, auth_scope, data=body_data)
+            if response.status in error_handler.keys():
+                raise error_handler[response.status]
             data = await response.json()
             for entry in data.get('data', []):
                 yield return_type(**entry)
@@ -2327,8 +2330,13 @@ class Twitch:
             'after': after,
             'first': first
         }
+        error_handler = {
+            403: TwitchAPIException('The ID in the Client-Id header must match the client ID used to create the custom reward or '
+                                    'the broadcaster is not a partner or affiliate')
+        }
         async for y in self._build_generator('GET', 'channel_points/custom_rewards/redemptions', param, AuthType.USER,
-                                             [AuthScope.CHANNEL_READ_REDEMPTIONS], CustomRewardRedemption, split_lists=True):
+                                             [AuthScope.CHANNEL_READ_REDEMPTIONS], CustomRewardRedemption, split_lists=True,
+                                             error_handler=error_handler):
             yield y
 
     async def update_custom_reward(self,
