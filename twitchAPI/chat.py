@@ -39,7 +39,7 @@ Short code example:
         print(f'in {msg.room.name}, {msg.user.name} said: {msg.text}')
 
 
-    # this will be called henever someone subscribes to a channel
+    # this will be called whenever someone subscribes to a channel
     async def on_sub(sub: ChatSub):
         print(f'New subscription in {sub.room.name}:\n'
               f'  Type: {sub.sub_plan}\n'
