@@ -3,17 +3,18 @@
 Twitch Chat Bot
 ---------------
 
-.. notice
+.. warning::
     Please note that the Chat Bot is currently in a **early alpha** stage!\n
-    Bugs and oddities are to be expected.
-    Please report all feature requests and bug requests to the github page.
+    Bugs and oddities are to be expected.\n
+    Please report all feature requests and bug requests to the `github page <https://github.com/Teekeks/pyTwitchAPI/issues>`_.
 
 
-*******************
-Short code example:
-*******************
+*************
+Code example:
+*************
 
 .. code-block:: python
+
     from twitchAPI import Twitch
     from twitchAPI.oauth import UserAuthenticator
     from twitchAPI.types import AuthScope, ChatEvent
@@ -29,7 +30,8 @@ Short code example:
     # this will be called when the event READY is triggered, which will be on bot start
     async def on_ready(ready_event: EventData):
         print('Bot is ready for work, joining channels')
-        # join our target channel, if you want to join multiple, either call join for each individually or even better pass a list of channels as the argument
+        # join our target channel, if you want to join multiple, either call join for each individually
+        # or even better pass a list of channels as the argument
         ready_event.chat.join(TARGET_CHANNEL)
         # you can do other bot initialization things in here
 
@@ -41,8 +43,8 @@ Short code example:
 
     # this will be called whenever someone subscribes to a channel
     async def on_sub(sub: ChatSub):
-        print(f'New subscription in {sub.room.name}:\n'
-              f'  Type: {sub.sub_plan}\n'
+        print(f'New subscription in {sub.room.name}:\\n'
+              f'  Type: {sub.sub_plan}\\n'
               f'  Message: {sub.sub_message}')
 
 
@@ -84,7 +86,7 @@ Short code example:
 
         # lets run till we press enter in the console
         try:
-            input('press ENTER to stop\n')
+            input('press ENTER to stop\\n')
         finally:
             # now we can close the chat bot and the twitch api client
             chat.stop()
@@ -94,10 +96,23 @@ Short code example:
     # lets run our setup
     asyncio.run(run())
 
+****************
+Available Events
+****************
+
+- `~twitchAPI.types.ChatEvent.READY`: Triggered when the bot is stared up and ready to join channels
+- `~twitchAPI.types.ChatEvent.MESSAGE`: Triggered when someone wrote a message in a channel we joined
+- `~twitchAPI.types.ChatEvent.SUB`: Triggered when someone subscribed to a channel we joined
+- `~twitchAPI.types.ChatEvent.RAID`: Triggered when a channel gets raided
+- `~twitchAPI.types.ChatEvent.ROOM_STATE_CHANGE`: Triggered when a channel is changed (e.g. sub only mode was enabled)
+- `~twitchAPI.types.ChatEvent.JOIN`: Triggered when someone other than the bot joins a channel. Note: this will not always trigger, depending on channel size
+- `~twitchAPI.types.ChatEvent.JOINED`: Triggered when the bot joins a channel
+- `~twitchAPI.types.ChatEvent.LEFT`: triggered when teh bot left a channel
+
+
 """
 import asyncio
 import dataclasses
-import logging
 import threading
 from asyncio import CancelledError
 from logging import getLogger, Logger
