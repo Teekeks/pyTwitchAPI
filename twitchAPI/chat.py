@@ -100,16 +100,18 @@ Code example:
 Available Events
 ****************
 
-- `~twitchAPI.types.ChatEvent.READY`: Triggered when the bot is stared up and ready to join channels
-- `~twitchAPI.types.ChatEvent.MESSAGE`: Triggered when someone wrote a message in a channel we joined
-- `~twitchAPI.types.ChatEvent.SUB`: Triggered when someone subscribed to a channel we joined
-- `~twitchAPI.types.ChatEvent.RAID`: Triggered when a channel gets raided
-- `~twitchAPI.types.ChatEvent.ROOM_STATE_CHANGE`: Triggered when a channel is changed (e.g. sub only mode was enabled)
-- `~twitchAPI.types.ChatEvent.JOIN`: Triggered when someone other than the bot joins a channel. Note: this will not always trigger, depending on channel size
-- `~twitchAPI.types.ChatEvent.JOINED`: Triggered when the bot joins a channel
-- `~twitchAPI.types.ChatEvent.LEFT`: triggered when teh bot left a channel
+- :const:`~twitchAPI.types.ChatEvent.READY`: Triggered when the bot is stared up and ready to join channels
+- :const:`~twitchAPI.types.ChatEvent.MESSAGE`: Triggered when someone wrote a message in a channel we joined
+- :const:`~twitchAPI.types.ChatEvent.SUB`: Triggered when someone subscribed to a channel we joined
+- :const:`~twitchAPI.types.ChatEvent.RAID`: Triggered when a channel gets raided
+- :const:`~twitchAPI.types.ChatEvent.ROOM_STATE_CHANGE`: Triggered when a channel is changed (e.g. sub only mode was enabled)
+- :const:`~twitchAPI.types.ChatEvent.JOIN`: Triggered when someone other than the bot joins a channel. Note: this will not always trigger, depending on channel size
+- :const:`~twitchAPI.types.ChatEvent.JOINED`: Triggered when the bot joins a channel
+- :const:`~twitchAPI.types.ChatEvent.LEFT`: triggered when the bot left a channel
 
-
+********************
+Class Documentation:
+********************
 """
 import asyncio
 import dataclasses
@@ -125,10 +127,29 @@ from twitchAPI.types import ChatRoom
 
 from typing import List, Optional, Union, Callable, Dict
 
-__all__ = ['ChatUser', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent']
+__all__ = ['ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent']
 
 
 class ChatUser:
+    """Represents a user in a chat channel
+
+    :param chat: Represents the Chat instance
+    :param name: The name of the user
+    :param badge_info: All infos related to the badges of the user
+    :param badges: The badges of the user
+    :param bits:
+    :param color: The color of the chat user if set
+    :param display_name: The display name, should usually be the same as name
+    :param mod: if the user is a mod in chat channel
+    :param reply_parent_msg_id:
+    :param reply_parent_display_name:
+    :param reply_parent_user_id:
+    :param reply_parent_msg_body:
+    :param subscriber: if the user is a subscriber to the channel
+    :param turbo: if the user has turbo
+    :param id: The ID of the user
+    :param user_type: The type of user
+    """
 
     def __init__(self, chat, parsed):
         self.chat: 'Chat' = chat
@@ -152,11 +173,18 @@ class ChatUser:
 
 
 class EventData:
+    """Represents a basic chat event
+
+    :param chat: represents the Chat Instance"""
     def __init__(self, chat):
         self.chat: 'Chat' = chat
 
 
 class RoomStateChangeEvent(EventData):
+    """Triggered when a room state changed
+
+    :param ~twitchAPI.types.ChatRoom old: The State of the room from before the change, can be Null
+    :param ~twitchAPI.types.ChatRoom new: The new room state"""
 
     def __init__(self, chat, prev, new):
         super(RoomStateChangeEvent, self).__init__(chat)
