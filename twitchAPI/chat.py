@@ -2,6 +2,8 @@
 """
 Twitch Chat Bot
 ---------------
+A simple twitch chat bot.\n
+Chat bots can join channels, listen to chat and reply to messages, commands, subscriptions and many more.
 
 .. warning::
     Please note that the Chat Bot is currently in a **early alpha** stage!\n
@@ -133,22 +135,22 @@ __all__ = ['ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Ch
 class ChatUser:
     """Represents a user in a chat channel
 
-    :param chat: Represents the Chat instance
-    :param name: The name of the user
-    :param badge_info: All infos related to the badges of the user
-    :param badges: The badges of the user
-    :param bits:
-    :param color: The color of the chat user if set
-    :param display_name: The display name, should usually be the same as name
-    :param mod: if the user is a mod in chat channel
-    :param reply_parent_msg_id:
-    :param reply_parent_display_name:
-    :param reply_parent_user_id:
-    :param reply_parent_msg_body:
-    :param subscriber: if the user is a subscriber to the channel
-    :param turbo: if the user has turbo
-    :param id: The ID of the user
-    :param user_type: The type of user
+    :param ~twitchAPI.chat.Chat chat: Represents the Chat instance
+    :param str name: The name of the user
+    :param dict badge_info: All infos related to the badges of the user
+    :param list badges: The badges of the user
+    :param int bits:
+    :param str color: The color of the chat user if set
+    :param str display_name: The display name, should usually be the same as name
+    :param bool mod: if the user is a mod in chat channel
+    :param str reply_parent_msg_id:
+    :param str reply_parent_display_name:
+    :param str reply_parent_user_id:
+    :param str reply_parent_msg_body:
+    :param bool subscriber: if the user is a subscriber to the channel
+    :param bool turbo: if the user has turbo
+    :param str id: The ID of the user
+    :param str user_type: The type of user
     """
 
     def __init__(self, chat, parsed):
@@ -175,7 +177,7 @@ class ChatUser:
 class EventData:
     """Represents a basic chat event
 
-    :param chat: represents the Chat Instance"""
+    :param ~twitchAPI.chat.Chat chat: represents the Chat Instance"""
     def __init__(self, chat):
         self.chat: 'Chat' = chat
 
@@ -193,11 +195,14 @@ class RoomStateChangeEvent(EventData):
 
     @property
     def room(self):
+        """Returns the Room from cache"""
         return self.chat.room_cache.get(self.new.name)
 
 
 class JoinEvent(EventData):
-
+    """
+    :param str user_name: The name of the user that joined
+    """
     def __init__(self, chat, channel_name, user_name):
         super(JoinEvent, self).__init__(chat)
         self._name = channel_name
@@ -205,10 +210,15 @@ class JoinEvent(EventData):
 
     @property
     def room(self):
+        """The room the user joined to"""
         return self.chat.room_cache.get(self._name)
 
 
 class JoinedEvent(EventData):
+    """
+    :param str room_name: the name of the room the bot joined to
+    :param str user_name: the name of the bot
+    """
 
     def __init__(self, chat, channel_name, user_name):
         super(JoinedEvent, self).__init__(chat)
@@ -217,7 +227,10 @@ class JoinedEvent(EventData):
 
 
 class LeftEvent(EventData):
+    """When the bot left a room
 
+    :param str room_name: the name of the channel the bot left
+    :param ~twitchAPI.types.ChatRoom cached_room: the cached room state, might bo Null"""
     def __init__(self, chat, channel_name, room):
         super(LeftEvent, self).__init__(chat)
         self.room_name: str = channel_name
@@ -225,6 +238,12 @@ class LeftEvent(EventData):
 
 
 class ChatMessage(EventData):
+    """Represents a chat message
+
+    :param str text: The message
+    :param int sent_timestamp: the unix timestamp of when the message was sent
+    :param emotes: The emotes used in the message
+    :param str id: the ID of the message"""
 
     def __init__(self, chat, parsed):
         super(ChatMessage, self).__init__(chat)
@@ -236,17 +255,24 @@ class ChatMessage(EventData):
 
     @property
     def room(self) -> Optional[ChatRoom]:
+        """The channel the message was issued in"""
         return self.chat.room_cache.get(self._parsed['command']['channel'][1:])
 
     @property
     def user(self) -> ChatUser:
+        """The user that issued the message"""
         return ChatUser(self.chat, self._parsed)
 
     async def reply(self, text: str):
+        """Reply to this message"""
         await self.chat._send_message(f'@reply-parent-msg-id={self.id} PRIVMSG #{self.room.name} :{text}')
 
 
 class ChatCommand(ChatMessage):
+    """Represents a command
+
+    :param str name: the name of the command
+    :param str parameter: the parameter given to the command"""
 
     def __init__(self, chat, parsed):
         super(ChatCommand, self).__init__(chat, parsed)
@@ -255,6 +281,13 @@ class ChatCommand(ChatMessage):
 
 
 class ChatSub:
+    """Represents a sub to a channel
+
+    :param str sub_type: The type of sub given
+    :param str sub_message: The message that was sent together with the sub
+    :param str sub_plan: the ID of the subscription plan that was used
+    :param str sub_plan_name: the name of the subscription plan that was used
+    :param str system_message: the system message that was generated for this sub"""
 
     def __init__(self, chat, parsed):
         self.chat: 'Chat' = chat
@@ -267,10 +300,12 @@ class ChatSub:
 
     @property
     def room(self):
+        """The room this sub was issued in"""
         return self.chat.room_cache.get(self._parsed['command']['channel'][1:])
 
 
 class Chat:
+    """The chat bot instance"""
 
     def __init__(self, twitch: Twitch, connection_url: Optional[str] = None):
         self.logger: Logger = getLogger('twitchAPI.chat')
@@ -681,6 +716,7 @@ class Chat:
     ##################################################################################################################################################
 
     def register_command(self, name: str, handler: Callable) -> bool:
+        """Register a command"""
         name = name.lower()
         if self._command_handler.get(name) is not None:
             return False
@@ -688,15 +724,17 @@ class Chat:
         return True
 
     def register_event(self, event: ChatEvent, handler: Callable):
+        """Register a event handler"""
         if self._event_handler.get(event) is None:
             self._event_handler[event] = [handler]
         else:
             self._event_handler[event].append(handler)
 
     async def join_room(self, chat_rooms: Union[List[str], str]):
-        """ join one or more chat rooms
+        """ join one or more chat rooms\n
+        Will only exit once all given chat rooms where successfully joined
 
-        :param chat_rooms:
+        :param chat_rooms: the Room or rooms you want to leave
         :return:
         """
         if isinstance(chat_rooms, str):
@@ -722,7 +760,10 @@ class Chat:
         await self._send_message(f'PRIVMSG {room} :{text}')
 
     async def leave_room(self, chat_rooms: Union[List[str], str]):
-        """leave one or more chat rooms"""
+        """leave one or more chat rooms\n
+        Will only exit once all given chat rooms where successfully left
+
+        :param chat_rooms: The room or rooms you want to leave"""
         if isinstance(chat_rooms, str):
             chat_rooms = [chat_rooms]
         room_str = ','.join([f'#{c}' if c[0] != '#' else c for c in chat_rooms])
