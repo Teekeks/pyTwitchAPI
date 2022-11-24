@@ -507,8 +507,9 @@ class Twitch:
                 response = await req(_url, auth_type, auth_scope)
             else:
                 response = await req(_url, auth_type, auth_scope, data=body_data)
-            if response.status in error_handler.keys():
-                raise error_handler[response.status]
+            if error_handler is not None:
+                if response.status in error_handler.keys():
+                    raise error_handler[response.status]
             data = await response.json()
             for entry in data.get('data', []):
                 yield return_type(**entry)
