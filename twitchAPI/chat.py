@@ -1,6 +1,7 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 import asyncio
 import dataclasses
+import logging
 import threading
 from asyncio import CancelledError
 from logging import getLogger, Logger
@@ -72,8 +73,16 @@ class JoinedEvent(EventData):
 
     def __init__(self, chat, channel_name, user_name):
         super(JoinedEvent, self).__init__(chat)
-        self.room_name = channel_name
+        self.room_name: str = channel_name
         self.user_name: str = user_name
+
+
+class LeftEvent(EventData):
+
+    def __init__(self, chat, channel_name, room):
+        super(LeftEvent, self).__init__(chat)
+        self.room_name: str = channel_name
+        self.cached_room: Optional[ChatRoom] = room
 
 
 class ChatMessage(EventData):
@@ -150,6 +159,7 @@ class Chat:
         self._command_handler = {}
         self.room_cache: Dict[str, ChatRoom] = {}
         self._room_join_locks = []
+        self._room_leave_locks = []
         self._closing: bool = False
 
     def __await__(self):
@@ -421,7 +431,8 @@ class Chat:
                             'ROOMSTATE': self._handle_room_state,
                             'JOIN': self._handle_join,
                             'USERNOTICE': self._handle_user_notice,
-                            'CAP': self._handle_cap_reply
+                            'CAP': self._handle_cap_reply,
+                            'PART': self._handle_part
                         }
                         handler = handlers.get(parsed['command']['command'])
                         if handler is not None:
@@ -456,6 +467,15 @@ class Chat:
             e = JoinEvent(self, ch, nick)
             for handler in self._event_handler.get(ChatEvent.JOIN, []):
                 asyncio.ensure_future(handler(e))
+
+    async def _handle_part(self, parsed: dict):
+        ch = parsed['command']['channel'][1:]
+        if ch in self._room_leave_locks:
+            self._room_leave_locks.remove(ch)
+        room = self.room_cache.pop(ch, None)
+        e = LeftEvent(self, ch, room)
+        for handler in self._event_handler.get(ChatEvent.LEFT, []):
+            asyncio.ensure_future(handler(e))
 
     async def _handle_user_notice(self, parsed: dict):
         if parsed['tags'].get('msg-id') == 'raid':
@@ -562,3 +582,15 @@ class Chat:
             room = f'#{room}'
         await self._send_message(f'PRIVMSG {room} :{text}')
 
+    async def leave_room(self, chat_rooms: Union[List[str], str]):
+        """leave one or more chat rooms"""
+        if isinstance(chat_rooms, str):
+            chat_rooms = [chat_rooms]
+        room_str = ','.join([f'#{c}' if c[0] != '#' else c for c in chat_rooms])
+        target = [c[1:].lower() if c[0] == '#' else c.lower() for c in chat_rooms]
+        for r in target:
+            self._room_leave_locks.append(r)
+        await self._send_message(f'PART {room_str}')
+        # wait to leave all rooms
+        while any([r in self._room_leave_locks for r in target]):
+            await asyncio.sleep(0.01)

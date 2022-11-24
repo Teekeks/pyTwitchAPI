@@ -252,6 +252,8 @@ class ChatEvent(Enum):
     """Triggered when someone other than the bot joins a chat channel"""
     JOINED = 'joined'
     """Triggered when the bot joins a chat channel"""
+    LEFT = 'left'
+    """Triggered when the bot leaves a chat channel"""
 
 
 @dataclass
