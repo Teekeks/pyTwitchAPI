@@ -284,7 +284,9 @@ class UserAuthenticator:
 
     async def authenticate(self,
                            callback_func: Optional[Callable[[str, str], None]] = None,
-                           user_token: Optional[str] = None):
+                           user_token: Optional[str] = None,
+                           browser_name: Optional[str] = None,
+                           browser_new: int = 2):
         """Start the user authentication flow\n
         If callback_func is not set, authenticate will wait till the authentication process finished and then return
         the access_token and the refresh_token
@@ -292,6 +294,12 @@ class UserAuthenticator:
 
         :param callback_func: Function to call once the authentication finished.
         :param user_token: Code obtained from twitch to request the access and refresh token.
+        :param browser_name: The browser that should be used, None means that the system default is used.
+                            See `the webbrowser documentation<https://docs.python.org/3/library/webbrowser.html#webbrowser.register>`_ for more info
+                            |default|:code:`None`
+        :param browser_new: controls in which way the link will be opened in the browser.
+                            See `the webbrowser documentation<https://docs.python.org/3/library/webbrowser.html#webbrowser.open>`_ for more info
+                            |default|:code:`2`
         :return: None if callback_func is set, otherwise access_token and refresh_token
         :raises ~twitchAPI.types.TwitchAPIException: if authentication fails
         :rtype: None or (str, str)
@@ -304,7 +312,8 @@ class UserAuthenticator:
             while not self.__server_running:
                 sleep(0.01)
             # open in browser
-            webbrowser.open(self.__build_auth_url(), new=2)
+            browser = webbrowser.get(browser_name)
+            browser.open(self.__build_auth_url(), new=browser_new)
             while self.__user_token is None:
                 sleep(0.01)
             # now we need to actually get the correct token
