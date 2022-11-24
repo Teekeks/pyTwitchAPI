@@ -716,7 +716,10 @@ class Chat:
     ##################################################################################################################################################
 
     def register_command(self, name: str, handler: Callable) -> bool:
-        """Register a command"""
+        """Register a command
+
+        :param name: the name of the command
+        :param handler: The event handler"""
         name = name.lower()
         if self._command_handler.get(name) is not None:
             return False
@@ -724,7 +727,10 @@ class Chat:
         return True
 
     def register_event(self, event: ChatEvent, handler: Callable):
-        """Register a event handler"""
+        """Register a event handler
+
+        :param event: The Event you want to register the handler to
+        :param handler: The handler you want to register."""
         if self._event_handler.get(event) is None:
             self._event_handler[event] = [handler]
         else:
@@ -735,7 +741,6 @@ class Chat:
         Will only exit once all given chat rooms where successfully joined
 
         :param chat_rooms: the Room or rooms you want to leave
-        :return:
         """
         if isinstance(chat_rooms, str):
             chat_rooms = [chat_rooms]
