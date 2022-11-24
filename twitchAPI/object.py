@@ -1,4 +1,8 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
+"""
+Objects used by the Twitch API
+------------------------------
+"""
 from datetime import datetime
 from enum import Enum
 from typing import Optional, Union, List, Dict, Generic, TypeVar
