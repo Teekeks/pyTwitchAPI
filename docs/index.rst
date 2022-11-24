@@ -135,6 +135,11 @@ See here for more info: `twitchAPI.pubsub <modules/twitchAPI.pubsub.html>`_
     from pprint import pprint
     from uuid import UUID
 
+    APP_ID = 'my_app_id'
+    APP_SECRET = 'my_app_secret'
+    USER_SCOPE = [AuthScope.WHISPERS_READ]
+    TARGET_CHANNEL = 'teekeks42'
+
     def callback_whisper(uuid: UUID, data: dict) -> None:
         print('got callback for UUID ' + str(uuid))
         pprint(data)
@@ -142,19 +147,21 @@ See here for more info: `twitchAPI.pubsub <modules/twitchAPI.pubsub.html>`_
 
     async def run_example():
         # setting up Authentication and getting your user id
-        twitch = await Twitch('my_app_id', 'my_app_secret')
+        twitch = await Twitch(APP_ID, APP_SECRET)
+        auth = UserAuthenticator(twitch, [AuthScope.WHISPERS_READ], force_verify=False)
+        token, refresh_token = await auth.authenticate()
         # you can get your user auth token and user auth refresh token following the example in twitchAPI.oauth
-        await twitch.set_user_authentication('my_user_auth_token', [AuthScope.WHISPERS_READ], 'my_user_auth_refresh_token')
-        user_id = await first(twitch.get_users(logins=['my_username'])).id
+        await twitch.set_user_authentication(token, [AuthScope.WHISPERS_READ], refresh_token)
+        user = await first(twitch.get_users(logins=[TARGET_CHANNEL]))
 
         # starting up PubSub
         pubsub = PubSub(twitch)
         pubsub.start()
         # you can either start listening before or after you started pubsub.
-        uuid = pubsub.listen_whispers(user_id, callback_whisper)
+        uuid = await pubsub.listen_whispers(user.id, callback_whisper)
         input('press ENTER to close...')
         # you do not need to unlisten to topics before stopping but you can listen and unlisten at any moment you want
-        pubsub.unlisten(uuid)
+        await pubsub.unlisten(uuid)
         pubsub.stop()
         await twitch.close()
 

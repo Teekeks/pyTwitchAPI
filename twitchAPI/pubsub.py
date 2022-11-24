@@ -24,6 +24,11 @@ Short code example:
     from pprint import pprint
     from uuid import UUID
 
+    APP_ID = 'my_app_id'
+    APP_SECRET = 'my_app_secret'
+    USER_SCOPE = [AuthScope.WHISPERS_READ]
+    TARGET_CHANNEL = 'teekeks42'
+
     def callback_whisper(uuid: UUID, data: dict) -> None:
         print('got callback for UUID ' + str(uuid))
         pprint(data)
@@ -31,19 +36,21 @@ Short code example:
 
     async def run_example():
         # setting up Authentication and getting your user id
-        twitch = await Twitch('my_app_id', 'my_app_secret')
+        twitch = await Twitch(APP_ID, APP_SECRET)
+        auth = UserAuthenticator(twitch, [AuthScope.WHISPERS_READ], force_verify=False)
+        token, refresh_token = await auth.authenticate()
         # you can get your user auth token and user auth refresh token following the example in twitchAPI.oauth
-        await twitch.set_user_authentication('my_user_auth_token', [AuthScope.WHISPERS_READ], 'my_user_auth_refresh_token')
-        user_id = await first(twitch.get_users(logins=['my_username'])).id
+        await twitch.set_user_authentication(token, [AuthScope.WHISPERS_READ], refresh_token)
+        user = await first(twitch.get_users(logins=[TARGET_CHANNEL]))
 
         # starting up PubSub
         pubsub = PubSub(twitch)
         pubsub.start()
         # you can either start listening before or after you started pubsub.
-        uuid = pubsub.listen_whispers(user_id, callback_whisper)
+        uuid = await pubsub.listen_whispers(user.id, callback_whisper)
         input('press ENTER to close...')
         # you do not need to unlisten to topics before stopping but you can listen and unlisten at any moment you want
-        pubsub.unlisten(uuid)
+        await pubsub.unlisten(uuid)
         pubsub.stop()
         await twitch.close()
 
@@ -219,7 +226,7 @@ class PubSub:
         if self.__connection.open:
             self.__socket_loop.run_until_complete(self.__connection.close())
 
-    def __generic_listen(self, key, callback_func, required_scopes: List[AuthScope]) -> UUID:
+    async def __generic_listen(self, key, callback_func, required_scopes: List[AuthScope]) -> UUID:
         for scope in required_scopes:
             if scope not in self.__twitch.get_user_auth_scope():
                 raise MissingScopeException(str(scope))
@@ -228,7 +235,7 @@ class PubSub:
             self.__topics[key] = {'subs': {}}
         self.__topics[key]['subs'][uuid] = callback_func
         if self.__startup_complete:
-            asyncio.get_event_loop().run_until_complete(self.__send_listen(str(uuid), [key]))
+            await self.__send_listen(str(uuid), [key])
         return uuid
 
 ###########################################################################################
@@ -308,7 +315,7 @@ class PubSub:
 # Listener
 ###########################################################################################
 
-    def unlisten(self, uuid: UUID) -> None:
+    async def unlisten(self, uuid: UUID) -> None:
         """
         Stop listening to a specific Topic subscription.
 
@@ -326,14 +333,14 @@ class PubSub:
                 if len(topic_data['subs'].keys()) == 0:
                     clear_topics.append(topic)
         if self.__startup_complete and len(clear_topics) > 0:
-            asyncio.get_event_loop().run_until_complete(self.__send_listen(str(uuid), clear_topics, subscribe=False))
+            await self.__send_listen(str(uuid), clear_topics, subscribe=False)
         if len(clear_topics) > 0:
             for topic in clear_topics:
                 self.__topics.pop(topic)
 
-    def listen_whispers(self,
-                        user_id: str,
-                        callback_func: Callable[[UUID, dict], None]) -> UUID:
+    async def listen_whispers(self,
+                              user_id: str,
+                              callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         You are notified when anyone whispers the specified user or the specified user whispers to anyone.\n
         Requires the :const:`~twitchAPI.types.AuthScope.WHISPERS_READ` AuthScope.\n
@@ -347,11 +354,11 @@ class PubSub:
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
         """
-        return self.__generic_listen(f'whispers.{user_id}', callback_func, [AuthScope.WHISPERS_READ])
+        return await self.__generic_listen(f'whispers.{user_id}', callback_func, [AuthScope.WHISPERS_READ])
 
-    def listen_bits_v1(self,
-                       channel_id: str,
-                       callback_func: Callable[[UUID, dict], None]) -> UUID:
+    async def listen_bits_v1(self,
+                             channel_id: str,
+                             callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         You are notified when anyone cheers in the specified channel.\n
         Requires the :const:`~twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
@@ -365,11 +372,11 @@ class PubSub:
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
         """
-        return self.__generic_listen(f'channel-bits-events-v1.{channel_id}', callback_func, [AuthScope.BITS_READ])
+        return await self.__generic_listen(f'channel-bits-events-v1.{channel_id}', callback_func, [AuthScope.BITS_READ])
 
-    def listen_bits(self,
-                    channel_id: str,
-                    callback_func: Callable[[UUID, dict], None]) -> UUID:
+    async def listen_bits(self,
+                          channel_id: str,
+                          callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         You are notified when anyone cheers in the specified channel.\n
         Requires the :const:`~twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
@@ -383,11 +390,11 @@ class PubSub:
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
         """
-        return self.__generic_listen(f'channel-bits-events-v2.{channel_id}', callback_func, [AuthScope.BITS_READ])
+        return await self.__generic_listen(f'channel-bits-events-v2.{channel_id}', callback_func, [AuthScope.BITS_READ])
 
-    def listen_bits_badge_notification(self,
-                                       channel_id: str,
-                                       callback_func: Callable[[UUID, dict], None]) -> UUID:
+    async def listen_bits_badge_notification(self,
+                                             channel_id: str,
+                                             callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         You are notified when a user earns a new Bits badge in the given channel,
         and chooses to share the notification with chat.\n
@@ -402,11 +409,11 @@ class PubSub:
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
         """
-        return self.__generic_listen(f'channel-bits-badge-unlocks.{channel_id}', callback_func, [AuthScope.BITS_READ])
+        return await self.__generic_listen(f'channel-bits-badge-unlocks.{channel_id}', callback_func, [AuthScope.BITS_READ])
 
-    def listen_channel_points(self,
-                              channel_id: str,
-                              callback_func: Callable[[UUID, dict], None]) -> UUID:
+    async def listen_channel_points(self,
+                                    channel_id: str,
+                                    callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         You are notified when a custom reward is redeemed in the channel.\n
         Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` AuthScope.\n
@@ -420,13 +427,13 @@ class PubSub:
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
         """
-        return self.__generic_listen(f'channel-points-channel-v1.{channel_id}',
-                                     callback_func,
-                                     [AuthScope.CHANNEL_READ_REDEMPTIONS])
+        return await self.__generic_listen(f'channel-points-channel-v1.{channel_id}',
+                                           callback_func,
+                                           [AuthScope.CHANNEL_READ_REDEMPTIONS])
 
-    def listen_channel_subscriptions(self,
-                                     channel_id: str,
-                                     callback_func: Callable[[UUID, dict], None]) -> UUID:
+    async def listen_channel_subscriptions(self,
+                                           channel_id: str,
+                                           callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         You are notified when anyone subscribes (first month), resubscribes (subsequent months),
         or gifts a subscription to a channel. Subgift subscription messages contain recipient information.\n
@@ -441,14 +448,14 @@ class PubSub:
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
         """
-        return self.__generic_listen(f'channel-subscribe-events-v1.{channel_id}',
-                                     callback_func,
-                                     [AuthScope.CHANNEL_READ_SUBSCRIPTIONS])
+        return await self.__generic_listen(f'channel-subscribe-events-v1.{channel_id}',
+                                           callback_func,
+                                           [AuthScope.CHANNEL_READ_SUBSCRIPTIONS])
 
-    def listen_chat_moderator_actions(self,
-                                      user_id: str,
-                                      channel_id: str,
-                                      callback_func: Callable[[UUID, dict], None]) -> UUID:
+    async def listen_chat_moderator_actions(self,
+                                            user_id: str,
+                                            channel_id: str,
+                                            callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         Supports moderators listening to the topic, as well as users listening to the topic to receive their own events.
         Examples of moderator actions are bans, unbans, timeouts, deleting messages,
@@ -465,14 +472,14 @@ class PubSub:
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
         """
-        return self.__generic_listen(f'chat_moderator_actions.{user_id}.{channel_id}',
-                                     callback_func,
-                                     [AuthScope.CHANNEL_MODERATE])
+        return await self.__generic_listen(f'chat_moderator_actions.{user_id}.{channel_id}',
+                                           callback_func,
+                                           [AuthScope.CHANNEL_MODERATE])
 
-    def listen_automod_queue(self,
-                             moderator_id: str,
-                             channel_id: str,
-                             callback_func: Callable[[UUID, dict], None]) -> UUID:
+    async def listen_automod_queue(self,
+                                   moderator_id: str,
+                                   channel_id: str,
+                                   callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         AutoMod flags a message as potentially inappropriate, and when a moderator takes action on a message.\n
         Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_MODERATE` AuthScope.\n
@@ -487,14 +494,14 @@ class PubSub:
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
         """
-        return self.__generic_listen(f'automod-queue.{moderator_id}.{channel_id}',
-                                     callback_func,
-                                     [AuthScope.CHANNEL_MODERATE])
+        return await self.__generic_listen(f'automod-queue.{moderator_id}.{channel_id}',
+                                           callback_func,
+                                           [AuthScope.CHANNEL_MODERATE])
 
-    def listen_user_moderation_notifications(self,
-                                             user_id: str,
-                                             channel_id: str,
-                                             callback_func: Callable[[UUID, dict], None]) -> UUID:
+    async def listen_user_moderation_notifications(self,
+                                                   user_id: str,
+                                                   channel_id: str,
+                                                   callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         A user’s message held by AutoMod has been approved or denied.\n
         Requires the :const:`~twitchAPI.types.AuthScope.CHAT_READ` AuthScope.\n
@@ -509,13 +516,13 @@ class PubSub:
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
         """
-        return self.__generic_listen(f'user-moderation-notifications.{user_id}.{channel_id}',
-                                     callback_func,
-                                     [AuthScope.CHAT_READ])
+        return await self.__generic_listen(f'user-moderation-notifications.{user_id}.{channel_id}',
+                                           callback_func,
+                                           [AuthScope.CHAT_READ])
 
-    def listen_undocumented_topic(self,
-                                  topic: str,
-                                  callback_func: Callable[[UUID, dict], None]) -> UUID:
+    async def listen_undocumented_topic(self,
+                                        topic: str,
+                                        callback_func: Callable[[UUID, dict], None]) -> UUID:
         """
         Listen to one of the many undocumented PubSub topics.
 
@@ -531,4 +538,4 @@ class PubSub:
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         """
         self.__logger.warning(f"using undocumented topic {topic}")
-        return self.__generic_listen(topic, callback_func, [])
+        return await self.__generic_listen(topic, callback_func, [])
