@@ -28,6 +28,7 @@ Example Usage:
         user = await first(twitch.get_users(logins='your_twitch_user'))
         # print the ID of your user or do whatever else you want with it
         print(user.id)
+        await twitch.close()
 
     # run this example
     asyncio.run(twitch_example())
