@@ -29,7 +29,7 @@ Short code example:
     USER_SCOPE = [AuthScope.WHISPERS_READ]
     TARGET_CHANNEL = 'teekeks42'
 
-    def callback_whisper(uuid: UUID, data: dict) -> None:
+    async def callback_whisper(uuid: UUID, data: dict) -> None:
         print('got callback for UUID ' + str(uuid))
         pprint(data)
 
@@ -306,7 +306,7 @@ class PubSub:
         msg_data = json.loads(data.get('data', {}).get('message', '{}'))
         if topic_data is not None:
             for uuid, sub in topic_data.get('subs', {}).items():
-                sub(uuid, msg_data)
+                asyncio.ensure_future(sub(uuid, msg_data))
 
     async def __handle_unknown(self, data):
         self.__logger.warning('got message of unknown type: ' + str(data))

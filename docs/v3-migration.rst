@@ -73,3 +73,24 @@ Before, you where required to use the cursor yourself to itterate over all pages
 
     async for tag in twitch.get_all_stream_tags():
         print(tag.tag_id)
+
+
+PubSub
+------
+
+All callbacks are now async.
+
+.. code-block:: python
+    :caption: V2 (before)
+
+    # this will be called
+    def callback_whisper(uuid: UUID, data: dict) -> None:
+        print('got callback for UUID ' + str(uuid))
+        pprint(data)
+
+.. code-block:: python
+    :caption: V3 (now)
+
+    async def callback_whisper(uuid: UUID, data: dict) -> None:
+        print('got callback for UUID ' + str(uuid))
+        pprint(data)

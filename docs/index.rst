@@ -144,7 +144,7 @@ See here for more info: `twitchAPI.pubsub <modules/twitchAPI.pubsub.html>`_
     USER_SCOPE = [AuthScope.WHISPERS_READ]
     TARGET_CHANNEL = 'teekeks42'
 
-    def callback_whisper(uuid: UUID, data: dict) -> None:
+    async def callback_whisper(uuid: UUID, data: dict) -> None:
         print('got callback for UUID ' + str(uuid))
         pprint(data)
 
