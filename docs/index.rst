@@ -6,13 +6,17 @@
 Python Twitch API
 =====================================
 
-This is a full implementation of the Twitch Helix API, its Webhook, PubSub and EventSub in python 3.7+.
+This is a full implementation of the Twitch Helix AP, PubSub, EventSub and Chat in python 3.7+.
 
 On Github: https://github.com/Teekeks/pyTwitchAPI
 
 On PyPi: https://pypi.org/project/twitchAPI/
 
-Visit the :doc:`changelog` to see what has changed.
+
+.. note:: There where major changes to the library with version 3, see the :doc:`v3-migration` to learn how to migrate.
+
+Visit the :doc:`changelog` to see all changes.
+
 
 Installation
 ============
@@ -281,6 +285,7 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :doc:`changelog`
+* :doc:`v3-migration`
 
 
 .. autosummary::
