@@ -1145,7 +1145,8 @@ class Twitch:
 
     async def get_games(self,
                         game_ids: Optional[List[str]] = None,
-                        names: Optional[List[str]] = None) -> AsyncGenerator[Game, None]:
+                        names: Optional[List[str]] = None,
+                        igdb_ids: Optional[List[str]] = None) -> AsyncGenerator[Game, None]:
         """Gets game information by game ID or name.\n\n
 
         Requires User or App authentication.
@@ -1155,19 +1156,23 @@ class Twitch:
 
         :param game_ids: Game ID |default| :code:`None`
         :param names: Game Name |default| :code:`None`
+        :param igdb_ids: IGDB ID |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if neither game_ids nor names are given or if game_ids and names are more than 100 entries combined.
+        :raises ValueError: if none of game_ids, names or igdb_ids are given or if game_ids, names and igdb_ids are more than 100 entries combined.
         """
-        if game_ids is None and names is None:
-            raise ValueError('at least one of either game_ids and names has to be set')
-        if (len(game_ids) if game_ids is not None else 0) + (len(names) if names is not None else 0) > 100:
-            raise ValueError('in total, only 100 game_ids and names can be passed')
+        if game_ids is None and names is None and igdb_ids is None:
+            raise ValueError('at least one of game_ids, names or igdb_ids has to be set')
+        if (len(game_ids) if game_ids is not None else 0) + \
+                (len(names) if names is not None else 0) + \
+                (len(igdb_ids) if igdb_ids is not None else 0) > 100:
+            raise ValueError('in total, only 100 game_ids, names and igdb_ids can be passed')
         param = {
             'id': game_ids,
-            'name': names
+            'name': names,
+            'igdb_id': igdb_ids
         }
         async for y in self._build_generator('GET', 'games', param, AuthType.EITHER, [], Game, split_lists=True):
             yield y

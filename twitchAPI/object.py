@@ -291,6 +291,7 @@ class Game(TwitchObject):
     box_art_url: str
     id: str
     name: str
+    igdb_id: str
 
 
 class AutoModStatus(TwitchObject):
