@@ -1,6 +1,6 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 """
-PubSub client
+PubSub Client
 -------------
 
 This is a full implementation of the PubSub API of twitch.

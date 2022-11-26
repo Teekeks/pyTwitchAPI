@@ -22,7 +22,7 @@ copyright = '2022, Lena "Teekeks" During'
 author = 'Lena "Teekeks" During'
 
 # The full version, including alpha/beta/rc tags
-release = '3.0.0'
+release = 'v3.0.0'
 language = 'en'
 
 master_doc = 'index'
@@ -85,7 +85,7 @@ if not version_match or version_match.isdigit():
         # but we want the whole url if we are effectively in a released version
         json_url = "_static/switcher.json"
     else:
-        version_match = "v" + release
+        version_match = release
 
 html_theme_options = {
     "switcher": {
@@ -94,7 +94,13 @@ html_theme_options = {
     },
     "header_links_before_dropdown": 4,
     "navbar_center": ["version-switcher", "navbar-nav"],
-    "github_url": "https://github.com/Teekeks/pyTwitchAPI"
+    "github_url": "https://github.com/Teekeks/pyTwitchAPI",
+    "navbar_align": "left",
+    "logo": {
+        "text": "twitchAPI",
+        "image_light": "logo.png",
+        "image_dark": "logo.png"
+    }
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

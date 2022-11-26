@@ -1,6 +1,6 @@
 #  Copyright (c) 2021. Lena "Teekeks" During <info@teawork.de>
 """
-EventSub client
+EventSub Client
 ---------------
 
 The EventSub client runs in its own thread, calling the given callback function whenever an event happens.
