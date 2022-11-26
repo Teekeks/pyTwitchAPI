@@ -22,7 +22,7 @@ copyright = '2022, Lena "Teekeks" During'
 author = 'Lena "Teekeks" During'
 
 # The full version, including alpha/beta/rc tags
-release = '2.5.4'
+release = '3.0.0'
 
 master_doc = 'index'
 
@@ -64,17 +64,8 @@ rst_prolog = """
 def setup(app):
     app.add_css_file('css/custom.css')
 
-# -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-import os
-on_rtd = os.environ.get('READTHEDOCS') == 'True'
-if on_rtd:
-    html_theme = 'default'
-else:
-    html_theme = 'classic'
+html_theme = 'pydata_sphinx_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
