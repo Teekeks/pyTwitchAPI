@@ -20,7 +20,7 @@ You can set that `here in your twitch dev dashboard <https://dev.twitch.tv/conso
 Requirements for server environment
 ***********************************
 
-You need the user code provided by Twitch when the user logs-in at the url returned by :code:`return_auth_url`.
+You need the user code provided by Twitch when the user logs-in at the url returned by :const:`~twitchAPI.oauth.UserAuthenticator.return_auth_url()`.
 
 Create the UserAuthenticator with the URL of your webserver that will handle the redirect, and add it as a "OAuth Redirect URL"
 You can set that `here in your twitch dev dashboard <https://dev.twitch.tv/console>`__.
@@ -280,6 +280,7 @@ class UserAuthenticator:
         return web.Response(text=self.__document, content_type='text/html')
 
     def return_auth_url(self):
+        """Returns the URL that will authenticate the app, used for headless server environments."""
         return self.__build_auth_url()
 
     async def authenticate(self,
