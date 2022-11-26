@@ -2,6 +2,7 @@
 """
 Twitch Chat Bot
 ---------------
+
 A simple twitch chat bot.\n
 Chat bots can join channels, listen to chat and reply to messages, commands, subscriptions and many more.
 

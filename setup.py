@@ -8,7 +8,7 @@ setup(
     url="https://github.com/Teekeks/pyTwitchAPI",
     author="Lena \"Teekeks\" During",
     author_email="info@teawork.de",
-    description="A Python 3.7+ implementation of the Twitch Helix API, its Webhook, PubSub and EventSub",
+    description="A Python 3.7+ implementation of the Twitch Helix API, PubSub, EventSub and Chat",
     license="MIT",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -22,11 +22,12 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9"
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11"
     ],
     package_data={
-        "twitchAPI": ["*.html"],
-        "twitchAPI.res": ["*.html"]
+        "twitchAPI": ["*.html"]
     },
     install_requires=['requests', 'python-dateutil', 'aiohttp', 'websockets', 'typing_extensions']
 )

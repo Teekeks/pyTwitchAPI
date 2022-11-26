@@ -296,10 +296,10 @@ class UserAuthenticator:
         :param callback_func: Function to call once the authentication finished.
         :param user_token: Code obtained from twitch to request the access and refresh token.
         :param browser_name: The browser that should be used, None means that the system default is used.
-                            See `the webbrowser documentation <https://docs.python.org/3/library/webbrowser.html#webbrowser.register>`_ for more info
+                            See `the webbrowser documentation <https://docs.python.org/3/library/webbrowser.html#webbrowser.register>`__ for more info
                             |default|:code:`None`
         :param browser_new: controls in which way the link will be opened in the browser.
-                            See `the webbrowser documentation <https://docs.python.org/3/library/webbrowser.html#webbrowser.open>`_ for more info
+                            See `the webbrowser documentation <https://docs.python.org/3/library/webbrowser.html#webbrowser.open>`__ for more info
                             |default|:code:`2`
         :return: None if callback_func is set, otherwise access_token and refresh_token
         :raises ~twitchAPI.types.TwitchAPIException: if authentication fails

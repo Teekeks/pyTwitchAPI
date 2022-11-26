@@ -1,2 +1,1 @@
-recursive-include twitchAPI/res *
 include_package_data=True
