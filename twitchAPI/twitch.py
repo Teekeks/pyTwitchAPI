@@ -3358,9 +3358,9 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-vips
 
         :param broadcaster_id: The ID of the broadcaster whose list of VIPs you want to get.
-        :param user_ids: Filters the list for specific VIPs. Maximum 100 |default|`None`
-        :param first: The maximum number of items to return per page in the response. Maximum 100 |default|`None`
-        :param after: The cursor used to get the next page of results. |default|`None`
+        :param user_ids: Filters the list for specific VIPs. Maximum 100 |default|:code:`None`
+        :param first: The maximum number of items to return per page in the response. Maximum 100 |default|:code:`None`
+        :param after: The cursor used to get the next page of results. |default|:code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -3484,7 +3484,7 @@ class Twitch:
 
         :param broadcaster_id: The ID of the broadcaster that owns the chat room to remove messages from.
         :param moderator_id: The ID of a user that has permission to moderate the broadcaster’s chat room.
-        :param message_id: The ID of the message to remove. If None, removes all messages from the broadcasters chat. |default|`None`
+        :param message_id: The ID of the message to remove. If None, removes all messages from the broadcasters chat. |default|:code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -3515,7 +3515,7 @@ class Twitch:
         :param broadcaster_id: The ID of the broadcaster that owns the chat room to send the announcement to.
         :param moderator_id: The ID of a user who has permission to moderate the broadcaster’s chat room.
         :param message: The announcement to make in the broadcaster’s chat room.
-        :param color: The color used to highlight the announcement. See twitch Docs for valid values. |default|`None`
+        :param color: The color used to highlight the announcement. See twitch Docs for valid values. |default|:code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
