@@ -3,6 +3,8 @@
 EventSub Client
 ---------------
 
+EventSub lets you listen for events that happen on Twitch.
+
 The EventSub client runs in its own thread, calling the given callback function whenever an event happens.
 
 Look at the `Twitch EventSub reference <https://dev.twitch.tv/docs/eventsub/eventsub-reference>`__ to find the topics

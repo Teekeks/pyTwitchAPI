@@ -3,7 +3,7 @@
 [![PyPI verion](https://img.shields.io/pypi/v/twitchAPI.svg)](https://pypi.org/project/twitchAPI/) [![Downloads](https://pepy.tech/badge/twitchapi)](https://pepy.tech/project/twitchapi) [![Python version](https://img.shields.io/pypi/pyversions/twitchAPI)](https://pypi.org/project/twitchAPI/) [![Twitch API version](https://img.shields.io/badge/twitch%20API%20version-Helix-brightgreen)](https://dev.twitch.tv/docs/api) [![Documentation Status](https://readthedocs.org/projects/pytwitchapi/badge/?version=latest)](https://pytwitchapi.readthedocs.io/en/latest/?badge=latest)
 
 
-This is a full implementation of the Twitch API, its Webhook and PubSub in python 3.7.  
+This is a full implementation of the Twitch Helix API, PubSub, EventSub and Chat in python 3.7+.
 
 
 ## Installation
@@ -14,7 +14,7 @@ Install using pip:
 
 ## Documentation and Support
 
-A full API documentation can be found [on readthedocs.org](https://pytwitchapi.readthedocs.io/en/latest/index.html).
+A full API documentation can be found [on readthedocs.org](https://pytwitchapi.readthedocs.io/en/stable/index.html).
 
 For support please join the [Twitch API discord server](https://discord.gg/tu2Dmc7gpd)
 
@@ -114,56 +114,59 @@ twitch.user_auth_refresh_callback = user_refresh
 
 PubSub enables you to subscribe to a topic, for updates (e.g., when a user cheers in a channel).
 
-A more detailed documentation can be found [here on readthedocs](https://pytwitchapi.readthedocs.io/en/latest/modules/twitchAPI.pubsub.html)
+A more detailed documentation can be found [here on readthedocs](https://pytwitchapi.readthedocs.io/en/stable/modules/twitchAPI.pubsub.html)
 
 ```python
 from twitchAPI.pubsub import PubSub
 from twitchAPI.twitch import Twitch
+from twitchAPI.helper import first
 from twitchAPI.types import AuthScope
+from twitchAPI.oauth import UserAuthenticator
+import asyncio
 from pprint import pprint
 from uuid import UUID
 
-def callback_whisper(uuid: UUID, data: dict) -> None:
+APP_ID = 'my_app_id'
+APP_SECRET = 'my_app_secret'
+USER_SCOPE = [AuthScope.WHISPERS_READ]
+TARGET_CHANNEL = 'teekeks42'
+
+async def callback_whisper(uuid: UUID, data: dict) -> None:
     print('got callback for UUID ' + str(uuid))
     pprint(data)
 
-# setting up Authentication and getting your user id
-twitch = Twitch('my_app_id', 'my_app_secret')
-twitch.authenticate_app([])
-twitch.set_user_authentication('my_user_auth_token', [AuthScope.WHISPERS_READ], 'my_user_auth_refresh_token')
-user_id = twitch.get_users(logins=['my_username'])['data'][0]['id']
 
-# starting up PubSub
-pubsub = PubSub(twitch)
-pubsub.start()
-# you can either start listening before or after you started pubsub.
-uuid = pubsub.listen_whispers(user_id, callback_whisper)
-input('press ENTER to close...')
-# you do not need to unlisten to topics before stopping but you can listen and unlisten at any moment you want
-pubsub.unlisten(uuid)
-pubsub.stop()
+async def run_example():
+    # setting up Authentication and getting your user id
+    twitch = await Twitch(APP_ID, APP_SECRET)
+    auth = UserAuthenticator(twitch, [AuthScope.WHISPERS_READ], force_verify=False)
+    token, refresh_token = await auth.authenticate()
+    # you can get your user auth token and user auth refresh token following the example in twitchAPI.oauth
+    await twitch.set_user_authentication(token, [AuthScope.WHISPERS_READ], refresh_token)
+    user = await first(twitch.get_users(logins=[TARGET_CHANNEL]))
+
+    # starting up PubSub
+    pubsub = PubSub(twitch)
+    pubsub.start()
+    # you can either start listening before or after you started pubsub.
+    uuid = await pubsub.listen_whispers(user.id, callback_whisper)
+    input('press ENTER to close...')
+    # you do not need to unlisten to topics before stopping but you can listen and unlisten at any moment you want
+    await pubsub.unlisten(uuid)
+    pubsub.stop()
+    await twitch.close()
+
+asyncio.run(run_example())
 ```
 
 
 ## EventSub
 
-### Requirements
+EventSub lets you listen for events that happen on Twitch.
 
+The EventSub client runs in its own thread, calling the given callback function whenever an event happens.
 
-You need to have a public IP with a port open. That port will be 80 by default.
-You need app authentication.
-
-**Please note that Your Endpoint URL has to be HTTPS, has to run on Port 443 and requires a valid, non self signed certificate
-This most likely means, that you need a reverse proxy like nginx. You can also hand in a valid ssl context to be used in the constructor.**
-
-You can check on whether your webhook is publicly reachable by navigating to the URL set in `callback_url`.
-You should get a 200 response with the text `pyTwitchAPI eventsub`.
-
-### Listening to topics
-
-After you started your EventSub client, you can use the `listen_` prefixed functions to listen to the topics you are interested in.
-
-The function you hand in as callback will be called whenever that event happens with the event data as a parameter.
+A more detailed documentation, including the setup requirements can be found [here on readthedocs](https://pytwitchapi.readthedocs.io/en/stable/modules/twitchAPI.eventsub.html)
 
 ### Short code example:
 
@@ -215,4 +218,96 @@ async def eventsub_example():
 
 # lets run our example
 asyncio.run(eventsub_example())
+```
+
+## Chat
+
+A simple twitch chat bot.
+Chat bots can join channels, listen to chat and reply to messages, commands, subscriptions and many more.
+
+A more detailed documentation can be found [here on readthedocs](https://pytwitchapi.readthedocs.io/en/stable/modules/twitchAPI.chat.html)
+
+### Example code for a simple bot
+
+```python
+from twitchAPI import Twitch
+from twitchAPI.oauth import UserAuthenticator
+from twitchAPI.types import AuthScope, ChatEvent
+from twitchAPI.chat import Chat, EventData, ChatMessage, ChatSub, ChatCommand
+import asyncio
+
+APP_ID = 'my_app_id'
+APP_SECRET = 'my_app_secret'
+USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
+TARGET_CHANNEL = 'teekeks42'
+
+
+# this will be called when the event READY is triggered, which will be on bot start
+async def on_ready(ready_event: EventData):
+    print('Bot is ready for work, joining channels')
+    # join our target channel, if you want to join multiple, either call join for each individually
+    # or even better pass a list of channels as the argument
+    await ready_event.chat.join_room(TARGET_CHANNEL)
+    # you can do other bot initialization things in here
+
+
+# this will be called whenever a message in a channel was send by either the bot OR another user
+async def on_message(msg: ChatMessage):
+    print(f'in {msg.room.name}, {msg.user.name} said: {msg.text}')
+
+
+# this will be called whenever someone subscribes to a channel
+async def on_sub(sub: ChatSub):
+    print(f'New subscription in {sub.room.name}:\\n'
+          f'  Type: {sub.sub_plan}\\n'
+          f'  Message: {sub.sub_message}')
+
+
+# this will be called whenever the !reply command is issued
+async def test_command(cmd: ChatCommand):
+    if len(cmd.parameter) == 0:
+        await cmd.reply('you did not tell me what to reply with')
+    else:
+        await cmd.reply(f'{cmd.user.name}: {cmd.parameter}')
+
+
+# this is where we set up the bot
+async def run():
+    # set up twitch api instance and add user authentication with some scopes
+    twitch = await Twitch(APP_ID, APP_SECRET)
+    auth = UserAuthenticator(twitch, USER_SCOPE)
+    token, refresh_token = await auth.authenticate()
+    await twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
+
+    # create chat instance
+    chat = await Chat(twitch)
+
+    # register the handlers for the events you want
+
+    # listen to when the bot is done starting up and ready to join channels
+    chat.register_event(ChatEvent.READY, on_ready)
+    # listen to chat messages
+    chat.register_event(ChatEvent.MESSAGE, on_message)
+    # listen to channel subscriptions
+    chat.register_event(ChatEvent.SUB, on_sub)
+    # there are more events, you can view them all in this documentation
+
+    # you can directly register commands and their handlers, this will register the !reply command
+    chat.register_command('reply', test_command)
+
+
+    # we are done with our setup, lets start this bot up!
+    chat.start()
+
+    # lets run till we press enter in the console
+    try:
+        input('press ENTER to stop\n')
+    finally:
+        # now we can close the chat bot and the twitch api client
+        chat.stop()
+        await twitch.close()
+
+
+# lets run our setup
+asyncio.run(run())
 ```

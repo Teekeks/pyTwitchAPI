@@ -1,7 +1,7 @@
-.. twitchAPI_changelog:
+:orphan:
 
 Changelog
-=====================================
+=========
 
 ****************
 Version 3.0.0
@@ -17,27 +17,33 @@ Version 3.0.0
 * Added a alpha version of a Twitch Chat Bot implementation
 * switched AuthScope `CHANNEL_MANAGE_CHAT_SETTINGS` to `MODERATOR_MANAGE_CHAT_SETTINGS`
 * added :const:`~twitchAPI.helper.first()` helper function
-* Removed deprecated endpoint "Get Banned Event"
-* Removed deprecated endpoint "Get Moderator Events"
-* Removed deprecated endpoint "Get Webhook Subscriptions"
-* Removed `id` parameter from :const:`~twitchAPI.twitch.Twitch.get_hype_train_events()`
-* Fixed the range check in :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
-* Added Endpoint "Send Whispers" :const:`~twitchAPI.twitch.Twitch.send_whispers()`
-* Added Endpoint "Remove Channel VIP" :const:`~twitchAPI.twitch.Twitch.remove_channel_vip()`
-* Added Endpoint "Add Channel VIP" :const:`~twitchAPI.twitch.Twitch.add_channel_vip()`
-* Added Endpoint "Get VIPs" :const:`~twitchAPI.twitch.Twitch.get_vips()`
-* Added Endpoint "Add Channel Moderator" :const:`~twitchAPI.twitch.Twitch.add_channel_moderator()`
-* Added Endpoint "Remove Channel Moderator" :const:`~twitchAPI.twitch.Twitch.remove_channel_moderator()`
-* Added Endpoint "Get User Chat Color" :const:`~twitchAPI.twitch.Twitch.get_user_chat_color()`
-* Added Endpoint "Update User Chat Color" :const:`~twitchAPI.twitch.Twitch.update_user_chat_color()`
-* Added Endpoint "Delete Chat Message" :const:`~twitchAPI.twitch.Twitch.delete_chat_message()`
-* Added Endpoint "Send Chat Announcement" :const:`~twitchAPI.twitch.Twitch.send_chat_announcement()`
-* User Authenticator: The optional callback is now called with The Access and Refresh Token instead of the User Token
-* Removed the Voting related fields in :const:`~twitchAPI.twitch.Twitch.create_poll()` due to being deprecated
-* Updated the logic in :const:`~twitchAPI.twitch.Twitch.update_custom_reward()` to avoid API errors
 * Added :const:`~twitchAPI.oauth.get_user_info()`
 * Added browser controls to :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()`
-* Added `igdb_id` search parameter to :const:`~twitchAPI.twitch.Twitch.get_games()`
+* User Authenticator: The optional callback is now called with The Access and Refresh Token instead of the User Token
+* Added the following new Endpoints:
+
+  * "Send Whisper" :const:`~twitchAPI.twitch.Twitch.send_whisper()`
+  * "Remove Channel VIP" :const:`~twitchAPI.twitch.Twitch.remove_channel_vip()`
+  * "Add Channel VIP" :const:`~twitchAPI.twitch.Twitch.add_channel_vip()`
+  * "Get VIPs" :const:`~twitchAPI.twitch.Twitch.get_vips()`
+  * "Add Channel Moderator" :const:`~twitchAPI.twitch.Twitch.add_channel_moderator()`
+  * "Remove Channel Moderator" :const:`~twitchAPI.twitch.Twitch.remove_channel_moderator()`
+  * "Get User Chat Color" :const:`~twitchAPI.twitch.Twitch.get_user_chat_color()`
+  * "Update User Chat Color" :const:`~twitchAPI.twitch.Twitch.update_user_chat_color()`
+  * "Delete Chat Message" :const:`~twitchAPI.twitch.Twitch.delete_chat_message()`
+  * "Send Chat Announcement" :const:`~twitchAPI.twitch.Twitch.send_chat_announcement()`
+* Removed the folllowing deprecated Endpoints:
+
+  * "Get Banned Event"
+  * "Get Moderator Events"
+  * "Get Webhook Subscriptions"
+* The following Endpoints got changed:
+
+  * Added `igdb_id` search parameter to :const:`~twitchAPI.twitch.Twitch.get_games()`
+  * Removed the Voting related fields in :const:`~twitchAPI.twitch.Twitch.create_poll()` due to being deprecated
+  * Updated the logic in :const:`~twitchAPI.twitch.Twitch.update_custom_reward()` to avoid API errors
+  * Removed `id` parameter from :const:`~twitchAPI.twitch.Twitch.get_hype_train_events()`
+  * Fixed the range check in :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
 
 
 ****************

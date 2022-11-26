@@ -34,7 +34,7 @@ Code example
         print('Bot is ready for work, joining channels')
         # join our target channel, if you want to join multiple, either call join for each individually
         # or even better pass a list of channels as the argument
-        ready_event.chat.join(TARGET_CHANNEL)
+        await ready_event.chat.join_room(TARGET_CHANNEL)
         # you can do other bot initialization things in here
 
 

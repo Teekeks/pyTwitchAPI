@@ -20,6 +20,7 @@ Code Example
     from twitchAPI.twitch import Twitch
     from twitchAPI.helper import first
     from twitchAPI.types import AuthScope
+    from twitchAPI.oauth import UserAuthenticator
     import asyncio
     from pprint import pprint
     from uuid import UUID

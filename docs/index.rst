@@ -6,7 +6,7 @@
 Python Twitch API
 =====================================
 
-This is a full implementation of the Twitch Helix AP, PubSub, EventSub and Chat in python 3.7+.
+This is a full implementation of the Twitch Helix API, PubSub, EventSub and Chat in python 3.7+.
 
 On Github: https://github.com/Teekeks/pyTwitchAPI
 
@@ -65,10 +65,83 @@ See here for more info: `twitchAPI.twitch <modules/twitchAPI.twitch.html>`_
 
 
 
+Authentication
+--------------
+
+The Twitch API knows 2 different authentications. App and User Authentication.
+Which one you need (or if one at all) depends on what calls you want to use.
+
+It's always good to get at least App authentication even for calls where you don't need it since the rate limits are way better for authenticated calls.
+
+See here for more info about user authentication: `twitchAPI.oauth <modules/twitchAPI.oauth.html>`_
+
+App Authentication
+^^^^^^^^^^^^^^^^^^
+
+App authentication is super simple, just do the following:
+
+.. code-block:: python
+
+   from twitchAPI.twitch import Twitch
+   twitch = await Twitch('my_app_id', 'my_app_secret')
+
+
+User Authentication
+^^^^^^^^^^^^^^^^^^^
+
+To get a user auth token, the user has to explicitly click "Authorize" on the twitch website. You can use various online services to generate a token or use my build in Authenticator.
+For my Authenticator you have to add the following URL as a "OAuth Redirect URL": :code:`http://localhost:17563`
+You can set that `here in your twitch dev dashboard <https://dev.twitch.tv/console>`_.
+
+
+.. code-block:: python
+
+   from twitchAPI.twitch import Twitch
+   from twitchAPI.oauth import UserAuthenticator
+   from twitchAPI.types import AuthScope
+
+   twitch = await Twitch('my_app_id', 'my_app_secret')
+
+   target_scope = [AuthScope.BITS_READ]
+   auth = UserAuthenticator(twitch, target_scope, force_verify=False)
+   # this will open your default browser and prompt you with the twitch verification website
+   token, refresh_token = await auth.authenticate()
+   # add User authentication
+   await twitch.set_user_authentication(token, target_scope, refresh_token)
+
+
+You can reuse this token and use the refresh_token to renew it:
+
+.. code-block:: python
+
+   from twitchAPI.oauth import refresh_access_token
+   new_token, new_refresh_token = await refresh_access_token('refresh_token', 'client_id', 'client_secret')
+
+
+AuthToken refresh callback
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Optionally you can set a callback for both user access token refresh and app access token refresh.
+
+.. code-block:: python
+
+   from twitchAPI.twitch import Twitch
+
+   def user_refresh(token: str, refresh_token: str):
+       print(f'my new user token is: {token}')
+
+   def app_refresh(token: str):
+       print(f'my new app token is: {token}')
+
+   twitch = await Twitch('my_app_id', 'my_app_secret')
+   twitch.app_auth_refresh_callback = app_refresh
+   twitch.user_auth_refresh_callback = user_refresh
+
+
 EventSub
 --------
 
-Implementation of EventSub.
+EventSub lets you listen for events that happen on Twitch.
 
 See here for more info: `twitchAPI.eventsub <modules/twitchAPI.eventsub.html>`_
 
@@ -125,7 +198,7 @@ See here for more info: `twitchAPI.eventsub <modules/twitchAPI.eventsub.html>`_
 PubSub
 ------
 
-Implementation of PubSub.
+PubSub enables you to subscribe to a topic, for updates (e.g., when a user cheers in a channel).
 
 See here for more info: `twitchAPI.pubsub <modules/twitchAPI.pubsub.html>`_
 
@@ -135,6 +208,7 @@ See here for more info: `twitchAPI.pubsub <modules/twitchAPI.pubsub.html>`_
     from twitchAPI.twitch import Twitch
     from twitchAPI.helper import first
     from twitchAPI.types import AuthScope
+    from twitchAPI.oauth import UserAuthenticator
     import asyncio
     from pprint import pprint
     from uuid import UUID
@@ -174,7 +248,8 @@ See here for more info: `twitchAPI.pubsub <modules/twitchAPI.pubsub.html>`_
 Chat
 ----
 
-A Twitch Chat Bot.
+A simple twitch chat bot.
+Chat bots can join channels, listen to chat and reply to messages, commands, subscriptions and many more.
 
 See here for more info: `twitchAPI.chat <modules/twitchAPI.chat.html>`_
 
@@ -197,7 +272,7 @@ See here for more info: `twitchAPI.chat <modules/twitchAPI.chat.html>`_
         print('Bot is ready for work, joining channels')
         # join our target channel, if you want to join multiple, either call join for each individually
         # or even better pass a list of channels as the argument
-        ready_event.chat.join(TARGET_CHANNEL)
+        await ready_event.chat.join_room(TARGET_CHANNEL)
         # you can do other bot initialization things in here
 
 
