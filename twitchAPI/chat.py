@@ -11,9 +11,9 @@ Chat bots can join channels, listen to chat and reply to messages, commands, sub
     Please report all feature requests and bug requests to the `github page <https://github.com/Teekeks/pyTwitchAPI/issues>`_.
 
 
-*************
-Code example:
-*************
+************
+Code example
+************
 
 .. code-block:: python
 
@@ -111,9 +111,9 @@ Available Events
 - :const:`~twitchAPI.types.ChatEvent.JOINED`: Triggered when the bot joins a channel
 - :const:`~twitchAPI.types.ChatEvent.LEFT`: triggered when the bot left a channel
 
-********************
-Class Documentation:
-********************
+*******************
+Class Documentation
+*******************
 """
 import asyncio
 import dataclasses

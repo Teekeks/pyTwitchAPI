@@ -1,5 +1,4 @@
-﻿twitchAPI.twitch
-=====================
-
+﻿
 .. automodule:: twitchAPI.twitch
     :members:
+    :undoc-members:

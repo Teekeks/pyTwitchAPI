@@ -1,16 +1,16 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
-"""Helper functions"""
+"""
+Helper functions
+----------------"""
 
 import urllib.parse
 import uuid
 from typing import AsyncGenerator, TypeVar
 from json import JSONDecodeError
 from aiohttp.web import Request
-from dateutil import parser as du_parser
 from enum import Enum
 
 from .types import AuthScope
-from urllib.parse import urlparse, parse_qs
 
 from typing import Union, List, Type, Optional
 

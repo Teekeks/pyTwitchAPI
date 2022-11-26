@@ -1,16 +1,16 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 """
-The Twitch API client
----------------------
+Twitch API
+----------
 
 This is the base of this library, it handles authentication renewal, error handling and permission management.
 
 Look at the `Twitch API reference <https://dev.twitch.tv/docs/api/reference>`__ for a more detailed documentation on
 what each endpoint does.
 
-**************
-Example Usage:
-**************
+*************
+Example Usage
+*************
 
 .. code-block:: python
 
@@ -194,9 +194,9 @@ Optionally you can set a callback for both user access token refresh and app acc
     twitch.app_auth_refresh_callback = app_refresh
     twitch.user_auth_refresh_callback = user_refresh
 
-********************
-Class Documentation:
-********************
+*******************
+Class Documentation
+*******************
 """
 import asyncio
 

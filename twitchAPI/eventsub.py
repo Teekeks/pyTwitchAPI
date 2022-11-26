@@ -1,7 +1,7 @@
 #  Copyright (c) 2021. Lena "Teekeks" During <info@teawork.de>
 """
-Full Implementation of the Twitch EventSub
-------------------------------------------
+EventSub client
+---------------
 
 The EventSub client runs in its own thread, calling the given callback function whenever an event happens.
 
@@ -28,9 +28,9 @@ After you started your EventSub client, you can use the :code:`listen_` prefixed
 
 The function you hand in as callback will be called whenever that event happens with the event data as a parameter.
 
-*******************
-Short code example:
-*******************
+************
+Code Example
+************
 
 .. code-block:: python
 
@@ -82,9 +82,9 @@ Short code example:
     # lets run our example
     asyncio.run(eventsub_example())
 
-********************
-Class Documentation:
-********************
+*******************
+Class Documentation
+*******************
 """
 import datetime
 import random

@@ -10,9 +10,9 @@ Read more about it on `the Twitch API Documentation <https://dev.twitch.tv/docs/
 
 .. note:: You **always** need User Authentication while using this!
 
-*******************
-Short code example:
-*******************
+************
+Code Example
+************
 
 .. code-block:: python
 
@@ -57,9 +57,9 @@ Short code example:
     asyncio.run(run_example())
 
 
-********************
-Class Documentation:
-********************
+*******************
+Class Documentation
+*******************
 """
 
 from .twitch import Twitch

@@ -1,5 +1,7 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
-"""Type Definitions"""
+"""
+Type Definitions
+----------------"""
 from dataclasses import dataclass
 from enum import Enum
 from typing_extensions import TypedDict

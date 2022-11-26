@@ -44,9 +44,9 @@ Code example
     # add User authentication
     twitch.set_user_authentication(token, target_scope, refresh_token)
 
-********************
-Class Documentation:
-********************
+*******************
+Class Documentation
+*******************
 """
 import aiohttp
 
