@@ -233,8 +233,6 @@ class AutoModCheckEntry(TypedDict):
     """Developer-generated identifier for mapping messages to results."""
     msg_text: str
     """Message text"""
-    user_id: str
-    """User ID of the sender"""
 
 
 # CHAT
