@@ -162,6 +162,8 @@ class ChatUser:
         """The ID of the user"""
         self.user_type: str = parsed['tags'].get('user-type')
         """The type of user"""
+        self.vip: bool = parsed['tags'].get('vip') == '1'
+        """if the chatter is a channel VIP"""
 
 
 class EventData:
