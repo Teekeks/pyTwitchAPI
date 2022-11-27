@@ -3560,7 +3560,15 @@ class Twitch:
         :param broadcaster_id: The ID of the playlist to get.
         :param after: The maximum number of items to return per page in the response. Between 1 and 50. |default| :code:`20`
         :param first: The cursor used to get the next page of results.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if first is not between 1 and 50
         """
+        if first is not None and first < 1 or first > 50:
+            raise ValueError('first must be between 1 and 50')
         param = {
             'broadcaster_id': broadcaster_id,
             'first': first,
