@@ -62,12 +62,15 @@ Code Example
 Class Documentation
 *******************
 """
+from asyncio import CancelledError
+
+import aiohttp
+from aiohttp import ClientSession
 
 from .twitch import Twitch
 from .types import *
 from .helper import get_uuid, make_enum, TWITCH_PUB_SUB_URL
 import asyncio
-import websockets
 import threading
 import json
 from random import randrange
@@ -108,10 +111,12 @@ class PubSub:
         self.__running: bool = False
         self.__socket_loop = None
         self.__topics: dict = {}
+        self._session = None
         self.__startup_complete: bool = False
         self.__tasks = None
         self.__waiting_for_pong: bool = False
         self.__nonce_waiting_confirm: dict = {}
+        self._closing = False
 
     def start(self) -> None:
         """
@@ -130,6 +135,14 @@ class PubSub:
             sleep(0.01)
         self.__logger.debug('pubsub started up!')
 
+    async def _stop(self):
+        for t in self.__tasks:
+            t.cancel()
+        await self.__connection.close()
+        await self._session.close()
+        await asyncio.sleep(0.25)
+        self._closing = True
+
     def stop(self) -> None:
         """
         Stop the PubSub Client
@@ -142,9 +155,8 @@ class PubSub:
         self.__logger.debug('stopping pubsub...')
         self.__startup_complete = False
         self.__running = False
-        for task in self.__tasks:
-            task.cancel()
-        self.__socket_loop.call_soon_threadsafe(self.__socket_loop.stop)
+        f = asyncio.run_coroutine_threadsafe(self._stop(), self.__socket_loop)
+        f.result()
         self.__logger.debug('pubsub stopped!')
         self.__socket_thread.join()
 
@@ -154,15 +166,18 @@ class PubSub:
 
     async def __connect(self, is_startup=False):
         self.__logger.debug('connecting...')
+        self._closing = False
         if self.__connection is not None and self.__connection.open:
             await self.__connection.close()
         retry = 0
         need_retry = True
+        if self._session is None:
+            self._session = ClientSession()
         while need_retry and retry < len(self.reconnect_delay_steps):
             need_retry = False
             try:
-                self.__connection = await websockets.connect(TWITCH_PUB_SUB_URL, loop=self.__socket_loop)
-            except websockets.InvalidHandshake:
+                self.__connection = await self._session.ws_connect(TWITCH_PUB_SUB_URL)
+            except Exception:
                 self.__logger.warning(f'connection attempt failed, retry in {self.reconnect_delay_steps[retry]}s...')
                 await asyncio.sleep(self.reconnect_delay_steps[retry])
                 retry += 1
@@ -170,7 +185,7 @@ class PubSub:
         if retry >= len(self.reconnect_delay_steps):
             raise TwitchBackendException('cant connect')
 
-        if self.__connection.open and not is_startup:
+        if not self.__connection.closed and not is_startup:
             uuid = str(get_uuid())
             await self.__send_listen(uuid, list(self.__topics.keys()))
 
@@ -205,7 +220,12 @@ class PubSub:
                 raise TwitchAPIException(error)
 
     async def __send_message(self, msg_data):
-        await self.__connection.send(json.dumps(msg_data))
+        self.__logger.debug(f'sending message {json.dumps(msg_data)}')
+        await self.__connection.send_str(json.dumps(msg_data))
+
+    async def _keep_loop_alive(self):
+        while not self._closing:
+            await asyncio.sleep(0.1)
 
     def __run_socket(self):
         self.__socket_loop = asyncio.new_event_loop()
@@ -220,12 +240,7 @@ class PubSub:
             asyncio.ensure_future(self.__task_initial_listen(), loop=self.__socket_loop)
         ]
 
-        try:
-            self.__socket_loop.run_forever()
-        except asyncio.CancelledError:
-            pass
-        if self.__connection.open:
-            self.__socket_loop.run_until_complete(self.__connection.close())
+        self.__socket_loop.run_until_complete(self._keep_loop_alive())
 
     async def __generic_listen(self, key, callback_func, required_scopes: List[AuthScope]) -> UUID:
         for scope in required_scopes:
@@ -250,7 +265,7 @@ class PubSub:
             await self.__send_listen(uuid, list(self.__topics.keys()))
 
     async def __task_heartbeat(self):
-        while True:
+        while not self._closing:
             next_heartbeat = datetime.datetime.utcnow() + \
                              datetime.timedelta(seconds=randrange(self.ping_frequency - self.ping_jitter,
                                                                   self.ping_frequency + self.ping_jitter,
@@ -270,17 +285,33 @@ class PubSub:
                 await asyncio.sleep(1)
 
     async def __task_receive(self):
-        async for message in self.__connection:
-            data = json.loads(message)
-            switcher: Dict[str, Callable] = {
-                'pong': self.__handle_pong,
-                'reconnect': self.__handle_reconnect,
-                'response': self.__handle_response,
-                'message': self.__handle_message
-            }
-            handler = switcher.get(data.get('type', '').lower(),
-                                   self.__handle_unknown)
-            self.__socket_loop.create_task(handler(data))
+        try:
+            while not self.__connection.closed:
+                message = await self.__connection.receive()
+                if message.type == aiohttp.WSMsgType.TEXT:
+                    messages = message.data.split('\r\n')
+                    for m in messages:
+                        if len(m) == 0:
+                            continue
+                        self.__logger.debug(f'received message {m}')
+                        data = json.loads(m)
+                        switcher: Dict[str, Callable] = {
+                            'pong': self.__handle_pong,
+                            'reconnect': self.__handle_reconnect,
+                            'response': self.__handle_response,
+                            'message': self.__handle_message
+                        }
+                        handler = switcher.get(data.get('type', '').lower(),
+                                               self.__handle_unknown)
+                        self.__socket_loop.create_task(handler(data))
+                elif message.type == aiohttp.WSMsgType.CLOSED:
+                    self.__logger.debug('websocket is closing')
+                    break
+                elif message.type == aiohttp.WSMsgType.ERROR:
+                    self.__logger.warning('error in websocket')
+                    break
+        except CancelledError:
+            return
 
 ###########################################################################################
 # Handler

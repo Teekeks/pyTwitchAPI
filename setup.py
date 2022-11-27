@@ -29,5 +29,5 @@ setup(
     package_data={
         "twitchAPI": ["*.html"]
     },
-    install_requires=['requests', 'python-dateutil', 'aiohttp', 'websockets', 'typing_extensions']
+    install_requires=['python-dateutil', 'aiohttp', 'typing_extensions']
 )
