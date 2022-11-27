@@ -9,6 +9,18 @@ Version 3.0.0
 
 .. note:: This Version is a major rework of the library. Please see the :doc:`v3-migration` to learn how to migrate.
 
+**Highlights**
+
+- Library is now fully async
+- Twitch API responses are now Objects and Generators instead of pure dictionaries
+- Automatic Pagination of API results
+- First alpha of a Chat Bot implementation
+- More customizability for the UserAuthenticator
+- A lot of new Endpoints where added
+- New look and content for the documentation
+
+**Full Changelog**
+
 * Rewrote the twitchAPI to be async
 * twitchAPI now uses Objects instead of dictionaries
 * added automatic pagination to all relevant API endpoints
