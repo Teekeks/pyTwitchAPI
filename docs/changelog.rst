@@ -44,6 +44,7 @@ Version 3.0.0
   * Updated the logic in :const:`~twitchAPI.twitch.Twitch.update_custom_reward()` to avoid API errors
   * Removed `id` parameter from :const:`~twitchAPI.twitch.Twitch.get_hype_train_events()`
   * Fixed the range check in :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
+* removed :code:`requests` and :code:`websockets` libraries from the requirements (resulting in smaller library footprint)
 
 
 ****************
