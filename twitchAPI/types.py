@@ -109,6 +109,7 @@ class HypeTrainContributionMethod(Enum):
 
     BITS = 'BITS'
     SUBS = 'SUBS'
+    OTHER = 'OTHER'
     UNKNOWN = ''
 
 
