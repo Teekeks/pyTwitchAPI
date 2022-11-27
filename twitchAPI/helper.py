@@ -19,9 +19,13 @@ __all__ = ['TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 
 T = TypeVar('T')
 
 TWITCH_API_BASE_URL = "https://api.twitch.tv/helix/"
+"""The base url to the Twitch API endpoints"""
 TWITCH_AUTH_BASE_URL = "https://id.twitch.tv/"
+"""The base url to the twitch authentication endpoints"""
 TWITCH_PUB_SUB_URL = "wss://pubsub-edge.twitch.tv"
+"""The url to the Twitch PubSub websocket"""
 TWITCH_CHAT_URL = "wss://irc-ws.chat.twitch.tv:443"
+"""The url to the Twitch Chat websocket"""
 
 
 class ResultType(Enum):

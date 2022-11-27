@@ -170,16 +170,6 @@ async def revoke_token(client_id: str,
 
 class UserAuthenticator:
     """Simple to use client for the Twitch User authentication flow.
-
-        :param ~twitchAPI.twitch.Twitch twitch: A twitch instance
-        :param list[~twitchAPI.types.AuthScope] scopes: List of the desired Auth scopes
-        :param bool force_verify: If this is true, the user will always be prompted for authorization by twitch,
-                    |default| :code:`False`
-        :param str url: The reachable URL that will be opened in the browser.
-                    |default| :code:`http://localhost:17563`
-
-        :var int port: The port that will be used. |default| :code:`17653`
-        :var str host: the host the webserver will bind to. |default| :code:`0.0.0.0`
        """
 
     def __init__(self,
@@ -187,6 +177,13 @@ class UserAuthenticator:
                  scopes: List[AuthScope],
                  force_verify: bool = False,
                  url: str = 'http://localhost:17563'):
+        """
+
+        :param twitch: A twitch instance
+        :param scopes: List of the desired Auth scopes
+        :param force_verify: If this is true, the user will always be prompted for authorization by twitch |default| :code:`False`
+        :param url: The reachable URL that will be opened in the browser. |default| :code:`http://localhost:17563`
+        """
         self.__twitch: 'Twitch' = twitch
         self.__client_id: str = twitch.app_id
         self.scopes: List[AuthScope] = scopes
@@ -205,7 +202,9 @@ class UserAuthenticator:
         </body>
         </html>"""
         self.port: int = 17563
+        """The port that will be used. |default| :code:`17653`"""
         self.host: str = '0.0.0.0'
+        """the host the webserver will bind to. |default| :code:`0.0.0.0`"""
         self.__state: str = str(get_uuid())
         self.__callback_func = None
         self.__server_running: bool = False

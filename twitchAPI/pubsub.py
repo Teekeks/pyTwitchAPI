@@ -86,25 +86,22 @@ __all__ = ['PubSub']
 
 class PubSub:
     """The PubSub client
-
-    :var int ping_frequency: with which frequency in seconds a ping command is send.
-                                You probably don't want to change this.
-                                This should never be shorter than 12 + `ping_jitter` seconds to avoid problems
-                                with the pong timeout.
-                                |default| :code:`120`
-    :var int ping_jitter: time in seconds added or subtracted from `ping_frequency`.
-                             You probably don't want to change this.
-                             |default| :code:`4`
-    :var int listen_confirm_timeout: maximum time in seconds waited for a listen confirm.
-                                        |default| :code:`30`
     """
 
     def __init__(self, twitch: Twitch):
+        """
+
+        :param twitch:  A authenticated Twitch instance
+        """
         self.__twitch: Twitch = twitch
         self.__logger: Logger = getLogger('twitchAPI.pubsub')
         self.ping_frequency: int = 120
+        """With which frequency in seconds a ping command is send. You probably don't want to change this. 
+           This should never be shorter than 12 + `ping_jitter` seconds to avoid problems with the pong timeout. |default| :code:`120`"""
         self.ping_jitter: int = 4
+        """time in seconds added or subtracted from `ping_frequency`. You probably don't want to change this. |default| :code:`4`"""
         self.listen_confirm_timeout: int = 30
+        """maximum time in seconds waited for a listen confirm. |default| :code:`30`"""
         self.reconnect_delay_steps: List[int] = [1, 2, 4, 8, 16, 32, 64, 128]
         self.__connection = None
         self.__socket_thread: threading.Thread = None

@@ -45,6 +45,7 @@ Version 3.0.0
   * Removed `id` parameter from :const:`~twitchAPI.twitch.Twitch.get_hype_train_events()`
   * Fixed the range check in :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
 * removed :code:`requests` and :code:`websockets` libraries from the requirements (resulting in smaller library footprint)
+* :const:`~twitchAPI.twitch.Twitch.app_auth_refresh_callback` and :const:`~twitchAPI.twitch.Twitch.user_auth_refresh_callback` are now async
 
 
 ****************

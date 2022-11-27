@@ -184,10 +184,10 @@ Optionally you can set a callback for both user access token refresh and app acc
 
     from twitchAPI.twitch import Twitch
 
-    def user_refresh(token: str, refresh_token: str):
+    async def user_refresh(token: str, refresh_token: str):
         print(f'my new user token is: {token}')
 
-    def app_refresh(token: str):
+    async def app_refresh(token: str):
         print(f'my new app token is: {token}')
 
     twitch = await Twitch('my_app_id', 'my_app_secret')
@@ -199,17 +199,12 @@ Class Documentation
 *******************
 """
 import asyncio
-
 from aiohttp import ClientSession, ClientResponse
-
-from .helper import build_url, TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, \
-    enum_value_or_none, datetime_to_str, remove_none_values, ResultType
+from .helper import TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, enum_value_or_none, datetime_to_str, remove_none_values, ResultType
 from logging import getLogger, Logger
-
 from .object import *
 from .types import *
-
-from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict
+from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict, Awaitable
 
 __all__ = ['Twitch']
 T = TypeVar('T')
@@ -218,18 +213,6 @@ T = TypeVar('T')
 class Twitch:
     """
     Twitch API client
-
-    :param str app_id: Your app id
-    :param str app_secret: Your app secret, leave as None if you only want to use User Authentication
-            |default| :code:`None`
-    :param bool authenticate_app: If true, auto generate a app token on startup |default| :code:`True`
-    :param list[~twitchAPI.types.AuthScope] target_app_auth_scope: AuthScope to use if :code:`authenticate_app` is True
-            |default| :code:`None`
-    :var bool auto_refresh_auth: If set to true, auto refresh the auth token once it expires. |default| :code:`True`
-    :var Callable[[str,str],None] user_auth_refresh_callback: If set, gets called whenever a user auth token gets
-        refreshed. Parameter: Auth Token, Refresh Token |default| :code:`None`
-    :var Callable[[str,str],None] app_auth_refresh_callback: If set, gets called whenever a app auth token gets
-        refreshed. Parameter: Auth Token |default| :code:`None`
     """
 
     def __init__(self,
@@ -238,11 +221,20 @@ class Twitch:
                  authenticate_app: bool = True,
                  target_app_auth_scope: Optional[List[AuthScope]] = None,
                  base_url: str = TWITCH_API_BASE_URL):
+        """
+        :param app_id: Your app id
+        :param app_secret: Your app secret, leave as None if you only want to use User Authentication |default| :code:`None`
+        :param authenticate_app: If true, auto generate a app token on startup |default| :code:`True`
+        :param target_app_auth_scope: AuthScope to use if :code:`authenticate_app` is True |default| :code:`None`
+        :param base_url: The URL to the Twitch API |default| :const:`~twitchAPI.helper.TWITCH_API_BASE_URL`
+        """
         self.app_id: Optional[str] = app_id
         self.app_secret: Optional[str] = app_secret
         self.__logger: Logger = getLogger('twitchAPI.twitch')
-        self.user_auth_refresh_callback: Optional[Callable[[str, str], None]] = None
-        self.app_auth_refresh_callback: Optional[Callable[[str], None]] = None
+        self.user_auth_refresh_callback: Optional[Callable[[str, str], Awaitable[None]]] = None
+        """If set, gets called whenever a user auth token gets refreshed. Parameter: Auth Token, Refresh Token |default| :code:`None`"""
+        self.app_auth_refresh_callback: Optional[Callable[[str], Awaitable[None]]] = None
+        """If set, gets called whenever a app auth token gets refreshed. Parameter: Auth Token |default| :code:`None`"""
         self.__app_auth_token: Optional[str] = None
         self.__app_auth_scope: List[AuthScope] = []
         self.__has_app_auth: bool = False
@@ -252,9 +244,11 @@ class Twitch:
         self.__user_auth_scope: List[AuthScope] = []
         self.__has_user_auth: bool = False
         self.auto_refresh_auth: bool = True
+        """If set to true, auto refresh the auth token once it expires. |default| :code:`True`"""
         self._authenticate_app = authenticate_app
         self._target_app_scope = target_app_auth_scope
-        self.base_url = base_url
+        self.base_url: str = base_url
+        """The URL to the Twitch API used"""
 
     def __await__(self):
         if self._authenticate_app:
@@ -342,11 +336,11 @@ class Twitch:
                                                                                                 self.app_secret,
                                                                                                 self._session)
             if self.user_auth_refresh_callback is not None:
-                self.user_auth_refresh_callback(self.__user_auth_token, self.__user_auth_refresh_token)
+                await self.user_auth_refresh_callback(self.__user_auth_token, self.__user_auth_refresh_token)
         else:
             await self.__generate_app_token()
             if self.app_auth_refresh_callback is not None:
-                self.app_auth_refresh_callback(self.__app_auth_token)
+                await self.app_auth_refresh_callback(self.__app_auth_token)
 
     async def __check_request_return(self,
                                      response: ClientResponse,

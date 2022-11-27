@@ -119,20 +119,6 @@ CALLBACK_TYPE = Callable[[dict], Awaitable[None]]
 
 class EventSub:
     """EventSub integration for the Twitch Helix API.
-
-    :param str callback_url: The full URL of the webhook.
-    :param str api_client_id: The id of your API client
-    :param int port: the port on which this webhook should run
-    :param ~ssl.SSLContext ssl_context: optional ssl context to be used |default| :code:`None`
-    :param ~twitchAPI.twitch.Twitch twitch:  a app authenticated instance of :code:`Twitch`
-    :var str secret: A random secret string. Set this for added security.
-    :var str callback_url: The full URL of the webhook.
-    :var bool wait_for_subscription_confirm: Set this to false if you don't want to wait for a subscription confirm.
-                    |default| :code:`True`
-    :var int wait_for_subscription_confirm_timeout: Max time in seconds to wait for a subscription confirmation.
-                    Only used if ``wait_for_subscription_confirm`` is set to True. |default| :code:`30`
-    :var bool unsubscribe_on_stop: Unsubscribe all currently active Webhooks on calling `stop()`
-                    |default| :code:`True`
     """
 
     def __init__(self,
@@ -141,16 +127,29 @@ class EventSub:
                  port: int,
                  twitch: Twitch,
                  ssl_context: Optional[SSLContext] = None):
+        """
+        :param callback_url: The full URL of the webhook.
+        :param api_client_id: The id of your API client
+        :param port: the port on which this webhook should run
+        :param twitch: a app authenticated instance of :const:`~twitchAPI.twitch.Twitch`
+        :param ssl_context: optional ssl context to be used |default| :code:`None`
+        """
         self.callback_url: str = callback_url
+        """The full URL of the webhook."""
         self.__client_id: str = api_client_id
         self._port: int = port
         self.__ssl_context: Optional[SSLContext] = ssl_context
         self.__twitch: Twitch = twitch
         self.__logger: Logger = getLogger('twitchAPI.eventsub')
-        self.secret = ''.join(random.choice(string.ascii_lowercase) for i in range(20))
+        self.secret: str = ''.join(random.choice(string.ascii_lowercase) for i in range(20))
+        """A random secret string. Set this for added security. |default| :code:`A random 20 character long string`"""
         self.wait_for_subscription_confirm: bool = True
+        """Set this to false if you don't want to wait for a subscription confirm. |default| :code:`True`"""
         self.wait_for_subscription_confirm_timeout: int = 30
+        """Max time in seconds to wait for a subscription confirmation. Only used if ``wait_for_subscription_confirm`` is set to True. 
+            |default| :code:`30`"""
         self.unsubscribe_on_stop: bool = True
+        """Unsubscribe all currently active Webhooks on calling :const:`~twitchAPI.eventsub.EventSub.stop()` |default| :code:`True`"""
         self._host: str = '0.0.0.0'
         self.__running = False
         self.__callbacks = {}

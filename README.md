@@ -98,10 +98,10 @@ Optionally you can set a callback for both user access token refresh and app acc
 ```python
 from twitchAPI.twitch import Twitch
 
-def user_refresh(token: str, refresh_token: str):
+async def user_refresh(token: str, refresh_token: str):
     print(f'my new user token is: {token}')
 
-def app_refresh(token: str):
+async def app_refresh(token: str):
     print(f'my new app token is: {token}')
 
 twitch = await Twitch('my_app_id', 'my_app_secret')

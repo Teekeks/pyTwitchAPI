@@ -16,19 +16,38 @@ In this guide I will give some basic help on how to migrate your existing code.
 Library Initialization
 ----------------------
 
-You now need to await the Twitch Object.
+You now need to await the Twitch Object and refresh callbacks are now async.
 
 .. code-block:: python
     :caption: V2 (before)
 
+    from twitchAPI.twitch import Twitch
+
+    def user_refresh(token: str, refresh_token: str):
+        print(f'my new user token is: {token}')
+
+    def app_refresh(token: str):
+        print(f'my new app token is: {token}')
+
     twitch = Twitch('app_id', 'app_secret')
+    twitch.app_auth_refresh_callback = app_refresh
+    twitch.user_auth_refresh_callback = user_refresh
 
 
 .. code-block:: python
     :caption: V3 (now)
 
-    twitch = await Twitch('app_id', 'app_secret')
+    from twitchAPI.twitch import Twitch
 
+    async def user_refresh(token: str, refresh_token: str):
+        print(f'my new user token is: {token}')
+
+    async def app_refresh(token: str):
+        print(f'my new app token is: {token}')
+
+    twitch = await Twitch('my_app_id', 'my_app_secret')
+    twitch.app_auth_refresh_callback = app_refresh
+    twitch.user_auth_refresh_callback = user_refresh
 
 
 Working with the API results
