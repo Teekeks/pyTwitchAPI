@@ -1,9 +1,9 @@
-from twitchAPI.twitch import *
-from twitchAPI.oauth import *
-from twitchAPI.types import *
-from twitchAPI.pubsub import *
-from twitchAPI.eventsub import *
-from twitchAPI.chat import *
-from twitchAPI.object import *
+from twitch import Twitch
+from eventsub import EventSub
+from pubsub import PubSub
+from oauth import UserAuthenticator
+from chat import Chat
 
 VERSION = (3, 0, 0)
+
+__version__ = '3.0.0'
