@@ -190,7 +190,7 @@ class UserAuthenticator:
         self.force_verify: bool = force_verify
         self.__logger: Logger = getLogger('twitchAPI.oauth')
         self.url = url
-        self.__document: str = """<!DOCTYPE html>
+        self.document: str = """<!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
@@ -201,6 +201,7 @@ class UserAuthenticator:
         You may now close this page.
         </body>
         </html>"""
+        """The document that will be rendered at the end of the flow"""
         self.port: int = 17563
         """The port that will be used. |default| :code:`17653`"""
         self.host: str = '0.0.0.0'
@@ -276,7 +277,7 @@ class UserAuthenticator:
             return web.Response(status=400)
         if self.__callback_func is not None:
             self.__callback_func(self.__user_token)
-        return web.Response(text=self.__document, content_type='text/html')
+        return web.Response(text=self.document, content_type='text/html')
 
     def return_auth_url(self):
         """Returns the URL that will authenticate the app, used for headless server environments."""

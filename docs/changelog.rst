@@ -17,9 +17,7 @@ Version 3.0.0
 * Added a alpha version of a Twitch Chat Bot implementation
 * switched AuthScope `CHANNEL_MANAGE_CHAT_SETTINGS` to `MODERATOR_MANAGE_CHAT_SETTINGS`
 * added :const:`~twitchAPI.helper.first()` helper function
-* Added :const:`~twitchAPI.oauth.get_user_info()`
-* Added browser controls to :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()`
-* User Authenticator: The optional callback is now called with The Access and Refresh Token instead of the User Token
+
 * Added the following new Endpoints:
 
   * "Send Whisper" :const:`~twitchAPI.twitch.Twitch.send_whisper()`
@@ -44,8 +42,14 @@ Version 3.0.0
   * Updated the logic in :const:`~twitchAPI.twitch.Twitch.update_custom_reward()` to avoid API errors
   * Removed `id` parameter from :const:`~twitchAPI.twitch.Twitch.get_hype_train_events()`
   * Fixed the range check in :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
-* removed :code:`requests` and :code:`websockets` libraries from the requirements (resulting in smaller library footprint)
 * :const:`~twitchAPI.twitch.Twitch.app_auth_refresh_callback` and :const:`~twitchAPI.twitch.Twitch.user_auth_refresh_callback` are now async
+* Added :const:`~twitchAPI.oauth.get_user_info()`
+* UserAuthenticator:
+
+  * You can now set the document that will be shown at the end of the Auth flow by setting :const:`~twitchAPI.oauth.UserAuthenticator.document`
+  * The optional callback is now called with the access and refresh token instead of the user token
+  * Added browser controls to :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()`
+* removed :code:`requests` and :code:`websockets` libraries from the requirements (resulting in smaller library footprint)
 
 
 ****************
