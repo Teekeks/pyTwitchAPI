@@ -18,13 +18,13 @@ Version 3.0.0
 * switched AuthScope `CHANNEL_MANAGE_CHAT_SETTINGS` to `MODERATOR_MANAGE_CHAT_SETTINGS`
 * Added the following AuthScopes:
 
-  * :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_ANNOUNCEMENTS`
-  * :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_CHAT_MESSAGES`
-  * :const:`~twitchAPI.type.AuthScope.USER_MANAGE_CHAT_COLOR`
-  * :const:`~twitchAPI.type.AuthScope.CHANNEL_MANAGE_MODERATORS`
-  * :const:`~twitchAPI.type.AuthScope.CHANNEL_READ_VIPS`
-  * :const:`~twitchAPI.type.AuthScope.CHANNEL_MANAGE_VIPS`
-  * :const:`~twitchAPI.type.AuthScope.USER_MANAGE_WHISPERS`
+  * :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_ANNOUNCEMENTS`
+  * :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_MESSAGES`
+  * :const:`~twitchAPI.types.AuthScope.USER_MANAGE_CHAT_COLOR`
+  * :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_MODERATORS`
+  * :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_VIPS`
+  * :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIPS`
+  * :const:`~twitchAPI.types.AuthScope.USER_MANAGE_WHISPERS`
 * added :const:`~twitchAPI.helper.first()` helper function
 
 * Added the following new Endpoints:
