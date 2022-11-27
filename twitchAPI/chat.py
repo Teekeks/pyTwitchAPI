@@ -123,10 +123,10 @@ from asyncio import CancelledError
 from logging import getLogger, Logger
 from time import sleep
 import aiohttp
-from twitchAPI import TwitchBackendException, Twitch, AuthType, AuthScope, ChatEvent, MissingScopeException, UnauthorizedException
+from twitchAPI.twitch import Twitch
 from twitchAPI.object import TwitchUser
 from twitchAPI.helper import TWITCH_CHAT_URL, first
-from twitchAPI.types import ChatRoom
+from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScope, ChatEvent, MissingScopeException, UnauthorizedException
 
 from typing import List, Optional, Union, Callable, Dict
 
