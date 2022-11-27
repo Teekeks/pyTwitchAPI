@@ -135,44 +135,33 @@ __all__ = ['ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Ch
 
 class ChatUser:
     """Represents a user in a chat channel
-
-    :param ~twitchAPI.chat.Chat chat: Represents the Chat instance
-    :param str name: The name of the user
-    :param dict badge_info: All infos related to the badges of the user
-    :param list badges: The badges of the user
-    :param int bits:
-    :param str color: The color of the chat user if set
-    :param str display_name: The display name, should usually be the same as name
-    :param bool mod: if the user is a mod in chat channel
-    :param str reply_parent_msg_id:
-    :param str reply_parent_display_name:
-    :param str reply_parent_user_id:
-    :param str reply_parent_msg_body:
-    :param bool subscriber: if the user is a subscriber to the channel
-    :param bool turbo: if the user has turbo
-    :param str id: The ID of the user
-    :param str user_type: The type of user
     """
 
     def __init__(self, chat, parsed):
         self.chat: 'Chat' = chat
+        """The :const:`twitchAPI.chat.Chat` instance"""
         self.name: str = parsed['source']['nick'] if parsed['source']['nick'] is not None else f'{chat.username}'
+        """The name of the user"""
         if self.name[0] == ':':
             self.name = self.name[1:]
         self.badge_info = parsed['tags'].get('badge-info')
+        """All infos related to the badges of the user"""
         self.badges = parsed['tags'].get('badges')
-        self.bits: int = int(parsed['tags'].get('bits', '0'))
+        """The badges of the user"""
         self.color: str = parsed['tags'].get('color')
+        """The color of the chat user if set"""
         self.display_name: str = parsed['tags'].get('display-name')
+        """The display name, should usually be the same as name"""
         self.mod: bool = parsed['tags'].get('mod', '0') == '1'
-        self.reply_parent_msg_id: Optional[str] = parsed['tags'].get('reply-parent-msg-id')
-        self.reply_parent_user_id: Optional[str] = parsed['tags'].get('reply-parent-user-id')
-        self.reply_parent_display_name: Optional[str] = parsed['tags'].get('reply-parent-display-name')
-        self.reply_parent_msg_body: Optional[str] = parsed['tags'].get('reply-parent-msg-body')
+        """if the user is a mod in chat channel"""
         self.subscriber: bool = parsed['tags'].get('subscriber') == '1'
+        """if the user is a subscriber to the channel"""
         self.turbo: bool = parsed['tags'].get('turbo') == '1'
+        """Indicates whether the user has site-wide commercial free mode enabled"""
         self.id: str = parsed['tags'].get('user-id')
+        """The ID of the user"""
         self.user_type: str = parsed['tags'].get('user-type')
+        """The type of user"""
 
 
 class EventData:
@@ -181,18 +170,18 @@ class EventData:
     :param ~twitchAPI.chat.Chat chat: represents the Chat Instance"""
     def __init__(self, chat):
         self.chat: 'Chat' = chat
+        """The :const:`twitchAPI.chat.Chat` instance"""
 
 
 class RoomStateChangeEvent(EventData):
-    """Triggered when a room state changed
-
-    :param ~twitchAPI.types.ChatRoom old: The State of the room from before the change, can be Null
-    :param ~twitchAPI.types.ChatRoom new: The new room state"""
+    """Triggered when a room state changed"""
 
     def __init__(self, chat, prev, new):
         super(RoomStateChangeEvent, self).__init__(chat)
         self.old: Optional[ChatRoom] = prev
+        """The State of the room from before the change, might be Null if not in cache"""
         self.new: ChatRoom = new
+        """The new room state"""
 
     @property
     def room(self):
@@ -201,13 +190,12 @@ class RoomStateChangeEvent(EventData):
 
 
 class JoinEvent(EventData):
-    """
-    :param str user_name: The name of the user that joined
-    """
+    """"""
     def __init__(self, chat, channel_name, user_name):
         super(JoinEvent, self).__init__(chat)
         self._name = channel_name
         self.user_name: str = user_name
+        """The name of the user that joined"""
 
     @property
     def room(self):
@@ -216,43 +204,52 @@ class JoinEvent(EventData):
 
 
 class JoinedEvent(EventData):
-    """
-    :param str room_name: the name of the room the bot joined to
-    :param str user_name: the name of the bot
-    """
+    """"""
 
     def __init__(self, chat, channel_name, user_name):
         super(JoinedEvent, self).__init__(chat)
         self.room_name: str = channel_name
+        """the name of the room the bot joined to"""
         self.user_name: str = user_name
+        """the name of the bot"""
 
 
 class LeftEvent(EventData):
-    """When the bot left a room
-
-    :param str room_name: the name of the channel the bot left
-    :param ~twitchAPI.types.ChatRoom cached_room: the cached room state, might bo Null"""
+    """When the bot left a room"""
     def __init__(self, chat, channel_name, room):
         super(LeftEvent, self).__init__(chat)
         self.room_name: str = channel_name
+        """the name of the channel the bot left"""
         self.cached_room: Optional[ChatRoom] = room
+        """the cached room state, might bo Null"""
 
 
 class ChatMessage(EventData):
-    """Represents a chat message
-
-    :param str text: The message
-    :param int sent_timestamp: the unix timestamp of when the message was sent
-    :param emotes: The emotes used in the message
-    :param str id: the ID of the message"""
+    """Represents a chat message"""
 
     def __init__(self, chat, parsed):
         super(ChatMessage, self).__init__(chat)
         self._parsed = parsed
-        self.text = parsed['parameters']
+        self.text: str = parsed['parameters']
+        """The message"""
+        self.bits: int = int(parsed['tags'].get('bits', '0'))
+        """The amount of Bits the user cheered"""
         self.sent_timestamp: int = int(parsed['tags'].get('tmi-sent-ts'))
+        """the unix timestamp of when the message was sent"""
+        self.reply_parent_msg_id: Optional[str] = parsed['tags'].get('reply-parent-msg-id')
+        """An ID that uniquely identifies the parent message that this message is replying to."""
+        self.reply_parent_user_id: Optional[str] = parsed['tags'].get('reply-parent-user-id')
+        """An ID that identifies the sender of the parent message."""
+        self.reply_parent_user_login: Optional[str] = parsed['tags'].get('reply-parent-user-login')
+        """The login name of the sender of the parent message. """
+        self.reply_parent_display_name: Optional[str] = parsed['tags'].get('reply-parent-display-name')
+        """The display name of the sender of the parent message."""
+        self.reply_parent_msg_body: Optional[str] = parsed['tags'].get('reply-parent-msg-body')
+        """The text of the parent message"""
         self.emotes = parsed['tags'].get('emotes')
+        """The emotes used in the message"""
         self.id: str = parsed['tags'].get('id')
+        """the ID of the message"""
 
     @property
     def room(self) -> Optional[ChatRoom]:
@@ -270,34 +267,32 @@ class ChatMessage(EventData):
 
 
 class ChatCommand(ChatMessage):
-    """Represents a command
-
-    :param str name: the name of the command
-    :param str parameter: the parameter given to the command"""
+    """Represents a command"""
 
     def __init__(self, chat, parsed):
         super(ChatCommand, self).__init__(chat, parsed)
         self.name: str = parsed['command'].get('bot_command')
+        """the name of the command"""
         self.parameter: str = parsed['command'].get('bot_command_params', '')
+        """the parameter given to the command"""
 
 
 class ChatSub:
-    """Represents a sub to a channel
-
-    :param str sub_type: The type of sub given
-    :param str sub_message: The message that was sent together with the sub
-    :param str sub_plan: the ID of the subscription plan that was used
-    :param str sub_plan_name: the name of the subscription plan that was used
-    :param str system_message: the system message that was generated for this sub"""
+    """Represents a sub to a channel"""
 
     def __init__(self, chat, parsed):
         self.chat: 'Chat' = chat
         self._parsed = parsed
         self.sub_type: str = parsed['tags'].get('msg-id')
+        """The type of sub given"""
         self.sub_message: str = parsed['parameters'] if parsed['parameters'] is not None else ''
+        """The message that was sent together with the sub"""
         self.sub_plan: str = parsed['tags'].get('msg-param-sub-plan')
+        """the ID of the subscription plan that was used"""
         self.sub_plan_name: str = parsed['tags'].get('msg-param-sub-plan-name')
+        """the name of the subscription plan that was used"""
         self.system_message: str = parsed['tags'].get('system-msg', '').replace('\\\\s', ' ')
+        """the system message that was generated for this sub"""
 
     @property
     def room(self):
@@ -350,7 +345,7 @@ class Chat:
     # command parsing
     ##################################################################################################################################################
 
-    def parse_irc_message(self, message: str):
+    def _parse_irc_message(self, message: str):
         parsed_message = {
             'tags': None,
             'source': None,
@@ -383,22 +378,22 @@ class Chat:
             idx = end_idx + 1
             raw_parameters_component = message[idx::]
 
-        parsed_message['command'] = self.parse_irc_command(raw_command_component)
+        parsed_message['command'] = self._parse_irc_command(raw_command_component)
 
         if parsed_message['command'] is None:
             return None
 
         if raw_tags_component is not None:
-            parsed_message['tags'] = self.parse_irc_tags(raw_tags_component)
+            parsed_message['tags'] = self._parse_irc_tags(raw_tags_component)
 
-        parsed_message['source'] = self.parse_irc_source(raw_source_component)
+        parsed_message['source'] = self._parse_irc_source(raw_source_component)
         parsed_message['parameters'] = raw_parameters_component
         if raw_parameters_component is not None and raw_parameters_component[0] == '!':
-            parsed_message['command'] = self.parse_irc_parameters(raw_parameters_component, parsed_message['command'])
+            parsed_message['command'] = self._parse_irc_parameters(raw_parameters_component, parsed_message['command'])
 
         return parsed_message
 
-    def parse_irc_parameters(self, raw_parameters_component: str, command):
+    def _parse_irc_parameters(self, raw_parameters_component: str, command):
         idx = 0
         command_parts = raw_parameters_component[1::].strip()
         try:
@@ -410,7 +405,7 @@ class Chat:
         command['bot_command_params'] = command_parts[params_idx:].strip()
         return command
 
-    def parse_irc_source(self, raw_source_component: str):
+    def _parse_irc_source(self, raw_source_component: str):
         if raw_source_component is None:
             return None
         source_parts = raw_source_component.split('!')
@@ -419,7 +414,7 @@ class Chat:
             'host': source_parts[1] if len(source_parts) == 2 else source_parts[0]
         }
 
-    def parse_irc_tags(self, raw_tags_component: str):
+    def _parse_irc_tags(self, raw_tags_component: str):
         tags_to_ignore = ('client-nonce', 'flags')
         parsed_tags = {}
 
@@ -463,7 +458,7 @@ class Chat:
                     parsed_tags[parsed_tag[0]] = tag_value
         return parsed_tags
 
-    def parse_irc_command(self, raw_command_component: str):
+    def _parse_irc_command(self, raw_command_component: str):
         command_parts = raw_command_component.split(' ')
 
         if command_parts[0] in ('JOIN', 'PART', 'NOTICE', 'CLEARCHAT', 'HOSTTARGET', 'PRIVMSG', 'USERSTATE', 'ROOMSTATE', '001', 'USERNOTICE'):
@@ -595,7 +590,7 @@ class Chat:
                     for m in messages:
                         if len(m) == 0:
                             continue
-                        parsed = self.parse_irc_message(m)
+                        parsed = self._parse_irc_message(m)
                         # a message we don't know or don't care about
                         if parsed is None:
                             continue
