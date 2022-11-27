@@ -39,6 +39,7 @@ Version 3.0.0
   * "Update User Chat Color" :const:`~twitchAPI.twitch.Twitch.update_user_chat_color()`
   * "Delete Chat Message" :const:`~twitchAPI.twitch.Twitch.delete_chat_message()`
   * "Send Chat Announcement" :const:`~twitchAPI.twitch.Twitch.send_chat_announcement()`
+  * "Get Soundtrack Current Track" :const:`~twitchAPI.twitch.Twitch.get_soundtrack_current_track()`
 * Removed the folllowing deprecated Endpoints:
 
   * "Get Banned Event"

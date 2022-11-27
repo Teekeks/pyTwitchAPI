@@ -9,9 +9,8 @@ from typing import Optional, Union, List, Dict, Generic, TypeVar
 from dateutil import parser as du_parser
 
 from twitchAPI.helper import build_url
-from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus, CustomRewardRedemptionStatus,\
-    PollStatus, PredictionStatus
-
+from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus, CustomRewardRedemptionStatus, \
+    PollStatus, PredictionStatus, SoundtrackSourceType
 
 T = TypeVar('T')
 
@@ -783,3 +782,38 @@ class UserChatColor(TwitchObject):
     user_name: str
     user_login: str
     color: str
+
+
+class Artist(TwitchObject):
+    id: str
+    name: str
+    creator_channel_id: str
+
+
+class Album(TwitchObject):
+    id: str
+    name: str
+    image_url: str
+
+
+class Soundtrack(TwitchObject):
+    artists: List[Artist]
+    id: str
+    isrc: str
+    duration: int
+    title: str
+    album: Album
+
+
+class TrackSource(TwitchObject):
+    content_type: SoundtrackSourceType
+    id: str
+    image_url: str
+    soundtrack_url: str
+    spotify_url: str
+    title: str
+
+
+class CurrentSoundtrack(TwitchObject):
+    track: Soundtrack
+    source: TrackSource

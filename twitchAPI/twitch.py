@@ -3529,3 +3529,21 @@ class Twitch:
         error = {403: ForbiddenError('moderator_id is not a moderator of broadcaster_id')}
         await self._build_result('POST', 'chat/announcements', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_ANNOUNCEMENTS], None,
                                  body_data=body, error_handler=error)
+
+    async def get_soundtrack_current_track(self, broadcaster_id: str) -> CurrentSoundtrack:
+        """Gets the Soundtrack track that the broadcaster is playing.
+
+        Requires User or App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-soundtrack-current-track
+
+        :param broadcaster_id: The ID of the broadcaster that’s playing a Soundtrack track.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        """
+        param = {
+            'broadcaster_id': broadcaster_id
+        }
+        return await self._build_result('GET', 'soundtrack/current_track', param, AuthType.EITHER, [], CurrentSoundtrack)

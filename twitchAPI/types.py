@@ -236,6 +236,12 @@ class AutoModCheckEntry(TypedDict):
     """Message text"""
 
 
+class SoundtrackSourceType(Enum):
+    """"""
+    PLAYLIST = 'PLAYLIST'
+    STATION = 'STATION'
+
+
 # CHAT
 
 class ChatEvent(Enum):
