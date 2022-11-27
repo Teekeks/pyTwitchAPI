@@ -3547,3 +3547,24 @@ class Twitch:
             'broadcaster_id': broadcaster_id
         }
         return await self._build_result('GET', 'soundtrack/current_track', param, AuthType.EITHER, [], CurrentSoundtrack)
+
+    async def get_soundtrack_playlist(self,
+                                      broadcaster_id: str,
+                                      first: Optional[int] = None,
+                                      after: Optional[str] = None) -> AsyncGenerator[Soundtrack, None]:
+        """Gets the Soundtrack playlist’s tracks.
+
+        Requires User or App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-soundtrack-playlist
+
+        :param broadcaster_id: The ID of the playlist to get.
+        :param after: The maximum number of items to return per page in the response. Between 1 and 50. |default| :code:`20`
+        :param first: The cursor used to get the next page of results.
+        """
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'first': first,
+            'after': after
+        }
+        async for y in self._build_generator('GET', 'soundtrack/playlist', param, AuthType.EITHER, [], Soundtrack):
+            yield y
