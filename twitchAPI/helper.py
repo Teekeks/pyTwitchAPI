@@ -6,8 +6,6 @@ Helper functions
 import urllib.parse
 import uuid
 from typing import AsyncGenerator, TypeVar
-from json import JSONDecodeError
-from aiohttp.web import Request
 from enum import Enum
 
 from .types import AuthScope
@@ -15,7 +13,7 @@ from .types import AuthScope
 from typing import Union, List, Type, Optional
 
 __all__ = ['TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 'TWITCH_CHAT_URL',
-           'build_url', 'get_uuid', 'get_json', 'build_scope', 'fields_to_enum', 'make_enum',
+           'build_url', 'get_uuid', 'build_scope', 'fields_to_enum', 'make_enum',
            'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'ResultType', 'first']
 
 T = TypeVar('T')
@@ -77,21 +75,6 @@ def get_uuid():
 
     :rtype: :class:`~uuid.UUID`"""
     return uuid.uuid4()
-
-
-async def get_json(request: 'Request') -> Union[list, dict, None]:
-    """Tries to retrieve the json object from the body
-
-    :param request: the request
-    :return: the object in the body or None
-    """
-    if not request.can_read_body:
-        return None
-    try:
-        data = await request.json()
-        return data
-    except JSONDecodeError:
-        return None
 
 
 def build_scope(scopes: List[AuthScope]) -> str:
