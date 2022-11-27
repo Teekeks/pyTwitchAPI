@@ -817,3 +817,10 @@ class TrackSource(TwitchObject):
 class CurrentSoundtrack(TwitchObject):
     track: Soundtrack
     source: TrackSource
+
+
+class Playlist(TwitchObject):
+    title: str
+    id: str
+    image_url: str
+    description: str

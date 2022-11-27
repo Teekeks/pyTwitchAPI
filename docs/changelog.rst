@@ -41,6 +41,7 @@ Version 3.0.0
   * "Send Chat Announcement" :const:`~twitchAPI.twitch.Twitch.send_chat_announcement()`
   * "Get Soundtrack Current Track" :const:`~twitchAPI.twitch.Twitch.get_soundtrack_current_track()`
   * "Get Soundtrack Playlist" :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlist()`
+  * "Get Soundtrack Playlists" :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlists()`
 * Removed the folllowing deprecated Endpoints:
 
   * "Get Banned Event"
