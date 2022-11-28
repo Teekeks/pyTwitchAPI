@@ -13,6 +13,9 @@ In this guide I will give some basic help on how to migrate your existing code.
 .. note:: This guide will only show a few examples, please read the documentation for everything you use carefully, its likely that something has changed with every single one!
 
 
+**Please note that any call mentioned here that starts with a :code:`await` will have to be called inside a async function even if not displayed as such!**
+
+
 Library Initialization
 ----------------------
 
