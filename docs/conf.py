@@ -22,7 +22,7 @@ copyright = '2022, Lena "Teekeks" During'
 author = 'Lena "Teekeks" During'
 
 # The full version, including alpha/beta/rc tags
-release = 'v3.0.0'
+release = 'v3.0.1'
 language = 'en'
 
 master_doc = 'index'

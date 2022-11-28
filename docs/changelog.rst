@@ -4,6 +4,12 @@ Changelog
 =========
 
 ****************
+Version 3.0.1
+****************
+
+- Fixed bug which resulted in :code:`Timeout context manager should be used inside a task` when subscribing to more than one EventSub topic
+
+****************
 Version 3.0.0
 ****************
 
