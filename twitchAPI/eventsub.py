@@ -170,7 +170,8 @@ class EventSub:
 
     def __run_hook(self, runner: 'web.AppRunner'):
         async def _mk_session():
-            self._session = aiohttp.ClientSession()
+            if self._session is None:
+                self._session = aiohttp.ClientSession()
         self.__hook_runner = runner
         self.__hook_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.__hook_loop)
@@ -208,6 +209,9 @@ class EventSub:
         tasks = {t for t in asyncio.all_tasks(loop=self.__hook_loop) if not t.done()}
         for task in tasks:
             task.cancel()
+        if self._session is not None:
+            await self._session.close()
+            await asyncio.sleep(0.25)
         self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
         self.__hook_runner = None
         self.__running = False
