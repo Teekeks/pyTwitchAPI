@@ -280,6 +280,13 @@ class ChatCommand(ChatMessage):
         self.parameter: str = parsed['command'].get('bot_command_params', '')
         """the parameter given to the command"""
 
+    async def send(self, message: str):
+        """Sends a message to the channel the command was issued in
+
+        :param message: the message you want to send
+        """
+        await self.chat.send_message(self.room.name, message)
+
 
 class ChatSub:
     """Represents a sub to a channel"""
