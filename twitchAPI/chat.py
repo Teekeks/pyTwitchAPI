@@ -118,7 +118,9 @@ Class Documentation
 """
 import asyncio
 import dataclasses
+import sys
 import threading
+import traceback
 from asyncio import CancelledError
 from logging import getLogger, Logger
 from time import sleep
@@ -579,6 +581,11 @@ class Chat:
         # keep loop alive
         self.__socket_loop.run_until_complete(self._keep_loop_alive())
 
+    def _task_callback(self, task: asyncio.Task):
+        e = task.exception()
+        if e is not None:
+            traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
+
     async def _send_message(self, message: str):
         self.logger.debug(f'Sending message "{message}"')
         await self.__connection.send_str(message)
@@ -634,11 +641,13 @@ class Chat:
         if nick == self.username:
             e = JoinedEvent(self, ch, nick)
             for handler in self._event_handler.get(ChatEvent.JOINED, []):
-                asyncio.ensure_future(handler(e))
+                t = asyncio.ensure_future(handler(e))
+                t.add_done_callback(self._task_callback)
         else:
             e = JoinEvent(self, ch, nick)
             for handler in self._event_handler.get(ChatEvent.JOIN, []):
-                asyncio.ensure_future(handler(e))
+                t = asyncio.ensure_future(handler(e))
+                t.add_done_callback(self._task_callback)
 
     async def _handle_part(self, parsed: dict):
         ch = parsed['command']['channel'][1:]
@@ -647,7 +656,8 @@ class Chat:
         room = self.room_cache.pop(ch, None)
         e = LeftEvent(self, ch, room)
         for handler in self._event_handler.get(ChatEvent.LEFT, []):
-            asyncio.ensure_future(handler(e))
+            t = asyncio.ensure_future(handler(e))
+            t.add_done_callback(self._task_callback)
 
     async def _handle_user_notice(self, parsed: dict):
         if parsed['tags'].get('msg-id') == 'raid':
@@ -657,7 +667,8 @@ class Chat:
         elif parsed['tags'].get('msg-id') in ('sub', 'resub', 'subgift'):
             sub = ChatSub(self, parsed)
             for handler in self._event_handler.get(ChatEvent.SUB, []):
-                asyncio.ensure_future(handler(sub))
+                t = asyncio.ensure_future(handler(sub))
+                t.add_done_callback(self._task_callback)
 
     async def _handle_room_state(self, parsed: dict):
         self.logger.debug('got room state event')
@@ -677,7 +688,8 @@ class Chat:
         self.room_cache[state.name] = state
         dat = RoomStateChangeEvent(self, prev, state)
         for handler in self._event_handler.get(ChatEvent.ROOM_STATE_CHANGE, []):
-            asyncio.ensure_future(handler(dat))
+            t = asyncio.ensure_future(handler(dat))
+            t.add_done_callback(self._task_callback)
 
     async def _handle_ping(self, parsed: dict):
         self.logger.debug('got PING')
@@ -687,7 +699,8 @@ class Chat:
         self.logger.debug('got ready event')
         dat = EventData(self)
         for h in self._event_handler.get(ChatEvent.READY, []):
-            asyncio.ensure_future(h(dat))
+            t = asyncio.ensure_future(h(dat))
+            t.add_done_callback(self._task_callback)
 
     async def _handle_msg(self, parsed: dict):
         self.logger.debug('got new message, call handler')
@@ -695,13 +708,15 @@ class Chat:
             command_name = parsed['command'].get('bot_command').lower()
             handler = self._command_handler.get(command_name)
             if handler is not None:
-                asyncio.ensure_future(handler(ChatCommand(self, parsed)))
+                t = asyncio.ensure_future(handler(ChatCommand(self, parsed)))
+                t.add_done_callback(self._task_callback)
             else:
                 self.logger.info(f'no handler registered for command "{command_name}"')
         handler = self._event_handler.get(ChatEvent.MESSAGE, [])
         message = ChatMessage(self, parsed)
         for h in handler:
-            asyncio.ensure_future(h(message))
+            t = asyncio.ensure_future(h(message))
+            t.add_done_callback(self._task_callback)
 
     async def __task_startup(self):
         await self._send_message('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands')
