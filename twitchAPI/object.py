@@ -171,6 +171,11 @@ class TwitchUserFollow(TwitchObject):
     followed_at: datetime
 
 
+class TwitchUserFollowResult(AsyncIterTwitchObject[TwitchUserFollow]):
+    total: int
+    data: List[TwitchUserFollow]
+
+
 class DateRange(TwitchObject):
     ended_at: datetime
     started_at: datetime

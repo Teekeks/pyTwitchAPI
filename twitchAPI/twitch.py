@@ -1758,7 +1758,7 @@ class Twitch:
                                 after: Optional[str] = None,
                                 first: int = 20,
                                 from_id: Optional[str] = None,
-                                to_id: Optional[str] = None) -> AsyncGenerator[TwitchUserFollow, None]:
+                                to_id: Optional[str] = None) -> TwitchUserFollowResult:
         """Gets information on follow relationships between two Twitch users.
         Information returned is sorted in order, most recent follow first.\n\n
 
@@ -1786,8 +1786,8 @@ class Twitch:
             'from_id': from_id,
             'to_id': to_id
         }
-        async for f in self._build_generator('GET', 'users/follows', param, AuthType.EITHER, [], TwitchUserFollow):
-            yield f
+        return await self._build_iter_result('GET', 'users/follows', param, AuthType.EITHER, [], TwitchUserFollowResult)
+
 
     async def update_user(self,
                           description: str) -> TwitchUser:
