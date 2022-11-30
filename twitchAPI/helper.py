@@ -157,8 +157,11 @@ def remove_none_values(d: dict) -> dict:
     return {k: v for k, v in d.items() if v is not None}
 
 
-async def first(gen: AsyncGenerator[T, None]) -> T:
+async def first(gen: AsyncGenerator[T, None]) -> Optional[T]:
     """Returns the first value of the given AsyncGenerator
 
     :param ~typing.AsyncGenerator gen: The generator from which you want the first value"""
-    return await gen.__anext__()
+    try:
+        return await gen.__anext__()
+    except StopAsyncIteration:
+        return None
