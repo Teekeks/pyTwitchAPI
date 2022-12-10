@@ -4,7 +4,7 @@ Changelog
 =========
 
 ****************
-Version 3.1.0
+Version 3.1.1
 ****************
 
 - Added the Endpoint "Get Chatters" :const:`~twitchAPI.twitch.Twitch.get_chatters()`

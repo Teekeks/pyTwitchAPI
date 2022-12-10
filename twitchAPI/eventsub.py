@@ -157,7 +157,6 @@ class EventSub:
         self.__hook_thread: Union['threading.Thread', None] = None
         self.__hook_loop: Union['asyncio.AbstractEventLoop', None] = None
         self.__hook_runner: Union['web.AppRunner', None] = None
-        self._session: aiohttp.ClientSession = None
         if not self.callback_url.startswith('https'):
             raise RuntimeError('HTTPS is required for authenticated webhook.\n'
                                + 'Either use non authenticated webhook or use a HTTPS proxy!')
@@ -169,13 +168,9 @@ class EventSub:
         return web.AppRunner(hook_app)
 
     def __run_hook(self, runner: 'web.AppRunner'):
-        async def _mk_session():
-            if self._session is None:
-                self._session = aiohttp.ClientSession()
         self.__hook_runner = runner
         self.__hook_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.__hook_loop)
-        self.__hook_loop.run_until_complete(_mk_session())
         self.__hook_loop.run_until_complete(runner.setup())
         site = web.TCPSite(runner, str(self._host), self._port, ssl_context=self.__ssl_context)
         self.__hook_loop.run_until_complete(site.start())
@@ -209,9 +204,8 @@ class EventSub:
         tasks = {t for t in asyncio.all_tasks(loop=self.__hook_loop) if not t.done()}
         for task in tasks:
             task.cancel()
-        if self._session is not None:
-            await self._session.close()
-            await asyncio.sleep(0.25)
+        # ensure all client sessions are closed
+        await asyncio.sleep(0.25)
         self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
         self.__hook_runner = None
         self.__running = False
@@ -233,21 +227,18 @@ class EventSub:
     # FIXME requires port
     async def __api_post_request(self, url: str, data: Union[dict, None] = None):
         headers = self.__build_request_header()
-        if self._session is None:
-            self._session = ClientSession()
-        return await self._session.post(url, headers=headers, json=data)
+        async with ClientSession() as session:
+            return await session.post(url, headers=headers, json=data)
 
     async def __api_get_request(self, url: str):
         headers = self.__build_request_header()
-        if self._session is None:
-            self._session = ClientSession()
-        return await self._session.get(url, headers=headers)
+        async with ClientSession() as session:
+            return await session.get(url, headers=headers)
 
     async def __api_delete_request(self, url: str):
         headers = self.__build_request_header()
-        if self._session is None:
-            self._session = ClientSession()
-        return await self._session.delete(url, headers=headers)
+        async with ClientSession() as session:
+            return await session.delete(url, headers=headers)
 
     def __add_callback(self, c_id: str, callback):
         self.__callbacks[c_id] = {'id': c_id, 'callback': callback, 'active': False}
