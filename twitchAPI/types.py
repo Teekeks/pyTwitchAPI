@@ -75,6 +75,7 @@ class AuthScope(Enum):
     CHANNEL_READ_VIPS = 'channel:read:vips'
     CHANNEL_MANAGE_VIPS = 'channel:manage:vips'
     USER_MANAGE_WHISPERS = 'user:manage:whispers'
+    MODERATOR_READ_CHATTERS = 'moderator:read:chatters'
 
 
 class ModerationEventType(Enum):
