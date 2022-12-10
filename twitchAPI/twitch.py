@@ -238,7 +238,6 @@ class Twitch:
         self.__app_auth_token: Optional[str] = None
         self.__app_auth_scope: List[AuthScope] = []
         self.__has_app_auth: bool = False
-        self._session: Optional[ClientSession] = None
         self.__user_auth_token: Optional[str] = None
         self.__user_auth_refresh_token: Optional[str] = None
         self.__user_auth_scope: List[AuthScope] = []
@@ -258,9 +257,8 @@ class Twitch:
 
     async def close(self):
         """Gracefully close the connection to the Twitch API"""
-        if self._session is not None:
-            await self._session.close()
-            await asyncio.sleep(0.25)
+        # ensure that asyncio actually gracefully shut down
+        await asyncio.sleep(0.25)
 
     def __generate_header(self, auth_type: 'AuthType', required_scope: List[AuthScope]) -> dict:
         header = {"Client-ID": self.app_id}
@@ -333,8 +331,7 @@ class Twitch:
             from .oauth import refresh_access_token
             self.__user_auth_token, self.__user_auth_refresh_token = await refresh_access_token(self.__user_auth_refresh_token,
                                                                                                 self.app_id,
-                                                                                                self.app_secret,
-                                                                                                self._session)
+                                                                                                self.app_secret)
             if self.user_auth_refresh_callback is not None:
                 await self.user_auth_refresh_callback(self.__user_auth_token, self.__user_auth_refresh_token)
         else:
@@ -401,14 +398,13 @@ class Twitch:
                                  data: Optional[dict] = None,
                                  retries: int = 1) -> ClientResponse:
         """Make POST request with authorization"""
-        if self._session is None:
-            self._session = ClientSession()
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making POST request to {url}')
-        if data is None:
-            req = await self._session.post(url, headers=headers)
-        else:
-            req = await self._session.post(url, headers=headers, json=data)
+        async with ClientSession() as session:
+            if data is None:
+                req = await session.post(url, headers=headers)
+            else:
+                req = await session.post(url, headers=headers, json=data)
         return await self.__check_request_return(req, self.__api_post_request, True, url, auth_type, required_scope, data, retries)
 
     async def __api_put_request(self,
@@ -418,14 +414,13 @@ class Twitch:
                                 data: Optional[dict] = None,
                                 retries: int = 1) -> ClientResponse:
         """Make PUT request with authorization"""
-        if self._session is None:
-            self._session = ClientSession()
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making PUT request to {url}')
-        if data is None:
-            req = await self._session.put(url, headers=headers)
-        else:
-            req = await self._session.put(url, headers=headers, json=data)
+        async with ClientSession() as session:
+            if data is None:
+                req = await session.put(url, headers=headers)
+            else:
+                req = await session.put(url, headers=headers, json=data)
         return await self.__check_request_return(req, self.__api_put_request, True, url, auth_type, required_scope, data, retries)
 
     async def __api_patch_request(self,
@@ -435,14 +430,13 @@ class Twitch:
                                   data: Optional[dict] = None,
                                   retries: int = 1) -> ClientResponse:
         """Make PATCH request with authorization"""
-        if self._session is None:
-            self._session = ClientSession()
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making PATCH request to {url}')
-        if data is None:
-            req = await self._session.patch(url, headers=headers)
-        else:
-            req = await self._session.patch(url, headers=headers, json=data)
+        async with ClientSession() as session:
+            if data is None:
+                req = await session.patch(url, headers=headers)
+            else:
+                req = await session.patch(url, headers=headers, json=data)
         return await self.__check_request_return(req, self.__api_patch_request, True, url, auth_type, required_scope, data, retries)
 
     async def __api_delete_request(self,
@@ -452,14 +446,13 @@ class Twitch:
                                    data: Optional[dict] = None,
                                    retries: int = 1) -> ClientResponse:
         """Make DELETE request with authorization"""
-        if self._session is None:
-            self._session = ClientSession()
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making DELETE request to {url}')
-        if data is None:
-            req = await self._session.delete(url, headers=headers)
-        else:
-            req = await self._session.delete(url, headers=headers, json=data)
+        async with ClientSession() as session:
+            if data is None:
+                req = await session.delete(url, headers=headers)
+            else:
+                req = await session.delete(url, headers=headers, json=data)
         return await self.__check_request_return(req, self.__api_delete_request, True, url, auth_type, required_scope, data, retries)
 
     async def __api_get_request(self,
@@ -468,11 +461,10 @@ class Twitch:
                                 required_scope: List[AuthScope],
                                 retries: int = 1) -> ClientResponse:
         """Make GET request with authorization"""
-        if self._session is None:
-            self._session = ClientSession()
         headers = self.__generate_header(auth_type, required_scope)
         self.__logger.debug(f'making GET request to {url}')
-        req = await self._session.get(url, headers=headers)
+        async with ClientSession() as session:
+            req = await session.get(url, headers=headers)
         return await self.__check_request_return(req, self.__api_get_request, False, url, auth_type, required_scope, None, retries)
 
     async def _build_generator(self,
@@ -610,11 +602,10 @@ class Twitch:
             'grant_type': 'client_credentials',
             'scope': build_scope(self.__app_auth_scope)
         }
-        if self._session is None:
-            self._session = ClientSession()
         self.__logger.debug('generating fresh app token')
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', params)
-        result = await self._session.post(url)
+        async with ClientSession() as session:
+            result = await session.post(url)
         if result.status != 200:
             raise TwitchAuthorizationException(f'Authentication failed with code {result.status} ({result.text})')
         try:
@@ -666,7 +657,7 @@ class Twitch:
             raise ValueError('refresh_token has to be provided when auto_refresh_user_auth is True')
         if validate:
             from .oauth import validate_token
-            val_result = await validate_token(token, self._session)
+            val_result = await validate_token(token)
             if val_result.get('status', 200) == 401:
                 raise InvalidTokenException(val_result.get('message', ''))
             if 'login' not in val_result or 'user_id' not in val_result:
