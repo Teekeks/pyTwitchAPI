@@ -14,7 +14,7 @@ Version 3.1.0
 - Fixed issue which prevented the Twitch client being used inside a EventSub, PubSub or Chat callback
 - Fixed issue with using the wrong API url in :const:`~twitchAPI.twitch.Twitch.create_custom_reward()`
 - :const:`twitchAPI.helper.first()` now returns None when there is no data to return instead of raising StopAsyncIteration exception
-- Exceptions in Chat callback methods are now propperly displayed
+- Exceptions in Chat callback methods are now properly displayed
 
 ****************
 Version 3.0.1
