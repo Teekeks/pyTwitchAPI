@@ -3596,3 +3596,39 @@ class Twitch:
         }
         async for y in self._build_generator('GET', 'soundtrack/playlists', param, AuthType.EITHER, [], Playlist):
             yield y
+
+    async def get_chatters(self,
+                           broadcaster_id: str,
+                           moderator_id: str,
+                           first: Optional[int] = None,
+                           after: Optional[str] = None) -> GetChattersResponse:
+        """Gets the list of users that are connected to the broadcaster’s chat session.
+
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_CHATTERS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-chatters
+
+        :param broadcaster_id: The ID of the broadcaster whose list of chatters you want to get.
+        :param moderator_id: The ID of the broadcaster or one of the broadcaster’s moderators.
+                    This ID must match the user ID in the user access token.
+        :param first: The maximum number of items to return per page in the response.
+                    The minimum page size is 1 item per page and the maximum is 1,000. |default| :code:`100`
+        :param after: The cursor used to get the next page of results |default| :code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+         :raises ValueError: if first is not between 1 and 1000
+        :return:
+        """
+        if first is not None and first < 1 or first > 1000:
+            raise ValueError('first must be between 1 and 1000')
+
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'moderator_id': moderator_id,
+            'first': first,
+            'after': after
+        }
+        return await self._build_iter_result('GET', 'chat/chatters', param, AuthType.USER, [AuthScope.MODERATOR_READ_CHATTERS], GetChattersResponse)
