@@ -2213,7 +2213,7 @@ class Twitch:
             'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
         }.items() if y is not None}
         error_handler = {403: TwitchAPIException('Forbidden: Channel Points are not available for the broadcaster')}
-        return await self._build_result('POST', 'channel_points/custom/rewards', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS],
+        return await self._build_result('POST', 'channel_points/custom_rewards', param, AuthType.USER, [AuthScope.CHANNEL_MANAGE_REDEMPTIONS],
                                         CustomReward, body_data=body, error_handler=error_handler)
 
     async def delete_custom_reward(self,
