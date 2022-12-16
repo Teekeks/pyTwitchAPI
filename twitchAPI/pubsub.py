@@ -94,7 +94,8 @@ class PubSub:
         :param twitch:  A authenticated Twitch instance
         """
         self.__twitch: Twitch = twitch
-        self.__logger: Logger = getLogger('twitchAPI.pubsub')
+        self.logger: Logger = getLogger('twitchAPI.pubsub')
+        """The logger used for PubSub related log messages"""
         self.ping_frequency: int = 120
         """With which frequency in seconds a ping command is send. You probably don't want to change this. 
            This should never be shorter than 12 + `ping_jitter` seconds to avoid problems with the pong timeout. |default| :code:`120`"""
@@ -121,7 +122,7 @@ class PubSub:
 
         :raises RuntimeError: if already started
         """
-        self.__logger.debug('starting pubsub...')
+        self.logger.debug('starting pubsub...')
         if self.__running:
             raise RuntimeError('already started')
         self.__startup_complete = False
@@ -130,7 +131,7 @@ class PubSub:
         self.__socket_thread.start()
         while not self.__startup_complete:
             sleep(0.01)
-        self.__logger.debug('pubsub started up!')
+        self.logger.debug('pubsub started up!')
 
     async def _stop(self):
         for t in self.__tasks:
@@ -149,12 +150,12 @@ class PubSub:
 
         if not self.__running:
             raise RuntimeError('not running')
-        self.__logger.debug('stopping pubsub...')
+        self.logger.debug('stopping pubsub...')
         self.__startup_complete = False
         self.__running = False
         f = asyncio.run_coroutine_threadsafe(self._stop(), self.__socket_loop)
         f.result()
-        self.__logger.debug('pubsub stopped!')
+        self.logger.debug('pubsub stopped!')
         self.__socket_thread.join()
 
 ###########################################################################################
@@ -162,7 +163,7 @@ class PubSub:
 ###########################################################################################
 
     async def __connect(self, is_startup=False):
-        self.__logger.debug('connecting...')
+        self.logger.debug('connecting...')
         self._closing = False
         if self.__connection is not None and self.__connection.open:
             await self.__connection.close()
@@ -175,7 +176,7 @@ class PubSub:
             try:
                 self.__connection = await self._session.ws_connect(TWITCH_PUB_SUB_URL)
             except Exception:
-                self.__logger.warning(f'connection attempt failed, retry in {self.reconnect_delay_steps[retry]}s...')
+                self.logger.warning(f'connection attempt failed, retry in {self.reconnect_delay_steps[retry]}s...')
                 await asyncio.sleep(self.reconnect_delay_steps[retry])
                 retry += 1
                 need_retry = True
@@ -199,7 +200,7 @@ class PubSub:
                                                'error': PubSubResponseError.NONE}
         timeout = datetime.datetime.utcnow() + datetime.timedelta(seconds=self.listen_confirm_timeout)
         confirmed = False
-        self.__logger.debug(f'sending {"" if subscribe else "un"}listen for topics {str(topics)} with nonce {nonce}')
+        self.logger.debug(f'sending {"" if subscribe else "un"}listen for topics {str(topics)} with nonce {nonce}')
         await self.__send_message(listen_msg)
         # wait for confirm
         while not confirmed and datetime.datetime.utcnow() < timeout:
@@ -217,7 +218,7 @@ class PubSub:
                 raise TwitchAPIException(error)
 
     async def __send_message(self, msg_data):
-        self.__logger.debug(f'sending message {json.dumps(msg_data)}')
+        self.logger.debug(f'sending message {json.dumps(msg_data)}')
         await self.__connection.send_str(json.dumps(msg_data))
 
     async def _keep_loop_alive(self):
@@ -270,13 +271,13 @@ class PubSub:
 
             while datetime.datetime.utcnow() < next_heartbeat:
                 await asyncio.sleep(1)
-            self.__logger.debug('send ping...')
+            self.logger.debug('send ping...')
             pong_timeout = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
             self.__waiting_for_pong = True
             await self.__send_message({'type': 'PING'})
             while self.__waiting_for_pong:
                 if datetime.datetime.utcnow() > pong_timeout:
-                    self.__logger.info('did not receive pong in time, reconnecting...')
+                    self.logger.info('did not receive pong in time, reconnecting...')
                     await self.__connect()
                     self.__waiting_for_pong = False
                 await asyncio.sleep(1)
@@ -290,7 +291,7 @@ class PubSub:
                     for m in messages:
                         if len(m) == 0:
                             continue
-                        self.__logger.debug(f'received message {m}')
+                        self.logger.debug(f'received message {m}')
                         data = json.loads(m)
                         switcher: Dict[str, Callable] = {
                             'pong': self.__handle_pong,
@@ -302,10 +303,10 @@ class PubSub:
                                                self.__handle_unknown)
                         self.__socket_loop.create_task(handler(data))
                 elif message.type == aiohttp.WSMsgType.CLOSED:
-                    self.__logger.debug('websocket is closing')
+                    self.logger.debug('websocket is closing')
                     break
                 elif message.type == aiohttp.WSMsgType.ERROR:
-                    self.__logger.warning('error in websocket')
+                    self.logger.warning('error in websocket')
                     break
         except CancelledError:
             return
@@ -316,17 +317,17 @@ class PubSub:
 
     async def __handle_pong(self, data):
         self.__waiting_for_pong = False
-        self.__logger.debug('received pong')
+        self.logger.debug('received pong')
 
     async def __handle_reconnect(self, data):
-        self.__logger.info('received reconnect command, reconnecting now...')
+        self.logger.info('received reconnect command, reconnecting now...')
         await self.__connect()
 
     async def __handle_response(self, data):
         error = make_enum(data.get('error'),
                           PubSubResponseError,
                           PubSubResponseError.UNKNOWN)
-        self.__logger.debug(f'got response for nonce {data.get("nonce")}: {str(error)}')
+        self.logger.debug(f'got response for nonce {data.get("nonce")}: {str(error)}')
         self.__nonce_waiting_confirm[data.get('nonce')]['error'] = error
         self.__nonce_waiting_confirm[data.get('nonce')]['received'] = True
 
@@ -338,7 +339,7 @@ class PubSub:
                 asyncio.ensure_future(sub(uuid, msg_data))
 
     async def __handle_unknown(self, data):
-        self.__logger.warning('got message of unknown type: ' + str(data))
+        self.logger.warning('got message of unknown type: ' + str(data))
 
 ###########################################################################################
 # Listener
@@ -566,5 +567,5 @@ class PubSub:
         :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
         :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
         """
-        self.__logger.warning(f"using undocumented topic {topic}")
+        self.logger.warning(f"using undocumented topic {topic}")
         return await self.__generic_listen(topic, callback_func, [])

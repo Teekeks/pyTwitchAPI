@@ -230,7 +230,8 @@ class Twitch:
         """
         self.app_id: Optional[str] = app_id
         self.app_secret: Optional[str] = app_secret
-        self.__logger: Logger = getLogger('twitchAPI.twitch')
+        self.logger: Logger = getLogger('twitchAPI.twitch')
+        """The logger used for Twitch API call related log messages"""
         self.user_auth_refresh_callback: Optional[Callable[[str, str], Awaitable[None]]] = None
         """If set, gets called whenever a user auth token gets refreshed. Parameter: Auth Token, Refresh Token |default| :code:`None`"""
         self.app_auth_refresh_callback: Optional[Callable[[str], Awaitable[None]]] = None
@@ -327,7 +328,7 @@ class Twitch:
     async def refresh_used_token(self):
         """Refreshes the currently used token"""
         if self.__has_user_auth:
-            self.__logger.debug('refreshing user token')
+            self.logger.debug('refreshing user token')
             from .oauth import refresh_access_token
             self.__user_auth_token, self.__user_auth_refresh_token = await refresh_access_token(self.__user_auth_refresh_token,
                                                                                                 self.app_id,
@@ -352,7 +353,7 @@ class Twitch:
         if self.auto_refresh_auth and retries > 0:
             if response.status == 401:
                 # unauthorized, lets try to refresh the token once
-                self.__logger.debug('got 401 response -> try to refresh token')
+                self.logger.debug('got 401 response -> try to refresh token')
                 await self.refresh_used_token()
                 if reply_func_has_data:
                     return await retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
@@ -360,7 +361,7 @@ class Twitch:
                     return await retry_func(url, auth_type, required_scope, retries=retries - 1)
             elif response.status == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
-                self.__logger.debug('got 503 response -> retry once')
+                self.logger.debug('got 503 response -> retry once')
                 if reply_func_has_data:
                     return await retry_func(url, auth_type, required_scope, data=data, retries=retries - 1)
                 else:
@@ -370,7 +371,7 @@ class Twitch:
                 raise TwitchBackendException('The Twitch API returns a server error')
             if response.status == 401:
                 msg = (await response.json()).get('message', '')
-                self.__logger.debug(f'got 401 response and can\'t refresh. Message: "{msg}"')
+                self.logger.debug(f'got 401 response and can\'t refresh. Message: "{msg}"')
                 raise UnauthorizedException(msg)
         if response.status == 500:
             raise TwitchBackendException('Internal Server Error')
@@ -384,7 +385,7 @@ class Twitch:
         if response.status == 404:
             raise TwitchResourceNotFound()
         if response.status == 429 or str(response.headers.get('Ratelimit-Remaining', '')) == '0':
-            self.__logger.warning('reached rate limit, waiting for reset')
+            self.logger.warning('reached rate limit, waiting for reset')
             import time
             reset = int(response.headers['Ratelimit-Reset'])
             # wait a tiny bit longer to ensure that we are definitely beyond the rate limit
@@ -399,7 +400,7 @@ class Twitch:
                                  retries: int = 1) -> ClientResponse:
         """Make POST request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
-        self.__logger.debug(f'making POST request to {url}')
+        self.logger.debug(f'making POST request to {url}')
         async with ClientSession() as session:
             if data is None:
                 req = await session.post(url, headers=headers)
@@ -415,7 +416,7 @@ class Twitch:
                                 retries: int = 1) -> ClientResponse:
         """Make PUT request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
-        self.__logger.debug(f'making PUT request to {url}')
+        self.logger.debug(f'making PUT request to {url}')
         async with ClientSession() as session:
             if data is None:
                 req = await session.put(url, headers=headers)
@@ -431,7 +432,7 @@ class Twitch:
                                   retries: int = 1) -> ClientResponse:
         """Make PATCH request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
-        self.__logger.debug(f'making PATCH request to {url}')
+        self.logger.debug(f'making PATCH request to {url}')
         async with ClientSession() as session:
             if data is None:
                 req = await session.patch(url, headers=headers)
@@ -447,7 +448,7 @@ class Twitch:
                                    retries: int = 1) -> ClientResponse:
         """Make DELETE request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
-        self.__logger.debug(f'making DELETE request to {url}')
+        self.logger.debug(f'making DELETE request to {url}')
         async with ClientSession() as session:
             if data is None:
                 req = await session.delete(url, headers=headers)
@@ -462,7 +463,7 @@ class Twitch:
                                 retries: int = 1) -> ClientResponse:
         """Make GET request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
-        self.__logger.debug(f'making GET request to {url}')
+        self.logger.debug(f'making GET request to {url}')
         async with ClientSession() as session:
             req = await session.get(url, headers=headers)
         return await self.__check_request_return(req, self.__api_get_request, False, url, auth_type, required_scope, None, retries)
@@ -602,7 +603,7 @@ class Twitch:
             'grant_type': 'client_credentials',
             'scope': build_scope(self.__app_auth_scope)
         }
-        self.__logger.debug('generating fresh app token')
+        self.logger.debug('generating fresh app token')
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', params)
         async with ClientSession() as session:
             result = await session.post(url)

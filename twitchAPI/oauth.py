@@ -188,7 +188,8 @@ class UserAuthenticator:
         self.__client_id: str = twitch.app_id
         self.scopes: List[AuthScope] = scopes
         self.force_verify: bool = force_verify
-        self.__logger: Logger = getLogger('twitchAPI.oauth')
+        self.logger: Logger = getLogger('twitchAPI.oauth')
+        """The logger used for OAuth related log messages"""
         self.url = url
         self.document: str = """<!DOCTYPE html>
         <html lang="en">
@@ -248,7 +249,7 @@ class UserAuthenticator:
         site = web.TCPSite(runner, self.host, self.port)
         self.__loop.run_until_complete(site.start())
         self.__server_running = True
-        self.__logger.info('running oauth Webserver')
+        self.logger.info('running oauth Webserver')
         try:
             self.__loop.run_until_complete(self.__run_check())
         except (CancelledError, asyncio.CancelledError):
@@ -267,7 +268,7 @@ class UserAuthenticator:
 
     async def __handle_callback(self, request: web.Request):
         val = request.rel_url.query.get('state')
-        self.__logger.debug(f'got callback with state {val}')
+        self.logger.debug(f'got callback with state {val}')
         # invalid state!
         if val != self.__state:
             return web.Response(status=401)

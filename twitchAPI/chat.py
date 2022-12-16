@@ -316,6 +316,7 @@ class Chat:
 
     def __init__(self, twitch: Twitch, connection_url: Optional[str] = None):
         self.logger: Logger = getLogger('twitchAPI.chat')
+        """The logger used for Chat related log messages"""
         self.twitch: Twitch = twitch
         if not self.twitch.has_required_auth(AuthType.USER, [AuthScope.CHAT_READ]):
             raise ValueError('passed twitch instance is missing User Auth.')

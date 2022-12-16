@@ -140,7 +140,8 @@ class EventSub:
         self._port: int = port
         self.__ssl_context: Optional[SSLContext] = ssl_context
         self.__twitch: Twitch = twitch
-        self.__logger: Logger = getLogger('twitchAPI.eventsub')
+        self.logger: Logger = getLogger('twitchAPI.eventsub')
+        """The logger used for EventSub related log messages"""
         self.secret: str = ''.join(random.choice(string.ascii_lowercase) for i in range(20))
         """A random secret string. Set this for added security. |default| :code:`A random 20 character long string`"""
         self.wait_for_subscription_confirm: bool = True
@@ -174,11 +175,11 @@ class EventSub:
         self.__hook_loop.run_until_complete(runner.setup())
         site = web.TCPSite(runner, str(self._host), self._port, ssl_context=self.__ssl_context)
         self.__hook_loop.run_until_complete(site.start())
-        self.__logger.info('started twitch API event sub on port ' + str(self._port))
+        self.logger.info('started twitch API event sub on port ' + str(self._port))
         try:
             self.__hook_loop.run_forever()
         except (CancelledError, asyncio.CancelledError):
-            self.__logger.debug('we got cancelled')
+            self.logger.debug('we got cancelled')
 
     def start(self):
         """Starts the EventSub client
@@ -248,7 +249,7 @@ class EventSub:
 
     async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback) -> str:
         """"Subscribe to Twitch Topic"""
-        self.__logger.debug(f'subscribe to {sub_type} version {sub_version} with condition {condition}')
+        self.logger.debug(f'subscribe to {sub_type} version {sub_version} with condition {condition}')
         data = {
             'type': sub_type,
             'version': sub_version,
@@ -298,9 +299,9 @@ class EventSub:
         return web.Response(text="pyTwitchAPI EventSub")
 
     async def __handle_challenge(self, request: 'web.Request', data: dict):
-        self.__logger.debug(f'received challenge for subscription {data.get("subscription").get("id")}')
+        self.logger.debug(f'received challenge for subscription {data.get("subscription").get("id")}')
         if not await self._verify_signature(request):
-            self.__logger.warning(f'message signature is not matching! Discarding message')
+            self.logger.warning(f'message signature is not matching! Discarding message')
             return web.Response(status=403)
         self.__activate_callback(data.get('subscription').get('id'))
         return web.Response(text=data.get('challenge'))
@@ -312,10 +313,10 @@ class EventSub:
         sub_id = data.get('subscription', {}).get('id')
         callback = self.__callbacks.get(sub_id)
         if callback is None:
-            self.__logger.error(f'received event for unknown subscription with ID {sub_id}')
+            self.logger.error(f'received event for unknown subscription with ID {sub_id}')
         else:
             if not await self._verify_signature(request):
-                self.__logger.warning(f'message signature is not matching! Discarding message')
+                self.logger.warning(f'message signature is not matching! Discarding message')
                 return web.Response(status=403)
             self.__hook_loop.create_task(callback['callback'](data))
         return web.Response(status=200)
@@ -327,17 +328,17 @@ class EventSub:
             try:
                 await self.__twitch.delete_eventsub_subscription(d.id)
             except TwitchAPIException as e:
-                self.__logger.warning(f'failed to unsubscribe from event {d.id}: {str(e)}')
+                self.logger.warning(f'failed to unsubscribe from event {d.id}: {str(e)}')
         self.__callbacks.clear()
 
     async def unsubscribe_all_known(self):
         """Unsubscribe from all subscriptions known to this client."""
         for key, value in self.__callbacks.items():
-            self.__logger.debug(f'unsubscribe from event {key}')
+            self.logger.debug(f'unsubscribe from event {key}')
             try:
                 await self.__twitch.delete_eventsub_subscription(key)
             except TwitchAPIException as e:
-                self.__logger.warning(f'failed to unsubscribe from event {key}: {str(e)}')
+                self.logger.warning(f'failed to unsubscribe from event {key}: {str(e)}')
         self.__callbacks.clear()
 
     async def unsubscribe_topic(self, topic_id: str) -> bool:
@@ -347,7 +348,7 @@ class EventSub:
             self.__callbacks.pop(topic_id, None)
             return True
         except TwitchAPIException as e:
-            self.__logger.warning(f'failed to unsubscribe from {topic_id}: {str(e)}')
+            self.logger.warning(f'failed to unsubscribe from {topic_id}: {str(e)}')
         return False
 
     async def listen_channel_update(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
