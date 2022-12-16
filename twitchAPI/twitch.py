@@ -655,7 +655,7 @@ class Twitch:
         :raises ~twitchAPI.types.InvalidTokenException: if the given token is invalid or for a different client id
         """
         if refresh_token is None and self.auto_refresh_auth:
-            raise ValueError('refresh_token has to be provided when auto_refresh_user_auth is True')
+            raise ValueError('refresh_token has to be provided when auto_refresh_auth is True')
         if validate:
             from .oauth import validate_token
             val_result = await validate_token(token)
