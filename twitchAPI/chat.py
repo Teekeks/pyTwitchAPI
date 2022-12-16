@@ -360,7 +360,7 @@ class Chat:
         The default prefix is !, the prefix can not start with / or .
 
         :param prefix: the new prefix to use for command parsing
-        :raises ValueError. when the given prefix is None or starts with / or .
+        :raises ValueError: when the given prefix is None or starts with / or .
         """
         if prefix is None or prefix[0] in ('/', '.'):
             raise ValueError('Prefix starting with / or . are reserved for twitch internal use')

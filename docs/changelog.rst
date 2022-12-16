@@ -4,6 +4,15 @@ Changelog
 =========
 
 ****************
+Version 3.2.0
+****************
+
+- Made the used loggers available for easy logging configuration
+- added the option to set the chat command prefix via :const:`~twitchAPI.chat.Chat.set_prefix()`
+- :const:`~twitchAPI.twitch.Twitch.set_user_authentication()` now also throws a :const:`~twitchAPI.types.MissingScopeException` when no scope is given. (thanks `@aw-was-here <https://github.com/aw-was-here>`_!)
+
+
+****************
 Version 3.1.1
 ****************
 
