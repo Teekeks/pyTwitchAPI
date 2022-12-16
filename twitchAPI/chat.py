@@ -317,6 +317,7 @@ class Chat:
     def __init__(self, twitch: Twitch, connection_url: Optional[str] = None):
         self.logger: Logger = getLogger('twitchAPI.chat')
         """The logger used for Chat related log messages"""
+        self._prefix: str = "!"
         self.twitch: Twitch = twitch
         if not self.twitch.has_required_auth(AuthType.USER, [AuthScope.CHAT_READ]):
             raise ValueError('passed twitch instance is missing User Auth.')
@@ -352,6 +353,18 @@ class Chat:
     async def _get_username(self):
         user: TwitchUser = await first(self.twitch.get_users())
         self.username = user.login.lower()
+
+    def set_prefix(self, prefix: str):
+        """Sets a command prefix.
+
+        The default prefix is !, the prefix can not start with / or .
+
+        :param prefix: the new prefix to use for command parsing
+        :raises ValueError. when the given prefix is None or starts with / or .
+        """
+        if prefix is None or prefix[0] in ('/', '.'):
+            raise ValueError('Prefix starting with / or . are reserved for twitch internal use')
+        self._prefix = prefix
 
     ##################################################################################################################################################
     # command parsing
@@ -400,14 +413,14 @@ class Chat:
 
         parsed_message['source'] = self._parse_irc_source(raw_source_component)
         parsed_message['parameters'] = raw_parameters_component
-        if raw_parameters_component is not None and raw_parameters_component[0] == '!':
+        if raw_parameters_component is not None and raw_parameters_component.startswith(self._prefix):
             parsed_message['command'] = self._parse_irc_parameters(raw_parameters_component, parsed_message['command'])
 
         return parsed_message
 
     def _parse_irc_parameters(self, raw_parameters_component: str, command):
         idx = 0
-        command_parts = raw_parameters_component[1::].strip()
+        command_parts = raw_parameters_component[len(self._prefix)::].strip()
         try:
             params_idx = command_parts.index(' ')
         except ValueError:
