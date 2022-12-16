@@ -666,6 +666,8 @@ class Twitch:
             if val_result.get('client_id') != self.app_id:
                 raise InvalidTokenException('client id does not match')
             scopes = val_result.get('scopes', [])
+            if not scope:
+                raise MissingScopeException('scope was not provided or is None')
             for s in scope:
                 if s not in scopes:
                     raise MissingScopeException(f'given token is missing scope {s.value}')
