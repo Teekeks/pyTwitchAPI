@@ -656,6 +656,8 @@ class Twitch:
         """
         if refresh_token is None and self.auto_refresh_auth:
             raise ValueError('refresh_token has to be provided when auto_refresh_auth is True')
+        if scope is None:
+            raise MissingScopeException('scope was not provided')
         if validate:
             from .oauth import validate_token
             val_result = await validate_token(token)
@@ -667,8 +669,6 @@ class Twitch:
             if val_result.get('client_id') != self.app_id:
                 raise InvalidTokenException('client id does not match')
             scopes = val_result.get('scopes', [])
-            if not scope:
-                raise MissingScopeException('scope was not provided or is None')
             for s in scope:
                 if s not in scopes:
                     raise MissingScopeException(f'given token is missing scope {s.value}')
