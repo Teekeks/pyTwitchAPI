@@ -9,7 +9,7 @@ from typing_extensions import TypedDict
 __all__ = ['AnalyticsReportType', 'AuthScope', 'ModerationEventType', 'TimePeriod', 'SortMethod', 'HypeTrainContributionMethod',
            'VideoType', 'AuthType', 'StatusCode', 'PubSubResponseError', 'CustomRewardRedemptionStatus', 'SortOrder',
            'BlockSourceContext', 'BlockReason', 'EntitlementFulfillmentStatus', 'PollStatus', 'PredictionStatus', 'AutoModAction',
-           'AutoModCheckEntry', 'DropsEntitlementFulfillmentStatus',
+           'AutoModCheckEntry', 'DropsEntitlementFulfillmentStatus', 'SoundtrackSourceType',
            'ChatEvent', 'ChatRoom',
            'TwitchAPIException', 'InvalidRefreshTokenException', 'InvalidTokenException', 'NotFoundException', 'TwitchAuthorizationException',
            'UnauthorizedException', 'MissingScopeException', 'TwitchBackendException', 'PubSubListenTimeoutException', 'MissingAppSecretException',
