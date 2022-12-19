@@ -6,6 +6,8 @@ Objects used by the Twitch API
 from datetime import datetime
 from enum import Enum
 from typing import Optional, Union, List, Dict, Generic, TypeVar
+
+from aiohttp import ClientSession
 from dateutil import parser as du_parser
 
 from twitchAPI.helper import build_url
@@ -128,11 +130,12 @@ class AsyncIterTwitchObject(TwitchObject, Generic[T]):
         if self._data['param']['after'] is None:
             raise StopAsyncIteration()
         _url = build_url(self._data['url'], self._data['param'], remove_none=True, split_lists=self._data['split'])
-        if self._data['body'] is None:
-            response = await self._data['req'](_url, self._data['auth_t'], self._data['auth_s'])
-        else:
-            response = await self._data['req'](_url, self._data['auth_t'], self._data['auth_s'], body=self._data['body'])
-        _data = await response.json()
+        async with ClientSession() as session:
+            if self._data['body'] is None:
+                response = await self._data['req'](session, _url, self._data['auth_t'], self._data['auth_s'])
+            else:
+                response = await self._data['req'](session, _url, self._data['auth_t'], self._data['auth_s'], body=self._data['body'])
+            _data = await response.json()
         _after = _data.get('pagination', {}).get('cursor')
         self._data['param']['after'] = _after
         if self._data['in_data']:
