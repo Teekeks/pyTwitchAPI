@@ -4,6 +4,13 @@ Changelog
 =========
 
 ****************
+Version 3.2.1
+****************
+
+- Fixed bug that resulted in a timeout when reading big API requests
+- Optimized the use of Sessions, slight to decent performance optimization for API requests, especially for async generators
+
+****************
 Version 3.2.0
 ****************
 
