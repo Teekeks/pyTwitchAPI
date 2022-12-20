@@ -1,33 +1,14 @@
-#  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
-
+#  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 from setuptools import setup, find_packages
+
+version = ""
+
+with open('twitchAPI/__init__.py') as f:
+    for line in f.readlines():
+        if line.startswith('__version__'):
+            version = line.split('= \'')[-1][:-2].strip()
+
 setup(
     packages=find_packages(),
-    name="twitchAPI",
-    version="3.2.1",
-    url="https://github.com/Teekeks/pyTwitchAPI",
-    author="Lena \"Teekeks\" During",
-    author_email="info@teawork.de",
-    description="A Python 3.7+ implementation of the Twitch Helix API, PubSub, EventSub and Chat",
-    license="MIT",
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "Topic :: Communications",
-        "Topic :: Software Development :: Libraries",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: Software Development :: Libraries :: Application Frameworks",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11"
-    ],
-    package_data={
-        "twitchAPI": ["*.html"]
-    },
-    install_requires=['python-dateutil', 'aiohttp', 'typing_extensions']
+    version=version
 )

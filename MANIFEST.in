@@ -1,1 +1,6 @@
-include_package_data=True
+exclude .readthedocs.yaml
+exclude .gitignore
+exclude requirements.txt
+prune venv
+prune docs
+prune tests
