@@ -207,7 +207,7 @@ class UserAuthenticator:
         """The port that will be used. |default| :code:`17653`"""
         self.host: str = '0.0.0.0'
         """the host the webserver will bind to. |default| :code:`0.0.0.0`"""
-        self.__state: str = str(get_uuid())
+        self.state: str = str(get_uuid())
         self.__callback_func = None
         self.__server_running: bool = False
         self.__loop: Union[asyncio.AbstractEventLoop, None] = None
@@ -224,7 +224,7 @@ class UserAuthenticator:
             'response_type': 'code',
             'scope': build_scope(self.scopes),
             'force_verify': str(self.force_verify).lower(),
-            'state': self.__state
+            'state': self.state
         }
         return build_url(TWITCH_AUTH_BASE_URL + 'oauth2/authorize', params)
 
@@ -273,7 +273,7 @@ class UserAuthenticator:
         val = request.rel_url.query.get('state')
         self.logger.debug(f'got callback with state {val}')
         # invalid state!
-        if val != self.__state:
+        if val != self.state:
             return web.Response(status=401)
         self.__user_token = request.rel_url.query.get('code')
         if self.__user_token is None:
