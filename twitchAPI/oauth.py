@@ -215,6 +215,7 @@ class UserAuthenticator:
         self.__thread: Union[Thread, None] = None
         self.__user_token: Union[str, None] = None
         self.__can_close: bool = False
+        self.__is_closed = False
 
     def __build_auth_url(self):
         params = {
@@ -240,6 +241,8 @@ class UserAuthenticator:
                 pass
         for task in asyncio.all_tasks(self.__loop):
             task.cancel()
+        self.logger.info('shutting down oauth Webserver')
+        self.__is_closed = True
 
     def __run(self, runner: web.AppRunner):
         self.__runner = runner
@@ -307,6 +310,9 @@ class UserAuthenticator:
         :rtype: None or (str, str)
         """
         self.__callback_func = callback_func
+        self.__can_close = False
+        self.__user_token = None
+        self.__is_closed = False
 
         if user_token is None:
             self.__start()
@@ -335,6 +341,8 @@ class UserAuthenticator:
                 data: dict = await response.json()
         if callback_func is None:
             self.stop()
+            while not self.__is_closed:
+                await asyncio.sleep(0.1)
             if data.get('access_token') is None:
                 raise TwitchAPIException(f'Authentication failed:\n{str(data)}')
             return data['access_token'], data['refresh_token']
