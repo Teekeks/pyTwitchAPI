@@ -148,6 +148,8 @@ class AsyncIterTwitchObject(TwitchObject, Generic[T]):
             self.__setattr__(name, TwitchObject._val_by_instance(cls, _data.get(name)))
         data = self.__getattribute__(self._data['iter_field'])
         self.__idx = 0
+        if len(data) == 0:
+            raise StopAsyncIteration()
         return data[self.__idx]
 
 
