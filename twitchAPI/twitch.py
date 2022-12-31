@@ -1548,7 +1548,7 @@ class Twitch:
                                             broadcaster_id: str,
                                             user_ids: Optional[List[str]] = None,
                                             after: Optional[str] = None,
-                                            first: Optional[int] = 20) -> AsyncGenerator[BroadcasterSubscriptions, None]:
+                                            first: Optional[int] = 20) -> BroadcasterSubscriptions:
         """Get all of a broadcaster’s subscriptions.\n\n
 
         Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS`\n
@@ -1576,9 +1576,8 @@ class Twitch:
             'first': first,
             'after': after
         }
-        async for y in self._build_generator('GET', 'subscriptions', param, AuthType.USER, [AuthScope.CHANNEL_READ_SUBSCRIPTIONS],
-                                             BroadcasterSubscriptions, split_lists=True):
-            yield y
+        return await self._build_iter_result('GET', 'subscriptions', param, AuthType.USER, [AuthScope.CHANNEL_READ_SUBSCRIPTIONS],
+                                             BroadcasterSubscriptions, split_lists=True)
 
     async def check_user_subscription(self,
                                       broadcaster_id: str,

@@ -401,7 +401,7 @@ class BroadcasterSubscription(TwitchObject):
     user_login: str
 
 
-class BroadcasterSubscriptions(IterTwitchObject):
+class BroadcasterSubscriptions(AsyncIterTwitchObject[BroadcasterSubscription]):
     total: int
     points: int
     data: List[BroadcasterSubscription]
