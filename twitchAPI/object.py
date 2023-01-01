@@ -18,6 +18,16 @@ T = TypeVar('T')
 
 
 class TwitchObject:
+    """
+    A lot of API calls return a child of this in some way (either directly or via generator).
+    You can always use the :const:`~twitchAPI.object.TwitchObject.to_dict()` method to turn that object to a dictionary.
+
+    Example:
+
+    .. code-block:: python
+
+        blocked_term = await twitch.add_blocked_term('broadcaster_id', 'moderator_id', 'bad_word')
+        print(blocked_term.id)"""
     @staticmethod
     def _val_by_instance(instance, val):
         if val is None:
@@ -79,7 +89,10 @@ class TwitchObject:
         return d
 
     def to_dict(self, include_none_values: bool = False) -> dict:
-        """build dict based on annotation types"""
+        """build dict based on annotation types
+
+        :param include_none_values: if fields that have None values should be included in the dictionary
+        """
         d = {}
         annotations = self._get_annotations()
         for name, val in self.__dict__.items():
@@ -105,6 +118,18 @@ class TwitchObject:
 
 
 class IterTwitchObject(TwitchObject):
+    """Special type of :const:`~twitchAPI.object.TwitchObject`.
+       These usually have some list inside that you may want to dicrectly itterate over in your API usage but that also contain other usefull data
+       outside of that List.
+
+       Example:
+
+       .. code-block:: python
+
+          lb = await twitch.get_bits_leaderboard()
+          print(lb.total)
+          for e in lb:
+              print(f'#{e.rank:02d} - {e.user_name}: {e.score}')"""
 
     def __iter__(self):
         if not hasattr(self, 'data') or not isinstance(self.__getattribute__('data'), list):
@@ -114,6 +139,17 @@ class IterTwitchObject(TwitchObject):
 
 
 class AsyncIterTwitchObject(TwitchObject, Generic[T]):
+    """A few API calls will have usefull data outside of the list the pagination itterates over.
+       For those cases, this object exist.
+
+       Example:
+
+       .. code-block:: python
+
+           schedule = await twitch.get_channel_stream_schedule('user_id')
+           print(schedule.broadcaster_name)
+           async for segment in schedule:
+               print(segment.title)"""
 
     def __init__(self, _data, **kwargs):
         super(AsyncIterTwitchObject, self).__init__(**kwargs)
