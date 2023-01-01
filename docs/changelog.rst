@@ -4,6 +4,13 @@ Changelog
 =========
 
 ****************
+Version 3.2.2
+****************
+
+- Fixed return type of :const:`~twitchAPI.twitch.Twitch.get_broadcaster_subscriptions()`
+- removed any field starting with underscore from :const:`~twitchAPI.object.TwitchObject.to_dict()`
+
+****************
 Version 3.2.1
 ****************
 
