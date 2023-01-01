@@ -45,6 +45,8 @@ class TwitchObject:
     def _dict_val_by_instance(instance, val, include_none_values):
         if val is None:
             return None
+        if instance is None:
+            return val
         origin = instance.__origin__ if hasattr(instance, '__origin__') else None
         if instance == datetime:
             return val.isoformat() if val is not None else None
