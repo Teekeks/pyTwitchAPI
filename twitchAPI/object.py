@@ -89,6 +89,8 @@ class TwitchObject:
                 pass
             if val is None and not include_none_values:
                 continue
+            if name[0] == '_':
+                continue
             d[name] = TwitchObject._dict_val_by_instance(cls, val, include_none_values)
         return d
 
