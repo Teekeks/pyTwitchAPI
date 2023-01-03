@@ -267,7 +267,7 @@ class ChatMessage(EventData):
 
     async def reply(self, text: str):
         """Reply to this message"""
-        await self.chat._send_message(f'@reply-parent-msg-id={self.id} PRIVMSG #{self.room.name} :{text}')
+        await self.chat.send_raw_irc_message(f'@reply-parent-msg-id={self.id} PRIVMSG #{self.room.name} :{text}')
 
 
 class ChatCommand(ChatMessage):
@@ -293,6 +293,7 @@ class ChatSub:
 
     def __init__(self, chat, parsed):
         self.chat: 'Chat' = chat
+        """The :const:`twitchAPI.chat.Chat` instance"""
         self._parsed = parsed
         self.sub_type: str = parsed['tags'].get('msg-id')
         """The type of sub given"""
@@ -788,6 +789,15 @@ class Chat:
         # wait for us to join all rooms
         while any([r in self._room_join_locks for r in target]):
             await asyncio.sleep(0.01)
+
+    async def send_raw_irc_message(self, message: str):
+        """Send a raw IRC message
+
+        :param message: the message to send
+        """
+        if message is None or len(message) == 0:
+            raise ValueError('message must be a non empty string')
+        await self._send_message(message)
 
     async def send_message(self, room: Union[str, ChatRoom], text: str):
         """Send a message to the given channel
