@@ -703,7 +703,7 @@ class Chat:
             is_followers_only=parsed['tags'].get('followers-only') != '-1',
             is_unique_only=parsed['tags'].get('r9k') == '1',
             follower_only_delay=int(parsed['tags'].get('followers-only', '-1')),
-            room_id=parsed['tags'].get('room_id'),
+            room_id=parsed['tags'].get('room-id'),
             slow=int(parsed['tags'].get('slow', '0')))
         prev = self.room_cache.get(state.name)
         # create copy
