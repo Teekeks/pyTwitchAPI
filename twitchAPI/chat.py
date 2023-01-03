@@ -321,8 +321,6 @@ class Chat:
         self.twitch: Twitch = twitch
         if not self.twitch.has_required_auth(AuthType.USER, [AuthScope.CHAT_READ]):
             raise ValueError('passed twitch instance is missing User Auth.')
-        # data = self.twitch.get_users()
-        # self.username: str = data['data'][0]['login'].lower()
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_CHAT_URL
         self.ping_frequency: int = 120
         self.ping_jitter: int = 4
@@ -333,11 +331,9 @@ class Chat:
         self.__socket_thread: threading.Thread = None
         self.__running: bool = False
         self.__socket_loop = None
-        self.__topics: dict = {}
         self.__startup_complete: bool = False
         self.__tasks = None
         self.__waiting_for_pong: bool = False
-        self.__nonce_waiting_confirm: dict = {}
         self._event_handler = {}
         self._command_handler = {}
         self.room_cache: Dict[str, ChatRoom] = {}
@@ -562,6 +558,12 @@ class Chat:
         await self._session.close()
         # wait for ssl to close as per aiohttp docs...
         await asyncio.sleep(0.25)
+        # clean up bot state
+        self.__connection = None
+        self._session = None
+        self.room_cache = {}
+        self._room_join_locks = []
+        self._room_leave_locks = []
         self._closing = True
 
     async def __connect(self, is_startup=False):
