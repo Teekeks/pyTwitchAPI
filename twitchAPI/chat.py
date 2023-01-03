@@ -790,11 +790,20 @@ class Chat:
             await asyncio.sleep(0.01)
 
     async def send_message(self, room: Union[str, ChatRoom], text: str):
+        """Send a message to the given channel
+
+        Please note that you first need to join a channel before you can send a message to it.
+
+        :param room: The chat room you want to send the message to.
+            This can either be a instance of :const:`~twitchAPI.types.ChatRoom` or a string with the room name (either with leading # or without)
+        :param text: The text you want to send
+        :raises ValueError: if message is empty or room is not given
+        """
         if isinstance(room, ChatRoom):
             room = room.name
-        if len(room) == 0:
+        if room is None or len(room) == 0:
             raise ValueError('please specify a room to post to')
-        if len(text) == 0:
+        if text is None or len(text) == 0:
             raise ValueError('you can\'t send a empty message')
         if room[0] != '#':
             room = f'#{room}'
