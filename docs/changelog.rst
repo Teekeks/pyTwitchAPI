@@ -4,6 +4,15 @@ Changelog
 =========
 
 ****************
+Version 3.3.0
+****************
+
+- Added new event to Chat: :const:`~twitchAPI.types.ChatEvent.MESSAGE_DELETE` which triggers whenever a single message got deleted in a channel
+- Added :const:`~twitchAPI.chat.Chat.send_raw_irc_message()` method for sending raw irc commands to the websocket. Use with care!
+- Fixed missing state cleanup after closing Chat, preventing the same instance from being started again
+- fixed :const:`~twitchAPI.types.ChatRoom.room_id` always being Null
+
+****************
 Version 3.2.2
 ****************
 
