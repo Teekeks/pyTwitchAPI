@@ -111,6 +111,7 @@ Available Events
 - :const:`~twitchAPI.types.ChatEvent.JOIN`: Triggered when someone other than the bot joins a channel. Note: this will not always trigger, depending on channel size
 - :const:`~twitchAPI.types.ChatEvent.JOINED`: Triggered when the bot joins a channel
 - :const:`~twitchAPI.types.ChatEvent.LEFT`: triggered when the bot left a channel
+- :const:`~twitchAPI.types.ChatEvent.MESSAGE_DELETE`: triggered when a message in a channel got deleted
 
 *******************
 Class Documentation
@@ -177,6 +178,26 @@ class EventData:
         """The :const:`twitchAPI.chat.Chat` instance"""
 
 
+class MessageDeletedEvent(EventData):
+    
+    def __init__(self, chat, parsed):
+        super(MessageDeletedEvent, self).__init__(chat)
+        self._room_name = parsed['command']['channel'][1:]
+        self.message: str = parsed['parameters']
+        """The content of the message that got deleted"""
+        self.user_name: str = parsed['tags'].get('login')
+        """Username of the message author"""
+        self.message_id: str = parsed['tags'].get('target-msg-id')
+        """ID of the message that got deleted"""
+        self.sent_timestamp: int = int(parsed['tags'].get('tmi-sent-ts'))
+        """The timestamp the deleted message was send"""
+
+    @property
+    def room(self) -> Optional[ChatRoom]:
+        """The room the message was deleted in"""
+        return self.chat.room_cache.get(self._room_name)
+
+
 class RoomStateChangeEvent(EventData):
     """Triggered when a room state changed"""
 
@@ -188,7 +209,7 @@ class RoomStateChangeEvent(EventData):
         """The new room state"""
 
     @property
-    def room(self):
+    def room(self) -> Optional[ChatRoom]:
         """Returns the Room from cache"""
         return self.chat.room_cache.get(self.new.name)
 
@@ -202,7 +223,7 @@ class JoinEvent(EventData):
         """The name of the user that joined"""
 
     @property
-    def room(self):
+    def room(self) -> Optional[ChatRoom]:
         """The room the user joined to"""
         return self.chat.room_cache.get(self._name)
 
@@ -307,7 +328,7 @@ class ChatSub:
         """the system message that was generated for this sub"""
 
     @property
-    def room(self):
+    def room(self) -> Optional[ChatRoom]:
         """The room this sub was issued in"""
         return self.chat.room_cache.get(self._parsed['command']['channel'][1:])
 
@@ -483,7 +504,8 @@ class Chat:
     def _parse_irc_command(self, raw_command_component: str):
         command_parts = raw_command_component.split(' ')
 
-        if command_parts[0] in ('JOIN', 'PART', 'NOTICE', 'CLEARCHAT', 'HOSTTARGET', 'PRIVMSG', 'USERSTATE', 'ROOMSTATE', '001', 'USERNOTICE'):
+        if command_parts[0] in ('JOIN', 'PART', 'NOTICE', 'CLEARCHAT', 'HOSTTARGET', 'PRIVMSG',
+                                'USERSTATE', 'ROOMSTATE', '001', 'USERNOTICE', 'CLEARMSG'):
             parsed_command = {
                 'command': command_parts[0],
                 'channel': command_parts[1]
@@ -634,6 +656,7 @@ class Chat:
                             'ROOMSTATE': self._handle_room_state,
                             'JOIN': self._handle_join,
                             'USERNOTICE': self._handle_user_notice,
+                            'CLEARMSG': self._handle_clear_msg,
                             'CAP': self._handle_cap_reply,
                             'PART': self._handle_part
                         }
@@ -650,6 +673,12 @@ class Chat:
             # we are closing down!
             # print('we are closing down!')
             return
+
+    async def _handle_clear_msg(self, parsed: dict):
+        ev = MessageDeletedEvent(self, parsed)
+        for handler in self._event_handler.get(ChatEvent.MESSAGE_DELETE, []):
+            t = asyncio.ensure_future(handler(ev))
+            t.add_done_callback(self._task_callback)
 
     async def _handle_cap_reply(self, parsed: dict):
         self.logger.debug(f'got CAP reply, granted caps: {parsed["parameters"]}')
