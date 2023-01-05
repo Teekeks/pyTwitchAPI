@@ -22,7 +22,14 @@ copyright = '2022, Lena "Teekeks" During'
 author = 'Lena "Teekeks" During'
 
 # The full version, including alpha/beta/rc tags
-release = 'v3.3.0'
+release = None
+with open('../twitchAPI/__init__.py') as f:
+    for line in f.readlines():
+        if line.startswith('__version__'):
+            release = 'v' + line.split('= \'')[-1][:-2].strip()
+if release is None:
+    release = 'dev'
+
 language = 'en'
 
 master_doc = 'index'
