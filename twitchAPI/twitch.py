@@ -3623,10 +3623,9 @@ class Twitch:
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
-         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
-         :raises ValueError: if first is not between 1 and 1000
-        :return:
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if first is not between 1 and 1000
         """
         if first is not None and first < 1 or first > 1000:
             raise ValueError('first must be between 1 and 1000')
