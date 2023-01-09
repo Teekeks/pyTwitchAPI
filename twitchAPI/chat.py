@@ -820,6 +820,7 @@ class Chat:
         Will only exit once all given chat rooms where successfully joined
 
         :param chat_rooms: the Room or rooms you want to leave
+        :returns: list of channels that could not be joined
         """
         if isinstance(chat_rooms, str):
             chat_rooms = [chat_rooms]
@@ -830,8 +831,12 @@ class Chat:
         await self._send_message(f'JOIN {room_str}')
         # wait for us to join all rooms
         timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.join_timeout)
-        while any([r in self._room_join_locks for r in target]) and timeout < datetime.datetime.now():
+        while any([r in self._room_join_locks for r in target]) and timeout > datetime.datetime.now():
             await asyncio.sleep(0.01)
+        failed_to_join = [r for r in self._room_join_locks if r in target]
+        for r in failed_to_join:
+            self._room_join_locks.remove(r)
+        return failed_to_join
 
     async def send_raw_irc_message(self, message: str):
         """Send a raw IRC message
