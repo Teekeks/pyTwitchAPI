@@ -663,7 +663,8 @@ class Chat:
                             'USERNOTICE': self._handle_user_notice,
                             'CLEARMSG': self._handle_clear_msg,
                             'CAP': self._handle_cap_reply,
-                            'PART': self._handle_part
+                            'PART': self._handle_part,
+                            'NOTICE': self._handle_notice
                         }
                         handler = handlers.get(parsed['command']['command'])
                         if handler is not None:
@@ -678,6 +679,10 @@ class Chat:
             # we are closing down!
             # print('we are closing down!')
             return
+
+    async def _handle_notice(self, parsed: dict):
+        self.logger.debug(f'got NOTICE for channel {parsed["command"]["channel"]}: {parsed["tags"]["msg-id"]}')
+        pass
 
     async def _handle_clear_msg(self, parsed: dict):
         ev = MessageDeletedEvent(self, parsed)
