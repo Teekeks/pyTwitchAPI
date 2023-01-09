@@ -327,6 +327,7 @@ class UserAuthenticator:
             # now we need to actually get the correct token
         else:
             self.__user_token = user_token
+            self.__is_closed = True
 
         param = {
             'client_id': self.__client_id,
