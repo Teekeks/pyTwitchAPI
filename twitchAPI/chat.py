@@ -119,6 +119,7 @@ Class Documentation
 """
 import asyncio
 import dataclasses
+import datetime
 import sys
 import threading
 import traceback
@@ -364,6 +365,8 @@ class Chat:
         self._room_join_locks = []
         self._room_leave_locks = []
         self._closing: bool = False
+        self.join_timeout: int = 10
+        """Time in seconds till a channel join attempt times out"""
 
     def __await__(self):
         t = asyncio.create_task(self._get_username())
@@ -826,7 +829,8 @@ class Chat:
             self._room_join_locks.append(r)
         await self._send_message(f'JOIN {room_str}')
         # wait for us to join all rooms
-        while any([r in self._room_join_locks for r in target]):
+        timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.join_timeout)
+        while any([r in self._room_join_locks for r in target]) and timeout < datetime.datetime.now():
             await asyncio.sleep(0.01)
 
     async def send_raw_irc_message(self, message: str):
