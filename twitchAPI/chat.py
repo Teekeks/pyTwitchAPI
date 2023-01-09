@@ -240,11 +240,13 @@ class JoinedEvent(EventData):
 
 
 class LeftEvent(EventData):
-    """When the bot left a room"""
-    def __init__(self, chat, channel_name, room):
+    """When the bot or a user left a room"""
+    def __init__(self, chat, channel_name, room, user):
         super(LeftEvent, self).__init__(chat)
         self.room_name: str = channel_name
         """the name of the channel the bot left"""
+        self.user_name: str = user
+        """The name of the user that left the chat"""
         self.cached_room: Optional[ChatRoom] = room
         """the cached room state, might bo Null"""
 
@@ -704,13 +706,21 @@ class Chat:
 
     async def _handle_part(self, parsed: dict):
         ch = parsed['command']['channel'][1:]
-        if ch in self._room_leave_locks:
-            self._room_leave_locks.remove(ch)
-        room = self.room_cache.pop(ch, None)
-        e = LeftEvent(self, ch, room)
-        for handler in self._event_handler.get(ChatEvent.LEFT, []):
-            t = asyncio.ensure_future(handler(e))
-            t.add_done_callback(self._task_callback)
+        usr = parsed['source']['nick'][1:]
+        if usr == self.username:
+            if ch in self._room_leave_locks:
+                self._room_leave_locks.remove(ch)
+            room = self.room_cache.pop(ch, None)
+            e = LeftEvent(self, ch, room, usr)
+            for handler in self._event_handler.get(ChatEvent.LEFT, []):
+                t = asyncio.ensure_future(handler(e))
+                t.add_done_callback(self._task_callback)
+        else:
+            room = self.room_cache.get(ch)
+            e = LeftEvent(self, ch, room, usr)
+            for handler in self._event_handler.get(ChatEvent.USER_LEFT, []):
+                t = asyncio.ensure_future(handler(e))
+                t.add_done_callback(self._task_callback)
 
     async def _handle_user_notice(self, parsed: dict):
         if parsed['tags'].get('msg-id') == 'raid':

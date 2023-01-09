@@ -262,6 +262,8 @@ class ChatEvent(Enum):
     """Triggered when the bot joins a chat channel"""
     LEFT = 'left'
     """Triggered when the bot leaves a chat channel"""
+    USER_LEFT = 'user_left'
+    """Triggered when a user leaves a chat channel"""
     MESSAGE_DELETE = 'message_delete'
     """Triggered when a message gets deleted from a channel"""
 
