@@ -261,7 +261,7 @@ class Twitch:
         # ensure that asyncio actually gracefully shut down
         await asyncio.sleep(0.25)
 
-    def __generate_header(self, auth_type: 'AuthType', required_scope: List[AuthScope]) -> dict:
+    def __generate_header(self, auth_type: 'AuthType', required_scope: List[Union[AuthScope, List[AuthScope]]]) -> dict:
         header = {"Client-ID": self.app_id}
         if auth_type == AuthType.EITHER:
             has_auth, target, token, scope = self.__get_used_either_auth(required_scope)
@@ -272,15 +272,23 @@ class Twitch:
             if not self.__has_app_auth:
                 raise UnauthorizedException('Require app authentication!')
             for s in required_scope:
-                if s not in self.__app_auth_scope:
-                    raise MissingScopeException('Require app auth scope ' + s.name)
+                if isinstance(s, list):
+                    if not any([x in self.__app_auth_scope for x in s]):
+                        raise MissingScopeException(f'Require at least one of the following app auth scopes: {", ".join([x.name for x in s])}')
+                else:
+                    if s not in self.__app_auth_scope:
+                        raise MissingScopeException('Require app auth scope ' + s.name)
             header['Authorization'] = f'Bearer {self.__app_auth_token}'
         elif auth_type == AuthType.USER:
             if not self.__has_user_auth:
                 raise UnauthorizedException('require user authentication!')
             for s in required_scope:
-                if s not in self.__user_auth_scope:
-                    raise MissingScopeException('Require user auth scope ' + s.name)
+                if isinstance(s, list):
+                    if not any([x in self.__user_auth_scope for x in s]):
+                        raise MissingScopeException(f'Require at least one of the following user auth scopes: {", ".join([x.name for x in s])}')
+                else:
+                    if s not in self.__user_auth_scope:
+                        raise MissingScopeException('Require user auth scope ' + s.name)
             header['Authorization'] = f'Bearer {self.__user_auth_token}'
         elif auth_type == AuthType.NONE:
             # set one anyway for better performance if possible but don't error if none found
@@ -397,7 +405,7 @@ class Twitch:
                                  session: ClientSession,
                                  url: str,
                                  auth_type: 'AuthType',
-                                 required_scope: List[AuthScope],
+                                 required_scope: List[Union[AuthScope, List[AuthScope]]],
                                  data: Optional[dict] = None,
                                  retries: int = 1) -> ClientResponse:
         """Make POST request with authorization"""
@@ -413,7 +421,7 @@ class Twitch:
                                 session: ClientSession,
                                 url: str,
                                 auth_type: 'AuthType',
-                                required_scope: List[AuthScope],
+                                required_scope: List[Union[AuthScope, List[AuthScope]]],
                                 data: Optional[dict] = None,
                                 retries: int = 1) -> ClientResponse:
         """Make PUT request with authorization"""
@@ -429,7 +437,7 @@ class Twitch:
                                   session: ClientSession,
                                   url: str,
                                   auth_type: 'AuthType',
-                                  required_scope: List[AuthScope],
+                                  required_scope: List[Union[AuthScope, List[AuthScope]]],
                                   data: Optional[dict] = None,
                                   retries: int = 1) -> ClientResponse:
         """Make PATCH request with authorization"""
@@ -445,7 +453,7 @@ class Twitch:
                                    session: ClientSession,
                                    url: str,
                                    auth_type: 'AuthType',
-                                   required_scope: List[AuthScope],
+                                   required_scope: List[Union[AuthScope, List[AuthScope]]],
                                    data: Optional[dict] = None,
                                    retries: int = 1) -> ClientResponse:
         """Make DELETE request with authorization"""
@@ -461,7 +469,7 @@ class Twitch:
                                 session: ClientSession,
                                 url: str,
                                 auth_type: 'AuthType',
-                                required_scope: List[AuthScope],
+                                required_scope: List[Union[AuthScope, List[AuthScope]]],
                                 retries: int = 1) -> [ClientResponse, ClientSession]:
         """Make GET request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
@@ -474,7 +482,7 @@ class Twitch:
                                url: str,
                                url_params: dict,
                                auth_type: AuthType,
-                               auth_scope: List[AuthScope],
+                               auth_scope: List[Union[AuthScope, List[AuthScope]]],
                                return_type: T,
                                body_data: Optional[dict] = None,
                                split_lists: bool = False,
@@ -511,7 +519,7 @@ class Twitch:
                                  url: str,
                                  url_params: dict,
                                  auth_type: AuthType,
-                                 auth_scope: List[AuthScope],
+                                 auth_scope: List[Union[AuthScope, List[AuthScope]]],
                                  return_type: T,
                                  body_data: Optional[dict] = None,
                                  split_lists: bool = False,
@@ -553,7 +561,7 @@ class Twitch:
                             url: str,
                             url_params: dict,
                             auth_type: AuthType,
-                            auth_scope: List[AuthScope],
+                            auth_scope: List[Union[AuthScope, List[AuthScope]]],
                             return_type: T,
                             body_data: Optional[dict] = None,
                             split_lists: bool = False,
