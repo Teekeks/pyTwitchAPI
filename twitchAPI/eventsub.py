@@ -356,15 +356,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelupdate
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.update', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -373,15 +372,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelfollow
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -390,15 +388,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscribe
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.subscribe', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -407,15 +404,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscriptionend
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.subscription.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -424,15 +420,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscriptiongift
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.subscription.gift', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -441,15 +436,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscriptionmessage
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.subscription.message',
                                      '1',
@@ -461,15 +455,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelcheer
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.cheer',
                                      '1',
@@ -484,16 +477,15 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelraid
 
-        :param str from_broadcaster_user_id: The broadcaster user ID that created the channel raid you want to get notifications for.
-        :param str to_broadcaster_user_id: The broadcaster user ID that received the channel raid you want to get notifications for.
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param from_broadcaster_user_id: The broadcaster user ID that created the channel raid you want to get notifications for.
+        :param to_broadcaster_user_id: The broadcaster user ID that received the channel raid you want to get notifications for.
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.raid',
                                      '1',
@@ -507,15 +499,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelban
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.ban',
                                      '1',
@@ -527,15 +518,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelunban
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.unban',
                                      '1',
@@ -547,15 +537,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelmoderatoradd
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.moderator.add',
                                      '1',
@@ -567,15 +556,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelmoderatorremove
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.moderator.remove',
                                      '1',
@@ -588,15 +576,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_rewardadd
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.channel_points_custom_reward.add',
                                      '1',
@@ -611,16 +598,15 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_rewardupdate
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param str reward_id: the id of the reward you want to get updates from. |default| :code:`None`
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param reward_id: the id of the reward you want to get updates from. |default| :code:`None`
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.channel_points_custom_reward.update',
                                      '1',
@@ -637,16 +623,15 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_rewardremove
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param str reward_id: the id of the reward you want to get updates from. |default| :code:`None`
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param reward_id: the id of the reward you want to get updates from. |default| :code:`None`
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.channel_points_custom_reward.remove',
                                      '1',
@@ -663,16 +648,15 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_reward_redemptionadd
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param str reward_id: the id of the reward you want to get updates from. |default| :code:`None`
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param reward_id: the id of the reward you want to get updates from. |default| :code:`None`
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.channel_points_custom_reward_redemption.add',
                                      '1',
@@ -689,16 +673,15 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_reward_redemptionupdate
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param str reward_id: the id of the reward you want to get updates from. |default| :code:`None`
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param reward_id: the id of the reward you want to get updates from. |default| :code:`None`
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.channel_points_custom_reward_redemption.update',
                                      '1',
@@ -712,15 +695,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpollbegin
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.poll.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -729,15 +711,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpollprogress
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.poll.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -746,15 +727,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpollend
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.poll.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -763,15 +743,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionbegin
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.prediction.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -780,15 +759,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionprogress
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.prediction.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -797,15 +775,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionlock
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.prediction.lock', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -814,15 +791,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionend
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.prediction.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -835,19 +811,16 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#dropentitlementgrant
 
-        :param str organisation_id: The organization ID of the organization that owns the game on the developer portal.
-        :param str category_id: The category (or game) ID of the game for which entitlement notifications will be received.
-                |default| :code:`None`
-        :param str campaign_id: The campaign ID for a specific campaign for which entitlement notifications will be received.
-                |default| :code:`None`
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param organisation_id: The organization ID of the organization that owns the game on the developer portal.
+        :param category_id: The category (or game) ID of the game for which entitlement notifications will be received. |default| :code:`None`
+        :param campaign_id: The campaign ID for a specific campaign for which entitlement notifications will be received. |default| :code:`None`
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('drop.entitlement.grant',
                                      '1',
@@ -865,15 +838,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#extensionbits_transactioncreate
 
-        :param str extension_client_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param extension_client_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('extension.bits_transaction.create', '1', {'extension_client_id': extension_client_id}, callback)
 
@@ -882,15 +854,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelgoalbegin
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.goal.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -899,15 +870,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelgoalprogress
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.goal.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -916,15 +886,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelgoalend
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.goal.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -933,15 +902,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelhype_trainbegin
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.hype_train.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -950,15 +918,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelhype_trainprogress
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.hype_train.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -967,15 +934,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelhype_trainend
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('channel.hype_train.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -984,15 +950,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#streamonline
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('stream.online', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -1001,15 +966,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#streamoffline
 
-        :param str broadcaster_user_id: the id of the user you want to listen to
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('stream.offline', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
@@ -1018,15 +982,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userauthorizationgrant
 
-        :param str client_id: Your application’s client id.
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param client_id: Your application’s client id.
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('user.authorization.grant', '1', {'client_id': client_id}, callback)
 
@@ -1035,15 +998,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userauthorizationrevoke
 
-        :param str client_id: Your application’s client id.
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param client_id: Your application’s client id.
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('user.authorization.revoke', '1', {'client_id': client_id}, callback)
 
@@ -1052,15 +1014,14 @@ class EventSub:
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userupdate
 
-        :param str user_id: The user ID for the user you want update notifications for.
-        :param Callable[[dict],Awaitable[None]] callback: function for callback
+        :param user_id: The user ID for the user you want update notifications for.
+        :param callback: function for callback
         :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
         :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
-        :rtype: str
         """
         return await self._subscribe('user.update', '1', {'user_id': user_id}, callback)
 
