@@ -885,3 +885,11 @@ class Chatter(TwitchObject):
 class GetChattersResponse(AsyncIterTwitchObject[Chatter]):
     data: List[Chatter]
     total: int
+
+
+class ShieldModeStatus(TwitchObject):
+    is_active: bool
+    moderator_id: str
+    moderator_login: str
+    moderator_name: str
+    last_activated_at: Optional[datetime]

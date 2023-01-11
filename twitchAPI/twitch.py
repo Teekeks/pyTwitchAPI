@@ -3645,3 +3645,29 @@ class Twitch:
             'after': after
         }
         return await self._build_iter_result('GET', 'chat/chatters', param, AuthType.USER, [AuthScope.MODERATOR_READ_CHATTERS], GetChattersResponse)
+
+    async def get_shield_mode_status(self,
+                                     broadcaster_id: str,
+                                     moderator_id: str) -> ShieldModeStatus:
+        """Gets the broadcaster’s Shield Mode activation status.
+
+        Requires User Authentication with either :const:`twitchAPI.types.AuthScope.MODERATOR_READ_SHIELD_MODE` or
+        :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHIELD_MODE`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-shield-mode-status
+
+        :param broadcaster_id: The ID of the broadcaster whose Shield Mode activation status you want to get.
+        :param moderator_id: The ID of the broadcaster or a user that is one of the broadcaster’s moderators.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
+                        and a re authentication failed
+         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        """
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'moderator_id': moderator_id
+        }
+        return await self._build_result('GET', 'moderation/shield_mode', param, AuthType.USER,
+                                        [[AuthScope.MODERATOR_READ_SHIELD_MODE, AuthScope.MODERATOR_MANAGE_SHIELD_MODE]], ShieldModeStatus)
