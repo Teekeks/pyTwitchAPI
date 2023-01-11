@@ -406,6 +406,7 @@ class Stream(TwitchObject):
     thumbnail_url: str
     tag_ids: List[str]
     is_mature: bool
+    tags: List[str]
 
 
 class StreamMarker(TwitchObject):
