@@ -1090,3 +1090,30 @@ class EventSub:
             'moderator_user_id': moderator_user_id
         }
         return await self._subscribe('channel.shield_mode.begin', '1', param, callback)
+
+    async def listen_channel_shield_mode_end(self,
+                                             broadcaster_user_id: str,
+                                             moderator_user_id: str,
+                                             callback: CALLBACK_TYPE) -> str:
+        """Sends a notification when the broadcaster deactivates Shield Mode.
+
+        Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHIELD_MODE` or :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHIELD_MODE`
+        auth scope.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelshield_modeend
+
+        :param broadcaster_user_id: The ID of the broadcaster that you want to receive notifications about when they deactivate Shield Mode.
+        :param moderator_user_id: The ID of the broadcaster or one of the broadcaster’s moderators.
+        :param callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
+        """
+        param = {
+            'broadcaster_user_id': broadcaster_user_id,
+            'moderator_user_id': moderator_user_id
+        }
+        return await self._subscribe('channel.shield_mode.end', '1', param, callback)
