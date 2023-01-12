@@ -541,6 +541,7 @@ class ChannelInformation(TwitchObject):
     broadcaster_language: str
     title: str
     delay: int
+    tags: List[str]
 
 
 class SearchChannelResult(ChannelInformation):
