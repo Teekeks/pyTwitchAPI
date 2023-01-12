@@ -1939,7 +1939,8 @@ class Twitch:
                                          game_id: Optional[str] = None,
                                          broadcaster_language: Optional[str] = None,
                                          title: Optional[str] = None,
-                                         delay: Optional[int] = None) -> bool:
+                                         delay: Optional[int] = None,
+                                         tags: Optional[List[str]] = None) -> bool:
         """Modifies channel information for users.\n\n
 
         Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
@@ -1950,6 +1951,8 @@ class Twitch:
         :param broadcaster_language: The language of the channel |default| :code:`None`
         :param title: The title of the stream |default| :code:`None`
         :param delay: Stream delay in seconds. Trying to set this while not being a Twitch Partner will fail! |default| :code:`None`
+        :param tags: A list of channel-defined tags to apply to the channel. To remove all tags from the channel, set tags to an empty array.
+                |default|:code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -1965,7 +1968,8 @@ class Twitch:
         body = {k: v for k, v in {'game_id': game_id,
                                   'broadcaster_language': broadcaster_language,
                                   'title': title,
-                                  'delay': delay}.items() if v is not None}
+                                  'delay': delay,
+                                  'tags': tags}.items() if v is not None}
         return await self._build_result('PATCH', 'channels', {'broadcaster_id': broadcaster_id}, AuthType.USER,
                                         [AuthScope.CHANNEL_MANAGE_BROADCAST], None, body_data=body, result_type=ResultType.STATUS_CODE) == 204
 
