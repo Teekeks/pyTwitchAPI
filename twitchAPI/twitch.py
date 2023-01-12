@@ -1960,11 +1960,14 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if none of the following fields are specified: `game_id, broadcaster_language, title`
         :raises ValueError: if title is a empty string
+        :raises ValueError: if tags has more than 10 entries
         """
-        if game_id is None and broadcaster_language is None and title is None:
+        if game_id is None and broadcaster_language is None and title is None and tags is None:
             raise ValueError('You need to specify at least one of the optional parameter')
         if title is not None and len(title) == 0:
             raise ValueError('title cant be a empty string')
+        if tags is not None and len(tags) > 10:
+            raise ValueError('tags can only contain up to 10 items')
         body = {k: v for k, v in {'game_id': game_id,
                                   'broadcaster_language': broadcaster_language,
                                   'title': title,
