@@ -818,6 +818,20 @@ class Chat:
 
     async def __task_receive(self):
         try:
+            handlers: Dict[str, Callable] = {
+                'PING': self._handle_ping,
+                'PRIVMSG': self._handle_msg,
+                '001': self._handle_ready,
+                'ROOMSTATE': self._handle_room_state,
+                'JOIN': self._handle_join,
+                'USERNOTICE': self._handle_user_notice,
+                'CLEARMSG': self._handle_clear_msg,
+                'CAP': self._handle_cap_reply,
+                'PART': self._handle_part,
+                'NOTICE': self._handle_notice,
+                'CLEARCHAT': self._handle_clear_chat,
+                'WHISPER': self._handle_whisper
+            }
             while not self.__connection.closed:
                 message = await self.__connection.receive()
                 if message.type == aiohttp.WSMsgType.TEXT:
@@ -830,20 +844,6 @@ class Chat:
                         # a message we don't know or don't care about
                         if parsed is None:
                             continue
-                        handlers: Dict[str, Callable] = {
-                            'PING': self._handle_ping,
-                            'PRIVMSG': self._handle_msg,
-                            '001': self._handle_ready,
-                            'ROOMSTATE': self._handle_room_state,
-                            'JOIN': self._handle_join,
-                            'USERNOTICE': self._handle_user_notice,
-                            'CLEARMSG': self._handle_clear_msg,
-                            'CAP': self._handle_cap_reply,
-                            'PART': self._handle_part,
-                            'NOTICE': self._handle_notice,
-                            'CLEARCHAT': self._handle_clear_chat,
-                            'WHISPER': self._handle_whisper
-                        }
                         handler = handlers.get(parsed['command']['command'])
                         if handler is not None:
                             asyncio.ensure_future(handler(parsed))
