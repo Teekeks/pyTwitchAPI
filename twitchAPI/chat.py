@@ -1000,6 +1000,18 @@ class Chat:
         self._command_handler[name] = handler
         return True
 
+    def unregister_command(self, name: str):
+        """Unregister a already registered command.
+
+        :param name: the name of the command to unregister
+        :return: True if the command was unregistered, otherwise false
+        """
+        name = name.lower()
+        if self._command_handler.get(name) is None:
+            return False
+        self._command_handler.pop(name, None)
+        return True
+
     def register_event(self, event: ChatEvent, handler: Callable):
         """Register a event handler
 
