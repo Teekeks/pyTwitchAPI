@@ -165,7 +165,7 @@ class PubSub:
     async def __connect(self, is_startup=False):
         self.logger.debug('connecting...')
         self._closing = False
-        if self.__connection is not None and self.__connection.open:
+        if self.__connection is not None and not self.__connection.closed:
             await self.__connection.close()
         retry = 0
         need_retry = True
