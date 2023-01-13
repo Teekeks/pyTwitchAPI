@@ -4,6 +4,68 @@ Changelog
 =========
 
 ****************
+Version 3.4.0
+****************
+
+Twitch
+------
+
+- Added the following new Endpoints:
+
+  - "Update Shield Mode Status" :const:`~twitchAPI.twitch.Twitch.update_shield_mode_status()`
+  - "Get Shield Mode Status" :const:`~twitchAPI.twitch.Twitch.get_shield_mode_status()`
+
+- Added the new :code:`tags` Field to the following Endpoints:
+
+  - "Get Streams" :const:`~twitchAPI.twitch.Twitch.get_streams()`
+  - "Get Followed Streams" :const:`~twitchAPI.twitch.Twitch.get_followed_streams()`
+  - "Search Channels" :const:`~twitchAPI.twitch.Twitch.search_channels()`
+  - "Get Channel Information" :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
+  - "Modify Channel Information" :const:`~twitchAPI.twitch.Twitch.modify_channel_information()`
+
+- Improved documentation
+
+EventSub
+--------
+
+- Added the following new Topics:
+
+  - "Shield Mode End" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shield_mode_end()`
+  - "Shield Mode Begin" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shield_mode_begin()`
+
+- Improved type hints of :code:`listen_` functions
+- Added check if given callback is a coroutine to :code:`listen_` functions
+
+PubSub
+------
+
+- Fixed AttributeError when reconnecting
+
+Chat
+----
+
+- Expanded documentation on Events and Commands
+- Fixed room cache being randomly destroyed over time
+- Improved message handling performance drastically for high volume chat bots
+- Fixed AttributeError when reconnecting
+- :const:`~twitchAPI.chat.Chat.join_room()` now times out when it was unable to join a room instead of being infinitly stuck
+- :const:`~twitchAPI.chat.Chat.join_room()` now returns a list of channels it was unable to join
+- Added :const:`~twitchAPI.chat.Chat.join_timeout`
+- Added :const:`~twitchAPI.chat.Chat.unregister_command()`
+- Added :const:`~twitchAPI.chat.Chat.unregister_event()`
+- Added the following new Events:
+
+  - :const:`~twitchAPI.types.ChatEvent.USER_LEFT` - Triggered when a user leaves a chat channel
+  - :const:`~twitchAPI.types.ChatEvent.CHAT_CLEARED` - Triggered when a user was timed out, banned or theri messages where deleted
+  - :const:`~twitchAPI.types.ChatEvent.WHISPER` - Triggered when a user sends a whisper message to the bot
+
+OAuth
+-----
+
+- fixed :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()` getting stuck when :code:`user_token` is provided (thanks `@Tempystral <https://github.com/Tempystral>`_!)
+
+
+****************
 Version 3.3.0
 ****************
 
