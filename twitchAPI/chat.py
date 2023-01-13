@@ -1000,7 +1000,7 @@ class Chat:
         self._command_handler[name] = handler
         return True
 
-    def unregister_command(self, name: str):
+    def unregister_command(self, name: str) -> bool:
         """Unregister a already registered command.
 
         :param name: the name of the command to unregister
@@ -1021,6 +1021,20 @@ class Chat:
             self._event_handler[event] = [handler]
         else:
             self._event_handler[event].append(handler)
+
+    def unregister_event(self, event: ChatEvent, handler: Callable) -> bool:
+        """Unregister a handler from a event
+
+        :param event: The Event you want to unregister your handler from
+        :param handler: The handler you want to unregister
+        :return: Returns true when the handler was removed from the event, otehrwise false
+        """
+        if self._event_handler.get(event) is None:
+            return False
+        if handler not in self._event_handler.get(event):
+            return False
+        self._event_handler[event].remove(handler)
+        return True
 
     async def join_room(self, chat_rooms: Union[List[str], str]):
         """ join one or more chat rooms\n
