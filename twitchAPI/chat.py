@@ -366,15 +366,13 @@ class WhisperEvent(EventData):
     def __init__(self, chat, parsed):
         super(WhisperEvent, self).__init__(chat)
         self._parsed = parsed
-        self.user_name: str = parsed['command']['from']
-        """Name of the user who send the whisper"""
         self.message: str = parsed['parameters']
         """The message that was send"""
 
     @property
     def user(self) -> ChatUser:
         """The user that DMed your bot"""
-        return ChatUser(self.chat, self._parsed, name_override=self.user_name)
+        return ChatUser(self.chat, self._parsed)
 
 
 class Chat:
@@ -551,15 +549,10 @@ class Chat:
         command_parts = raw_command_component.split(' ')
 
         if command_parts[0] in ('JOIN', 'PART', 'NOTICE', 'CLEARCHAT', 'HOSTTARGET', 'PRIVMSG',
-                                'USERSTATE', 'ROOMSTATE', '001', 'USERNOTICE', 'CLEARMSG'):
+                                'USERSTATE', 'ROOMSTATE', '001', 'USERNOTICE', 'CLEARMSG', 'WHISPER'):
             parsed_command = {
                 'command': command_parts[0],
                 'channel': command_parts[1]
-            }
-        elif command_parts[0] == 'WHISPER':
-            parsed_command = {
-                'command': command_parts[0],
-                'from': command_parts[1]
             }
         elif command_parts[0] in ('PING', 'GLOBALUSERSTATE', 'RECONNECT'):
             parsed_command = {

@@ -248,6 +248,7 @@ class SoundtrackSourceType(Enum):
 # CHAT
 
 class ChatEvent(Enum):
+    """Represents the possible events to listen for using :const:`~twitchAPI.chat.Chat.register_event()`"""
     READY = 'ready'
     """Triggered when the bot is started up and ready"""
     MESSAGE = 'message'
@@ -271,8 +272,7 @@ class ChatEvent(Enum):
     CHAT_CLEARED = 'chat_cleared'
     """Triggered when a user was banned, timed out or all messaged from a user where deleted"""
     WHISPER = 'whisper'
-    """Triggered when someone whispers to your bot. \nNOTE: this seems to be unreliable. 
-    Considder using :const:`twiutchAPI.pubsub.PubSub.listen_whispers()` to listen to incomming whisper messages!"""
+    """Triggered when someone whispers to your bot. NOTE: You need the :const:`~twitchAPI.types.AuthScope.WHISPERS_READ` Auth Scope to get this Event."""
 
 
 @dataclass
