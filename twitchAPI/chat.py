@@ -134,7 +134,8 @@ from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScop
 
 from typing import List, Optional, Union, Callable, Dict
 
-__all__ = ['ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent']
+__all__ = ['ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent',
+           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent']
 
 
 class ChatUser:
@@ -171,9 +172,7 @@ class ChatUser:
 
 
 class EventData:
-    """Represents a basic chat event
-
-    :param ~twitchAPI.chat.Chat chat: represents the Chat Instance"""
+    """Represents a basic chat event"""
     def __init__(self, chat):
         self.chat: 'Chat' = chat
         """The :const:`twitchAPI.chat.Chat` instance"""
@@ -334,6 +333,30 @@ class ChatSub:
     def room(self) -> Optional[ChatRoom]:
         """The room this sub was issued in"""
         return self.chat.room_cache.get(self._parsed['command']['channel'][1:])
+
+
+class ClearChatEvent(EventData):
+    
+    def __init__(self, chat, parsed):
+        super(ClearChatEvent, self).__init__(chat)
+        self.room_name: str = parsed['command']['channel'][1:]
+        """The name of the chat room the event happend in"""
+        self.room_id: str = parsed['tags'].get('room-id')
+        """The ID of the chat room the event happend in"""
+        self.user_name: str = parsed['parameters']
+        """The name of the user whos messages got cleared"""
+        self.duration: Optional[int] = int(parsed['tags']['ban-duration']) if parsed['tags']['ban-duration'] not in (None, '') else None
+        """duration of the timeout in seconds. None if user was not timed out"""
+        self.banned_user_id: Optional[str] = parsed['tags'].get('target-user-id')
+        """The ID of the user who got banned or timed out. if :const:`twitchAPI.chat.ClearChatEvent.duration` is None, the user was banned.
+        Will be None when the user was not banned nor timed out."""
+        self.sent_timestamp: int = int(parsed['tags'].get('tmi-sent-ts'))
+        """The timestamp the event happend at"""
+
+    @property
+    def room(self) -> Optional[ChatRoom]:
+        """The room this event was issued in. None on cache miss."""
+        return self.chat.room_cache.get(self.room_name)
 
 
 class Chat:
@@ -596,7 +619,7 @@ class Chat:
 
     async def __connect(self, is_startup=False):
         self.logger.debug('connecting...')
-        if self.__connection is not None and self.__connection.open:
+        if self.__connection is not None and not self.__connection.closed:
             await self.__connection.close()
         retry = 0
         need_retry = True
@@ -664,7 +687,8 @@ class Chat:
                             'CLEARMSG': self._handle_clear_msg,
                             'CAP': self._handle_cap_reply,
                             'PART': self._handle_part,
-                            'NOTICE': self._handle_notice
+                            'NOTICE': self._handle_notice,
+                            'CLEARCHAT': self._handle_clear_chat
                         }
                         handler = handlers.get(parsed['command']['command'])
                         if handler is not None:
@@ -679,6 +703,12 @@ class Chat:
             # we are closing down!
             # print('we are closing down!')
             return
+
+    async def _handle_clear_chat(self, parsed: dict):
+        e = ClearChatEvent(self, parsed)
+        for handler in self._event_handler.get(ChatEvent.CHAT_CLEARED, []):
+            t = asyncio.ensure_future(handler(e))
+            t.add_done_callback(self._task_callback)
 
     async def _handle_notice(self, parsed: dict):
         self.logger.debug(f'got NOTICE for channel {parsed["command"]["channel"]}: {parsed["tags"]["msg-id"]}')

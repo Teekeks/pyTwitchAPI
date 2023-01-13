@@ -268,6 +268,8 @@ class ChatEvent(Enum):
     """Triggered when a user leaves a chat channel"""
     MESSAGE_DELETE = 'message_delete'
     """Triggered when a message gets deleted from a channel"""
+    CHAT_CLEARED = 'chat_cleared'
+    """Triggered when a user was banned, timed out or all messaged from a user where deleted"""
 
 
 @dataclass
