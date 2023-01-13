@@ -1012,7 +1012,7 @@ class Chat:
 
     async def join_room(self, chat_rooms: Union[List[str], str]):
         """ join one or more chat rooms\n
-        Will only exit once all given chat rooms where successfully joined
+        Will only exit once all given chat rooms where successfully joined or :const:`twitchAPI.chat.Chat.join_timeout` run out.
 
         :param chat_rooms: the Room or rooms you want to leave
         :returns: list of channels that could not be joined
