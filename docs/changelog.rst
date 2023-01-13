@@ -56,7 +56,7 @@ Chat
 - Added the following new Events:
 
   - :const:`~twitchAPI.types.ChatEvent.USER_LEFT` - Triggered when a user leaves a chat channel
-  - :const:`~twitchAPI.types.ChatEvent.CHAT_CLEARED` - Triggered when a user was timed out, banned or theri messages where deleted
+  - :const:`~twitchAPI.types.ChatEvent.CHAT_CLEARED` - Triggered when a user was timed out, banned or the messages where deleted
   - :const:`~twitchAPI.types.ChatEvent.WHISPER` - Triggered when a user sends a whisper message to the bot
 
 OAuth
