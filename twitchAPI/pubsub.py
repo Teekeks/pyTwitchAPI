@@ -84,6 +84,9 @@ from typing import Callable, List, Dict, Awaitable
 __all__ = ['PubSub']
 
 
+CALLBACK_FUNC = Callable[[UUID, dict], Awaitable[None]]
+
+
 class PubSub:
     """The PubSub client
     """
@@ -241,6 +244,8 @@ class PubSub:
         self.__socket_loop.run_until_complete(self._keep_loop_alive())
 
     async def __generic_listen(self, key, callback_func, required_scopes: List[AuthScope]) -> UUID:
+        if not asyncio.iscoroutinefunction(callback_func):
+            raise ValueError('callback_func needs to be a async function which takes 2 arguments')
         for scope in required_scopes:
             if scope not in self.__twitch.get_user_auth_scope():
                 raise MissingScopeException(str(scope))
@@ -370,7 +375,7 @@ class PubSub:
 
     async def listen_whispers(self,
                               user_id: str,
-                              callback_func: Callable[[UUID, dict], Awaitable[None]]) -> UUID:
+                              callback_func: CALLBACK_FUNC) -> UUID:
         """
         You are notified when anyone whispers the specified user or the specified user whispers to anyone.\n
         Requires the :const:`~twitchAPI.types.AuthScope.WHISPERS_READ` AuthScope.\n
@@ -388,7 +393,7 @@ class PubSub:
 
     async def listen_bits_v1(self,
                              channel_id: str,
-                             callback_func: Callable[[UUID, dict], Awaitable[None]]) -> UUID:
+                             callback_func: CALLBACK_FUNC) -> UUID:
         """
         You are notified when anyone cheers in the specified channel.\n
         Requires the :const:`~twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
@@ -406,7 +411,7 @@ class PubSub:
 
     async def listen_bits(self,
                           channel_id: str,
-                          callback_func: Callable[[UUID, dict], None]) -> UUID:
+                          callback_func: CALLBACK_FUNC) -> UUID:
         """
         You are notified when anyone cheers in the specified channel.\n
         Requires the :const:`~twitchAPI.types.AuthScope.BITS_READ` AuthScope.\n
@@ -424,7 +429,7 @@ class PubSub:
 
     async def listen_bits_badge_notification(self,
                                              channel_id: str,
-                                             callback_func: Callable[[UUID, dict], Awaitable[None]]) -> UUID:
+                                             callback_func: CALLBACK_FUNC) -> UUID:
         """
         You are notified when a user earns a new Bits badge in the given channel,
         and chooses to share the notification with chat.\n
@@ -443,7 +448,7 @@ class PubSub:
 
     async def listen_channel_points(self,
                                     channel_id: str,
-                                    callback_func: Callable[[UUID, dict], Awaitable[None]]) -> UUID:
+                                    callback_func: CALLBACK_FUNC) -> UUID:
         """
         You are notified when a custom reward is redeemed in the channel.\n
         Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` AuthScope.\n
@@ -463,7 +468,7 @@ class PubSub:
 
     async def listen_channel_subscriptions(self,
                                            channel_id: str,
-                                           callback_func: Callable[[UUID, dict], Awaitable[None]]) -> UUID:
+                                           callback_func: CALLBACK_FUNC) -> UUID:
         """
         You are notified when anyone subscribes (first month), resubscribes (subsequent months),
         or gifts a subscription to a channel. Subgift subscription messages contain recipient information.\n
@@ -485,7 +490,7 @@ class PubSub:
     async def listen_chat_moderator_actions(self,
                                             user_id: str,
                                             channel_id: str,
-                                            callback_func: Callable[[UUID, dict], Awaitable[None]]) -> UUID:
+                                            callback_func: CALLBACK_FUNC) -> UUID:
         """
         Supports moderators listening to the topic, as well as users listening to the topic to receive their own events.
         Examples of moderator actions are bans, unbans, timeouts, deleting messages,
@@ -509,7 +514,7 @@ class PubSub:
     async def listen_automod_queue(self,
                                    moderator_id: str,
                                    channel_id: str,
-                                   callback_func: Callable[[UUID, dict], Awaitable[None]]) -> UUID:
+                                   callback_func: CALLBACK_FUNC) -> UUID:
         """
         AutoMod flags a message as potentially inappropriate, and when a moderator takes action on a message.\n
         Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_MODERATE` AuthScope.\n
@@ -531,7 +536,7 @@ class PubSub:
     async def listen_user_moderation_notifications(self,
                                                    user_id: str,
                                                    channel_id: str,
-                                                   callback_func: Callable[[UUID, dict], Awaitable[None]]) -> UUID:
+                                                   callback_func: CALLBACK_FUNC) -> UUID:
         """
         A user’s message held by AutoMod has been approved or denied.\n
         Requires the :const:`~twitchAPI.types.AuthScope.CHAT_READ` AuthScope.\n
@@ -552,7 +557,7 @@ class PubSub:
 
     async def listen_undocumented_topic(self,
                                         topic: str,
-                                        callback_func: Callable[[UUID, dict], Awaitable[None]]) -> UUID:
+                                        callback_func: CALLBACK_FUNC) -> UUID:
         """
         Listen to one of the many undocumented PubSub topics.
 
