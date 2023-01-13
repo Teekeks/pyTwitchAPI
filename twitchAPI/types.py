@@ -270,6 +270,9 @@ class ChatEvent(Enum):
     """Triggered when a message gets deleted from a channel"""
     CHAT_CLEARED = 'chat_cleared'
     """Triggered when a user was banned, timed out or all messaged from a user where deleted"""
+    WHISPER = 'whisper'
+    """Triggered when someone whispers to your bot. \nNOTE: this seems to be unreliable. 
+    Considder using :const:`twiutchAPI.pubsub.PubSub.listen_whispers()` to listen to incomming whisper messages!"""
 
 
 @dataclass

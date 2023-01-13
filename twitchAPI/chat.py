@@ -135,20 +135,22 @@ from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScop
 from typing import List, Optional, Union, Callable, Dict
 
 __all__ = ['ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent',
-           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent']
+           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent']
 
 
 class ChatUser:
     """Represents a user in a chat channel
     """
 
-    def __init__(self, chat, parsed):
+    def __init__(self, chat, parsed, name_override=None):
         self.chat: 'Chat' = chat
         """The :const:`twitchAPI.chat.Chat` instance"""
         self.name: str = parsed['source']['nick'] if parsed['source']['nick'] is not None else f'{chat.username}'
         """The name of the user"""
         if self.name[0] == ':':
             self.name = self.name[1:]
+        if name_override is not None:
+            self.name = name_override
         self.badge_info = parsed['tags'].get('badge-info')
         """All infos related to the badges of the user"""
         self.badges = parsed['tags'].get('badges')
@@ -357,6 +359,22 @@ class ClearChatEvent(EventData):
     def room(self) -> Optional[ChatRoom]:
         """The room this event was issued in. None on cache miss."""
         return self.chat.room_cache.get(self.room_name)
+    
+
+class WhisperEvent(EventData):
+    
+    def __init__(self, chat, parsed):
+        super(WhisperEvent, self).__init__(chat)
+        self._parsed = parsed
+        self.user_name: str = parsed['command']['from']
+        """Name of the user who send the whisper"""
+        self.message: str = parsed['parameters']
+        """The message that was send"""
+
+    @property
+    def user(self) -> ChatUser:
+        """The user that DMed your bot"""
+        return ChatUser(self.chat, self._parsed, name_override=self.user_name)
 
 
 class Chat:
@@ -538,6 +556,11 @@ class Chat:
                 'command': command_parts[0],
                 'channel': command_parts[1]
             }
+        elif command_parts[0] == 'WHISPER':
+            parsed_command = {
+                'command': command_parts[0],
+                'from': command_parts[1]
+            }
         elif command_parts[0] in ('PING', 'GLOBALUSERSTATE', 'RECONNECT'):
             parsed_command = {
                 'command': command_parts[0]
@@ -673,6 +696,7 @@ class Chat:
                     for m in messages:
                         if len(m) == 0:
                             continue
+                        self.logger.debug(f'< {m}')
                         parsed = self._parse_irc_message(m)
                         # a message we don't know or don't care about
                         if parsed is None:
@@ -688,7 +712,8 @@ class Chat:
                             'CAP': self._handle_cap_reply,
                             'PART': self._handle_part,
                             'NOTICE': self._handle_notice,
-                            'CLEARCHAT': self._handle_clear_chat
+                            'CLEARCHAT': self._handle_clear_chat,
+                            'WHISPER': self._handle_whisper
                         }
                         handler = handlers.get(parsed['command']['command'])
                         if handler is not None:
@@ -703,6 +728,12 @@ class Chat:
             # we are closing down!
             # print('we are closing down!')
             return
+
+    async def _handle_whisper(self, parsed: dict):
+        e = WhisperEvent(self, parsed)
+        for handler in self._event_handler.get(ChatEvent.WHISPER, []):
+            t = asyncio.ensure_future(handler(e))
+            t.add_done_callback(self._task_callback)
 
     async def _handle_clear_chat(self, parsed: dict):
         e = ClearChatEvent(self, parsed)
