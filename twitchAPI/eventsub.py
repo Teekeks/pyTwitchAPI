@@ -249,6 +249,8 @@ class EventSub:
 
     async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback) -> str:
         """"Subscribe to Twitch Topic"""
+        if not asyncio.iscoroutinefunction(callback):
+            raise ValueError('callback needs to be a async function which takes one parameter')
         self.logger.debug(f'subscribe to {sub_type} version {sub_version} with condition {condition}')
         data = {
             'type': sub_type,
