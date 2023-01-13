@@ -1029,9 +1029,7 @@ class Chat:
         :param handler: The handler you want to unregister
         :return: Returns true when the handler was removed from the event, otehrwise false
         """
-        if self._event_handler.get(event) is None:
-            return False
-        if handler not in self._event_handler.get(event):
+        if self._event_handler.get(event) is None or handler not in self._event_handler.get(event):
             return False
         self._event_handler[event].remove(handler)
         return True
