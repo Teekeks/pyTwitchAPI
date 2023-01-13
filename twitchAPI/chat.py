@@ -268,7 +268,7 @@ from twitchAPI.object import TwitchUser
 from twitchAPI.helper import TWITCH_CHAT_URL, first
 from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScope, ChatEvent, MissingScopeException, UnauthorizedException
 
-from typing import List, Optional, Union, Callable, Dict
+from typing import List, Optional, Union, Callable, Dict, Awaitable, Any
 
 __all__ = ['ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent',
            'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent']
@@ -509,6 +509,10 @@ class WhisperEvent(EventData):
     def user(self) -> ChatUser:
         """The user that DMed your bot"""
         return ChatUser(self.chat, self._parsed)
+
+
+COMMAND_CALLBACK_TYPE = Callable[[ChatCommand], Awaitable[None]]
+EVENT_CALLBACK_TYPE = Callable[[Any], Awaitable[None]]
 
 
 class Chat:
@@ -989,11 +993,14 @@ class Chat:
     # user functions
     ##################################################################################################################################################
 
-    def register_command(self, name: str, handler: Callable) -> bool:
+    def register_command(self, name: str, handler: COMMAND_CALLBACK_TYPE) -> bool:
         """Register a command
 
         :param name: the name of the command
-        :param handler: The event handler"""
+        :param handler: The event handler
+        :raises ValueError: if handler is not a coroutine"""
+        if not asyncio.iscoroutinefunction(handler):
+            raise ValueError('handler needs to be a async function which takes one parameter')
         name = name.lower()
         if self._command_handler.get(name) is not None:
             return False
@@ -1012,22 +1019,25 @@ class Chat:
         self._command_handler.pop(name, None)
         return True
 
-    def register_event(self, event: ChatEvent, handler: Callable):
+    def register_event(self, event: ChatEvent, handler: EVENT_CALLBACK_TYPE):
         """Register a event handler
 
         :param event: The Event you want to register the handler to
-        :param handler: The handler you want to register."""
+        :param handler: The handler you want to register.
+        :raises ValueError: if handler is not a coroutine"""
+        if not asyncio.iscoroutinefunction(handler):
+            raise ValueError('handler needs to be a async function which takes one parameter')
         if self._event_handler.get(event) is None:
             self._event_handler[event] = [handler]
         else:
             self._event_handler[event].append(handler)
 
-    def unregister_event(self, event: ChatEvent, handler: Callable) -> bool:
+    def unregister_event(self, event: ChatEvent, handler: EVENT_CALLBACK_TYPE) -> bool:
         """Unregister a handler from a event
 
         :param event: The Event you want to unregister your handler from
         :param handler: The handler you want to unregister
-        :return: Returns true when the handler was removed from the event, otehrwise false
+        :return: Returns true when the handler was removed from the event, otherwise false
         """
         if self._event_handler.get(event) is None or handler not in self._event_handler.get(event):
             return False
