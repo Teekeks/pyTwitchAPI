@@ -35,14 +35,14 @@ Code example
     from twitchAPI.oauth import UserAuthenticator
     from twitchAPI.types import AuthScope
 
-    twitch = Twitch('my_app_id', 'my_app_secret')
+    twitch = await Twitch('my_app_id', 'my_app_secret')
 
     target_scope = [AuthScope.BITS_READ]
     auth = UserAuthenticator(twitch, target_scope, force_verify=False)
     # this will open your default browser and prompt you with the twitch verification website
-    token, refresh_token = auth.authenticate()
+    token, refresh_token = await auth.authenticate()
     # add User authentication
-    twitch.set_user_authentication(token, target_scope, refresh_token)
+    await twitch.set_user_authentication(token, target_scope, refresh_token)
 
 *******************
 Class Documentation
