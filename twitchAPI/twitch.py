@@ -144,7 +144,7 @@ If you don't want to use App Authentication, Initialize like this:
 .. code-block:: python
 
     from twitchAPI.twitch import Twitch
-    twitch = Twitch('my_app_id', authenticate_app=False)
+    twitch = await Twitch('my_app_id', authenticate_app=False)
 
 
 User Authentication
@@ -155,7 +155,7 @@ Only use a user auth token, use this:
 .. code-block:: python
 
     from twitchAPI.twitch import Twitch
-    twitch = Twitch('my_app_id', authenticate_app=False)
+    twitch = await Twitch('my_app_id', authenticate_app=False)
     # make sure to set the second parameter as the scope used to generate the token
     await twitch.set_user_authentication('token', [], 'refresh_token')
 
