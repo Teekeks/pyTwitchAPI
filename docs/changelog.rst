@@ -4,6 +4,12 @@ Changelog
 =========
 
 ****************
+Version 3.4.1
+****************
+
+- fixed bug that prevented newer pip versions from gathering the dependencies
+
+****************
 Version 3.4.0
 ****************
 
