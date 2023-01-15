@@ -10,5 +10,10 @@ with open('twitchAPI/__init__.py') as f:
 
 setup(
     packages=find_packages(),
-    version=version
+    version=version,
+    install_requires=[
+        'aiohttp',
+        'python-dateutil',
+        'typing_extensions'
+    ]
 )
