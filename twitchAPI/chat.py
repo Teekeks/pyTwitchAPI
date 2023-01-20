@@ -265,7 +265,7 @@ from time import sleep
 import aiohttp
 from twitchAPI.twitch import Twitch
 from twitchAPI.object import TwitchUser
-from twitchAPI.helper import TWITCH_CHAT_URL, first
+from twitchAPI.helper import TWITCH_CHAT_URL, first, RateLimitBucket, RATE_LIMIT_SIZES
 from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScope, ChatEvent, MissingScopeException, UnauthorizedException
 
 from typing import List, Optional, Union, Callable, Dict, Awaitable, Any
@@ -428,6 +428,8 @@ class ChatMessage(EventData):
 
     async def reply(self, text: str):
         """Reply to this message"""
+        bucket = self.chat._get_message_bucket(self._parsed['command']['channel'][1:])
+        await bucket.put()
         await self.chat.send_raw_irc_message(f'@reply-parent-msg-id={self.id} PRIVMSG #{self.room.name} :{text}')
 
 
@@ -538,6 +540,7 @@ class Chat:
         self.__startup_complete: bool = False
         self.__tasks = None
         self._ready = False
+        self._send_buckets = {}
         self.__waiting_for_pong: bool = False
         self._event_handler = {}
         self._command_handler = {}
@@ -546,6 +549,7 @@ class Chat:
         self._room_leave_locks = []
         self._closing: bool = False
         self.join_timeout: int = 10
+        self._mod_status_cache = {}
         """Time in seconds till a channel join attempt times out"""
 
     def __await__(self):
@@ -820,7 +824,7 @@ class Chat:
             traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
 
     async def _send_message(self, message: str):
-        self.logger.debug(f'Sending message "{message}"')
+        self.logger.debug(f'> "{message}"')
         await self.__connection.send_str(message)
 
     async def __task_receive(self):
@@ -979,6 +983,10 @@ class Chat:
 
     async def _handle_msg(self, parsed: dict):
         self.logger.debug('got new message, call handler')
+        # get own state based on badges
+        if parsed['source']['nick'][1:] == self.username:
+            self._mod_status_cache[parsed['command']['channel'][1:]] = 'mod' if parsed['tags']['mod'] == '1' or \
+                                                                                parsed['tags']['badges'].get('broadcaster') is not None else 'user'
         if parsed['command'].get('bot_command') is not None:
             command_name = parsed['command'].get('bot_command').lower()
             handler = self._command_handler.get(command_name)
@@ -998,6 +1006,16 @@ class Chat:
         await self._send_message(f'PASS oauth:{self.twitch.get_user_auth_token()}')
         await self._send_message(f'NICK {self.username}')
         self.__startup_complete = True
+
+    def _get_message_bucket(self, channel) -> RateLimitBucket:
+        bucket = self._send_buckets.get(channel)
+        if bucket is None:
+            bucket = RateLimitBucket(30, 20, channel, self.logger)
+            self._send_buckets[channel] = bucket
+        target_size = RATE_LIMIT_SIZES[self._mod_status_cache.get(channel, 'user')]
+        if bucket.bucket_size != target_size:
+            bucket.bucket_size = target_size
+        return bucket
 
     ##################################################################################################################################################
     # user functions
@@ -1124,6 +1142,8 @@ class Chat:
             raise ValueError('you can\'t send a empty message')
         if room[0] != '#':
             room = f'#{room}'
+        bucket = self._get_message_bucket(room[1:])
+        await bucket.put()
         await self._send_message(f'PRIVMSG {room} :{text}')
 
     async def leave_room(self, chat_rooms: Union[List[str], str]):

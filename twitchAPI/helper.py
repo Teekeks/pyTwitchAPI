@@ -2,7 +2,9 @@
 """
 Helper functions
 ----------------"""
-
+import asyncio
+import logging
+import time
 import urllib.parse
 import uuid
 from typing import AsyncGenerator, TypeVar
@@ -14,7 +16,7 @@ from typing import Union, List, Type, Optional
 
 __all__ = ['TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 'TWITCH_CHAT_URL',
            'build_url', 'get_uuid', 'build_scope', 'fields_to_enum', 'make_enum',
-           'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'ResultType', 'first']
+           'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'ResultType', 'first', 'RateLimitBucket']
 
 T = TypeVar('T')
 
@@ -165,3 +167,52 @@ async def first(gen: AsyncGenerator[T, None]) -> Optional[T]:
         return await gen.__anext__()
     except StopAsyncIteration:
         return None
+
+
+class RateLimitBucket:
+    """Handler used for chat rate limiting"""
+
+    def __init__(self,
+                 bucket_length: int,
+                 bucket_size: int,
+                 scope: str,
+                 logger=None):
+        self.scope = scope
+        self.bucket_length = float(bucket_length)
+        self.bucket_size = bucket_size
+        self.reset = None
+        self.content = 0
+        self.logger = logger
+        self.lock: asyncio.Lock = asyncio.Lock()
+
+    def get_delta(self) -> Optional[float]:
+        current = time.time()
+        if self.reset is None:
+            self.reset = current + self.bucket_length
+        if current >= self.reset:
+            self.reset = current + self.bucket_length
+            self.content = 1
+        else:
+            self.content += 1
+        if self.content >= self.bucket_size:
+            return self.reset - current
+        return None
+
+    def _warn(self, msg):
+        if self.logger is not None:
+            self.logger.warning(msg)
+        else:
+            logging.warning(msg)
+
+    async def put(self):
+        async with self.lock:
+            delta = self.get_delta()
+            if delta is not None:
+                self._warn(f'Bucket {self.scope} got rate limited. wating {delta:.2f}s...')
+                await asyncio.sleep(delta)
+
+
+RATE_LIMIT_SIZES = {
+    'user': 20,
+    'mod': 100
+}
