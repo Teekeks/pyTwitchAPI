@@ -3724,3 +3724,31 @@ class Twitch:
         """
         return await self._build_result('GET', 'charity/campaigns', {'broadcaster_id': broadcaster_id}, AuthType.USER,
                                         [AuthScope.CHANNEL_READ_CHARITY], CharityCampaign)
+
+    async def get_charity_donations(self,
+                                    broadcaster_id: str,
+                                    first: Optional[int] = None,
+                                    after: Optional[str] = None) -> AsyncGenerator[CharityCampaignDonation, None]:
+        """Gets the list of donations that users have made to the broadcaster’s active charity campaign.
+
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-charity-campaign-donations
+
+        :param broadcaster_id: The ID of the broadcaster that’s currently running a charity campaign.
+        :param first: The maximum number of items to return per page in a single response. Maximum 100 |default|:code:`20`
+        :param after: The cursor used to get the next page of results. |default|:code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        """
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'first': first,
+            'after': after
+        }
+        async for y in self._build_generator('GET', 'charity/donations', param, AuthType.USER, [AuthScope.CHANNEL_READ_CHARITY],
+                                             CharityCampaignDonation):
+            yield y

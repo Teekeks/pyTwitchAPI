@@ -914,3 +914,12 @@ class CharityCampaign(TwitchObject):
     charity_website: str
     current_amount: CharityAmount
     target_amount: CharityAmount
+
+
+class CharityCampaignDonation(TwitchObject):
+    id: str
+    campaign_id: str
+    user_id: str
+    user_name: str
+    user_login: str
+    amount: CharityAmount
