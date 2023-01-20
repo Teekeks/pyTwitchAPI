@@ -1085,7 +1085,12 @@ class Chat:
         """Send a raw IRC message
 
         :param message: the message to send
+        :raises ValueError: if bot is not ready
         """
+        if not self.is_ready():
+            raise ValueError('can\'t send message: bot not ready')
+        while not self.is_connected():
+            await asyncio.sleep(0.1)
         if message is None or len(message) == 0:
             raise ValueError('message must be a non empty string')
         await self._send_message(message)
@@ -1099,7 +1104,12 @@ class Chat:
             This can either be a instance of :const:`~twitchAPI.types.ChatRoom` or a string with the room name (either with leading # or without)
         :param text: The text you want to send
         :raises ValueError: if message is empty or room is not given
+        :raises ValueError: if bot is not ready
         """
+        if not self.is_ready():
+            raise ValueError('can\'t send message: bot not ready')
+        while not self.is_connected():
+            await asyncio.sleep(0.1)
         if isinstance(room, ChatRoom):
             room = room.name
         if room is None or len(room) == 0:
