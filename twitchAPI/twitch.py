@@ -3660,8 +3660,8 @@ class Twitch:
                                      moderator_id: str) -> ShieldModeStatus:
         """Gets the broadcaster’s Shield Mode activation status.
 
-        Requires User Authentication with either :const:`twitchAPI.types.AuthScope.MODERATOR_READ_SHIELD_MODE` or
-        :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHIELD_MODE`\n
+        Requires User Authentication with either :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHIELD_MODE` or
+        :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHIELD_MODE`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-shield-mode-status
 
         :param broadcaster_id: The ID of the broadcaster whose Shield Mode activation status you want to get.
@@ -3686,7 +3686,7 @@ class Twitch:
                                         is_active: bool) -> ShieldModeStatus:
         """Activates or deactivates the broadcaster’s Shield Mode.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHIELD_MODE`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHIELD_MODE`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-shield-mode-status
 
         :param broadcaster_id: The ID of the broadcaster whose Shield Mode you want to activate or deactivate.
@@ -3711,7 +3711,7 @@ class Twitch:
                                    broadcaster_id: str) -> Optional[CharityCampaign]:
         """Gets information about the charity campaign that a broadcaster is running.
 
-        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY`\n
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-charity-campaign
 
         :param broadcaster_id: The ID of the broadcaster that’s currently running a charity campaign.
