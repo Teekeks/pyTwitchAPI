@@ -520,7 +520,12 @@ EVENT_CALLBACK_TYPE = Callable[[Any], Awaitable[None]]
 class Chat:
     """The chat bot instance"""
 
-    def __init__(self, twitch: Twitch, connection_url: Optional[str] = None):
+    def __init__(self, twitch: Twitch, connection_url: Optional[str] = None, is_verified_bot: bool = False):
+        """
+        :param twitch: A Authenticated twitch instance
+        :param connection_url: alternative connection url |default|:code:`None`
+        :param is_verified_bot: set to true if your bot is verified by twitch |default|:code:`False`
+        """
         self.logger: Logger = getLogger('twitchAPI.chat')
         """The logger used for Chat related log messages"""
         self._prefix: str = "!"
@@ -541,6 +546,7 @@ class Chat:
         self.__tasks = None
         self._ready = False
         self._send_buckets = {}
+        self._join_bucket = RateLimitBucket(10, 2000 if is_verified_bot else 20, 'channel_join', self.logger)
         self.__waiting_for_pong: bool = False
         self._event_handler = {}
         self._command_handler = {}
@@ -1095,6 +1101,7 @@ class Chat:
         target = [c[1:].lower() if c[0] == '#' else c.lower() for c in chat_rooms]
         for r in target:
             self._room_join_locks.append(r)
+        await self._join_bucket.put()
         await self._send_message(f'JOIN {room_str}')
         # wait for us to join all rooms
         timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.join_timeout)
