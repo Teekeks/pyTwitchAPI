@@ -248,6 +248,8 @@ class Twitch:
         self._authenticate_app = authenticate_app
         self._target_app_scope = target_app_auth_scope
         self.base_url: str = base_url
+        self._user_token_refresh_lock: bool = False
+        self._app_token_refresh_lock: bool = False
         """The URL to the Twitch API used"""
 
     def __await__(self):
@@ -336,17 +338,30 @@ class Twitch:
     async def refresh_used_token(self):
         """Refreshes the currently used token"""
         if self.__has_user_auth:
-            self.logger.debug('refreshing user token')
             from .oauth import refresh_access_token
-            self.__user_auth_token, self.__user_auth_refresh_token = await refresh_access_token(self.__user_auth_refresh_token,
-                                                                                                self.app_id,
-                                                                                                self.app_secret)
-            if self.user_auth_refresh_callback is not None:
-                await self.user_auth_refresh_callback(self.__user_auth_token, self.__user_auth_refresh_token)
+            if self._user_token_refresh_lock:
+                while self._user_token_refresh_lock:
+                    await asyncio.sleep(0.1)
+            else:
+                self.logger.debug('refreshing user token')
+                self._user_token_refresh_lock = True
+                self.__user_auth_token, self.__user_auth_refresh_token = await refresh_access_token(self.__user_auth_refresh_token,
+                                                                                                    self.app_id,
+                                                                                                    self.app_secret)
+                self._user_token_refresh_lock = False
+                if self.user_auth_refresh_callback is not None:
+                    await self.user_auth_refresh_callback(self.__user_auth_token, self.__user_auth_refresh_token)
         else:
-            await self.__generate_app_token()
-            if self.app_auth_refresh_callback is not None:
-                await self.app_auth_refresh_callback(self.__app_auth_token)
+            if self._app_token_refresh_lock:
+                while self._app_token_refresh_lock:
+                    await asyncio.sleep(0.1)
+            else:
+                self._app_token_refresh_lock = True
+                self.logger.debug('refreshing app token')
+                await self.__generate_app_token()
+                self._app_token_refresh_lock = False
+                if self.app_auth_refresh_callback is not None:
+                    await self.app_auth_refresh_callback(self.__app_auth_token)
 
     async def __check_request_return(self,
                                      session: ClientSession,
