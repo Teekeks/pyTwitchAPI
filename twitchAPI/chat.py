@@ -837,7 +837,8 @@ class Chat:
                 'PART': self._handle_part,
                 'NOTICE': self._handle_notice,
                 'CLEARCHAT': self._handle_clear_chat,
-                'WHISPER': self._handle_whisper
+                'WHISPER': self._handle_whisper,
+                'RECONNECT': self._handle_reconnect
             }
             while not self.__connection.closed:
                 message = await self.__connection.receive()
@@ -864,6 +865,11 @@ class Chat:
             # we are closing down!
             # print('we are closing down!')
             return
+
+    async def _handle_reconnect(self, parsed: dict):
+        self.logger.info('got reconnect request...')
+        await self.__connect(is_startup=False)
+        self.logger.info('reconnect completed')
 
     async def _handle_whisper(self, parsed: dict):
         e = WhisperEvent(self, parsed)
