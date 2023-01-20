@@ -1,7 +1,7 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
 from setuptools import setup, find_packages
 
-version = ""
+version = ''
 
 with open('twitchAPI/__init__.py') as f:
     for line in f.readlines():
@@ -11,6 +11,7 @@ with open('twitchAPI/__init__.py') as f:
 setup(
     packages=find_packages(),
     version=version,
+    keywords=['twitch', 'twitch.tv', 'chat', 'bot', 'event sub', 'EventSub', 'pub sub', 'PubSub', 'helix', 'api'],
     install_requires=[
         'aiohttp',
         'python-dateutil',
