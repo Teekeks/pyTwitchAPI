@@ -1,4 +1,4 @@
-enum_tools
+enum-tools[sphinx]
 sphinx_toolbox
 aiohttp
 python-dateutil
