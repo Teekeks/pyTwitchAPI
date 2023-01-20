@@ -895,3 +895,22 @@ class ShieldModeStatus(TwitchObject):
     moderator_login: str
     moderator_name: str
     last_activated_at: Optional[datetime]
+
+
+class CharityAmount(TwitchObject):
+    value: int
+    decimal_places: int
+    currency: str
+
+
+class CharityCampaign(TwitchObject):
+    id: str
+    broadcaster_id: str
+    broadcaster_login: str
+    broadcaster_name: str
+    charity_name: str
+    charity_description: str
+    charity_logo: str
+    charity_website: str
+    current_amount: CharityAmount
+    target_amount: CharityAmount

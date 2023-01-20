@@ -600,6 +600,8 @@ class Twitch:
                 if get_from_data:
                     d = data['data']
                     if isinstance(d, list):
+                        if len(d) == 0:
+                            return None
                         return return_type(**d[0])
                     else:
                         return return_type(**d)
@@ -3704,3 +3706,21 @@ class Twitch:
         }
         return await self._build_result('PUT', 'moderation/shield_mode', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_SHIELD_MODE],
                                         ShieldModeStatus, body_data={'is_active': is_active})
+
+    async def get_charity_campaign(self,
+                                   broadcaster_id: str) -> Optional[CharityCampaign]:
+        """Gets information about the charity campaign that a broadcaster is running.
+
+        Requires User Authentication with :const:`twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-charity-campaign
+
+        :param broadcaster_id: The ID of the broadcaster that’s currently running a charity campaign.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        """
+        return await self._build_result('GET', 'charity/campaigns', {'broadcaster_id': broadcaster_id}, AuthType.USER,
+                                        [AuthScope.CHANNEL_READ_CHARITY], CharityCampaign)
