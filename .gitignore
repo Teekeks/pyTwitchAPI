@@ -12,3 +12,4 @@ MANIFEST
 requirements_dev.txt
 /tests/
 pytest.ini
+Makefile
