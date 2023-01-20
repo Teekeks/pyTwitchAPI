@@ -31,7 +31,7 @@ PubSub
 ------
 
 - Added :const:`~twitchAPI.pubsub.PubSub.is_connected()`
-- Fixed bug that prevented a chean shutdown on Linux
+- Fixed bug that prevented a clean shutdown on Linux
 
 Chat
 ----
@@ -47,7 +47,7 @@ OAuth
 -----
 
 - Added new Auth Scope :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY`
-- Fixed bug that prevented a chean shutdown on Linux
+- Fixed bug that prevented a clean shutdown on Linux
 
 ****************
 Version 3.4.1
