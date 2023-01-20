@@ -161,6 +161,12 @@ class PubSub:
         self.logger.debug('pubsub stopped!')
         self.__socket_thread.join()
 
+    def is_connected(self) -> bool:
+        """Returns your current connection status."""
+        if self.__connection is None:
+            return False
+        return not self.__connection.closed
+
 ###########################################################################################
 # Internal
 ###########################################################################################
