@@ -1129,3 +1129,24 @@ class EventSub:
         """
         param = {'broadcaster_user_id': broadcaster_user_id}
         return await self._subscribe('channel.charity_campaign.progress', '1', param, callback)
+
+    async def listen_channel_charity_campaign_stop(self,
+                                                   broadcaster_user_id: str,
+                                                   callback: CALLBACK_TYPE) -> str:
+        """Sends a notification when the broadcaster stops a charity campaign.
+
+        Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY` auth scope.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelcharity_campaignprogress
+
+        :param broadcaster_user_id: The ID of the broadcaster that you want to receive notifications about when they stop a charity campaign.
+        :param callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
+        """
+        param = {'broadcaster_user_id': broadcaster_user_id}
+        return await self._subscribe('channel.charity_campaign.stop', '1', param, callback)
