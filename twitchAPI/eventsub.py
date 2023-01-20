@@ -154,6 +154,7 @@ class EventSub:
         self._host: str = '0.0.0.0'
         self.__running = False
         self.__callbacks = {}
+        self._closing = False
         self.__active_webhooks = {}
         self.__hook_thread: Union['threading.Thread', None] = None
         self.__hook_loop: Union['asyncio.AbstractEventLoop', None] = None
@@ -176,10 +177,7 @@ class EventSub:
         site = web.TCPSite(runner, str(self._host), self._port, ssl_context=self.__ssl_context)
         self.__hook_loop.run_until_complete(site.start())
         self.logger.info('started twitch API event sub on port ' + str(self._port))
-        try:
-            self.__hook_loop.run_forever()
-        except (CancelledError, asyncio.CancelledError):
-            self.logger.debug('we got cancelled')
+        self.__hook_loop.run_until_complete(self._keep_loop_alive())
 
     def start(self):
         """Starts the EventSub client
@@ -191,7 +189,12 @@ class EventSub:
             raise RuntimeError('already started')
         self.__hook_thread = threading.Thread(target=self.__run_hook, args=(self.__build_runner(),))
         self.__running = True
+        self._closing = False
         self.__hook_thread.start()
+
+    async def _keep_loop_alive(self):
+        while not self._closing:
+            await asyncio.sleep(0.1)
 
     async def stop(self):
         """Stops the EventSub client
@@ -200,16 +203,19 @@ class EventSub:
 
         :rtype: None
         """
+        self.logger.debug('shutting down eventsub')
         if self.__hook_runner is not None and self.unsubscribe_on_stop:
             await self.unsubscribe_all_known()
-        tasks = {t for t in asyncio.all_tasks(loop=self.__hook_loop) if not t.done()}
-        for task in tasks:
-            task.cancel()
         # ensure all client sessions are closed
         await asyncio.sleep(0.25)
-        self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
+        self._closing = True
+        # cleanly shut down the runner
+        await self.__hook_runner.shutdown()
+        await self.__hook_runner.cleanup()
+        # self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
         self.__hook_runner = None
         self.__running = False
+        self.logger.debug('eventsub shut down')
 
     # ==================================================================================================================
     # HELPER
