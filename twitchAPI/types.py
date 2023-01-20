@@ -37,6 +37,7 @@ class AuthScope(Enum):
     CHANNEL_MANAGE_BROADCAST = 'channel:manage:broadcast'
     CHANNEL_READ_REDEMPTIONS = 'channel:read:redemptions'
     CHANNEL_MANAGE_REDEMPTIONS = 'channel:manage:redemptions'
+    CHANNEL_READ_CHARITY = 'channel:read:charity'
     CLIPS_EDIT = 'clips:edit'
     USER_EDIT = 'user:edit'
     USER_EDIT_BROADCAST = 'user:edit:broadcast'
