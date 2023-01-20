@@ -537,6 +537,7 @@ class Chat:
         self.__socket_loop = None
         self.__startup_complete: bool = False
         self.__tasks = None
+        self._ready = False
         self.__waiting_for_pong: bool = False
         self._event_handler = {}
         self._command_handler = {}
@@ -738,6 +739,7 @@ class Chat:
             raise UnauthorizedException('CHAT_READ authscope is required to run a chat bot')
         self.__startup_complete = False
         self._closing = False
+        self._ready = False
         self.__socket_thread = threading.Thread(target=self.__run_socket)
         self.__running = True
         self.__socket_thread.start()
@@ -757,6 +759,7 @@ class Chat:
         self.logger.debug('stopping chat...')
         self.__startup_complete = False
         self.__running = False
+        self._ready = False
         f = asyncio.run_coroutine_threadsafe(self._stop(), self.__socket_loop)
         f.result()
 
@@ -963,6 +966,7 @@ class Chat:
     async def _handle_ready(self, parsed: dict):
         self.logger.debug('got ready event')
         dat = EventData(self)
+        self._ready = True
         for h in self._event_handler.get(ChatEvent.READY, []):
             t = asyncio.ensure_future(h(dat))
             t.add_done_callback(self._task_callback)
@@ -1043,6 +1047,16 @@ class Chat:
             return False
         self._event_handler[event].remove(handler)
         return True
+
+    def is_connected(self) -> bool:
+        """Returns your current connection status."""
+        if self.__connection is None:
+            return False
+        return not self.__connection.closed
+
+    def is_ready(self) -> bool:
+        """Returns True if the chat bot is ready to join channels and/or receive events"""
+        return self._ready
 
     async def join_room(self, chat_rooms: Union[List[str], str]):
         """ join one or more chat rooms\n
