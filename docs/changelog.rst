@@ -4,6 +4,52 @@ Changelog
 =========
 
 ****************
+Version 3.5.0
+****************
+
+Twitch
+------
+
+- Added the following new Endpoints:
+
+  - "Get Charity Campaign" :const:`~twitchAPI.twitch.Twitch.get_charity_campaign()`
+  - "Get Charity Donations" :const:`~twitchAPI.twitch.Twitch.get_charity_donations()`
+
+- Fixed bug that made the user refresh token invalid in some rare edge cases
+
+EventSub
+--------
+
+- Added the following new Topics:
+
+  - "Charity Campaign Start" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_start()`
+  - "Charity Campaign Stop" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_stop()`
+  - "Charity Campaign Progress" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_progress()`
+  - "Charity Campaign Donate" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_donate()`
+
+PubSub
+------
+
+- Added :const:`~twitchAPI.pubsub.PubSub.is_connected()`
+- Fixed bug that prevented a chean shutdown on Linux
+
+Chat
+----
+
+- Added automatic rate limit handling to channel joining and message sending
+- :const:`~twitchAPI.chat.Chat.send_message()` now waits till reconnected when Chat got disconnected
+- :const:`~twitchAPI.chat.Chat.send_raw_irc_message()` now waits till reconnected when Chat got disconnected
+- Added :const:`~twitchAPI.chat.Chat.is_connected()`
+- Added :const:`~twitchAPI.chat.Chat.is_ready()`
+- Chat now cleanly handles reconnect requests
+
+OAuth
+-----
+
+- Added new Auth Scope :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY`
+- Fixed bug that prevented a chean shutdown on Linux
+
+****************
 Version 3.4.1
 ****************
 
