@@ -235,12 +235,9 @@ class UserAuthenticator:
 
     async def __run_check(self):
         while not self.__can_close:
-            try:
-                await asyncio.sleep(1)
-            except (CancelledError, asyncio.CancelledError):
-                pass
-        for task in asyncio.all_tasks(self.__loop):
-            task.cancel()
+            await asyncio.sleep(0.1)
+        await self.__runner.shutdown()
+        await self.__runner.cleanup()
         self.logger.info('shutting down oauth Webserver')
         self.__is_closed = True
 
