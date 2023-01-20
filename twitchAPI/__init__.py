@@ -4,6 +4,6 @@ from .pubsub import PubSub
 from .oauth import UserAuthenticator
 from .chat import Chat
 
-VERSION = (3, 4, 1)
+VERSION = (3, 5, 0)
 
-__version__ = '3.4.1'
+__version__ = '3.5.0'
