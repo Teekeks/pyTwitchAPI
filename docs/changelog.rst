@@ -4,6 +4,15 @@ Changelog
 =========
 
 ****************
+Version 3.5.1
+****************
+
+Chat
+----
+
+- Fixed KeyError in clear chat event
+
+****************
 Version 3.5.0
 ****************
 
