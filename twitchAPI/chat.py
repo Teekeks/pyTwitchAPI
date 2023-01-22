@@ -1092,7 +1092,7 @@ class Chat:
         """ join one or more chat rooms\n
         Will only exit once all given chat rooms where successfully joined or :const:`twitchAPI.chat.Chat.join_timeout` run out.
 
-        :param chat_rooms: the Room or rooms you want to leave
+        :param chat_rooms: the Room or rooms you want to join
         :returns: list of channels that could not be joined
         """
         if isinstance(chat_rooms, str):
