@@ -485,7 +485,7 @@ class ClearChatEvent(EventData):
         """The ID of the chat room the event happend in"""
         self.user_name: str = parsed['parameters']
         """The name of the user whos messages got cleared"""
-        self.duration: Optional[int] = int(parsed['tags']['ban-duration']) if parsed['tags']['ban-duration'] not in (None, '') else None
+        self.duration: Optional[int] = int(parsed['tags']['ban-duration']) if parsed['tags'].get('ban-duration') not in (None, '') else None
         """duration of the timeout in seconds. None if user was not timed out"""
         self.banned_user_id: Optional[str] = parsed['tags'].get('target-user-id')
         """The ID of the user who got banned or timed out. if :const:`twitchAPI.chat.ClearChatEvent.duration` is None, the user was banned.
