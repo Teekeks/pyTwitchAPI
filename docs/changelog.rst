@@ -4,6 +4,15 @@ Changelog
 =========
 
 ****************
+Version 3.5.2
+****************
+
+Twitch
+------
+
+- Fixed :const:`~twitchAPI.twitch.Twitch.end_prediction()` calling NoneType
+
+****************
 Version 3.5.1
 ****************
 
