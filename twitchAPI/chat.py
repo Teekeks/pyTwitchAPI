@@ -271,7 +271,7 @@ from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScop
 from typing import List, Optional, Union, Callable, Dict, Awaitable, Any
 
 __all__ = ['ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'Chat', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent',
-           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent']
+           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent', 'MessageDeletedEvent']
 
 
 class ChatUser:

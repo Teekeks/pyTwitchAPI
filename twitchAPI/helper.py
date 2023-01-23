@@ -16,7 +16,7 @@ from typing import Union, List, Type, Optional
 
 __all__ = ['TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 'TWITCH_CHAT_URL',
            'build_url', 'get_uuid', 'build_scope', 'fields_to_enum', 'make_enum',
-           'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'ResultType', 'first', 'RateLimitBucket']
+           'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'ResultType', 'first', 'RateLimitBucket', 'RATE_LIMIT_SIZES']
 
 T = TypeVar('T')
 
