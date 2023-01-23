@@ -2877,7 +2877,7 @@ class Twitch:
         }
         if winning_outcome_id is not None:
             body['winning_outcome_id'] = winning_outcome_id
-        return await self._build_result('PATH', 'predictions', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], Prediction, body_data=body)
+        return await self._build_result('PATCH', 'predictions', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], Prediction, body_data=body)
 
     async def start_raid(self,
                          from_broadcaster_id: str,
