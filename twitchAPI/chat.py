@@ -1093,7 +1093,7 @@ class Chat:
         """Check if chat bot is a mod in a channel
 
         :param room: The chat room you want to check if bot is a mod in without the #
-        :return: Returns if chat bot is user/mod """
+        :return: Returns true if chat bot is a mod in chat room"""
         if self._mod_status_cache.get(room, 'user') == 'mod':
             return True
         else:
