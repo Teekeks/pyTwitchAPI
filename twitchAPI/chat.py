@@ -978,7 +978,10 @@ class Chat:
             
     async def _handle_user_state(self, parsed: dict):
         self.logger.debug('got user state event')
-        self._mod_status_cache[parsed['command']['channel'][1:]] = 'mod' if parsed['tags']['mod'] == '1' else 'user'
+        is_broadcaster = False
+        if parsed['tags'].get('badges') is not None:
+            is_broadcaster = parsed['tags']['badges'].get('broadcaster') is not None
+        self._mod_status_cache[parsed['command']['channel'][1:]] = 'mod' if parsed['tags']['mod'] == '1' or is_broadcaster else 'user'
 
     async def _handle_ping(self, parsed: dict):
         self.logger.debug('got PING')
@@ -1089,15 +1092,18 @@ class Chat:
         """Returns True if the chat bot is ready to join channels and/or receive events"""
         return self._ready
     
-    def is_mod(self, room: str) -> bool:
+    def is_mod(self, room: Union[str, ChatRoom]) -> bool:
         """Check if chat bot is a mod in a channel
 
         :param room: The chat room you want to check if bot is a mod in without the #
-        :return: Returns true if chat bot is a mod in chat room"""
-        if self._mod_status_cache.get(room, 'user') == 'mod':
-            return True
-        else:
-            return False
+        :return: Returns if chat bot is user/mod """
+        if isinstance(room, ChatRoom):
+            room = room.name
+        if room is None or len(room) == 0:
+            raise ValueError('please specify a room')
+        if room[0] == '#':
+            room = room[1:]
+        return self._mod_status_cache.get(room, 'user') == 'mod'
 
     async def join_room(self, chat_rooms: Union[List[str], str]):
         """ join one or more chat rooms\n
