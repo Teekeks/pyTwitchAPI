@@ -234,25 +234,18 @@ class EventSub:
         }
 
     # FIXME requires port
-    async def __api_post_request(self, url: str, data: Union[dict, None] = None):
+    async def __api_post_request(self, session, url: str, data: Union[dict, None] = None):
         headers = self.__build_request_header()
-        async with ClientSession() as session:
-            return await session.post(url, headers=headers, json=data)
-
-    async def __api_get_request(self, url: str):
-        headers = self.__build_request_header()
-        async with ClientSession() as session:
-            return await session.get(url, headers=headers)
-
-    async def __api_delete_request(self, url: str):
-        headers = self.__build_request_header()
-        async with ClientSession() as session:
-            return await session.delete(url, headers=headers)
+        return await session.post(url, headers=headers, json=data)
 
     def __add_callback(self, c_id: str, callback):
         self.__callbacks[c_id] = {'id': c_id, 'callback': callback, 'active': False}
 
-    def __activate_callback(self, c_id: str):
+    async def __activate_callback(self, c_id: str):
+        if c_id not in self.__callbacks:
+            self.logger.debug(f'callback for {c_id} arrived before confirmation, waiting...')
+        while c_id not in self.__callbacks:
+            await asyncio.sleep(0.1)
         self.__callbacks[c_id]['active'] = True
 
     async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback) -> str:
@@ -270,8 +263,9 @@ class EventSub:
                 'secret': self.secret
             }
         }
-        r_data = await self.__api_post_request(TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data)
-        result = await r_data.json()
+        async with ClientSession() as session:
+            r_data = await self.__api_post_request(session, TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data)
+            result = await r_data.json()
         error = result.get('error')
         if r_data.status == 500:
             raise TwitchBackendException(error)
@@ -280,6 +274,7 @@ class EventSub:
                 raise EventSubSubscriptionConflict(result.get('message', ''))
             raise EventSubSubscriptionError(result.get('message'))
         sub_id = result['data'][0]['id']
+        self.logger.debug(f'subscription for {sub_type} version {sub_version} with condition {condition} has id {sub_id}')
         self.__add_callback(sub_id, callback)
         if self.wait_for_subscription_confirm:
             timeout = datetime.datetime.utcnow() + datetime.timedelta(
@@ -313,7 +308,7 @@ class EventSub:
         if not await self._verify_signature(request):
             self.logger.warning(f'message signature is not matching! Discarding message')
             return web.Response(status=403)
-        self.__activate_callback(data.get('subscription').get('id'))
+        await self.__activate_callback(data.get('subscription').get('id'))
         return web.Response(text=data.get('challenge'))
 
     async def __handle_callback(self, request: 'web.Request'):
