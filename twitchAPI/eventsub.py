@@ -91,6 +91,8 @@ Class Documentation
 import datetime
 import random
 import string
+import time
+
 from .helper import TWITCH_API_BASE_URL, remove_none_values
 from .types import *
 from aiohttp import web, ClientSession
@@ -148,6 +150,7 @@ class EventSub:
         """Unsubscribe all currently active Webhooks on calling :const:`~twitchAPI.eventsub.EventSub.stop()` |default| :code:`True`"""
         self._host: str = '0.0.0.0'
         self.__running = False
+        self._startup_complete = False
         self.__callbacks = {}
         self._closing = False
         self.__active_webhooks = {}
@@ -172,6 +175,7 @@ class EventSub:
         site = web.TCPSite(runner, str(self._host), self._port, ssl_context=self.__ssl_context)
         self.__hook_loop.run_until_complete(site.start())
         self.logger.info('started twitch API event sub on port ' + str(self._port))
+        self._startup_complete = True
         self.__hook_loop.run_until_complete(self._keep_loop_alive())
 
     def start(self):
@@ -184,8 +188,11 @@ class EventSub:
             raise RuntimeError('already started')
         self.__hook_thread = threading.Thread(target=self.__run_hook, args=(self.__build_runner(),))
         self.__running = True
+        self._startup_complete = False
         self._closing = False
         self.__hook_thread.start()
+        while not self._startup_complete:
+            time.sleep(0.1)
 
     async def _keep_loop_alive(self):
         while not self._closing:
