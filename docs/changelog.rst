@@ -4,6 +4,22 @@ Changelog
 =========
 
 ****************
+Version 3.6.0
+****************
+
+EventSub
+--------
+
+- :const:`~twitchAPI.eventsub.EventSub.start()` now waits till the internal web server has fully started up
+
+Chat
+----
+
+- Added :const:`~twitchAPI.chat.Chat.is_mod()` function (Thanks `@Tempystral <https://github.com/stolenvw>`__!)
+- Made the check if the bot is a moderator in the current channel for message sending rate limiting more consistent (Thanks `@Tempystral <https://github.com/stolenvw>`__!)
+
+
+****************
 Version 3.5.2
 ****************
 
