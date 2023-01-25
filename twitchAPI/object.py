@@ -213,6 +213,7 @@ class TwitchUserFollow(TwitchObject):
     from_name: str
     to_id: str
     to_name: str
+    to_login: str
     followed_at: datetime
 
 
