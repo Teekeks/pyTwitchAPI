@@ -4,7 +4,7 @@ Changelog
 =========
 
 ****************
-Version 3.6.0
+Version 3.6.1
 ****************
 
 EventSub
