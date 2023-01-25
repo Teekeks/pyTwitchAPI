@@ -187,10 +187,10 @@ class AsyncIterTwitchObject(TwitchObject, Generic[T]):
                 continue
             self.__setattr__(name, TwitchObject._val_by_instance(cls, _data.get(name)))
         data = self.__getattribute__(self._data['iter_field'])
-        self.__idx = 0
+        self.__idx = 1
         if len(data) == 0:
             raise StopAsyncIteration()
-        return data[self.__idx]
+        return data[self.__idx - 1]
 
 
 class TwitchUser(TwitchObject):
