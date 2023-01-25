@@ -15,8 +15,8 @@ EventSub
 Chat
 ----
 
-- Added :const:`~twitchAPI.chat.Chat.is_mod()` function (Thanks `@Tempystral <https://github.com/stolenvw>`__!)
-- Made the check if the bot is a moderator in the current channel for message sending rate limiting more consistent (Thanks `@Tempystral <https://github.com/stolenvw>`__!)
+- Added :const:`~twitchAPI.chat.Chat.is_mod()` function (Thanks `@stolenvw <https://github.com/stolenvw>`__!)
+- Made the check if the bot is a moderator in the current channel for message sending rate limiting more consistent (Thanks `@stolenvw <https://github.com/stolenvw>`__!)
 
 
 ****************
