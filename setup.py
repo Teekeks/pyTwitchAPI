@@ -16,5 +16,6 @@ setup(
         'aiohttp',
         'python-dateutil',
         'typing_extensions'
-    ]
+    ],
+    package_data={'twitchAPI': ['py.typed']}
 )
