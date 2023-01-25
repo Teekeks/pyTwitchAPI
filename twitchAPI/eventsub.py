@@ -91,10 +91,6 @@ Class Documentation
 import datetime
 import random
 import string
-import time
-
-import aiohttp
-
 from .helper import TWITCH_API_BASE_URL, remove_none_values
 from .types import *
 from aiohttp import web, ClientSession
@@ -102,7 +98,6 @@ import threading
 import asyncio
 from logging import getLogger, Logger
 from .twitch import Twitch
-from concurrent.futures._base import CancelledError
 from ssl import SSLContext
 from .types import EventSubSubscriptionTimeout, EventSubSubscriptionConflict, EventSubSubscriptionError
 import hmac
@@ -285,7 +280,7 @@ class EventSub:
             while timeout >= datetime.datetime.utcnow():
                 if self.__callbacks[sub_id]['active']:
                     return sub_id
-                time.sleep(0.01)
+                await asyncio.sleep(0.01)
             self.__callbacks.pop(sub_id, None)
             raise EventSubSubscriptionTimeout()
         return sub_id
