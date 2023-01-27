@@ -4,6 +4,18 @@ Changelog
 =========
 
 ****************
+Version 3.6.2
+****************
+
+- Added :code:`py.typed` file to comply with PRP-561
+
+Twitch
+------
+
+- Fixed all Endpoints that use :const:`~twitchAPI.object.AsyncIterTwitchObject` yielding some items multiple times
+- added missing field :const:`~twitchAPI.object.TwitchUserFollow.to_login` to :const:`~twitchAPI.twitch.Twitch.get_users_follows()`
+
+****************
 Version 3.6.1
 ****************
 
