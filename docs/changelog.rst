@@ -7,7 +7,7 @@ Changelog
 Version 3.6.2
 ****************
 
-- Added :code:`py.typed` file to comply with PRP-561
+- Added :code:`py.typed` file to comply with PEP-561
 
 Twitch
 ------
