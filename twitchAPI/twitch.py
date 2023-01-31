@@ -201,7 +201,8 @@ Class Documentation
 import asyncio
 
 import aiohttp.helpers
-from aiohttp import ClientSession, ClientResponse, ClientTimeout
+from aiohttp import ClientSession, ClientResponse
+from aiohttp.client import ClientTimeout
 from .helper import TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, enum_value_or_none, datetime_to_str, remove_none_values, ResultType
 from logging import getLogger, Logger
 from .object import *
@@ -230,7 +231,7 @@ class Twitch:
         :param authenticate_app: If true, auto generate a app token on startup |default| :code:`True`
         :param target_app_auth_scope: AuthScope to use if :code:`authenticate_app` is True |default| :code:`None`
         :param base_url: The URL to the Twitch API |default| :const:`~twitchAPI.helper.TWITCH_API_BASE_URL`
-        :param session_timeout: The time in seconds before any request times out |default|:code:`300`
+        :param session_timeout: Override the time in seconds before any request times out. Defaults to aiohttp default (300 seconds)
         """
         self.app_id: Optional[str] = app_id
         self.app_secret: Optional[str] = app_secret
@@ -241,7 +242,7 @@ class Twitch:
         self.app_auth_refresh_callback: Optional[Callable[[str], Awaitable[None]]] = None
         """If set, gets called whenever a app auth token gets refreshed. Parameter: Auth Token |default| :code:`None`"""
         self.session_timeout: Union[object, ClientTimeout] = session_timeout
-        """Override the time in seconds before any request times out Defaults to aiohttp default (300 seconds)"""
+        """Override the time in seconds before any request times out. Defaults to aiohttp default (300 seconds)"""
         self.__app_auth_token: Optional[str] = None
         self.__app_auth_scope: List[AuthScope] = []
         self.__has_app_auth: bool = False

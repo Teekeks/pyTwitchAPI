@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import aiohttp
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -48,6 +49,9 @@ extensions = [
     'recommonmark'
 ]
 
+aiohttp.client.ClientTimeout.__module__ = 'aiohttp'
+aiohttp.ClientTimeout.__module__ = 'aiohttp'
+
 autodoc_member_order = 'bysource'
 autodoc_class_signature = 'separated'
 
@@ -60,7 +64,8 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None)
+    'python': ('https://docs.python.org/3', None),
+    'aio': ('https://docs.aiohttp.org/en/stable/', None)
 }
 
 rst_prolog = """
