@@ -79,6 +79,8 @@ class AuthScope(Enum):
     MODERATOR_READ_CHATTERS = 'moderator:read:chatters'
     MODERATOR_READ_SHIELD_MODE = 'moderator:read:shield_mode'
     MODERATOR_MANAGE_SHIELD_MODE = 'moderator:manage:shield_mode'
+    MODERATOR_READ_AUTOMOD_SETTINGS = 'moderator:read:automod_settings'
+    MODERATOR_MANAGE_AUTOMOD_SETTINGS = 'moderator:manage:automod_settings'
 
 
 class ModerationEventType(Enum):
