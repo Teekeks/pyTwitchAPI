@@ -1245,6 +1245,47 @@ class Twitch:
                                         AutoModSettings,
                                         error_handler=error_handler)
 
+    async def update_automod_settings(self,
+                                      broadcaster_id: str,
+                                      moderator_id: str,
+                                      settings: Optional[AutoModSettings] = None,
+                                      overall_level: Optional[int] = None) -> AutoModSettings:
+        """Updates the broadcaster’s AutoMod settings.
+
+        You can either set the individual level or the overall level, but not both at the same time.
+        Setting the overall_level parameter in settings will be ignored.
+
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_AUTOMOD_SETTINGS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#update-automod-settings
+
+        :param broadcaster_id: The ID of the broadcaster whose AutoMod settings you want to update.
+        :param moderator_id: The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room.
+        :param settings: If you want to change individual settings, set this. |default|:code:`None`
+        :param overall_level: If you want to change the overall level, set this. |default|:code:`None`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if both settings and overall_level are given or none of them are given
+        """
+        if (settings is not None and overall_level is not None) or (settings is None and overall_level is None):
+            raise ValueError('You have to specify exactly one of settings or oevrall_level')
+        param = {
+            "broadcaster_id": broadcaster_id,
+            "moderator_id": moderator_id
+        }
+        body = settings.to_dict() if settings is not None else {}
+        body['overall_level'] = overall_level
+        return await self._build_result('PUT',
+                                        'moderation/automod/settings',
+                                        param,
+                                        AuthType.USER,
+                                        [AuthScope.MODERATOR_MANAGE_AUTOMOD_SETTINGS],
+                                        AutoModSettings,
+                                        body_data=remove_none_values(body))
+
     async def get_banned_users(self,
                                broadcaster_id: str,
                                user_id: Optional[str] = None,
