@@ -4,6 +4,28 @@ Changelog
 =========
 
 ****************
+Version 3.7.0
+****************
+
+Twitch
+------
+
+- Added the following Endpoints:
+
+  - "Get AutoMod Settings" :const:`~twitchAPI.twitch.Twitch.get_automod_settings()`
+  - "Update AutoMod Settings" :const:`~twitchAPI.twitch.Twitch.update_automod_settings()`
+
+- Added :const:`~twitchAPI.twitch.Twitch.session_timeout` config. With this you can optionally change the timeout behavior across the entire library
+
+OAuth
+-----
+
+- Added the following new AuthScopes:
+
+  - :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_AUTOMOD_SETTINGS`
+  - :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_AUTOMOD_SETTINGS`
+
+****************
 Version 3.6.2
 ****************
 
