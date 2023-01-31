@@ -924,3 +924,17 @@ class CharityCampaignDonation(TwitchObject):
     user_name: str
     user_login: str
     amount: CharityAmount
+
+
+class AutoModSettings(TwitchObject):
+    broadcaster_id: str
+    moderator_id: str
+    overall_level: Optional[int]
+    disability: int
+    aggression: int
+    sexuality_sex_or_gender: int
+    misogyny: int
+    bullying: int
+    swearing: int
+    race_ethnicity_or_religion: int
+    sex_based_terms: int

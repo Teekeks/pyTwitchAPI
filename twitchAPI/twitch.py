@@ -1215,6 +1215,36 @@ class Twitch:
                                              AuthType.USER, [AuthScope.MODERATION_READ], AutoModStatus, body_data=body):
             yield y
 
+    async def get_automod_settings(self,
+                                   broadcaster_id: str,
+                                   moderator_id: str) -> AutoModSettings:
+        """Gets the broadcaster’s AutoMod settings.
+
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_AUTOMOD_SETTINGS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-automod-settings
+
+        :param broadcaster_id: The ID of the broadcaster whose AutoMod settings you want to get.
+        :param moderator_id: The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        """
+        param = {
+            "broadcaster_id": broadcaster_id,
+            "moderator_id": moderator_id
+        }
+        error_handler = {403: TwitchAPIException('Forbidden: The user in moderator_id is not one of the broadcaster\'s moderators.')}
+        return await self._build_result('GET',
+                                        'moderation/automod/settings',
+                                        param,
+                                        AuthType.USER,
+                                        [AuthScope.MODERATOR_READ_AUTOMOD_SETTINGS],
+                                        AutoModSettings,
+                                        error_handler=error_handler)
+
     async def get_banned_users(self,
                                broadcaster_id: str,
                                user_id: Optional[str] = None,
