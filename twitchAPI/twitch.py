@@ -248,9 +248,9 @@ class Twitch:
         self._authenticate_app = authenticate_app
         self._target_app_scope = target_app_auth_scope
         self.base_url: str = base_url
+        """The URL to the Twitch API used"""
         self._user_token_refresh_lock: bool = False
         self._app_token_refresh_lock: bool = False
-        """The URL to the Twitch API used"""
 
     def __await__(self):
         if self._authenticate_app:
