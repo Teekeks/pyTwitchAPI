@@ -334,7 +334,7 @@ class UserAuthenticator:
             'redirect_uri': self.url
         }
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', param)
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(timeout=self.__twitch.session_timeout) as session:
             async with session.post(url) as response:
                 data: dict = await response.json()
         if callback_func is None:

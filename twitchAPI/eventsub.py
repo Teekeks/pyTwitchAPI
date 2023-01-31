@@ -263,7 +263,7 @@ class EventSub:
                 'secret': self.secret
             }
         }
-        async with ClientSession() as session:
+        async with ClientSession(timeout=self.__twitch.session_timeout) as session:
             r_data = await self.__api_post_request(session, TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data)
             result = await r_data.json()
         error = result.get('error')

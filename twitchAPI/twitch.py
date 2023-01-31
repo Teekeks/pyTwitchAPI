@@ -220,13 +220,15 @@ class Twitch:
                  app_secret: Optional[str] = None,
                  authenticate_app: bool = True,
                  target_app_auth_scope: Optional[List[AuthScope]] = None,
-                 base_url: str = TWITCH_API_BASE_URL):
+                 base_url: str = TWITCH_API_BASE_URL,
+                 session_timeout: Optional[int] = None):
         """
         :param app_id: Your app id
         :param app_secret: Your app secret, leave as None if you only want to use User Authentication |default| :code:`None`
         :param authenticate_app: If true, auto generate a app token on startup |default| :code:`True`
         :param target_app_auth_scope: AuthScope to use if :code:`authenticate_app` is True |default| :code:`None`
         :param base_url: The URL to the Twitch API |default| :const:`~twitchAPI.helper.TWITCH_API_BASE_URL`
+        :param session_timeout: The time in seconds before any request times out |default|:code:`300`
         """
         self.app_id: Optional[str] = app_id
         self.app_secret: Optional[str] = app_secret
@@ -236,6 +238,8 @@ class Twitch:
         """If set, gets called whenever a user auth token gets refreshed. Parameter: Auth Token, Refresh Token |default| :code:`None`"""
         self.app_auth_refresh_callback: Optional[Callable[[str], Awaitable[None]]] = None
         """If set, gets called whenever a app auth token gets refreshed. Parameter: Auth Token |default| :code:`None`"""
+        self.session_timeout: Optional[int] = session_timeout
+        """Override the time in seconds before any request times out |default|:code:`300`"""
         self.__app_auth_token: Optional[str] = None
         self.__app_auth_scope: List[AuthScope] = []
         self.__has_app_auth: bool = False
@@ -512,7 +516,7 @@ class Twitch:
         req = r_lookup.get(req.lower())
         _after = url_params.get('after')
         _first = True
-        async with ClientSession() as session:
+        async with ClientSession(timeout=self.session_timeout) as session:
             while _first or _after is not None:
                 url_params['after'] = _after
                 _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
@@ -549,7 +553,7 @@ class Twitch:
         }
         req = r_lookup.get(req.lower())
         _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
-        async with ClientSession() as session:
+        async with ClientSession(timeout=self.session_timeout) as session:
             if body_data is None:
                 response = await req(session, _url, auth_type, auth_scope)
             else:
@@ -590,7 +594,7 @@ class Twitch:
             'patch': self.__api_patch_request,
             'put': self.__api_put_request
         }
-        async with ClientSession() as session:
+        async with ClientSession(timeout=self.session_timeout) as session:
             req = r_lookup.get(req.lower())
             _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
             if body_data is None:
@@ -634,7 +638,7 @@ class Twitch:
         }
         self.logger.debug('generating fresh app token')
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', params)
-        async with ClientSession() as session:
+        async with ClientSession(timeout=self.session_timeout) as session:
             result = await session.post(url)
         if result.status != 200:
             raise TwitchAuthorizationException(f'Authentication failed with code {result.status} ({result.text})')

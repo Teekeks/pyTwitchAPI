@@ -179,7 +179,7 @@ class PubSub:
         retry = 0
         need_retry = True
         if self._session is None:
-            self._session = ClientSession()
+            self._session = ClientSession(timeout=self.__twitch.session_timeout)
         while need_retry and retry < len(self.reconnect_delay_steps):
             need_retry = False
             try:

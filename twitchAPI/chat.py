@@ -793,7 +793,7 @@ class Chat:
         retry = 0
         need_retry = True
         if self._session is None:
-            self._session = aiohttp.ClientSession()
+            self._session = aiohttp.ClientSession(timeout=self.twitch.session_timeout)
         while need_retry and retry < len(self.reconnect_delay_steps):
             need_retry = False
             try:
