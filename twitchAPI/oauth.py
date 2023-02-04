@@ -58,7 +58,6 @@ import webbrowser
 from aiohttp import web
 import asyncio
 from threading import Thread
-from time import sleep
 from concurrent.futures._base import CancelledError
 from logging import getLogger, Logger
 
@@ -315,12 +314,12 @@ class UserAuthenticator:
             self.__start()
             # wait for the server to start up
             while not self.__server_running:
-                sleep(0.01)
+                await asyncio.sleep(0.01)
             # open in browser
             browser = webbrowser.get(browser_name)
             browser.open(self.__build_auth_url(), new=browser_new)
             while self.__user_token is None:
-                sleep(0.01)
+                await asyncio.sleep(0.01)
             # now we need to actually get the correct token
         else:
             self.__user_token = user_token
