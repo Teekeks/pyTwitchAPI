@@ -348,9 +348,7 @@ Valid loggers are:
 * `twitchAPI.chat`
 * `twitchAPI.oauth`
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+
 
 
 
@@ -374,3 +372,10 @@ Indices and tables
    twitchAPI.types
    twitchAPI.helper
    twitchAPI.object
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+   :hidden:
+
+   changelog
