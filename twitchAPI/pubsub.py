@@ -561,6 +561,29 @@ class PubSub:
                                            callback_func,
                                            [AuthScope.CHAT_READ])
 
+    async def listen_low_trust_users(self,
+                                     moderator_id: str,
+                                     channel_id: str,
+                                     callback_func: CALLBACK_FUNC) -> UUID:
+        """The broadcaster or a moderator updates the low trust status of a user,
+        or a new message has been sent in chat by a potential ban evader or a bans shared user.
+
+        Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_MODERATE` AuthScope.\n
+
+        :param moderator_id: ID of the moderator
+        :param channel_id: ID of the Channel
+        :param callback_func: Function called on event
+        :return: UUID of this subscription
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if Token is not valid
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch Server has a problem
+        :raises ~twitchAPI.types.TwitchAPIException: if the subscription response is something else than suspected
+        :raises ~twitchAPI.types.PubSubListenTimeoutException: if the subscription is not confirmed in the time set by `listen_confirm_timeout`
+        :raises ~twitchAPI.types.MissingScopeException: if required AuthScope is missing from Token
+        """
+        return await self.__generic_listen(f'low-trust-users.{moderator_id}.{channel_id}',
+                                           callback_func,
+                                           [AuthScope.CHANNEL_MODERATE])
+
     async def listen_undocumented_topic(self,
                                         topic: str,
                                         callback_func: CALLBACK_FUNC) -> UUID:
