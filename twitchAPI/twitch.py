@@ -1862,6 +1862,9 @@ class Twitch:
         """Gets information on follow relationships between two Twitch users.
         Information returned is sorted in order, most recent follow first.\n\n
 
+        .. warning:: This Endpoint will stop working on or soon after the 3rd of August 2023\n
+            Please switch to :const:`~twitchAPI.twitch.Twitch.get_channel_followers()` and :const:`~twitchAPI.twitch.Twitch.get_followed_channels()`.
+
         Requires App authentication.\n
         You have to use at least one of the following fields: from_id, to_id
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users-follows
