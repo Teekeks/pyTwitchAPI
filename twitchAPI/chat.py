@@ -537,6 +537,8 @@ class Chat:
         self.ping_jitter: int = 4
         self.listen_confirm_timeout: int = 30
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
+        self.log_no_registered_command_handler: bool = True
+        """Controls if instances of commands being issued in chat where no handler exists should be logged. |default|:code:`True`"""
         self.__connection = None
         self._session = None
         self.__socket_thread: threading.Thread = None
@@ -1004,7 +1006,8 @@ class Chat:
                 t = asyncio.ensure_future(handler(ChatCommand(self, parsed)))
                 t.add_done_callback(self._task_callback)
             else:
-                self.logger.info(f'no handler registered for command "{command_name}"')
+                if self.log_no_registered_command_handler:
+                    self.logger.info(f'no handler registered for command "{command_name}"')
         handler = self._event_handler.get(ChatEvent.MESSAGE, [])
         message = ChatMessage(self, parsed)
         for h in handler:
