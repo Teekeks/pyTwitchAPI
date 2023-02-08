@@ -1561,7 +1561,8 @@ class Twitch:
                           game_id: Optional[List[str]] = None,
                           language: Optional[List[str]] = None,
                           user_id: Optional[List[str]] = None,
-                          user_login: Optional[List[str]] = None) -> AsyncGenerator[Stream, None]:
+                          user_login: Optional[List[str]] = None,
+                          stream_type: Optional[str] = None) -> AsyncGenerator[Stream, None]:
         """Gets information about active streams. Streams are returned sorted by number of current viewers, in
         descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join
         and leave streams.\n\n
@@ -1577,6 +1578,7 @@ class Twitch:
         :param user_id: Returns streams broadcast by one or more specified user IDs. You can specify up to 100 IDs. |default| :code:`None`
         :param user_login: Returns streams broadcast by one or more specified user login names.
                         You can specify up to 100 names. |default| :code:`None`
+        :param stream_type: The type of stream to filter the list of streams by. Possible values are :code:`all` and :code:`live` |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
@@ -1601,7 +1603,8 @@ class Twitch:
             'game_id': game_id,
             'language': language,
             'user_id': user_id,
-            'user_login': user_login
+            'user_login': user_login,
+            'type': stream_type
         }
         async for y in self._build_generator('GET', 'streams', param, AuthType.EITHER, [], Stream, split_lists=True):
             yield y
