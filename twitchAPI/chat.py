@@ -488,7 +488,7 @@ class ClearChatEvent(EventData):
         self.duration: Optional[int] = int(parsed['tags']['ban-duration']) if parsed['tags'].get('ban-duration') not in (None, '') else None
         """duration of the timeout in seconds. None if user was not timed out"""
         self.banned_user_id: Optional[str] = parsed['tags'].get('target-user-id')
-        """The ID of the user who got banned or timed out. if :const:`twitchAPI.chat.ClearChatEvent.duration` is None, the user was banned.
+        """The ID of the user who got banned or timed out. if :const:`~twitchAPI.chat.ClearChatEvent.duration` is None, the user was banned.
         Will be None when the user was not banned nor timed out."""
         self.sent_timestamp: int = int(parsed['tags'].get('tmi-sent-ts'))
         """The timestamp the event happend at"""
