@@ -1098,8 +1098,9 @@ class Chat:
     def is_mod(self, room: Union[str, ChatRoom]) -> bool:
         """Check if chat bot is a mod in a channel
 
-        :param room: The chat room you want to check if bot is a mod in without the #
-        :return: Returns if chat bot is user/mod """
+        :param room: The chat room you want to check if bot is a mod in.
+            This can either be a instance of :const:`~twitchAPI.types.ChatRoom` or a string with the room name (either with leading # or without)
+        :return: Returns True if chat bot is a mod """
         if isinstance(room, ChatRoom):
             room = room.name
         if room is None or len(room) == 0:
