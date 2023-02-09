@@ -16,7 +16,7 @@ from typing import Union, List, Type, Optional
 
 __all__ = ['TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 'TWITCH_CHAT_URL',
            'build_url', 'get_uuid', 'build_scope', 'fields_to_enum', 'make_enum',
-           'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'ResultType', 'first', 'RateLimitBucket', 'RATE_LIMIT_SIZES']
+           'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'ResultType', 'first', 'limit', 'RateLimitBucket', 'RATE_LIMIT_SIZES']
 
 T = TypeVar('T')
 
@@ -167,6 +167,30 @@ async def first(gen: AsyncGenerator[T, None]) -> Optional[T]:
         return await gen.__anext__()
     except StopAsyncIteration:
         return None
+
+
+async def limit(gen: AsyncGenerator[T, None], num: int) -> AsyncGenerator[T, None]:
+    """Limits the number of entries from the given AsyncGenerator to up to num.
+
+    This example will give you the currently 5 most watched streams:
+
+    .. code-block:: python
+
+        async for stream in limit(twitch.get_streams(), 5):
+            print(stream.title)
+
+    :param gen: The generator from which you want the first n values
+    :param num: the number of entries you want
+    :raises ValueError: if num is less than 1
+    """
+    if num < 1:
+        raise ValueError('num has to be a int > 1')
+    c = 0
+    async for y in gen:
+        c += 1
+        if c > num:
+            break
+        yield y
 
 
 class RateLimitBucket:
