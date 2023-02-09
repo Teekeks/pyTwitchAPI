@@ -1128,12 +1128,19 @@ class Chat:
         """
         if isinstance(chat_rooms, str):
             chat_rooms = [chat_rooms]
-        room_str = ','.join([f'#{c}' if c[0] != '#' else c for c in chat_rooms])
         target = [c[1:].lower() if c[0] == '#' else c.lower() for c in chat_rooms]
         for r in target:
             self._room_join_locks.append(r)
-        await self._join_bucket.put()
-        await self._send_message(f'JOIN {room_str}')
+        if len(target) > self._join_bucket.left():
+            # we want to join more than the current bucket has left, join slowly one after another
+            # TODO we could join the current remaining bucket size in blocks
+            for r in target:
+                await self._join_bucket.put()
+                await self._send_message(f'JOIN #{r}')
+        else:
+            # enough space in the current bucket left, join all at once
+            await self._join_bucket.put(len(target))
+            await self._send_message(f'JOIN {",".join([f"#{x}" for x in target])}')
         # wait for us to join all rooms
         timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.join_timeout)
         while any([r in self._room_join_locks for r in target]) and timeout > datetime.datetime.now():

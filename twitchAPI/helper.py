@@ -213,18 +213,22 @@ class RateLimitBucket:
         self.logger = logger
         self.lock: asyncio.Lock = asyncio.Lock()
 
-    def get_delta(self) -> Optional[float]:
+    def get_delta(self, num: int) -> Optional[float]:
         current = time.time()
         if self.reset is None:
             self.reset = current + self.bucket_length
         if current >= self.reset:
             self.reset = current + self.bucket_length
-            self.content = 1
+            self.content = num
         else:
-            self.content += 1
+            self.content += num
         if self.content >= self.bucket_size:
             return self.reset - current
         return None
+
+    def left(self) -> int:
+        """Returns the space left in the current bucket"""
+        return self.bucket_size - self.content
 
     def _warn(self, msg):
         if self.logger is not None:
@@ -232,12 +236,12 @@ class RateLimitBucket:
         else:
             logging.warning(msg)
 
-    async def put(self):
+    async def put(self, num: int = 1):
         async with self.lock:
-            delta = self.get_delta()
+            delta = self.get_delta(num)
             if delta is not None:
                 self._warn(f'Bucket {self.scope} got rate limited. wating {delta:.2f}s...')
-                await asyncio.sleep(delta)
+                await asyncio.sleep(delta + 0.05)
 
 
 RATE_LIMIT_SIZES = {
