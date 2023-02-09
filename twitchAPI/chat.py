@@ -520,11 +520,16 @@ EVENT_CALLBACK_TYPE = Callable[[Any], Awaitable[None]]
 class Chat:
     """The chat bot instance"""
 
-    def __init__(self, twitch: Twitch, connection_url: Optional[str] = None, is_verified_bot: bool = False):
+    def __init__(self,
+                 twitch: Twitch,
+                 connection_url: Optional[str] = None,
+                 is_verified_bot: bool = False,
+                 initial_channel: Optional[List[str]] = None):
         """
         :param twitch: A Authenticated twitch instance
         :param connection_url: alternative connection url |default|:code:`None`
         :param is_verified_bot: set to true if your bot is verified by twitch |default|:code:`False`
+        :param initial_channel: List of channel which should be automatically joined on startup |default| :code:`None`
         """
         self.logger: Logger = getLogger('twitchAPI.chat')
         """The logger used for Chat related log messages"""
@@ -535,6 +540,7 @@ class Chat:
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_CHAT_URL
         self.ping_frequency: int = 120
         self.ping_jitter: int = 4
+        self._initial_channel: Optional[List[str]] = initial_channel
         self.listen_confirm_timeout: int = 30
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
         self.log_no_registered_command_handler: bool = True
@@ -993,6 +999,10 @@ class Chat:
         self.logger.debug('got ready event')
         dat = EventData(self)
         self._ready = True
+        if self._initial_channel is not None and len(self._initial_channel) > 0:
+            _failed = await self.join_room(self._initial_channel)
+            if len(_failed) > 0:
+                self.logger.warning(f'failed to join the following channel of the initial following list: {", ".join(_failed)}')
         for h in self._event_handler.get(ChatEvent.READY, []):
             t = asyncio.ensure_future(h(dat))
             t.add_done_callback(self._task_callback)
