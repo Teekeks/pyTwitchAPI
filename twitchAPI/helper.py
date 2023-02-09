@@ -162,7 +162,13 @@ def remove_none_values(d: dict) -> dict:
 async def first(gen: AsyncGenerator[T, None]) -> Optional[T]:
     """Returns the first value of the given AsyncGenerator
 
-    :param ~typing.AsyncGenerator gen: The generator from which you want the first value"""
+    Example:
+
+    .. code-block:: python
+
+        user = await first(twitch.get_users())
+
+    :param gen: The generator from which you want the first value"""
     try:
         return await gen.__anext__()
     except StopAsyncIteration:
