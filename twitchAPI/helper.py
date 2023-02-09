@@ -36,7 +36,7 @@ class ResultType(Enum):
     TEXT = 2
 
 
-def build_url(url: str, params: dict, remove_none=False, split_lists=False, enum_value=True) -> str:
+def build_url(url: str, params: dict, remove_none: bool = False, split_lists: bool = False, enum_value: bool = True) -> str:
     """Build a valid url string
 
     :param url: base URL
@@ -76,10 +76,8 @@ def build_url(url: str, params: dict, remove_none=False, split_lists=False, enum
     return url + (("?" + result) if len(result) > 0 else "")
 
 
-def get_uuid():
-    """Returns a random UUID
-
-    :rtype: :class:`~uuid.UUID`"""
+def get_uuid() -> uuid.UUID:
+    """Returns a random UUID"""
     return uuid.uuid4()
 
 
