@@ -49,8 +49,8 @@ EventSub
 Chat
 ----
 
-- Added :const:`~twitchAPI.chat.Chat.is_mod()` function (Thanks `@stolenvw <https://github.com/stolenvw>`__!)
-- Made the check if the bot is a moderator in the current channel for message sending rate limiting more consistent (Thanks `@stolenvw <https://github.com/stolenvw>`__!)
+- Added :const:`~twitchAPI.chat.Chat.is_mod()` function (Thanks https://github.com/stolenvw )
+- Made the check if the bot is a moderator in the current channel for message sending rate limiting more consistent (Thanks https://github.com/stolenvw )
 
 
 ****************
@@ -182,7 +182,7 @@ Chat
 OAuth
 -----
 
-- fixed :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()` getting stuck when :code:`user_token` is provided (thanks `@Tempystral <https://github.com/Tempystral>`_!)
+- fixed :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()` getting stuck when :code:`user_token` is provided (thanks https://github.com/Tempystral )
 
 
 ****************
@@ -214,7 +214,7 @@ Version 3.2.0
 
 - Made the used loggers available for easy logging configuration
 - added the option to set the chat command prefix via :const:`~twitchAPI.chat.Chat.set_prefix()`
-- :const:`~twitchAPI.twitch.Twitch.set_user_authentication()` now also throws a :const:`~twitchAPI.types.MissingScopeException` when no scope is given. (thanks `@aw-was-here <https://github.com/aw-was-here>`_!)
+- :const:`~twitchAPI.twitch.Twitch.set_user_authentication()` now also throws a :const:`~twitchAPI.types.MissingScopeException` when no scope is given. (thanks https://github.com/aw-was-here )
 
 
 ****************
