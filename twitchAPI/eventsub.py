@@ -1168,3 +1168,41 @@ class EventSub:
         """
         param = {'broadcaster_user_id': broadcaster_user_id}
         return await self._subscribe('channel.charity_campaign.donate', '1', param, callback)
+
+    async def listen_channel_shoutout_create(self,
+                                             broadcaster_user_id: str,
+                                             moderator_user_id: str,
+                                             callback: CALLBACK_TYPE) -> str:
+        """Sends a notification when the specified broadcaster sends a Shoutout.
+
+        Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHOUTOUTS` or :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHOUTOUTS`
+        auth scope.
+
+        :param broadcaster_user_id: The ID of the broadcaster that you want to receive notifications about when they send a Shoutout.
+        :param moderator_user_id: The ID of the broadcaster that gave the Shoutout or one of the broadcaster’s moderators.
+        :param callback: function for callback
+        """
+        param = {
+            'broadcaster_user_id': broadcaster_user_id,
+            'moderator_user_id': moderator_user_id
+        }
+        return await self._subscribe('channel.shoutout.create', '1', param, callback)
+
+    async def listen_channel_shoutout_receive(self,
+                                              broadcaster_user_id: str,
+                                              moderator_user_id: str,
+                                              callback: CALLBACK_TYPE) -> str:
+        """Sends a notification when the specified broadcaster receives a Shoutout.
+
+        Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHOUTOUTS` or :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHOUTOUTS`
+        auth scope.
+
+        :param broadcaster_user_id: The ID of the broadcaster that you want to receive notifications about when they receive a Shoutout.
+        :param moderator_user_id: The ID of the broadcaster that received the Shoutout or one of the broadcaster’s moderators.
+        :param callback: function for callback
+        """
+        param = {
+            'broadcaster_user_id': broadcaster_user_id,
+            'moderator_user_id': moderator_user_id
+        }
+        return await self._subscribe('channel.shoutout.receive', '1', param, callback)
