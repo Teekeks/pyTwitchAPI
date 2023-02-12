@@ -1178,6 +1178,8 @@ class EventSub:
         Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHOUTOUTS` or :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHOUTOUTS`
         auth scope.
 
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelshoutoutcreate
+
         :param broadcaster_user_id: The ID of the broadcaster that you want to receive notifications about when they send a Shoutout.
         :param moderator_user_id: The ID of the broadcaster that gave the Shoutout or one of the broadcaster’s moderators.
         :param callback: function for callback
@@ -1196,6 +1198,8 @@ class EventSub:
 
         Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHOUTOUTS` or :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHOUTOUTS`
         auth scope.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelshoutoutreceive
 
         :param broadcaster_user_id: The ID of the broadcaster that you want to receive notifications about when they receive a Shoutout.
         :param moderator_user_id: The ID of the broadcaster that received the Shoutout or one of the broadcaster’s moderators.
