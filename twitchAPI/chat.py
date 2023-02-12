@@ -1117,7 +1117,7 @@ class Chat:
             raise ValueError('please specify a room')
         if room[0] == '#':
             room = room[1:]
-        return self._mod_status_cache.get(room, 'user') == 'mod'
+        return self._mod_status_cache.get(room.lower(), 'user') == 'mod'
 
     async def join_room(self, chat_rooms: Union[List[str], str]):
         """ join one or more chat rooms\n
