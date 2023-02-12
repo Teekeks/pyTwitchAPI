@@ -1119,6 +1119,20 @@ class Chat:
             room = room[1:]
         return self._mod_status_cache.get(room.lower(), 'user') == 'mod'
 
+    def is_in_room(self, room: Union[str, ChatRoom]) -> bool:
+        """Check if the bot is currently in the given chat room
+
+        :param room: The chat room you want to check
+            This can either be a instance of :const:`~twitchAPI.types.ChatRoom` or a string with the room name (either with leading # or without)
+        """
+        if isinstance(room, ChatRoom):
+            room = room.name
+        if room is None or len(room) == 0:
+            raise ValueError('please specify a room')
+        if room[0] == '#':
+            room = room[1:]
+        return self.room_cache.get(room.lower()) is not None
+
     async def join_room(self, chat_rooms: Union[List[str], str]):
         """ join one or more chat rooms\n
         Will only exit once all given chat rooms where successfully joined or :const:`twitchAPI.chat.Chat.join_timeout` run out.
