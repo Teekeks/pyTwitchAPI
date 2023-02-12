@@ -1186,7 +1186,7 @@ class Chat:
         if text is None or len(text) == 0:
             raise ValueError('you can\'t send a empty message')
         if room[0] != '#':
-            room = f'#{room}'
+            room = f'#{room}'.lower()
         bucket = self._get_message_bucket(room[1:])
         await bucket.put()
         await self._send_message(f'PRIVMSG {room} :{text}')
@@ -1198,7 +1198,7 @@ class Chat:
         :param chat_rooms: The room or rooms you want to leave"""
         if isinstance(chat_rooms, str):
             chat_rooms = [chat_rooms]
-        room_str = ','.join([f'#{c}' if c[0] != '#' else c for c in chat_rooms])
+        room_str = ','.join([f'#{c}'.lower() if c[0] != '#' else c.lower() for c in chat_rooms])
         target = [c[1:].lower() if c[0] == '#' else c.lower() for c in chat_rooms]
         for r in target:
             self._room_leave_locks.append(r)
