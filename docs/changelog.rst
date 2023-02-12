@@ -4,6 +4,63 @@ Changelog
 =========
 
 ****************
+Version 3.8.0
+****************
+
+Twitch
+------
+
+- Added the new Endpoint "Send a Shoutout" :const:`~twitchAPI.twitch.Twitch.send_a_shoutout()`
+- :const:`~twitchAPI.twitch.Twitch.get_users_follows()` is now marked as deprecated
+- Added missing parameter :code:`type` to :const:`~twitchAPI.twitch.Twitch.get_streams()`
+
+Helper
+------
+
+- Added new Async Generator helper :const:`~twitchAPI.helper.limit()`, with this you can limit the amount of results returned from the given AsyncGenerator to a maximum number
+
+EventSub
+--------
+
+- Added the following new Topics:
+
+  - "Channel Shoutout Create" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shoutout_create()`
+  - "Channel Shoutout Receive" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shoutout_receive()`
+
+PubSub
+------
+
+- Added new Topic "Low trust Users" :const:`~twitchAPI.pubsub.PubSub.listen_low_trust_users()`
+
+Chat
+----
+
+- Improved rate limit handling of :const:`~twitchAPI.chat.Chat.join_room()` when joining multiple rooms per call
+- The following functions now all ignore the capitalization of the given  chat room:
+
+  - :const:`~twitchAPI.chat.Chat.join_room()`
+  - :const:`~twitchAPI.chat.Chat.leave_room()`
+  - :const:`~twitchAPI.chat.Chat.is_mod()`
+  - :const:`~twitchAPI.chat.Chat.send_message()`
+
+- Added :const:`initial_channel` to :const:`~twitchAPI.chat.Chat.__init__()`, with this you can auto join channels on bot startup
+- Added :const:`~twitchAPI.chat.Chat.is_in_room()`
+- Added :const:`~twitchAPI.chat.Chat.log_no_registered_command_handler`, with this you can control if the "no registered handler for event" warnings should be logged or not
+
+
+OAuth
+-----
+
+- Added the following new AuthScopes:
+
+  - :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHOUTOUTS`
+  - :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHOUTOUTS`
+  - :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_FOLLOWERS`
+
+- Improved async handling of :const:`~twitchAPI.oauth.UserAuthenticator`
+
+
+****************
 Version 3.7.0
 ****************
 
