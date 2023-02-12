@@ -3643,6 +3643,39 @@ class Twitch:
         await self._build_result('POST', 'chat/announcements', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_ANNOUNCEMENTS], None,
                                  body_data=body, error_handler=error)
 
+    async def send_a_shoutout(self,
+                              from_broadcaster_id: str,
+                              to_broadcaster_id: str,
+                              moderator_id: str) -> None:
+        """Sends a Shoutout to the specified broadcaster.\n
+        Typically, you send Shoutouts when you or one of your moderators notice another broadcaster in your chat, the other broadcaster is coming up
+        in conversation, or after they raid your broadcast.
+
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHOUTOUTS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#send-a-shoutout
+
+        :param from_broadcaster_id: The ID of the broadcaster that’s sending the Shoutout.
+        :param to_broadcaster_id: The ID of the broadcaster that’s receiving the Shoutout.
+        :param moderator_id: The ID of the broadcaster or a user that is one of the broadcaster’s moderators.
+            This ID must match the user ID in the access token.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchAPIException: if the user in moderator_id is not one of the broadcasters moderators or the broadcaster
+            cant send to_broadcaster_id a shoutout
+        """
+        param = {
+            'from_broadcaster_id': from_broadcaster_id,
+            'to_broadcaster_id': to_broadcaster_id,
+            'moderator_id': moderator_id
+        }
+        err = {403: TwitchAPIException(f'Forbidden: the user with ID {moderator_id} is not one of the moderators broadcasters or '
+                                       f'the broadcaster cant send {to_broadcaster_id} a shoutout')}
+        await self._build_result('POST', 'chat/shoutouts', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_SHOUTOUTS], None, error_handler=err)
+
     async def get_soundtrack_current_track(self, broadcaster_id: str) -> CurrentSoundtrack:
         """Gets the Soundtrack track that the broadcaster is playing.
 
