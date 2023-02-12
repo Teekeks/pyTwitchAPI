@@ -82,6 +82,8 @@ class AuthScope(Enum):
     MODERATOR_READ_AUTOMOD_SETTINGS = 'moderator:read:automod_settings'
     MODERATOR_MANAGE_AUTOMOD_SETTINGS = 'moderator:manage:automod_settings'
     MODERATOR_READ_FOLLOWERS = 'moderator:read:followers'
+    MODERATOR_MANAGE_SHOUTOUTS = 'moderator:manage:shoutouts'
+    MODERATOR_READ_SHOUTOUTS = 'moderator:read:shoutouts'
 
 
 class ModerationEventType(Enum):
