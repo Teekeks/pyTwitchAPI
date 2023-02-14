@@ -797,7 +797,10 @@ class Chat:
         self._closing = True
 
     async def __connect(self, is_startup=False):
-        self.logger.debug('connecting...')
+        if is_startup:
+            self.logger.debug('connecting...')
+        else:
+            self.logger.debug('reconnecting...')
         if self.__connection is not None and not self.__connection.closed:
             await self.__connection.close()
         retry = 0
@@ -879,6 +882,8 @@ class Chat:
                             asyncio.ensure_future(handler(parsed))
                 elif message.type == aiohttp.WSMsgType.CLOSED:
                     self.logger.debug('websocket is closing')
+                    if self.__running:
+                        await self.__connect(is_startup=False)
                     break
                 elif message.type == aiohttp.WSMsgType.ERROR:
                     self.logger.warning('error in websocket')
