@@ -94,7 +94,7 @@ AsyncGenerator
 
 AsyncGenerators are used to automatically itterate over all possible resuts of your API call, this will also automatically handle pagination for you.
 In some cases (for example stream schedules with repeating entries), this may result in a endless stream of entries returned so make sure to add your
- own exit conditions in such cases.
+own exit conditions in such cases.
 The generated objects will always be children of :py:const:`~twitchAPI.object.TwitchObject`, see the docs of the API call to see the exact
 object type.
 
