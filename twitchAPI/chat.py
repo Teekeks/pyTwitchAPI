@@ -891,7 +891,7 @@ class Chat:
                     else:
                         break
                 elif message.type == aiohttp.WSMsgType.ERROR:
-                    self.logger.warning('error in websocket')
+                    self.logger.warning('error in websocket: ' + str(self.__connection.exception()))
                     break
         except CancelledError:
             # we are closing down!
