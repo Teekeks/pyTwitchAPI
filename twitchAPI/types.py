@@ -278,8 +278,10 @@ class ChatEvent(Enum):
     CHAT_CLEARED = 'chat_cleared'
     """Triggered when a user was banned, timed out or all messaged from a user where deleted"""
     WHISPER = 'whisper'
-    """Triggered when someone whispers to your bot. NOTE: You need the :const:`~twitchAPI.types.AuthScope.WHISPERS_READ` Auth Scope 
+    """Triggered when someone whispers to your bot. NOTE: You need the :const:`~twitchAPI.types.AuthScope.WHISPERS_READ` Auth Scope
     to get this Event."""
+    NOTICE = 'notice'
+    """Triggerd on server notice"""
 
 
 @dataclass

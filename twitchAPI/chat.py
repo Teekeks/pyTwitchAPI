@@ -161,6 +161,14 @@ Triggered when someone whispers to your bot.
 
 .. note:: You need the :const:`~twitchAPI.types.AuthScope.WHISPERS_READ` Auth Scope to receive this Event.
 
+Server notice
+============================
+
+- ChatEvent: :const:`~twitchAPI.types.ChatEvent.NOTICE`
+- Payload: :const:`~twitchAPI.chat.NoticeEvent`
+
+Triggered when server sends a notice message.
+
 
 ************
 Code example
@@ -271,7 +279,7 @@ from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScop
 from typing import List, Optional, Union, Callable, Dict, Awaitable, Any
 
 __all__ = ['Chat', 'ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent',
-           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent', 'MessageDeletedEvent']
+           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent', 'MessageDeletedEvent', 'NoticeEvent']
 
 
 class ChatUser:
@@ -512,6 +520,23 @@ class WhisperEvent(EventData):
         """The user that DMed your bot"""
         return ChatUser(self.chat, self._parsed)
 
+class NoticeEvent(EventData):
+    """Represents a server notice"""
+    
+    def __init__(self, chat, parsed):
+        super(NoticeEvent, self).__init__(chat)
+        self._room_name = parsed['command']['channel'][1:]
+        """The name of the chat room the notice is from"""
+        self.msg_id: str = parsed['tags'].get('msg-id')
+        """Message ID of the notice, `Msg-id reference <https://dev.twitch.tv/docs/irc/msg-id/>`__"""
+        self.message: str = parsed['parameters']
+        """Description for the msg_id"""
+
+    @property
+    def room(self) -> Optional[ChatRoom]:
+        """The room this notice is from"""
+        return self.chat.room_cache.get(self._room_name)
+        
 
 COMMAND_CALLBACK_TYPE = Callable[[ChatCommand], Awaitable[None]]
 EVENT_CALLBACK_TYPE = Callable[[Any], Awaitable[None]]
@@ -917,8 +942,11 @@ class Chat:
             t.add_done_callback(self._task_callback)
 
     async def _handle_notice(self, parsed: dict):
+        e = NoticeEvent(self, parsed)
+        for handler in self._event_handler.get(ChatEvent.NOTICE, []):
+            t = asyncio.ensure_future(handler(e))
+            t.add_done_callback(self._task_callback)
         self.logger.debug(f'got NOTICE for channel {parsed["command"]["channel"]}: {parsed["tags"]["msg-id"]}')
-        pass
 
     async def _handle_clear_msg(self, parsed: dict):
         ev = MessageDeletedEvent(self, parsed)
