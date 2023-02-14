@@ -484,7 +484,7 @@ class Twitch:
                                 auth_type: 'AuthType',
                                 required_scope: List[Union[AuthScope, List[AuthScope]]],
                                 data: Optional[dict] = None,
-                                retries: int = 1) -> [ClientResponse, ClientSession]:
+                                retries: int = 1) -> ClientResponse:
         """Make GET request with authorization"""
         headers = self.__generate_header(auth_type, required_scope)
         self.logger.debug(f'making GET request to {url}')
