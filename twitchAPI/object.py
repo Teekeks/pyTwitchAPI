@@ -16,6 +16,20 @@ from twitchAPI.types import StatusCode, VideoType, HypeTrainContributionMethod, 
 
 T = TypeVar('T')
 
+__all__ = ['TwitchObject', 'IterTwitchObject', 'AsyncIterTwitchObject', 'TwitchUser', 'TwitchUserFollow', 'TwitchUserFollowResult', 'DateRange',
+           'ExtensionAnalytic', 'GameAnalytics', 'CreatorGoal', 'BitsLeaderboardEntry', 'BitsLeaderboard', 'ProductCost', 'ProductData',
+           'ExtensionTransaction', 'ChatSettings', 'CreatedClip', 'Clip', 'CodeStatus', 'Game', 'AutoModStatus', 'BannedUser', 'BanUserResponse',
+           'BlockedTerm', 'Moderator', 'CreateStreamMarkerResponse', 'Stream', 'StreamMarker', 'StreamMarkers', 'GetStreamMarkerResponse',
+           'BroadcasterSubscription', 'BroadcasterSubscriptions', 'UserSubscription', 'StreamTag', 'TeamUser', 'ChannelTeam', 'UserExtension',
+           'ActiveUserExtension', 'UserActiveExtensions', 'VideoMutedSegments', 'Video', 'ChannelInformation', 'SearchChannelResult',
+           'SearchCategoryResult', 'StartCommercialResult', 'Cheermote', 'GetCheermotesResponse', 'HypeTrainContribution', 'HypeTrainEventData',
+           'HypeTrainEvent', 'DropsEntitlement', 'MaxPerStreamSetting', 'MaxPerUserPerStreamSetting', 'GlobalCooldownSetting', 'CustomReward',
+           'PartialCustomReward', 'CustomRewardRedemption', 'ChannelEditor', 'BlockListEntry', 'PollChoice', 'Poll', 'Predictor', 'PredictionOutcome',
+           'Prediction', 'RaidStartResult', 'ChatBadgeVersion', 'ChatBadge', 'Emote', 'GetEmotesResponse', 'EventSubSubscription',
+           'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment', 'StreamVacation', 'ChannelStreamSchedule',
+           'ChannelVIP', 'UserChatColor', 'Artist', 'Album', 'Soundtrack', 'TrackSource', 'CurrentSoundtrack', 'Playlist', 'Chatter',
+           'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign', 'CharityCampaignDonation', 'AutoModSettings']
+
 
 class TwitchObject:
     """

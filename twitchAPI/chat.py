@@ -266,7 +266,7 @@ import aiohttp
 from twitchAPI.twitch import Twitch
 from twitchAPI.object import TwitchUser
 from twitchAPI.helper import TWITCH_CHAT_URL, first, RateLimitBucket, RATE_LIMIT_SIZES
-from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScope, ChatEvent, MissingScopeException, UnauthorizedException
+from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScope, ChatEvent, UnauthorizedException
 
 from typing import List, Optional, Union, Callable, Dict, Awaitable, Any
 
@@ -547,7 +547,7 @@ class Chat:
         """Controls if instances of commands being issued in chat where no handler exists should be logged. |default|:code:`True`"""
         self.__connection = None
         self._session = None
-        self.__socket_thread: threading.Thread = None
+        self.__socket_thread: Optional[threading.Thread] = None
         self.__running: bool = False
         self.__socket_loop = None
         self.__startup_complete: bool = False
@@ -641,7 +641,6 @@ class Chat:
         return parsed_message
 
     def _parse_irc_parameters(self, raw_parameters_component: str, command):
-        idx = 0
         command_parts = raw_parameters_component[len(self._prefix)::].strip()
         try:
             params_idx = command_parts.index(' ')
@@ -652,7 +651,8 @@ class Chat:
         command['bot_command_params'] = command_parts[params_idx:].strip()
         return command
 
-    def _parse_irc_source(self, raw_source_component: str):
+    @staticmethod
+    def _parse_irc_source(raw_source_component: str):
         if raw_source_component is None:
             return None
         source_parts = raw_source_component.split('!')
@@ -661,7 +661,8 @@ class Chat:
             'host': source_parts[1] if len(source_parts) == 2 else source_parts[0]
         }
 
-    def _parse_irc_tags(self, raw_tags_component: str):
+    @staticmethod
+    def _parse_irc_tags(raw_tags_component: str):
         tags_to_ignore = ('client-nonce', 'flags')
         parsed_tags = {}
 
@@ -833,7 +834,8 @@ class Chat:
         # keep loop alive
         self.__socket_loop.run_until_complete(self._keep_loop_alive())
 
-    def _task_callback(self, task: asyncio.Task):
+    @staticmethod
+    def _task_callback(task: asyncio.Task):
         e = task.exception()
         if e is not None:
             traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
@@ -886,6 +888,7 @@ class Chat:
             # print('we are closing down!')
             return
 
+    # noinspection PyUnusedLocal
     async def _handle_reconnect(self, parsed: dict):
         self.logger.info('got reconnect request...')
         await self.__connect(is_startup=False)
@@ -997,6 +1000,7 @@ class Chat:
         self.logger.debug('got PING')
         await self._send_message('PONG ' + parsed['parameters'])
 
+    # noinspection PyUnusedLocal
     async def _handle_ready(self, parsed: dict):
         self.logger.debug('got ready event')
         dat = EventData(self)

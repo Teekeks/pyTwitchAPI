@@ -139,7 +139,7 @@ class EventSub:
         self.__twitch: Twitch = twitch
         self.logger: Logger = getLogger('twitchAPI.eventsub')
         """The logger used for EventSub related log messages"""
-        self.secret: str = ''.join(random.choice(string.ascii_lowercase) for i in range(20))
+        self.secret: str = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
         """A random secret string. Set this for added security. |default| :code:`A random 20 character long string`"""
         self.wait_for_subscription_confirm: bool = True
         """Set this to false if you don't want to wait for a subscription confirm. |default| :code:`True`"""
@@ -300,7 +300,9 @@ class EventSub:
     # HANDLERS
     # ==================================================================================================================
 
-    async def __handle_default(self, request: 'web.Request'):
+    # noinspection PyUnusedLocal
+    @staticmethod
+    async def __handle_default(request: 'web.Request'):
         return web.Response(text="pyTwitchAPI EventSub")
 
     async def __handle_challenge(self, request: 'web.Request', data: dict):
@@ -651,7 +653,8 @@ class EventSub:
                                                                  reward_id: Optional[str] = None) -> str:
         """A viewer has redeemed a custom channel points reward on the specified channel.
 
-        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_reward_redemptionadd
+        For more information see here:
+        https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_reward_redemptionadd
 
         :param broadcaster_user_id: the id of the user you want to listen to
         :param reward_id: the id of the reward you want to get updates from. |default| :code:`None`
@@ -676,7 +679,8 @@ class EventSub:
                                                                     reward_id: Optional[str] = None) -> str:
         """A redemption of a channel points custom reward has been updated for the specified channel.
 
-        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_reward_redemptionupdate
+        For more information see here:
+        https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_reward_redemptionupdate
 
         :param broadcaster_user_id: the id of the user you want to listen to
         :param reward_id: the id of the reward you want to get updates from. |default| :code:`None`
@@ -1036,8 +1040,8 @@ class EventSub:
                                                callback: CALLBACK_TYPE) -> str:
         """Sends a notification when the broadcaster activates Shield Mode.
 
-        Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHIELD_MODE` or :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHIELD_MODE`
-        auth scope.
+        Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHIELD_MODE` or
+        :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHIELD_MODE` auth scope.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelshield_modebegin
 
@@ -1063,8 +1067,8 @@ class EventSub:
                                              callback: CALLBACK_TYPE) -> str:
         """Sends a notification when the broadcaster deactivates Shield Mode.
 
-        Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHIELD_MODE` or :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHIELD_MODE`
-        auth scope.
+        Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHIELD_MODE` or
+        :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHIELD_MODE` auth scope.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelshield_modeend
 

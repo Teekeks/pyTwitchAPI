@@ -79,7 +79,7 @@ from logging import getLogger, Logger
 from uuid import UUID
 from time import sleep
 
-from typing import Callable, List, Dict, Awaitable
+from typing import Callable, List, Dict, Awaitable, Optional
 
 __all__ = ['PubSub']
 
@@ -108,7 +108,7 @@ class PubSub:
         """maximum time in seconds waited for a listen confirm. |default| :code:`30`"""
         self.reconnect_delay_steps: List[int] = [1, 2, 4, 8, 16, 32, 64, 128]
         self.__connection = None
-        self.__socket_thread: threading.Thread = None
+        self.__socket_thread: Optional[threading.Thread] = None
         self.__running: bool = False
         self.__socket_loop = None
         self.__topics: dict = {}
@@ -326,10 +326,12 @@ class PubSub:
 # Handler
 ###########################################################################################
 
+    # noinspection PyUnusedLocal
     async def __handle_pong(self, data):
         self.__waiting_for_pong = False
         self.logger.debug('received pong')
 
+    # noinspection PyUnusedLocal
     async def __handle_reconnect(self, data):
         self.logger.info('received reconnect command, reconnecting now...')
         await self.__connect()

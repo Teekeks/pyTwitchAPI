@@ -58,7 +58,7 @@ import webbrowser
 from aiohttp import web
 import asyncio
 from threading import Thread
-from concurrent.futures._base import CancelledError
+from concurrent.futures import CancelledError
 from logging import getLogger, Logger
 
 from typing import List, Union

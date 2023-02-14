@@ -93,9 +93,10 @@ AsyncGenerator
 ==============
 
 AsyncGenerators are used to automatically itterate over all possible resuts of your API call, this will also automatically handle pagination for you.
-In some cases (for example stream schedules with repeating entries), this may result in a endless stream of entries returned so make sure to add your own
-exit conditions in such cases.
-The generated objects will always be children of :py:const:`~twitchAPI.object.TwitchObject`, see the docs of the API call to see the exact object type.
+In some cases (for example stream schedules with repeating entries), this may result in a endless stream of entries returned so make sure to add your
+ own exit conditions in such cases.
+The generated objects will always be children of :py:const:`~twitchAPI.object.TwitchObject`, see the docs of the API call to see the exact
+object type.
 
 Example:
 
@@ -199,11 +200,12 @@ Class Documentation
 *******************
 """
 import asyncio
-
 import aiohttp.helpers
+from datetime import datetime
 from aiohttp import ClientSession, ClientResponse
 from aiohttp.client import ClientTimeout
-from .helper import TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, enum_value_or_none, datetime_to_str, remove_none_values, ResultType
+from .helper import TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, enum_value_or_none, datetime_to_str, remove_none_values, ResultType, \
+    build_url
 from logging import getLogger, Logger
 from .object import *
 from .types import *
@@ -265,7 +267,8 @@ class Twitch:
             yield from t
         return self
 
-    async def close(self):
+    @staticmethod
+    async def close():
         """Gracefully close the connection to the Twitch API"""
         # ensure that asyncio actually gracefully shut down
         await asyncio.sleep(0.25)
@@ -1578,7 +1581,8 @@ class Twitch:
         :param user_id: Returns streams broadcast by one or more specified user IDs. You can specify up to 100 IDs. |default| :code:`None`
         :param user_login: Returns streams broadcast by one or more specified user login names.
                         You can specify up to 100 names. |default| :code:`None`
-        :param stream_type: The type of stream to filter the list of streams by. Possible values are :code:`all` and :code:`live` |default| :code:`None`
+        :param stream_type: The type of stream to filter the list of streams by. Possible values are :code:`all` and :code:`live`
+                        |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
@@ -1893,7 +1897,6 @@ class Twitch:
             'to_id': to_id
         }
         return await self._build_iter_result('GET', 'users/follows', param, AuthType.EITHER, [], TwitchUserFollowResult)
-
 
     async def update_user(self,
                           description: str) -> TwitchUser:

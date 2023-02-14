@@ -102,28 +102,28 @@ def fields_to_enum(data: Union[dict, list],
     """
     _enum_vals = [e.value for e in _enum.__members__.values()]
 
-    def make_dict_field_enum(data: dict,
-                             fields: List[str],
+    def make_dict_field_enum(_data: dict,
+                             _fields: List[str],
                              _enum: Type[Enum],
-                             default: Optional[Enum]) -> Union[dict, Enum, None]:
-        fd = data
-        if isinstance(data, str):
-            if data not in _enum_vals:
-                return default
+                             _default: Optional[Enum]) -> Union[dict, Enum, None]:
+        fd = _data
+        if isinstance(_data, str):
+            if _data not in _enum_vals:
+                return _default
             else:
-                return _enum(data)
-        for key, value in data.items():
+                return _enum(_data)
+        for key, value in _data.items():
             # TODO fix for non string values
             if isinstance(value, str):
                 if key in fields:
                     if value not in _enum_vals:
-                        fd[key] = default
+                        fd[key] = _default
                     else:
                         fd[key] = _enum(value)
             elif isinstance(value, dict):
-                fd[key] = make_dict_field_enum(value, fields, _enum, default)
+                fd[key] = make_dict_field_enum(value, _fields, _enum, _default)
             elif isinstance(value, list):
-                fd[key] = fields_to_enum(value, fields, _enum, default)
+                fd[key] = fields_to_enum(value, _fields, _enum, _default)
         return fd
 
     if isinstance(data, list):
