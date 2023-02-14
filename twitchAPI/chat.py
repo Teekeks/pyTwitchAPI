@@ -883,8 +883,13 @@ class Chat:
                 elif message.type == aiohttp.WSMsgType.CLOSED:
                     self.logger.debug('websocket is closing')
                     if self.__running:
-                        await self.__connect(is_startup=False)
-                    break
+                        try:
+                            await self.__connect(is_startup=False)
+                        except TwitchBackendException:
+                            self.logger.exception('Connection to chat websocket lost and unable to reestablish connection!')
+                            break
+                    else:
+                        break
                 elif message.type == aiohttp.WSMsgType.ERROR:
                     self.logger.warning('error in websocket')
                     break
