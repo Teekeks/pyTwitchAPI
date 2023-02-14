@@ -280,7 +280,7 @@ class ChatEvent(Enum):
     WHISPER = 'whisper'
     """Triggered when someone whispers to your bot. NOTE: You need the :const:`~twitchAPI.types.AuthScope.WHISPERS_READ` Auth Scope to get this Event."""
     NOTICE = 'notice'
-    """Triggerd on IRC service notice"""
+    """Triggerd on server notice"""
 
 
 @dataclass
