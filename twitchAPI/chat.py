@@ -563,8 +563,9 @@ class Chat:
         self._room_leave_locks = []
         self._closing: bool = False
         self.join_timeout: int = 10
-        self._mod_status_cache = {}
         """Time in seconds till a channel join attempt times out"""
+        self._mod_status_cache = {}
+        self._subscriber_status_cache = {}
 
     def __await__(self):
         t = asyncio.create_task(self._get_username())
@@ -990,6 +991,7 @@ class Chat:
         if parsed['tags'].get('badges') is not None:
             is_broadcaster = parsed['tags']['badges'].get('broadcaster') is not None
         self._mod_status_cache[parsed['command']['channel'][1:]] = 'mod' if parsed['tags']['mod'] == '1' or is_broadcaster else 'user'
+        self._subscriber_status_cache[parsed['command']['channel'][1:]] = 'sub' if parsed['tags']['subscriber'] == '1' else 'non-sub'
 
     async def _handle_ping(self, parsed: dict):
         self.logger.debug('got PING')
@@ -1118,6 +1120,20 @@ class Chat:
         if room[0] == '#':
             room = room[1:]
         return self._mod_status_cache.get(room.lower(), 'user') == 'mod'
+    
+    def is_subscriber(self, room: Union[str, ChatRoom]) -> bool:
+        """Check if chat bot is a subscriber in a channel
+
+        :param room: The chat room you want to check if bot is a subscriber in.
+            This can either be a instance of :const:`~twitchAPI.types.ChatRoom` or a string with the room name (either with leading # or without)
+        :return: Returns True if chat bot is a subscriber """
+        if isinstance(room, ChatRoom):
+            room = room.name
+        if room is None or len(room) == 0:
+            raise ValueError('please specify a room')
+        if room[0] == '#':
+            room = room[1:]
+        return self._subscriber_status_cache.get(room.lower(), 'user') == 'sub'
 
     def is_in_room(self, room: Union[str, ChatRoom]) -> bool:
         """Check if the bot is currently in the given chat room
