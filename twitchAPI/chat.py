@@ -67,7 +67,9 @@ Bot Ready
 - ChatEvent: :const:`~twitchAPI.types.ChatEvent.READY`
 - Payload: :const:`~twitchAPI.chat.EventData`
 
-This Event is triggered when the bot is stared up and ready to join channels.
+This Event is triggered when the bot is started up and ready to join channels.
+
+.. note:: This Event will also be called every time the bot had to reconnect to the twitch chat
 
 Message send
 ============
@@ -909,7 +911,7 @@ class Chat:
                     self.logger.debug('websocket is closing')
                     if self.__running:
                         try:
-                            await self.__connect(is_startup=False)
+                            await self._handle_base_reconnect()
                         except TwitchBackendException:
                             self.logger.exception('Connection to chat websocket lost and unable to reestablish connection!')
                             break
@@ -923,10 +925,14 @@ class Chat:
             # print('we are closing down!')
             return
 
+    async def _handle_base_reconnect(self):
+        await self.__connect(is_startup=False)
+        await self.__task_startup()
+
     # noinspection PyUnusedLocal
     async def _handle_reconnect(self, parsed: dict):
         self.logger.info('got reconnect request...')
-        await self.__connect(is_startup=False)
+        await self._handle_base_reconnect()
         self.logger.info('reconnect completed')
 
     async def _handle_whisper(self, parsed: dict):
