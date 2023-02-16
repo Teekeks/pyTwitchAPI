@@ -185,7 +185,7 @@ class AsyncIterTwitchObject(TwitchObject, Generic[T]):
             raise StopAsyncIteration()
         _url = build_url(self._data['url'], self._data['param'], remove_none=True, split_lists=self._data['split'])
         async with ClientSession() as session:
-            response = await self._data['req'](session, _url, self._data['auth_t'], self._data['auth_s'], body=self._data['body'])
+            response = await self._data['req'](session, _url, self._data['auth_t'], self._data['auth_s'], self._data['body'])
             _data = await response.json()
         _after = _data.get('pagination', {}).get('cursor')
         self._data['param']['after'] = _after
