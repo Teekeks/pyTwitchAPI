@@ -377,6 +377,9 @@ class EventSub:
     async def listen_channel_follow(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A specified channel receives a follow.
 
+        .. warning:: This subscription is deprecated and will be removed on or soon after the 3rd of August 2023\n
+            Please use :const:`~twitchAPI.eventsub.EventSub.listen_channel_follow_v2()`
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelfollow
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -388,7 +391,32 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.follow', '2', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+
+    async def listen_channel_follow_v2(self,
+                                       broadcaster_user_id: str,
+                                       moderator_user_id: str,
+                                       callback: CALLBACK_TYPE) -> str:
+        """A specified channel receives a follow.
+
+        User Authentication with :code:`~twitchAPI.types.AuthScope.MODERATOR_READ_FOLLOWERS` is required.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelfollow
+
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param moderator_user_id: The ID of the moderator of the channel you want to get follow notifications for.
+        :param callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
+        """
+        return await self._subscribe('channel.follow',
+                                     '2',
+                                     {'broadcaster_user_id': broadcaster_user_id, 'moderator_user_id': moderator_user_id},
+                                     callback)
 
     async def listen_channel_subscribe(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A notification when a specified channel receives a subscriber. This does not include resubscribes.
