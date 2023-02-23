@@ -1906,6 +1906,40 @@ class Twitch:
         return await self._build_iter_result('GET', 'channels/followers', param, AuthType.USER, [AuthScope.MODERATOR_READ_FOLLOWERS],
                                              ChannelFollowersResult)
 
+    async def get_followed_channels(self,
+                                    user_id: str,
+                                    broadcaster_id: Optional[str] = None,
+                                    first: Optional[int] = None,
+                                    after: Optional[str] = None) -> FollowedChannelsResult:
+        """Gets a list of broadcasters that the specified user follows.
+        You can also use this endpoint to see whether a user follows a specific broadcaster.
+
+        Requires User Authentication with :const:`~twitchAPI.types.AuthScope.USER_READ_FOLLOWS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-followed-channels
+
+        :param user_id: A user’s ID. Returns the list of broadcasters that this user follows. This ID must match the user ID in the user OAuth token.
+        :param broadcaster_id: A broadcaster’s ID. Use this parameter to see whether the user follows this broadcaster.
+            If specified, the response contains this broadcaster if the user follows them.
+            If not specified, the response contains all broadcasters that the user follows. |default| :code:`None`
+        :param first: The maximum number of items to return per page in the response. Minimum 1, Maximum 100 |default| :code:`20`
+        :param after: The cursor used to get the next page of results.
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if first is not in range 1 to 100
+        """
+        if first is not None and (first < 1 or first > 100):
+            raise ValueError('first must be in range 1 to 100')
+        param = {
+            'user_id': user_id,
+            'broadcaster_id': broadcaster_id,
+            'first': first,
+            'after': after
+        }
+        return await self._build_iter_result('GET', 'channels/followed', param, AuthType.USER, [AuthScope.USER_READ_FOLLOWS], FollowedChannelsResult)
 
     async def update_user(self,
                           description: str) -> TwitchUser:
