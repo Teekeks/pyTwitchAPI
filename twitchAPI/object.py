@@ -28,7 +28,8 @@ __all__ = ['TwitchObject', 'IterTwitchObject', 'AsyncIterTwitchObject', 'TwitchU
            'Prediction', 'RaidStartResult', 'ChatBadgeVersion', 'ChatBadge', 'Emote', 'GetEmotesResponse', 'EventSubSubscription',
            'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment', 'StreamVacation', 'ChannelStreamSchedule',
            'ChannelVIP', 'UserChatColor', 'Artist', 'Album', 'Soundtrack', 'TrackSource', 'CurrentSoundtrack', 'Playlist', 'Chatter',
-           'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign', 'CharityCampaignDonation', 'AutoModSettings']
+           'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign', 'CharityCampaignDonation', 'AutoModSettings',
+           'ChannelFollower', 'ChannelFollowersResult']
 
 
 class TwitchObject:
@@ -231,6 +232,18 @@ class TwitchUserFollow(TwitchObject):
 class TwitchUserFollowResult(AsyncIterTwitchObject[TwitchUserFollow]):
     total: int
     data: List[TwitchUserFollow]
+
+
+class ChannelFollower(TwitchObject):
+    followed_at: datetime
+    user_id: str
+    user_name: str
+    user_login: str
+
+
+class ChannelFollowersResult(AsyncIterTwitchObject[ChannelFollower]):
+    total: int
+    data: List[ChannelFollower]
 
 
 class DateRange(TwitchObject):
