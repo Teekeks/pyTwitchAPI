@@ -2851,9 +2851,8 @@ class Twitch:
         """
         if first is not None and (first < 1 or first > 20):
             raise ValueError('first must be in range 1 to 20')
-        if prediction_ids is not None:
-            if len(prediction_ids) > 100:
-                raise ValueError('maximum of 100 prediction ids allowed')
+        if prediction_ids is not None and len(prediction_ids) > 100:
+            raise ValueError('maximum of 100 prediction ids allowed')
 
         param = {
             'broadcaster_id': broadcaster_id,
@@ -2898,8 +2897,7 @@ class Twitch:
             'outcomes': [{'title': x} for x in outcomes],
             'prediction_window': prediction_window
         }
-        return await self._build_result('POST', 'predictions', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], Prediction,
-                                        body_data=body)
+        return await self._build_result('POST', 'predictions', {}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_PREDICTIONS], Prediction, body_data=body)
 
     async def end_prediction(self,
                              broadcaster_id: str,
@@ -2926,9 +2924,8 @@ class Twitch:
         """
         if status not in (PredictionStatus.RESOLVED, PredictionStatus.CANCELED, PredictionStatus.LOCKED):
             raise ValueError('status has to be one of RESOLVED, CANCELED or LOCKED')
-        if status == PredictionStatus.RESOLVED:
-            if winning_outcome_id is None:
-                raise ValueError('need to specify winning_outcome_id for status RESOLVED')
+        if status == PredictionStatus.RESOLVED and winning_outcome_id is None:
+            raise ValueError('need to specify winning_outcome_id for status RESOLVED')
         body = {
             'broadcaster_id': broadcaster_id,
             'id': prediction_id,
