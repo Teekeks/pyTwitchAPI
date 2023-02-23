@@ -690,6 +690,19 @@ class Twitch:
         """
         return self.__user_auth_token
 
+    async def get_refreshed_user_auth_token(self) -> Union[str, None]:
+        """Validates the current set user auth token and returns it
+
+        Will reauth if token is invalid"""
+        if self.__user_auth_token is None:
+            return None
+        from .oauth import validate_token
+        val_result = await validate_token(self.__user_auth_token)
+        if val_result.get('status', 200) != 200:
+            # refresh token
+            await self.refresh_used_token()
+        return self.__user_auth_token
+
     def get_used_token(self) -> Union[str, None]:
         """Returns the currently used token, can be either the app or user auth Token or None if no auth is set
 

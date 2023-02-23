@@ -1076,7 +1076,7 @@ class Chat:
 
     async def __task_startup(self):
         await self._send_message('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands')
-        await self._send_message(f'PASS oauth:{self.twitch.get_user_auth_token()}')
+        await self._send_message(f'PASS oauth:{await self.twitch.get_refreshed_user_auth_token()}')
         await self._send_message(f'NICK {self.username}')
         self.__startup_complete = True
 
