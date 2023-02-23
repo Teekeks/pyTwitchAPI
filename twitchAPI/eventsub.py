@@ -388,7 +388,7 @@ class EventSub:
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.follow', '2', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
     async def listen_channel_subscribe(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A notification when a specified channel receives a subscriber. This does not include resubscribes.
