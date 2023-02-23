@@ -69,8 +69,6 @@ Bot Ready
 
 This Event is triggered when the bot is started up and ready to join channels.
 
-.. note:: This Event will also be called every time the bot had to reconnect to the twitch chat
-
 Message send
 ============
 
@@ -567,7 +565,6 @@ class Chat:
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_CHAT_URL
         self.ping_frequency: int = 120
         self.ping_jitter: int = 4
-        self._initial_channel: Optional[List[str]] = initial_channel
         self.listen_confirm_timeout: int = 30
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
         self.log_no_registered_command_handler: bool = True
@@ -581,6 +578,7 @@ class Chat:
         self.__tasks = None
         self._ready = False
         self._send_buckets = {}
+        self._join_target = initial_channel if initial_channel is not None else []
         self._join_bucket = RateLimitBucket(10, 2000 if is_verified_bot else 20, 'channel_join', self.logger)
         self.__waiting_for_pong: bool = False
         self._event_handler = {}
@@ -1048,14 +1046,16 @@ class Chat:
     async def _handle_ready(self, parsed: dict):
         self.logger.debug('got ready event')
         dat = EventData(self)
+        was_ready = self._ready
         self._ready = True
-        if self._initial_channel is not None and len(self._initial_channel) > 0:
-            _failed = await self.join_room(self._initial_channel)
+        if self._join_target is not None and len(self._join_target) > 0:
+            _failed = await self.join_room(self._join_target)
             if len(_failed) > 0:
                 self.logger.warning(f'failed to join the following channel of the initial following list: {", ".join(_failed)}')
-        for h in self._event_handler.get(ChatEvent.READY, []):
-            t = asyncio.ensure_future(h(dat))
-            t.add_done_callback(self._task_callback)
+        if not was_ready:
+            for h in self._event_handler.get(ChatEvent.READY, []):
+                t = asyncio.ensure_future(h(dat))
+                t.add_done_callback(self._task_callback)
 
     async def _handle_msg(self, parsed: dict):
         self.logger.debug('got new message, call handler')
@@ -1224,6 +1224,7 @@ class Chat:
         while any([r in self._room_join_locks for r in target]) and timeout > datetime.datetime.now():
             await asyncio.sleep(0.01)
         failed_to_join = [r for r in self._room_join_locks if r in target]
+        self._join_target.extend([x for x in target if x not in failed_to_join])
         for r in failed_to_join:
             self._room_join_locks.remove(r)
         return failed_to_join
@@ -1281,6 +1282,9 @@ class Chat:
         for r in target:
             self._room_leave_locks.append(r)
         await self._send_message(f'PART {room_str}')
+        for x in target:
+            if x in self._join_target:
+                self._join_target.remove(x)
         # wait to leave all rooms
         while any([r in self._room_leave_locks for r in target]):
             await asyncio.sleep(0.01)
