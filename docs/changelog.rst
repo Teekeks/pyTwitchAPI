@@ -4,6 +4,33 @@ Changelog
 =========
 
 ****************
+Version 3.9.0
+****************
+
+Twitch
+------
+
+- Added the following new Endpoints:
+
+  - "Get Channel Followers" :const:`~twitchAPI.twitch.Twitch.get_channel_followers()`
+  - "Get Followed Channels" :const:`~twitchAPI.twitch.Twitch.get_followed_channels()`
+
+- Fixed TypeError: __api_get_request() got an unexpected keyword argument 'body' (Thanks https://github.com/JC-Chung )
+
+EventSub
+--------
+
+- Added new Topic :const:`~twitchAPI.eventsub.EventSub.listen_channel_follow_v2()`
+
+Chat
+----
+
+- Bot is now correctly reconnecting and rejoining channels after losing connection
+- added :const:`~twitchAPI.chat.Chat.is_subscriber()` (Thanks https://github.com/stolenvw )
+- added new Event :const:`~twitchAPI.types.ChatEvent.NOTICE` - Triggered when server sends a notice message (Thanks https://github.com/stolenvw )
+
+
+****************
 Version 3.8.0
 ****************
 
