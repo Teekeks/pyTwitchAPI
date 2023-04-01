@@ -792,8 +792,8 @@ class ChatBadgeVersion(TwitchObject):
     image_url_4x: str
     title: str
     description: str
-    click_action: str
-    click_url: str
+    click_action: Optional[str]
+    click_url: Optional[str]
 
 
 class ChatBadge(TwitchObject):
