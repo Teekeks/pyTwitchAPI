@@ -3819,7 +3819,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ValueError: if first is not between 1 and 1000
         """
-        if first is not None and first < 1 or first > 1000:
+        if first is not None and (first < 1 or first > 1000):
             raise ValueError('first must be between 1 and 1000')
 
         param = {
