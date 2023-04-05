@@ -657,8 +657,14 @@ class Twitch:
         if scope is None:
             raise MissingScopeException('scope was not provided')
         if validate:
-            from .oauth import validate_token
+            from .oauth import validate_token, refresh_access_token
             val_result = await validate_token(token)
+            if val_result.get('status', 200) == 401 and refresh_token is not None:
+                # try to refresh once and revalidate
+                token, refresh_token = await refresh_access_token(refresh_token, self.app_id, self.app_secret)
+                if self.user_auth_refresh_callback is not None:
+                    await self.user_auth_refresh_callback(token, refresh_token)
+                val_result = await validate_token(token)
             if val_result.get('status', 200) == 401:
                 raise InvalidTokenException(val_result.get('message', ''))
             if 'login' not in val_result or 'user_id' not in val_result:
