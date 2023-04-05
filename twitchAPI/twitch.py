@@ -1731,31 +1731,6 @@ class Twitch:
         async for y in self._build_generator('GET', 'streams/tags', {'broadcaster_id': broadcaster_id}, AuthType.USER, [], StreamTag):
             yield y
 
-    async def replace_stream_tags(self,
-                                  broadcaster_id: str,
-                                  tag_ids: List[str]):
-        """Applies specified tags to a specified stream, overwriting any existing tags applied to that stream.
-        If no tags are specified, all tags previously applied to the stream are removed.
-        Automated tags are not affected by this operation.\n\n
-
-        Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#replace-stream-tags
-
-        :param broadcaster_id: ID of the stream for which tags are to be replaced.
-        :param tag_ids: IDs of tags to be applied to the stream. Maximum of 100 supported.
-        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
-        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
-        :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
-                        and a re authentication failed
-        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if more than 100 tag_ids where provided
-        """
-        if len(tag_ids) > 100:
-            raise ValueError('tag_ids can not have more than 100 entries')
-        await self._build_result('PUT', 'streams/tags', {'broadcaster_id': broadcaster_id}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_BROADCAST],
-                                 None, body_data={'tag_ids': tag_ids})
-
     async def get_channel_teams(self,
                                 broadcaster_id: str) -> List[ChannelTeam]:
         """Retrieves a list of Twitch Teams of which the specified channel/broadcaster is a member.\n\n
