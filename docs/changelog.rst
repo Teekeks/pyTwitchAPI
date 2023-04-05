@@ -4,6 +4,38 @@ Changelog
 =========
 
 ****************
+Version 3.10.0
+****************
+
+Twitch
+------
+
+- Added new :const:`~twitchAPI.object.ChatBadgeVersion` related fields to the following Endpoints: (Thanks https://github.com/stolenvw )
+
+  - :const:`~twitchAPI.twitch.Twitch.get_chat_badges()`
+  - :const:`~twitchAPI.twitch.Twitch.get_global_chat_badges()`
+
+- :const:`~twitchAPI.twitch.Twitch.set_user_authentication()` now tries to refresh the given token set if it seems to be out of date
+- removed the following deprecated endpoints:
+
+  - "Replace Stream Tags"
+  - "Get Stream Tags"
+  - "Get All Stream Tags"
+  - "Redeem Code"
+  - "Get Code Status"
+
+- Fixed condition logic when parameter `first` was given for the following Endpoints:
+
+  - :const:`~twitchAPI.twitch.Twitch.get_chatters()` (Thanks https://github.com/d7415 )
+  - :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlist()`
+  - :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlists()`
+
+PubSub
+------
+
+- PubSub now cleanly reestablishes the connection when the websocket was unexpectedly closed
+
+****************
 Version 3.9.0
 ****************
 
