@@ -1685,52 +1685,6 @@ class Twitch:
         }
         return await self._build_result('GET', 'subscriptions/user', param, AuthType.EITHER, [AuthScope.USER_READ_SUBSCRIPTIONS], UserSubscription)
 
-    async def get_all_stream_tags(self,
-                                  after: Optional[str] = None,
-                                  first: int = 20,
-                                  tag_ids: Optional[List[str]] = None) -> AsyncGenerator[StreamTag, None]:
-        """Gets the list of all stream tags defined by Twitch, optionally filtered by tag ID(s).\n\n
-
-        Requires App authentication\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-all-stream-tags
-
-        :param after: Cursor for forward pagination |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
-        :param tag_ids: IDs of tags. Maximum 100 entries |default| :code:`None`
-        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
-        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if first is not in range 1 to 100 or tag_ids has more than 100 entries
-        """
-        if first < 1 or first > 100:
-            raise ValueError('first must be between 1 and 100')
-        if tag_ids is not None and len(tag_ids) > 100:
-            raise ValueError('tag_ids can not have more than 100 entries')
-        param = {
-            'after': after,
-            'first': first,
-            'tag_id': tag_ids
-        }
-        async for y in self._build_generator('GET', 'tags/streams', param, AuthType.APP, [], StreamTag, split_lists=True):
-            yield y
-
-    async def get_stream_tags(self,
-                              broadcaster_id: str) -> AsyncGenerator[StreamTag, None]:
-        """Gets the list of tags for a specified stream (channel).\n\n
-
-        Requires User authentication\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-stream-tags
-
-        :param broadcaster_id: ID of the stream that's tags are going to be fetched
-        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
-        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        """
-        async for y in self._build_generator('GET', 'streams/tags', {'broadcaster_id': broadcaster_id}, AuthType.USER, [], StreamTag):
-            yield y
-
     async def get_channel_teams(self,
                                 broadcaster_id: str) -> List[ChannelTeam]:
         """Retrieves a list of Twitch Teams of which the specified channel/broadcaster is a member.\n\n
