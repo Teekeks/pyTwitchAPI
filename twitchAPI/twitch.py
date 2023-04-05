@@ -1061,58 +1061,6 @@ class Twitch:
         async for y in self._build_generator('GET', 'clips', param, AuthType.EITHER, [], Clip, split_lists=True):
             yield y
 
-    async def get_code_status(self,
-                              code: List[str],
-                              user_id: int) -> AsyncGenerator[StatusCode, None]:
-        """Gets the status of one or more provided Bits codes.\n\n
-
-        Requires App authentication\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-code-status
-
-        :param code: The code to get the status of. Maximum of 20 entries
-        :param user_id: Represents the numeric Twitch user ID of the account which is going to receive the entitlement associated with the code.
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
-                        and a re authentication failed
-        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
-        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if length of code is not in range 1 to 20
-        """
-        if len(code) > 20 or len(code) < 1:
-            raise ValueError('only between 1 and 20 codes are allowed')
-        param = {
-            'code': code,
-            'user_id': user_id
-        }
-        async for y in self._build_generator('GET', 'entitlements/codes', param, AuthType.APP, [], StatusCode, split_lists=True):
-            yield y
-
-    async def redeem_code(self,
-                          code: List[str],
-                          user_id: int) -> AsyncGenerator[StatusCode, None]:
-        """Redeems one or more provided Bits codes to the authenticated Twitch user.\n\n
-
-        Requires App authentication\n
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#redeem-code
-
-        :param code: The code to redeem to the authenticated user’s account. Maximum of 20 entries
-        :param user_id: Represents the numeric Twitch user ID of the account which  is going to receive the entitlement associated with the code.
-        :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
-        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
-        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
-                        and a re authentication failed
-        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if length of code is not in range 1 to 20
-        """
-        if len(code) > 20 or len(code) < 1:
-            raise ValueError('only between 1 and 20 codes are allowed')
-        param = {
-            'code': code,
-            'user_id': user_id
-        }
-        async for y in self._build_generator('POST', 'entitlements/code', param, AuthType.APP, [], StatusCode, split_lists=True):
-            yield y
-
     async def get_top_games(self,
                             after: Optional[str] = None,
                             before: Optional[str] = None,
