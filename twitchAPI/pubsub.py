@@ -190,7 +190,7 @@ class PubSub:
                 retry += 1
                 need_retry = True
         if retry >= len(self.reconnect_delay_steps):
-            raise TwitchBackendException('cant connect')
+            raise TwitchBackendException('can\'t connect')
 
         if not self.__connection.closed and not is_startup:
             uuid = str(get_uuid())
@@ -314,7 +314,12 @@ class PubSub:
                                                self.__handle_unknown)
                         self.__socket_loop.create_task(handler(data))
                 elif message.type == aiohttp.WSMsgType.CLOSED:
-                    self.logger.debug('websocket is closing')
+                    self.logger.debug('websocket is closing... trying to reestablish connection')
+                    try:
+                        await self._handle_base_reconnect()
+                    except TwitchBackendException:
+                        self.logger.exception('Connection to websocket lost and unable to reestablish connection!')
+                        break
                     break
                 elif message.type == aiohttp.WSMsgType.ERROR:
                     self.logger.warning('error in websocket')
@@ -325,6 +330,9 @@ class PubSub:
 ###########################################################################################
 # Handler
 ###########################################################################################
+
+    async def _handle_base_reconnect(self):
+        await self.__connect(is_startup=False)
 
     # noinspection PyUnusedLocal
     async def __handle_pong(self, data):
