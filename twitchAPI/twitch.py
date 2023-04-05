@@ -3756,7 +3756,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ValueError: if first is not between 1 and 50
         """
-        if first is not None and first < 1 or first > 50:
+        if first is not None and (first < 1 or first > 50):
             raise ValueError('first must be between 1 and 50')
         param = {
             'broadcaster_id': broadcaster_id,
@@ -3785,7 +3785,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ValueError: if first is not between 1 and 50
         """
-        if first is not None and first < 1 or first > 50:
+        if first is not None and (first < 1 or first > 50):
             raise ValueError('first must be between 1 and 50')
         param = {
             'id': playlist_id,
