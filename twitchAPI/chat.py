@@ -520,6 +520,7 @@ class WhisperEvent(EventData):
         """The user that DMed your bot"""
         return ChatUser(self.chat, self._parsed)
 
+
 class NoticeEvent(EventData):
     """Represents a server notice"""
     

@@ -113,7 +113,6 @@ def fields_to_enum(data: Union[dict, list],
             else:
                 return _enum(_data)
         for key, value in _data.items():
-            # TODO fix for non string values
             if isinstance(value, str):
                 if key in fields:
                     if value not in _enum_vals:

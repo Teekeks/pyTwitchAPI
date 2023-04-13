@@ -242,7 +242,6 @@ class EventSub:
             'Authorization': f'Bearer {token}'
         }
 
-    # FIXME requires port
     async def __api_post_request(self, session, url: str, data: Union[dict, None] = None):
         headers = self.__build_request_header()
         return await session.post(url, headers=headers, json=data)
