@@ -370,6 +370,8 @@ class EventSub:
     async def listen_channel_update(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A broadcaster updates their channel properties e.g., category, title, mature flag, broadcast, or language.
 
+        No Authentication required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelupdate
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -408,7 +410,7 @@ class EventSub:
                                        callback: CALLBACK_TYPE) -> str:
         """A specified channel receives a follow.
 
-        User Authentication with :code:`~twitchAPI.types.AuthScope.MODERATOR_READ_FOLLOWERS` is required.
+        User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_FOLLOWERS` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelfollow
 
@@ -430,6 +432,8 @@ class EventSub:
     async def listen_channel_subscribe(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A notification when a specified channel receives a subscriber. This does not include resubscribes.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscribe
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -445,6 +449,8 @@ class EventSub:
 
     async def listen_channel_subscription_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A notification when a subscription to the specified channel ends.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscriptionend
 
@@ -462,6 +468,8 @@ class EventSub:
     async def listen_channel_subscription_gift(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A notification when a viewer gives a gift subscription to one or more users in the specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscriptiongift
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -477,6 +485,8 @@ class EventSub:
 
     async def listen_channel_subscription_message(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A notification when a user sends a resubscription chat message in a specific channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscriptionmessage
 
@@ -496,6 +506,8 @@ class EventSub:
 
     async def listen_channel_cheer(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A user cheers on the specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.BITS_READ` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelcheer
 
@@ -519,6 +531,8 @@ class EventSub:
                                   from_broadcaster_user_id: Optional[str] = None) -> str:
         """A broadcaster raids another broadcaster’s channel.
 
+        No authorization required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelraid
 
         :param from_broadcaster_user_id: The broadcaster user ID that created the channel raid you want to get notifications for.
@@ -541,6 +555,8 @@ class EventSub:
     async def listen_channel_ban(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A viewer is banned from the specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MODERATE` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelban
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -559,6 +575,8 @@ class EventSub:
 
     async def listen_channel_unban(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A viewer is unbanned from the specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MODERATE` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelunban
 
@@ -579,6 +597,8 @@ class EventSub:
     async def listen_channel_moderator_add(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """Moderator privileges were added to a user on a specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATION_READ` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelmoderatoradd
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -597,6 +617,8 @@ class EventSub:
 
     async def listen_channel_moderator_remove(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """Moderator privileges were removed from a user on a specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATION_READ` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelmoderatorremove
 
@@ -617,6 +639,9 @@ class EventSub:
     async def listen_channel_points_custom_reward_add(self, broadcaster_user_id: str,
                                                       callback: CALLBACK_TYPE) -> str:
         """A custom channel points reward has been created for the specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_rewardadd
 
@@ -639,6 +664,9 @@ class EventSub:
                                                          callback: CALLBACK_TYPE,
                                                          reward_id: Optional[str] = None) -> str:
         """A custom channel points reward has been updated for the specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_rewardupdate
 
@@ -665,6 +693,9 @@ class EventSub:
                                                          reward_id: Optional[str] = None) -> str:
         """A custom channel points reward has been removed from the specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_rewardremove
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -689,6 +720,9 @@ class EventSub:
                                                                  callback: CALLBACK_TYPE,
                                                                  reward_id: Optional[str] = None) -> str:
         """A viewer has redeemed a custom channel points reward on the specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS` is required.
 
         For more information see here:
         https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_reward_redemptionadd
@@ -716,6 +750,9 @@ class EventSub:
                                                                     reward_id: Optional[str] = None) -> str:
         """A redemption of a channel points custom reward has been updated for the specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_REDEMPTIONS` is required.
+
         For more information see here:
         https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelchannel_points_custom_reward_redemptionupdate
 
@@ -739,6 +776,9 @@ class EventSub:
     async def listen_channel_poll_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A poll started on a specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_POLLS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpollbegin
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -754,6 +794,9 @@ class EventSub:
 
     async def listen_channel_poll_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """Users respond to a poll on a specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_POLLS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpollprogress
 
@@ -771,6 +814,9 @@ class EventSub:
     async def listen_channel_poll_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A poll ended on a specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_POLLS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_POLLS` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpollend
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -786,6 +832,9 @@ class EventSub:
 
     async def listen_channel_prediction_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Prediction started on a specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionbegin
 
@@ -803,6 +852,9 @@ class EventSub:
     async def listen_channel_prediction_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """Users participated in a Prediction on a specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionprogress
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -819,6 +871,9 @@ class EventSub:
     async def listen_channel_prediction_lock(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Prediction was locked on a specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionlock
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -834,6 +889,9 @@ class EventSub:
 
     async def listen_channel_prediction_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Prediction ended on a specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS` or
+        :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_PREDICTIONS` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelpredictionend
 
@@ -854,6 +912,8 @@ class EventSub:
                                             category_id: Optional[str] = None,
                                             campaign_id: Optional[str] = None) -> str:
         """An entitlement for a Drop is granted to a user.
+
+        App access token required. The client ID associated with the access token must be owned by a user who is part of the specified organization.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#dropentitlementgrant
 
@@ -882,6 +942,8 @@ class EventSub:
                                                        callback: CALLBACK_TYPE) -> str:
         """A Bits transaction occurred for a specified Twitch Extension.
 
+        The OAuth token client ID must match the Extension client ID.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#extensionbits_transactioncreate
 
         :param extension_client_id: the id of the user you want to listen to
@@ -897,6 +959,8 @@ class EventSub:
 
     async def listen_goal_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A goal begins on the specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_GOALS` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelgoalbegin
 
@@ -914,6 +978,8 @@ class EventSub:
     async def listen_goal_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A goal makes progress on the specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_GOALS` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelgoalprogress
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -929,6 +995,8 @@ class EventSub:
 
     async def listen_goal_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A goal ends on the specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_GOALS` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelgoalend
 
@@ -946,6 +1014,8 @@ class EventSub:
     async def listen_hype_train_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Hype Train begins on the specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_HYPE_TRAIN` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelhype_trainbegin
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -961,6 +1031,8 @@ class EventSub:
 
     async def listen_hype_train_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Hype Train makes progress on the specified channel.
+
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_HYPE_TRAIN` is required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelhype_trainprogress
 
@@ -978,6 +1050,8 @@ class EventSub:
     async def listen_hype_train_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Hype Train ends on the specified channel.
 
+        User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_HYPE_TRAIN` is required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelhype_trainend
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -993,6 +1067,8 @@ class EventSub:
 
     async def listen_stream_online(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """The specified broadcaster starts a stream.
+
+        No authorization required.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#streamonline
 
@@ -1010,6 +1086,8 @@ class EventSub:
     async def listen_stream_offline(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """The specified broadcaster stops a stream.
 
+        No authorization required.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#streamoffline
 
         :param broadcaster_user_id: the id of the user you want to listen to
@@ -1025,6 +1103,8 @@ class EventSub:
 
     async def listen_user_authorization_grant(self, client_id: str, callback: CALLBACK_TYPE) -> str:
         """A user’s authorization has been granted to your client id.
+
+        Provided client_id must match the client id in the application access token.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userauthorizationgrant
 
@@ -1042,6 +1122,8 @@ class EventSub:
     async def listen_user_authorization_revoke(self, client_id: str, callback: CALLBACK_TYPE) -> str:
         """A user’s authorization has been revoked for your client id.
 
+        Provided client_id must match the client id in the application access token.
+
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userauthorizationrevoke
 
         :param client_id: Your application’s client id.
@@ -1057,6 +1139,9 @@ class EventSub:
 
     async def listen_user_update(self, user_id: str, callback: CALLBACK_TYPE) -> str:
         """A user has updated their account.
+
+        No authorization required. If you have the :const:`~twitchAPI.types.AuthScope.USER_READ_EMAIL` scope,
+        the notification will include email field.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#userupdate
 
