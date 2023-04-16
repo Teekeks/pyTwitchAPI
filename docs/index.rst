@@ -23,7 +23,7 @@ Installation
 
 Install using pip:
 
-```pip install twitchAPI```
+``pip install twitchAPI``
 
 Support
 =======

@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'twitchAPI'
-copyright = '2022, Lena "Teekeks" During'
+copyright = '2023, Lena "Teekeks" During'
 author = 'Lena "Teekeks" During'
 
 # The full version, including alpha/beta/rc tags
@@ -107,6 +107,7 @@ html_theme_options = {
     "header_links_before_dropdown": 4,
     "navbar_center": ["version-switcher", "navbar-nav"],
     "github_url": "https://github.com/Teekeks/pyTwitchAPI",
+    "pygment_dark_style": "monokai",
     "navbar_align": "left",
     "logo": {
         "text": "twitchAPI",
