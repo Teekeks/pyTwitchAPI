@@ -620,7 +620,7 @@ class Chat:
 
     def _parse_irc_message(self, message: str):
         parsed_message = {
-            'tags': None,
+            'tags': {},
             'source': None,
             'command': None,
             'parameters': None
