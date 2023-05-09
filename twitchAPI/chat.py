@@ -604,48 +604,6 @@ class Chat:
         user: TwitchUser = await first(self.twitch.get_users())
         self.username = user.login.lower()
 
-    def set_prefix(self, prefix: str):
-        """Sets a command prefix.
-
-        The default prefix is !, the prefix can not start with / or .
-
-        :param prefix: the new prefix to use for command parsing
-        :raises ValueError: when the given prefix is None or starts with / or .
-        """
-        if prefix is None or prefix[0] in ('/', '.'):
-            raise ValueError('Prefix starting with / or . are reserved for twitch internal use')
-        self._prefix = prefix
-
-    def set_channel_prefix(self, prefix: str, channel: Union[CHATROOM_TYPE, List[CHATROOM_TYPE]]):
-        """Sets a command prefix for the given channel or channels
-
-        The default channel prefix is either ! or the one set by :const:`~twitchAPI.chat.Chat.set_prefix()`, the prefix can not start with / or .
-
-        :param prefix: the new prefix to use for commands in the given channels
-        :param channel: the channel or channels you want the given command prefix to be used in
-        :raises ValueError: when the given prefix is None or starts with / or .
-        """
-        if prefix is None or prefix[0] in ('/', '.'):
-            raise ValueError('Prefix starting with / or . are reserved for twitch internal use')
-        if not isinstance(channel, List):
-            channel = [channel]
-        for ch in channel:
-            if isinstance(ch, ChatRoom):
-                ch = ch.name
-            self._channel_command_prefix[ch] = prefix
-
-    def reset_channel_prefix(self, channel: Union[CHATROOM_TYPE, List[CHATROOM_TYPE]]):
-        """Resets the custom command prefix set by :const:`~twitchAPI.chat.Chat.set_channel_prefix()` back to the global one.
-
-        :param channel: The channel or channels you want to reset the channel command prefix for
-        """
-        if not isinstance(channel, List):
-            channel = [channel]
-        for ch in channel:
-            if isinstance(ch, ChatRoom):
-                ch = ch.name
-            self._channel_command_prefix.pop(ch, None)
-
     ##################################################################################################################################################
     # command parsing
     ##################################################################################################################################################
@@ -1129,6 +1087,48 @@ class Chat:
     ##################################################################################################################################################
     # user functions
     ##################################################################################################################################################
+
+    def set_prefix(self, prefix: str):
+        """Sets a command prefix.
+
+        The default prefix is !, the prefix can not start with / or .
+
+        :param prefix: the new prefix to use for command parsing
+        :raises ValueError: when the given prefix is None or starts with / or .
+        """
+        if prefix is None or prefix[0] in ('/', '.'):
+            raise ValueError('Prefix starting with / or . are reserved for twitch internal use')
+        self._prefix = prefix
+
+    def set_channel_prefix(self, prefix: str, channel: Union[CHATROOM_TYPE, List[CHATROOM_TYPE]]):
+        """Sets a command prefix for the given channel or channels
+
+        The default channel prefix is either ! or the one set by :const:`~twitchAPI.chat.Chat.set_prefix()`, the prefix can not start with / or .
+
+        :param prefix: the new prefix to use for commands in the given channels
+        :param channel: the channel or channels you want the given command prefix to be used in
+        :raises ValueError: when the given prefix is None or starts with / or .
+        """
+        if prefix is None or prefix[0] in ('/', '.'):
+            raise ValueError('Prefix starting with / or . are reserved for twitch internal use')
+        if not isinstance(channel, List):
+            channel = [channel]
+        for ch in channel:
+            if isinstance(ch, ChatRoom):
+                ch = ch.name
+            self._channel_command_prefix[ch] = prefix
+
+    def reset_channel_prefix(self, channel: Union[CHATROOM_TYPE, List[CHATROOM_TYPE]]):
+        """Resets the custom command prefix set by :const:`~twitchAPI.chat.Chat.set_channel_prefix()` back to the global one.
+
+        :param channel: The channel or channels you want to reset the channel command prefix for
+        """
+        if not isinstance(channel, List):
+            channel = [channel]
+        for ch in channel:
+            if isinstance(ch, ChatRoom):
+                ch = ch.name
+            self._channel_command_prefix.pop(ch, None)
 
     def register_command(self, name: str, handler: COMMAND_CALLBACK_TYPE) -> bool:
         """Register a command
