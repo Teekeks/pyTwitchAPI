@@ -651,10 +651,11 @@ class Chat:
 
         parsed_message['source'] = self._parse_irc_source(raw_source_component)
         parsed_message['parameters'] = raw_parameters_component
-        ch = parsed_message['command'].get('channel', '#')[1::]
-        used_prefix = self._channel_command_prefix.get(ch, self._prefix)
-        if raw_parameters_component is not None and raw_parameters_component.startswith(used_prefix):
-            parsed_message['command'] = self._parse_irc_parameters(raw_parameters_component, parsed_message['command'], used_prefix)
+        if parsed_message['command']['command'] == 'PRIVMSG':
+            ch = parsed_message['command'].get('channel', '#')[1::]
+            used_prefix = self._channel_command_prefix.get(ch, self._prefix)
+            if raw_parameters_component is not None and raw_parameters_component.startswith(used_prefix):
+                parsed_message['command'] = self._parse_irc_parameters(raw_parameters_component, parsed_message['command'], used_prefix)
 
         return parsed_message
 
