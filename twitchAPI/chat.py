@@ -541,6 +541,7 @@ class NoticeEvent(EventData):
 
 COMMAND_CALLBACK_TYPE = Callable[[ChatCommand], Awaitable[None]]
 EVENT_CALLBACK_TYPE = Callable[[Any], Awaitable[None]]
+CHATROOM_TYPE = Union[str, ChatRoom]
 
 
 class Chat:
@@ -592,6 +593,7 @@ class Chat:
         """Time in seconds till a channel join attempt times out"""
         self._mod_status_cache = {}
         self._subscriber_status_cache = {}
+        self._channel_command_prefix = {}
 
     def __await__(self):
         t = asyncio.create_task(self._get_username())
@@ -613,6 +615,36 @@ class Chat:
         if prefix is None or prefix[0] in ('/', '.'):
             raise ValueError('Prefix starting with / or . are reserved for twitch internal use')
         self._prefix = prefix
+
+    def set_channel_prefix(self, prefix: str, channel: Union[CHATROOM_TYPE, List[CHATROOM_TYPE]]):
+        """Sets a command prefix for the given channel or channels
+
+        The default channel prefix is either ! or the one set by :const:`~twitchAPI.chat.Chat.set_prefix()`, the prefix can not start with / or .
+
+        :param prefix: the new prefix to use for commands in the given channels
+        :param channel: the channel or channels you want the given command prefix to be used in
+        :raises ValueError: when the given prefix is None or starts with / or .
+        """
+        if prefix is None or prefix[0] in ('/', '.'):
+            raise ValueError('Prefix starting with / or . are reserved for twitch internal use')
+        if not isinstance(channel, List):
+            channel = [channel]
+        for ch in channel:
+            if isinstance(ch, ChatRoom):
+                ch = ch.name
+            self._channel_command_prefix[ch] = prefix
+
+    def reset_channel_prefix(self, channel: Union[CHATROOM_TYPE, List[CHATROOM_TYPE]]):
+        """Resets the custom command prefix set by :const:`~twitchAPI.chat.Chat.set_channel_prefix()` back to the global one.
+
+        :param channel: The channel or channels you want to reset the channel command prefix for
+        """
+        if not isinstance(channel, List):
+            channel = [channel]
+        for ch in channel:
+            if isinstance(ch, ChatRoom):
+                ch = ch.name
+            self._channel_command_prefix.pop(ch, None)
 
     ##################################################################################################################################################
     # command parsing
@@ -661,13 +693,16 @@ class Chat:
 
         parsed_message['source'] = self._parse_irc_source(raw_source_component)
         parsed_message['parameters'] = raw_parameters_component
-        if raw_parameters_component is not None and raw_parameters_component.startswith(self._prefix):
-            parsed_message['command'] = self._parse_irc_parameters(raw_parameters_component, parsed_message['command'])
+        ch = parsed_message['command'].get('channel', '#')[1::]
+        used_prefix = self._channel_command_prefix.get(ch, self._prefix)
+        if raw_parameters_component is not None and raw_parameters_component.startswith(used_prefix):
+            parsed_message['command'] = self._parse_irc_parameters(raw_parameters_component, parsed_message['command'], used_prefix)
 
         return parsed_message
 
-    def _parse_irc_parameters(self, raw_parameters_component: str, command):
-        command_parts = raw_parameters_component[len(self._prefix)::].strip()
+    @staticmethod
+    def _parse_irc_parameters(raw_parameters_component: str, command, prefix):
+        command_parts = raw_parameters_component[len(prefix)::].strip()
         try:
             params_idx = command_parts.index(' ')
         except ValueError:
@@ -1156,7 +1191,7 @@ class Chat:
         """Returns True if the chat bot is ready to join channels and/or receive events"""
         return self._ready
     
-    def is_mod(self, room: Union[str, ChatRoom]) -> bool:
+    def is_mod(self, room: CHATROOM_TYPE) -> bool:
         """Check if chat bot is a mod in a channel
 
         :param room: The chat room you want to check if bot is a mod in.
@@ -1170,7 +1205,7 @@ class Chat:
             room = room[1:]
         return self._mod_status_cache.get(room.lower(), 'user') == 'mod'
     
-    def is_subscriber(self, room: Union[str, ChatRoom]) -> bool:
+    def is_subscriber(self, room: CHATROOM_TYPE) -> bool:
         """Check if chat bot is a subscriber in a channel
 
         :param room: The chat room you want to check if bot is a subscriber in.
@@ -1184,7 +1219,7 @@ class Chat:
             room = room[1:]
         return self._subscriber_status_cache.get(room.lower(), 'user') == 'sub'
 
-    def is_in_room(self, room: Union[str, ChatRoom]) -> bool:
+    def is_in_room(self, room: CHATROOM_TYPE) -> bool:
         """Check if the bot is currently in the given chat room
 
         :param room: The chat room you want to check
@@ -1244,7 +1279,7 @@ class Chat:
             raise ValueError('message must be a non empty string')
         await self._send_message(message)
 
-    async def send_message(self, room: Union[str, ChatRoom], text: str):
+    async def send_message(self, room: CHATROOM_TYPE, text: str):
         """Send a message to the given channel
 
         Please note that you first need to join a channel before you can send a message to it.
