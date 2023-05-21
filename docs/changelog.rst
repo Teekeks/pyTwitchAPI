@@ -4,6 +4,26 @@ Changelog
 =========
 
 ****************
+Version 3.11.0
+****************
+
+Twitch
+------
+
+- Added missing field `emote_mode` to response of :const:`~twitchAPI.twitch.Twitch.get_chat_settings()` and :const:`~twitchAPI.twitch.Twitch.update_chat_settings()` (https://github.com/Teekeks/pyTwitchAPI/issues/234)
+
+Chat
+----
+
+- Fixed timing based `AttributeError: 'NoneType' object has no attribute 'get'` in NoticeEvent during reconnect
+- Ensured that only Chat Messages will ever be parsed as chat commands
+- Added functionality to set per channel based prefixes (https://github.com/Teekeks/pyTwitchAPI/issues/229):
+
+  - :const:`~twitchAPI.chat.Chat.set_channel_prefix()` to set a custom prefix for the given channel(s)
+  - :const:`~twitchAPI.chat.Chat.reset_channel_prefix()` to remove a custom set prefix for the given channel(s)
+
+
+****************
 Version 3.10.0
 ****************
 
