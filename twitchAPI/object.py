@@ -334,6 +334,7 @@ class ExtensionTransaction(TwitchObject):
 class ChatSettings(TwitchObject):
     broadcaster_id: str
     moderator_id: str
+    emote_mode: bool
     slow_mode: bool
     slow_mode_wait_time: int
     follower_mode: bool
