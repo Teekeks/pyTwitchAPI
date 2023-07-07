@@ -308,7 +308,8 @@ class PubSub:
                             'pong': self.__handle_pong,
                             'reconnect': self.__handle_reconnect,
                             'response': self.__handle_response,
-                            'message': self.__handle_message
+                            'message': self.__handle_message,
+                            'auth_revoked': self.__handle_auth_revoked
                         }
                         handler = switcher.get(data.get('type', '').lower(),
                                                self.__handle_unknown)
@@ -358,6 +359,12 @@ class PubSub:
         if topic_data is not None:
             for uuid, sub in topic_data.get('subs', {}).items():
                 asyncio.ensure_future(sub(uuid, msg_data))
+
+    async def __handle_auth_revoked(self, data):
+        revoked_topics = data.get('data', {}).get('topics', [])
+        for topic in revoked_topics:
+            self.__topics.pop(topic, None)
+        self.logger.warning("received auth revoked. no longer listening on topics: " + str(revoked_topics))
 
     async def __handle_unknown(self, data):
         self.logger.warning('got message of unknown type: ' + str(data))
