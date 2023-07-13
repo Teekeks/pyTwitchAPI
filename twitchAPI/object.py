@@ -174,6 +174,10 @@ class AsyncIterTwitchObject(TwitchObject, Generic[T]):
     def __aiter__(self):
         return self
 
+    def current_cursor(self) -> Optional[str]:
+        """Provides the currently used forward pagination cursor"""
+        return self._data['param'].get('after')
+
     async def __anext__(self) -> T:
         if not hasattr(self, self._data['iter_field']) or not isinstance(self.__getattribute__(self._data['iter_field']), list):
             raise ValueError(f'Object is missing {self._data["iter_field"]} attribute of type list')
