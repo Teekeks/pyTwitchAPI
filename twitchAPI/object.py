@@ -584,6 +584,8 @@ class ChannelInformation(TwitchObject):
     title: str
     delay: int
     tags: List[str]
+    content_classification_labels: List[str]
+    is_branded_content: bool
 
 
 class SearchChannelResult(ChannelInformation):
