@@ -29,7 +29,7 @@ __all__ = ['TwitchObject', 'IterTwitchObject', 'AsyncIterTwitchObject', 'TwitchU
            'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment', 'StreamVacation', 'ChannelStreamSchedule',
            'ChannelVIP', 'UserChatColor', 'Artist', 'Album', 'Soundtrack', 'TrackSource', 'CurrentSoundtrack', 'Playlist', 'Chatter',
            'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign', 'CharityCampaignDonation', 'AutoModSettings',
-           'ChannelFollower', 'ChannelFollowersResult', 'FollowedChannel', 'FollowedChannelsResult']
+           'ChannelFollower', 'ChannelFollowersResult', 'FollowedChannel', 'FollowedChannelsResult', 'ContentClassificationLabel']
 
 
 class TwitchObject:
@@ -985,3 +985,9 @@ class AutoModSettings(TwitchObject):
     swearing: int
     race_ethnicity_or_religion: int
     sex_based_terms: int
+
+
+class ContentClassificationLabel(TwitchObject):
+    id: str
+    description: str
+    name: str

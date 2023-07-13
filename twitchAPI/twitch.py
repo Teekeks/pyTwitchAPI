@@ -3822,3 +3822,22 @@ class Twitch:
         async for y in self._build_generator('GET', 'charity/donations', param, AuthType.USER, [AuthScope.CHANNEL_READ_CHARITY],
                                              CharityCampaignDonation):
             yield y
+
+    async def get_content_classification_labels(self, locale: Optional[str] = None) -> List[ContentClassificationLabel]:
+        """Gets information about Twitch content classification labels.
+
+        Requires User or App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-content-classification-labels
+
+        :param locale: Locale for the Content Classification Labels. |default|:code:`en-US`
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        """
+        return await self._build_result('GET',
+                                        'content_classification_labels',
+                                        {'locale': locale},
+                                        AuthType.EITHER, [],
+                                        List[ContentClassificationLabel])
