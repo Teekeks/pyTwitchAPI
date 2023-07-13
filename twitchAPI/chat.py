@@ -547,9 +547,11 @@ CHATROOM_TYPE = Union[str, ChatRoom]
 
 
 class BaseCommandMiddleware(ABC):
+    """the base for chat command middleware, extend from this when implementing your own"""
 
     @abstractmethod
     async def can_execute(self, command: ChatCommand) -> bool:
+        """return if the given command should execute"""
         pass
 
 
