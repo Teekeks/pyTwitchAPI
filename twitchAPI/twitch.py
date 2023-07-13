@@ -1970,7 +1970,9 @@ class Twitch:
                                          broadcaster_language: Optional[str] = None,
                                          title: Optional[str] = None,
                                          delay: Optional[int] = None,
-                                         tags: Optional[List[str]] = None) -> bool:
+                                         tags: Optional[List[str]] = None,
+                                         content_classification_labels: Optional[List[str]] = None,
+                                         is_branded_content: Optional[bool] = None) -> bool:
         """Modifies channel information for users.\n\n
 
         Requires User authentication with scope :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_BROADCAST`\n
@@ -1983,6 +1985,8 @@ class Twitch:
         :param delay: Stream delay in seconds. Trying to set this while not being a Twitch Partner will fail! |default| :code:`None`
         :param tags: A list of channel-defined tags to apply to the channel. To remove all tags from the channel, set tags to an empty array.
                 |default|:code:`None`
+        :param content_classification_labels: List of labels that should be set as the Channel’s CCLs.
+        :param is_branded_content: Boolean flag indicating if the channel has branded content.
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -1991,6 +1995,8 @@ class Twitch:
         :raises ValueError: if none of the following fields are specified: `game_id, broadcaster_language, title`
         :raises ValueError: if title is a empty string
         :raises ValueError: if tags has more than 10 entries
+        :raises ValueError: if requested a gaming CCL to channel or used Unallowed CCLs declared for underaged authorized user in a restricted country
+        :raises ValueError: if the is_branded_content flag was set too frequently
         """
         if game_id is None and broadcaster_language is None and title is None and tags is None:
             raise ValueError('You need to specify at least one of the optional parameter')
@@ -2002,9 +2008,15 @@ class Twitch:
                                   'broadcaster_language': broadcaster_language,
                                   'title': title,
                                   'delay': delay,
-                                  'tags': tags}.items() if v is not None}
+                                  'tags': tags,
+                                  'content_classification_labels': content_classification_labels,
+                                  'is_branded_content': is_branded_content}.items() if v is not None}
+        error_handler = {403: ValueError('Either requested to add gaming CCL to channel or used Unallowed CCLs declared for underaged authorized '
+                                         'user in a restricted country'),
+                         409: ValueError('tried to set is_branded_content flag too frequently')}
         return await self._build_result('PATCH', 'channels', {'broadcaster_id': broadcaster_id}, AuthType.USER,
-                                        [AuthScope.CHANNEL_MANAGE_BROADCAST], None, body_data=body, result_type=ResultType.STATUS_CODE) == 204
+                                        [AuthScope.CHANNEL_MANAGE_BROADCAST], None, body_data=body, result_type=ResultType.STATUS_CODE,
+                                        error_handler=error_handler) == 204
 
     async def search_channels(self,
                               query: str,
