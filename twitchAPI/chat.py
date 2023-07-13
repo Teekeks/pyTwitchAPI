@@ -267,6 +267,7 @@ import datetime
 import sys
 import threading
 import traceback
+from abc import ABC, abstractmethod
 from asyncio import CancelledError
 from logging import getLogger, Logger
 from time import sleep
@@ -279,7 +280,8 @@ from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScop
 from typing import List, Optional, Union, Callable, Dict, Awaitable, Any
 
 __all__ = ['Chat', 'ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent',
-           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent', 'MessageDeletedEvent', 'NoticeEvent']
+           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent', 'MessageDeletedEvent', 'NoticeEvent',
+           'BaseCommandMiddleware', 'ChannelRestrictionMiddleware', 'UserRestrictionMiddleware']
 
 
 class ChatUser:
@@ -544,6 +546,53 @@ EVENT_CALLBACK_TYPE = Callable[[Any], Awaitable[None]]
 CHATROOM_TYPE = Union[str, ChatRoom]
 
 
+class BaseCommandMiddleware(ABC):
+
+    @abstractmethod
+    async def can_execute(self, command: ChatCommand) -> bool:
+        pass
+
+
+class ChannelRestrictionMiddleware(BaseCommandMiddleware):
+    """Filters in which channels a command can be executed in"""
+
+    def __init__(self,
+                 allowed_channel: Optional[List[str]] = None,
+                 denied_channel: Optional[List[str]] = None):
+        """
+        :param allowed_channel: if provided, the command can only be used in channels on this list
+        :param denied_channel:  if provided, the command can't be used in channels on this list
+        """
+        self.allowed = allowed_channel if allowed_channel is not None else []
+        self.denied = denied_channel if denied_channel is not None else []
+
+    async def can_execute(self, command: ChatCommand) -> bool:
+        if len(self.allowed) > 0:
+            if command.room.name not in self.allowed:
+                return False
+        return command.room.name not in self.denied
+
+
+class UserRestrictionMiddleware(BaseCommandMiddleware):
+    """Filters which users can execute a command"""
+
+    def __init__(self,
+                 allowed_users: Optional[List[str]] = None,
+                 denied_users: Optional[List[str]] = None):
+        """
+        :param allowed_users: if provided, the command can only be used by one of the provided users
+        :param denied_users: if provided, the command can not be used by any of the provided users
+        """
+        self.allowed = allowed_users if allowed_users is not None else []
+        self.denied = denied_users if denied_users is not None else []
+
+    async def can_execute(self, command: ChatCommand) -> bool:
+        if len(self.allowed) > 0:
+            if command.user.name not in self.allowed:
+                return False
+        return command.user.name not in self.denied
+
+
 class Chat:
     """The chat bot instance"""
 
@@ -594,6 +643,8 @@ class Chat:
         self._mod_status_cache = {}
         self._subscriber_status_cache = {}
         self._channel_command_prefix = {}
+        self._command_middleware: List[BaseCommandMiddleware] = []
+        self._command_specific_middleware: Dict[str, List[BaseCommandMiddleware]] = {}
 
     def __await__(self):
         t = asyncio.create_task(self._get_username())
@@ -1058,8 +1109,13 @@ class Chat:
             command_name = parsed['command'].get('bot_command').lower()
             handler = self._command_handler.get(command_name)
             if handler is not None:
-                t = asyncio.ensure_future(handler(ChatCommand(self, parsed)))
-                t.add_done_callback(self._task_callback)
+                command = ChatCommand(self, parsed)
+                # check middleware
+                execute = all([await mid.can_execute(command) for mid in self._command_middleware])
+                execute = execute and all([await mid.can_execute(command) for mid in self._command_specific_middleware.get(command_name, [])])
+                if execute:
+                    t = asyncio.ensure_future(handler(command))
+                    t.add_done_callback(self._task_callback)
             else:
                 if self.log_no_registered_command_handler:
                     self.logger.info(f'no handler registered for command "{command_name}"')
@@ -1131,11 +1187,12 @@ class Chat:
                 ch = ch.name
             self._channel_command_prefix.pop(ch, None)
 
-    def register_command(self, name: str, handler: COMMAND_CALLBACK_TYPE) -> bool:
+    def register_command(self, name: str, handler: COMMAND_CALLBACK_TYPE, command_middleware: Optional[List[BaseCommandMiddleware]] = None) -> bool:
         """Register a command
 
         :param name: the name of the command
         :param handler: The event handler
+        :param command_middleware: a optional list of middleware to use just for this command
         :raises ValueError: if handler is not a coroutine"""
         if not asyncio.iscoroutinefunction(handler):
             raise ValueError('handler needs to be a async function which takes one parameter')
@@ -1143,6 +1200,8 @@ class Chat:
         if self._command_handler.get(name) is not None:
             return False
         self._command_handler[name] = handler
+        if command_middleware is not None:
+            self._command_specific_middleware[name] = command_middleware
         return True
 
     def unregister_command(self, name: str) -> bool:
@@ -1325,3 +1384,13 @@ class Chat:
         # wait to leave all rooms
         while any([r in self._room_leave_locks for r in target]):
             await asyncio.sleep(0.01)
+
+    def register_command_middleware(self, middleware: BaseCommandMiddleware):
+        """Adds the given command middleware as a general middleware"""
+        if middleware not in self._command_middleware:
+            self._command_middleware.append(middleware)
+
+    def unregister_command_middleware(self, middleware: BaseCommandMiddleware):
+        """Removes the given command middleware from the general list"""
+        if middleware in self._command_middleware:
+            self._command_middleware.remove(middleware)
