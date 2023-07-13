@@ -48,12 +48,16 @@ Code example
 Class Documentation
 *******************
 """
+import json
+import os.path
+from pathlib import PurePath
+
 import aiohttp
 
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL, fields_to_enum
 from .types import AuthScope, InvalidRefreshTokenException, UnauthorizedException, TwitchAPIException
-from typing import Optional, Callable
+from typing import Optional, Callable, Awaitable, Tuple
 import webbrowser
 from aiohttp import web
 import asyncio
@@ -63,7 +67,7 @@ from logging import getLogger, Logger
 
 from typing import List, Union
 
-__all__ = ['refresh_access_token', 'validate_token', 'get_user_info', 'revoke_token', 'UserAuthenticator']
+__all__ = ['refresh_access_token', 'validate_token', 'get_user_info', 'revoke_token', 'UserAuthenticator', 'UserAuthenticationStorageHelper']
 
 
 async def refresh_access_token(refresh_token: str,
@@ -345,3 +349,56 @@ class UserAuthenticator:
             return data['access_token'], data['refresh_token']
         elif user_token is not None:
             self.__callback_func(data['access_token'], data['refresh_token'])
+
+
+class UserAuthenticationStorageHelper:
+    """Helper for automating the generation and storage of a user auth token.\n
+    See Tutorial for more detailed examples and use cases.
+
+    Basic example use:
+
+    .. code-block:: python
+
+      twitch = await Twitch(APP_ID, APP_SECRET)
+      helper = UserAuthenticationStorageHelper(twitch, TARGET_SCOPES)
+      await helper.bind()"""
+
+    def __init__(self,
+                 twitch: 'Twitch',
+                 scopes: List[AuthScope],
+                 storage_path: Optional[PurePath] = None,
+                 auth_generator_func: Optional[Callable[['Twitch', List[AuthScope]], Awaitable[Tuple[str, str]]]] = None):
+        self.twitch = twitch
+        self.logger: Logger = getLogger('twitchAPI.oauth.storage_helper')
+        self._target_scopes = scopes
+        self.storage_path = storage_path if storage_path is not None else PurePath('user_token.json')
+        self.auth_generator = auth_generator_func if auth_generator_func is not None else self._default_auth_gen
+
+    @staticmethod
+    async def _default_auth_gen(twitch: 'Twitch', scopes: List[AuthScope]) -> (str, str):
+        auth = UserAuthenticator(twitch, scopes)
+        return await auth.authenticate()
+
+    async def _update_stored_tokens(self, token: str, refresh_token: str):
+        self.logger.info('user token got refreshed and stored')
+        with open(self.storage_path, 'w') as _f:
+            json.dump({'token': token, 'refresh': refresh_token}, _f)
+
+    async def bind(self):
+        """Bind the helper to the provided instance of twitch and sets the user authentication."""
+        self.twitch.user_auth_refresh_callback = self._update_stored_tokens
+        needs_auth = True
+        if os.path.exists(self.storage_path):
+            try:
+                with open(self.storage_path, 'r') as _f:
+                    creds = json.load(_f)
+                await self.twitch.set_user_authentication(creds['token'], self._target_scopes, creds['refresh'])
+            except:
+                self.logger.info('stored token invalid, refreshing...')
+            else:
+                needs_auth = False
+        if needs_auth:
+            token, refresh_token = await self.auth_generator(self.twitch, self._target_scopes)
+            with open(self.storage_path, 'w') as _f:
+                json.dump({'token': token, 'refresh': refresh_token}, _f)
+            await self.twitch.set_user_authentication(token, self._target_scopes, refresh_token)
