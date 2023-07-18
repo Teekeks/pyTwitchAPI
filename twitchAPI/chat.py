@@ -595,6 +595,13 @@ class UserRestrictionMiddleware(BaseCommandMiddleware):
         return command.user.name not in self.denied
 
 
+class StreamerOnlyMiddleware(BaseCommandMiddleware):
+    """Restricts the use of commands to only the streamer in their channel"""
+
+    async def can_execute(self, command: ChatCommand) -> bool:
+        return command.room.name == command.user.name
+
+
 class Chat:
     """The chat bot instance"""
 
