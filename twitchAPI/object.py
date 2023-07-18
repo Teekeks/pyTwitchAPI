@@ -884,48 +884,6 @@ class UserChatColor(TwitchObject):
     color: str
 
 
-class Artist(TwitchObject):
-    id: str
-    name: str
-    creator_channel_id: str
-
-
-class Album(TwitchObject):
-    id: str
-    name: str
-    image_url: str
-
-
-class Soundtrack(TwitchObject):
-    artists: List[Artist]
-    id: str
-    isrc: str
-    duration: int
-    title: str
-    album: Album
-
-
-class TrackSource(TwitchObject):
-    content_type: SoundtrackSourceType
-    id: str
-    image_url: str
-    soundtrack_url: str
-    spotify_url: str
-    title: str
-
-
-class CurrentSoundtrack(TwitchObject):
-    track: Soundtrack
-    source: TrackSource
-
-
-class Playlist(TwitchObject):
-    title: str
-    id: str
-    image_url: str
-    description: str
-
-
 class Chatter(TwitchObject):
     user_id: str
     user_login: str
