@@ -384,6 +384,24 @@ class EventSub:
         """
         return await self._subscribe('channel.update', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
 
+    async def listen_channel_update_v2(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+        """A broadcaster updates their channel properties e.g., category, title, content classification labels or language.
+
+        No Authentication required.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelupdate
+
+        :param broadcaster_user_id: the id of the user you want to listen to
+        :param callback: function for callback
+        :raises ~twitchAPI.types.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.types.EventSubSubscriptionTimeout: if :code:`wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
+        """
+        return await self._subscribe('channel.update', '2', {'broadcaster_user_id': broadcaster_user_id}, callback)
+
     async def listen_channel_follow(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A specified channel receives a follow.
 
