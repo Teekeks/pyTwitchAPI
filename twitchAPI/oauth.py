@@ -376,7 +376,7 @@ class UserAuthenticationStorageHelper:
 
     @staticmethod
     async def _default_auth_gen(twitch: 'Twitch', scopes: List[AuthScope]) -> (str, str):
-        auth = UserAuthenticator(twitch, scopes)
+        auth = UserAuthenticator(twitch, scopes, force_verify=True)
         return await auth.authenticate()
 
     async def _update_stored_tokens(self, token: str, refresh_token: str):
