@@ -2,22 +2,31 @@
 """
 Chat Command Middleware
 -----------------------
+
+A selection of preimplemented chat command middleware.
+
+.. note:: See :doc:`/tutorial/chat-use-middleware` for a more detailed walkthough on how to use these.
+
 """
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 
-from . import ChatCommand
+if TYPE_CHECKING:
+    from . import ChatCommand
 
 
 __all__ = ['BaseCommandMiddleware', 'ChannelRestriction', 'UserRestriction', 'StreamerOnly']
 
 
 class BaseCommandMiddleware(ABC):
-    """the base for chat command middleware, extend from this when implementing your own"""
+    """The base for chat command middleware, extend from this when implementing your own"""
 
     @abstractmethod
-    async def can_execute(self, command: ChatCommand) -> bool:
-        """return :code:`True` if the given command should execute, otherwise :code:`False`"""
+    async def can_execute(self, command: 'ChatCommand') -> bool:
+        """
+        return :code:`True` if the given command should execute, otherwise :code:`False`
+
+        :param command: The command to check if it should be executed"""
         pass
 
 
@@ -34,7 +43,7 @@ class ChannelRestriction(BaseCommandMiddleware):
         self.allowed = allowed_channel if allowed_channel is not None else []
         self.denied = denied_channel if denied_channel is not None else []
 
-    async def can_execute(self, command: ChatCommand) -> bool:
+    async def can_execute(self, command: 'ChatCommand') -> bool:
         if len(self.allowed) > 0:
             if command.room.name not in self.allowed:
                 return False
@@ -54,7 +63,7 @@ class UserRestriction(BaseCommandMiddleware):
         self.allowed = allowed_users if allowed_users is not None else []
         self.denied = denied_users if denied_users is not None else []
 
-    async def can_execute(self, command: ChatCommand) -> bool:
+    async def can_execute(self, command: 'ChatCommand') -> bool:
         if len(self.allowed) > 0:
             if command.user.name not in self.allowed:
                 return False
@@ -64,5 +73,5 @@ class UserRestriction(BaseCommandMiddleware):
 class StreamerOnly(BaseCommandMiddleware):
     """Restricts the use of commands to only the streamer in their channel"""
 
-    async def can_execute(self, command: ChatCommand) -> bool:
+    async def can_execute(self, command: 'ChatCommand') -> bool:
         return command.room.name == command.user.name
