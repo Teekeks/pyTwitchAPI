@@ -267,21 +267,25 @@ import datetime
 import sys
 import threading
 import traceback
-from abc import ABC, abstractmethod
 from asyncio import CancelledError
 from logging import getLogger, Logger
 from time import sleep
 import aiohttp
+
+
 from twitchAPI.twitch import Twitch
 from twitchAPI.object import TwitchUser
 from twitchAPI.helper import TWITCH_CHAT_URL, first, RateLimitBucket, RATE_LIMIT_SIZES
 from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScope, ChatEvent, UnauthorizedException
 
-from typing import List, Optional, Union, Callable, Dict, Awaitable, Any
+from typing import List, Optional, Union, Callable, Dict, Awaitable, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from twitchAPI.chat.middleware import BaseCommandMiddleware
+
 
 __all__ = ['Chat', 'ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent',
-           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent', 'MessageDeletedEvent', 'NoticeEvent',
-           'BaseCommandMiddleware', 'ChannelRestrictionMiddleware', 'UserRestrictionMiddleware']
+           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent', 'MessageDeletedEvent', 'NoticeEvent']
 
 
 class ChatUser:
@@ -321,13 +325,14 @@ class ChatUser:
 
 class EventData:
     """Represents a basic chat event"""
+
     def __init__(self, chat):
         self.chat: 'Chat' = chat
         """The :const:`twitchAPI.chat.Chat` instance"""
 
 
 class MessageDeletedEvent(EventData):
-    
+
     def __init__(self, chat, parsed):
         super(MessageDeletedEvent, self).__init__(chat)
         self._room_name = parsed['command']['channel'][1:]
@@ -364,6 +369,7 @@ class RoomStateChangeEvent(EventData):
 
 class JoinEvent(EventData):
     """"""
+
     def __init__(self, chat, channel_name, user_name):
         super(JoinEvent, self).__init__(chat)
         self._name = channel_name
@@ -389,6 +395,7 @@ class JoinedEvent(EventData):
 
 class LeftEvent(EventData):
     """When the bot or a user left a room"""
+
     def __init__(self, chat, channel_name, room, user):
         super(LeftEvent, self).__init__(chat)
         self.room_name: str = channel_name
@@ -486,7 +493,7 @@ class ChatSub:
 
 
 class ClearChatEvent(EventData):
-    
+
     def __init__(self, chat, parsed):
         super(ClearChatEvent, self).__init__(chat)
         self.room_name: str = parsed['command']['channel'][1:]
@@ -507,10 +514,10 @@ class ClearChatEvent(EventData):
     def room(self) -> Optional[ChatRoom]:
         """The room this event was issued in. None on cache miss."""
         return self.chat.room_cache.get(self.room_name)
-    
+
 
 class WhisperEvent(EventData):
-    
+
     def __init__(self, chat, parsed):
         super(WhisperEvent, self).__init__(chat)
         self._parsed = parsed
@@ -525,7 +532,7 @@ class WhisperEvent(EventData):
 
 class NoticeEvent(EventData):
     """Represents a server notice"""
-    
+
     def __init__(self, chat, parsed):
         super(NoticeEvent, self).__init__(chat)
         self._room_name = parsed['command']['channel'][1:]
@@ -539,67 +546,11 @@ class NoticeEvent(EventData):
     def room(self) -> Optional[ChatRoom]:
         """The room this notice is from"""
         return self.chat.room_cache.get(self._room_name)
-        
+
 
 COMMAND_CALLBACK_TYPE = Callable[[ChatCommand], Awaitable[None]]
 EVENT_CALLBACK_TYPE = Callable[[Any], Awaitable[None]]
 CHATROOM_TYPE = Union[str, ChatRoom]
-
-
-class BaseCommandMiddleware(ABC):
-    """the base for chat command middleware, extend from this when implementing your own"""
-
-    @abstractmethod
-    async def can_execute(self, command: ChatCommand) -> bool:
-        """return if the given command should execute"""
-        pass
-
-
-class ChannelRestrictionMiddleware(BaseCommandMiddleware):
-    """Filters in which channels a command can be executed in"""
-
-    def __init__(self,
-                 allowed_channel: Optional[List[str]] = None,
-                 denied_channel: Optional[List[str]] = None):
-        """
-        :param allowed_channel: if provided, the command can only be used in channels on this list
-        :param denied_channel:  if provided, the command can't be used in channels on this list
-        """
-        self.allowed = allowed_channel if allowed_channel is not None else []
-        self.denied = denied_channel if denied_channel is not None else []
-
-    async def can_execute(self, command: ChatCommand) -> bool:
-        if len(self.allowed) > 0:
-            if command.room.name not in self.allowed:
-                return False
-        return command.room.name not in self.denied
-
-
-class UserRestrictionMiddleware(BaseCommandMiddleware):
-    """Filters which users can execute a command"""
-
-    def __init__(self,
-                 allowed_users: Optional[List[str]] = None,
-                 denied_users: Optional[List[str]] = None):
-        """
-        :param allowed_users: if provided, the command can only be used by one of the provided users
-        :param denied_users: if provided, the command can not be used by any of the provided users
-        """
-        self.allowed = allowed_users if allowed_users is not None else []
-        self.denied = denied_users if denied_users is not None else []
-
-    async def can_execute(self, command: ChatCommand) -> bool:
-        if len(self.allowed) > 0:
-            if command.user.name not in self.allowed:
-                return False
-        return command.user.name not in self.denied
-
-
-class StreamerOnlyMiddleware(BaseCommandMiddleware):
-    """Restricts the use of commands to only the streamer in their channel"""
-
-    async def can_execute(self, command: ChatCommand) -> bool:
-        return command.room.name == command.user.name
 
 
 class Chat:
@@ -652,8 +603,8 @@ class Chat:
         self._mod_status_cache = {}
         self._subscriber_status_cache = {}
         self._channel_command_prefix = {}
-        self._command_middleware: List[BaseCommandMiddleware] = []
-        self._command_specific_middleware: Dict[str, List[BaseCommandMiddleware]] = {}
+        self._command_middleware: List['BaseCommandMiddleware'] = []
+        self._command_specific_middleware: Dict[str, List['BaseCommandMiddleware']] = {}
 
     def __await__(self):
         t = asyncio.create_task(self._get_username())
@@ -1084,7 +1035,7 @@ class Chat:
         for handler in self._event_handler.get(ChatEvent.ROOM_STATE_CHANGE, []):
             t = asyncio.ensure_future(handler(dat))
             t.add_done_callback(self._task_callback)
-            
+
     async def _handle_user_state(self, parsed: dict):
         self.logger.debug('got user state event')
         is_broadcaster = False
@@ -1196,7 +1147,7 @@ class Chat:
                 ch = ch.name
             self._channel_command_prefix.pop(ch, None)
 
-    def register_command(self, name: str, handler: COMMAND_CALLBACK_TYPE, command_middleware: Optional[List[BaseCommandMiddleware]] = None) -> bool:
+    def register_command(self, name: str, handler: COMMAND_CALLBACK_TYPE, command_middleware: Optional[List['BaseCommandMiddleware']] = None) -> bool:
         """Register a command
 
         :param name: the name of the command
@@ -1259,7 +1210,7 @@ class Chat:
     def is_ready(self) -> bool:
         """Returns True if the chat bot is ready to join channels and/or receive events"""
         return self._ready
-    
+
     def is_mod(self, room: CHATROOM_TYPE) -> bool:
         """Check if chat bot is a mod in a channel
 
@@ -1273,7 +1224,7 @@ class Chat:
         if room[0] == '#':
             room = room[1:]
         return self._mod_status_cache.get(room.lower(), 'user') == 'mod'
-    
+
     def is_subscriber(self, room: CHATROOM_TYPE) -> bool:
         """Check if chat bot is a subscriber in a channel
 
@@ -1394,12 +1345,12 @@ class Chat:
         while any([r in self._room_leave_locks for r in target]):
             await asyncio.sleep(0.01)
 
-    def register_command_middleware(self, middleware: BaseCommandMiddleware):
+    def register_command_middleware(self, mid: 'BaseCommandMiddleware'):
         """Adds the given command middleware as a general middleware"""
-        if middleware not in self._command_middleware:
-            self._command_middleware.append(middleware)
+        if mid not in self._command_middleware:
+            self._command_middleware.append(mid)
 
-    def unregister_command_middleware(self, middleware: BaseCommandMiddleware):
+    def unregister_command_middleware(self, mid: 'BaseCommandMiddleware'):
         """Removes the given command middleware from the general list"""
-        if middleware in self._command_middleware:
-            self._command_middleware.remove(middleware)
+        if mid in self._command_middleware:
+            self._command_middleware.remove(mid)

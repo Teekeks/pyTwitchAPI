@@ -377,6 +377,7 @@ Indices and tables
    twitchAPI.eventsub
    twitchAPI.pubsub
    twitchAPI.chat
+   twitchAPI.chat.middleware
    twitchAPI.oauth
    twitchAPI.types
    twitchAPI.helper

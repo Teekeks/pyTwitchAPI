@@ -9,8 +9,7 @@ from typing_extensions import TypedDict
 __all__ = ['AnalyticsReportType', 'AuthScope', 'ModerationEventType', 'TimePeriod', 'SortMethod', 'HypeTrainContributionMethod',
            'VideoType', 'AuthType', 'StatusCode', 'PubSubResponseError', 'CustomRewardRedemptionStatus', 'SortOrder',
            'BlockSourceContext', 'BlockReason', 'EntitlementFulfillmentStatus', 'PollStatus', 'PredictionStatus', 'AutoModAction',
-           'AutoModCheckEntry', 'DropsEntitlementFulfillmentStatus', 'SoundtrackSourceType',
-           'ChatEvent', 'ChatRoom',
+           'AutoModCheckEntry', 'DropsEntitlementFulfillmentStatus', 'ChatEvent', 'ChatRoom',
            'TwitchAPIException', 'InvalidRefreshTokenException', 'InvalidTokenException', 'NotFoundException', 'TwitchAuthorizationException',
            'UnauthorizedException', 'MissingScopeException', 'TwitchBackendException', 'PubSubListenTimeoutException', 'MissingAppSecretException',
            'EventSubSubscriptionTimeout', 'EventSubSubscriptionConflict', 'EventSubSubscriptionError', 'DeprecatedError', 'TwitchResourceNotFound',
@@ -243,13 +242,6 @@ class AutoModCheckEntry(TypedDict):
     """Developer-generated identifier for mapping messages to results."""
     msg_text: str
     """Message text"""
-
-
-class SoundtrackSourceType(Enum):
-    """"""
-    PLAYLIST = 'PLAYLIST'
-    STATION = 'STATION'
-
 
 # CHAT
 
