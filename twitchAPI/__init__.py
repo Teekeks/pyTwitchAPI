@@ -1,5 +1,5 @@
 from .twitch import Twitch
-from .eventsub import EventSub
+from .eventsub.webhook import EventSubWebhook
 from .pubsub import PubSub
 from .oauth import UserAuthenticator
 from .chat import Chat

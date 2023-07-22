@@ -97,116 +97,46 @@ Code Example
 Class Documentation
 *******************
 """
-import datetime
-import random
-import string
-import time
-
-from .helper import TWITCH_API_BASE_URL, remove_none_values
-from .types import *
-from aiohttp import web, ClientSession
+from ..helper import remove_none_values
+from ..types import TwitchAuthorizationException, TwitchAPIException
+from aiohttp import web
 import threading
 import asyncio
 from logging import getLogger, Logger
-from .twitch import Twitch
-from ssl import SSLContext
-from .types import EventSubSubscriptionTimeout, EventSubSubscriptionConflict, EventSubSubscriptionError
-import hmac
-import hashlib
+from ..twitch import Twitch
+from abc import ABC, abstractmethod
 
 from typing import Union, Callable, Optional, Awaitable
 
 
-__all__ = ['CALLBACK_TYPE', 'EventSub']
+__all__ = ['CALLBACK_TYPE', 'EventSubBase']
 
 
 CALLBACK_TYPE = Callable[[dict], Awaitable[None]]
 
 
-class EventSub:
-    """EventSub integration for the Twitch Helix API.
-    """
+class EventSubBase(ABC):
+    """EventSub integration for the Twitch Helix API."""
 
     def __init__(self,
-                 callback_url: str,
-                 api_client_id: str,
-                 port: int,
-                 twitch: Twitch,
-                 ssl_context: Optional[SSLContext] = None):
+                 twitch: Twitch):
         """
-        :param callback_url: The full URL of the webhook.
-        :param api_client_id: The id of your API client
-        :param port: the port on which this webhook should run
         :param twitch: a app authenticated instance of :const:`~twitchAPI.twitch.Twitch`
-        :param ssl_context: optional ssl context to be used |default| :code:`None`
         """
-        self.callback_url: str = callback_url
-        """The full URL of the webhook."""
-        self.__client_id: str = api_client_id
-        self._port: int = port
-        self.__ssl_context: Optional[SSLContext] = ssl_context
-        self.__twitch: Twitch = twitch
+        self._twitch: Twitch = twitch
         self.logger: Logger = getLogger('twitchAPI.eventsub')
         """The logger used for EventSub related log messages"""
-        self.secret: str = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
-        """A random secret string. Set this for added security. |default| :code:`A random 20 character long string`"""
-        self.wait_for_subscription_confirm: bool = True
-        """Set this to false if you don't want to wait for a subscription confirm. |default| :code:`True`"""
-        self.wait_for_subscription_confirm_timeout: int = 30
-        """Max time in seconds to wait for a subscription confirmation. Only used if ``wait_for_subscription_confirm`` is set to True. 
-            |default| :code:`30`"""
-        self.unsubscribe_on_stop: bool = True
-        """Unsubscribe all currently active Webhooks on calling :const:`~twitchAPI.eventsub.EventSub.stop()` |default| :code:`True`"""
-        self._host: str = '0.0.0.0'
-        self.__running = False
-        self._startup_complete = False
-        self.__callbacks = {}
-        self._closing = False
-        self.__active_webhooks = {}
-        self.__hook_thread: Union['threading.Thread', None] = None
-        self.__hook_loop: Union['asyncio.AbstractEventLoop', None] = None
-        self.__hook_runner: Union['web.AppRunner', None] = None
-        if not self.callback_url.startswith('https'):
-            raise RuntimeError('HTTPS is required for authenticated webhook.\n'
-                               + 'Either use non authenticated webhook or use a HTTPS proxy!')
+        self._callbacks = {}
 
-    def __build_runner(self):
-        hook_app = web.Application()
-        hook_app.add_routes([web.post('/callback', self.__handle_callback),
-                             web.get('/', self.__handle_default)])
-        return web.AppRunner(hook_app)
-
-    def __run_hook(self, runner: 'web.AppRunner'):
-        self.__hook_runner = runner
-        self.__hook_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.__hook_loop)
-        self.__hook_loop.run_until_complete(runner.setup())
-        site = web.TCPSite(runner, str(self._host), self._port, ssl_context=self.__ssl_context)
-        self.__hook_loop.run_until_complete(site.start())
-        self.logger.info('started twitch API event sub on port ' + str(self._port))
-        self._startup_complete = True
-        self.__hook_loop.run_until_complete(self._keep_loop_alive())
-
+    @abstractmethod
     def start(self):
         """Starts the EventSub client
 
         :rtype: None
         :raises RuntimeError: if EventSub is already running
         """
-        if self.__running:
-            raise RuntimeError('already started')
-        self.__hook_thread = threading.Thread(target=self.__run_hook, args=(self.__build_runner(),))
-        self.__running = True
-        self._startup_complete = False
-        self._closing = False
-        self.__hook_thread.start()
-        while not self._startup_complete:
-            time.sleep(0.1)
 
-    async def _keep_loop_alive(self):
-        while not self._closing:
-            await asyncio.sleep(0.1)
-
+    @abstractmethod
     async def stop(self):
         """Stops the EventSub client
 
@@ -214,153 +144,66 @@ class EventSub:
 
         :rtype: None
         """
-        self.logger.debug('shutting down eventsub')
-        if self.__hook_runner is not None and self.unsubscribe_on_stop:
-            await self.unsubscribe_all_known()
-        # ensure all client sessions are closed
-        await asyncio.sleep(0.25)
-        self._closing = True
-        # cleanly shut down the runner
-        await self.__hook_runner.shutdown()
-        await self.__hook_runner.cleanup()
-        # self.__hook_loop.call_soon_threadsafe(self.__hook_loop.stop)
-        self.__hook_runner = None
-        self.__running = False
-        self.logger.debug('eventsub shut down')
+
+    @abstractmethod
+    def _get_transport(self):
+        pass
 
     # ==================================================================================================================
     # HELPER
     # ==================================================================================================================
 
-    def __build_request_header(self):
-        token = self.__twitch.get_app_token()
-        if token is None:
-            raise TwitchAuthorizationException('no Authorization set!')
-        return {
-            'Client-ID': self.__client_id,
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}'
-        }
+    @abstractmethod
+    def _build_request_header(self):
+        pass
 
-    async def __api_post_request(self, session, url: str, data: Union[dict, None] = None):
-        headers = self.__build_request_header()
+    async def _api_post_request(self, session, url: str, data: Union[dict, None] = None):
+        headers = self._build_request_header()
         return await session.post(url, headers=headers, json=data)
 
-    def __add_callback(self, c_id: str, callback):
-        self.__callbacks[c_id] = {'id': c_id, 'callback': callback, 'active': False}
+    def _add_callback(self, c_id: str, callback):
+        self._callbacks[c_id] = {'id': c_id, 'callback': callback, 'active': False}
 
-    async def __activate_callback(self, c_id: str):
-        if c_id not in self.__callbacks:
+    async def _activate_callback(self, c_id: str):
+        if c_id not in self._callbacks:
             self.logger.debug(f'callback for {c_id} arrived before confirmation, waiting...')
-        while c_id not in self.__callbacks:
+        while c_id not in self._callbacks:
             await asyncio.sleep(0.1)
-        self.__callbacks[c_id]['active'] = True
+        self._callbacks[c_id]['active'] = True
 
+    @abstractmethod
     async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback) -> str:
-        """"Subscribe to Twitch Topic"""
-        if not asyncio.iscoroutinefunction(callback):
-            raise ValueError('callback needs to be a async function which takes one parameter')
-        self.logger.debug(f'subscribe to {sub_type} version {sub_version} with condition {condition}')
-        data = {
-            'type': sub_type,
-            'version': sub_version,
-            'condition': condition,
-            'transport': {
-                'method': 'webhook',
-                'callback': f'{self.callback_url}/callback',
-                'secret': self.secret
-            }
-        }
-        async with ClientSession(timeout=self.__twitch.session_timeout) as session:
-            r_data = await self.__api_post_request(session, TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data)
-            result = await r_data.json()
-        error = result.get('error')
-        if r_data.status == 500:
-            raise TwitchBackendException(error)
-        if error is not None:
-            if error.lower() == 'conflict':
-                raise EventSubSubscriptionConflict(result.get('message', ''))
-            raise EventSubSubscriptionError(result.get('message'))
-        sub_id = result['data'][0]['id']
-        self.logger.debug(f'subscription for {sub_type} version {sub_version} with condition {condition} has id {sub_id}')
-        self.__add_callback(sub_id, callback)
-        if self.wait_for_subscription_confirm:
-            timeout = datetime.datetime.utcnow() + datetime.timedelta(
-                seconds=self.wait_for_subscription_confirm_timeout)
-            while timeout >= datetime.datetime.utcnow():
-                if self.__callbacks[sub_id]['active']:
-                    return sub_id
-                await asyncio.sleep(0.01)
-            self.__callbacks.pop(sub_id, None)
-            raise EventSubSubscriptionTimeout()
-        return sub_id
-
-    async def _verify_signature(self, request: 'web.Request') -> bool:
-        expected = request.headers['Twitch-Eventsub-Message-Signature']
-        hmac_message = request.headers['Twitch-Eventsub-Message-Id'] + \
-            request.headers['Twitch-Eventsub-Message-Timestamp'] + await request.text()
-        sig = 'sha256=' + hmac.new(bytes(self.secret, 'utf-8'),
-                                   msg=bytes(hmac_message, 'utf-8'),
-                                   digestmod=hashlib.sha256).hexdigest().lower()
-        return sig == expected
+        pass
 
     # ==================================================================================================================
     # HANDLERS
     # ==================================================================================================================
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    async def __handle_default(request: 'web.Request'):
-        return web.Response(text="pyTwitchAPI EventSub")
-
-    async def __handle_challenge(self, request: 'web.Request', data: dict):
-        self.logger.debug(f'received challenge for subscription {data.get("subscription").get("id")}')
-        if not await self._verify_signature(request):
-            self.logger.warning(f'message signature is not matching! Discarding message')
-            return web.Response(status=403)
-        await self.__activate_callback(data.get('subscription').get('id'))
-        return web.Response(text=data.get('challenge'))
-
-    async def __handle_callback(self, request: 'web.Request'):
-        data: dict = await request.json()
-        if data.get('challenge') is not None:
-            return await self.__handle_challenge(request, data)
-        sub_id = data.get('subscription', {}).get('id')
-        callback = self.__callbacks.get(sub_id)
-        if callback is None:
-            self.logger.error(f'received event for unknown subscription with ID {sub_id}')
-        else:
-            if not await self._verify_signature(request):
-                self.logger.warning(f'message signature is not matching! Discarding message')
-                return web.Response(status=403)
-            self.__hook_loop.create_task(callback['callback'](data))
-        return web.Response(status=200)
-
     async def unsubscribe_all(self):
         """Unsubscribe from all subscriptions"""
-        ret = await self.__twitch.get_eventsub_subscriptions()
+        ret = await self._twitch.get_eventsub_subscriptions()
         async for d in ret:
             try:
-                await self.__twitch.delete_eventsub_subscription(d.id)
+                await self._twitch.delete_eventsub_subscription(d.id)
             except TwitchAPIException as e:
                 self.logger.warning(f'failed to unsubscribe from event {d.id}: {str(e)}')
-        self.__callbacks.clear()
+        self._callbacks.clear()
 
     async def unsubscribe_all_known(self):
         """Unsubscribe from all subscriptions known to this client."""
-        for key, value in self.__callbacks.items():
+        for key, value in self._callbacks.items():
             self.logger.debug(f'unsubscribe from event {key}')
             try:
-                await self.__twitch.delete_eventsub_subscription(key)
+                await self._twitch.delete_eventsub_subscription(key)
             except TwitchAPIException as e:
                 self.logger.warning(f'failed to unsubscribe from event {key}: {str(e)}')
-        self.__callbacks.clear()
+        self._callbacks.clear()
 
     async def unsubscribe_topic(self, topic_id: str) -> bool:
         """Unsubscribe from a specific topic."""
         try:
-            await self.__twitch.delete_eventsub_subscription(topic_id)
-            self.__callbacks.pop(topic_id, None)
+            await self._twitch.delete_eventsub_subscription(topic_id)
+            self._callbacks.pop(topic_id, None)
             return True
         except TwitchAPIException as e:
             self.logger.warning(f'failed to unsubscribe from {topic_id}: {str(e)}')
