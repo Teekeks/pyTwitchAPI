@@ -1,7 +1,7 @@
 [
   {
     "name": "develop",
-    "version": "latest",
+    "version": "develop",
     "url": "https://pytwitchapi.readthedocs.io/en/latest/"
   },
   {

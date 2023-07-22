@@ -92,7 +92,7 @@ if not version_match or version_match.isdigit():
     # For local development, infer the version to match from the package.
     # release = release
     if "dev" in release or "rc" in release:
-        version_match = "latest"
+        version_match = "develop"
         # We want to keep the relative reference if we are in dev mode
         # but we want the whole url if we are effectively in a released version
         json_url = "_static/switcher.json"
