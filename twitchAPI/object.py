@@ -134,7 +134,7 @@ class TwitchObject:
 
 class IterTwitchObject(TwitchObject):
     """Special type of :const:`~twitchAPI.object.TwitchObject`.
-       These usually have some list inside that you may want to dicrectly itterate over in your API usage but that also contain other usefull data
+       These usually have some list inside that you may want to directly iterate over in your API usage but that also contain other useful data
        outside of that List.
 
        Example:
@@ -154,7 +154,7 @@ class IterTwitchObject(TwitchObject):
 
 
 class AsyncIterTwitchObject(TwitchObject, Generic[T]):
-    """A few API calls will have usefull data outside of the list the pagination itterates over.
+    """A few API calls will have useful data outside the list the pagination iterates over.
        For those cases, this object exist.
 
        Example:
