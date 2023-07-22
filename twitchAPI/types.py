@@ -10,7 +10,7 @@ __all__ = ['AnalyticsReportType', 'AuthScope', 'ModerationEventType', 'TimePerio
            'VideoType', 'AuthType', 'StatusCode', 'PubSubResponseError', 'CustomRewardRedemptionStatus', 'SortOrder',
            'BlockSourceContext', 'BlockReason', 'EntitlementFulfillmentStatus', 'PollStatus', 'PredictionStatus', 'AutoModAction',
            'AutoModCheckEntry', 'DropsEntitlementFulfillmentStatus', 'ChatEvent', 'ChatRoom',
-           'TwitchAPIException', 'InvalidRefreshTokenException', 'InvalidTokenException', 'NotFoundException', 'TwitchAuthorizationException',
+           'TwitchAPIException', 'InvalidRefreshTokenException', 'InvalidTokenException', 'TwitchAuthorizationException',
            'UnauthorizedException', 'MissingScopeException', 'TwitchBackendException', 'PubSubListenTimeoutException', 'MissingAppSecretException',
            'EventSubSubscriptionTimeout', 'EventSubSubscriptionConflict', 'EventSubSubscriptionError', 'DeprecatedError', 'TwitchResourceNotFound',
            'ForbiddenError']
@@ -306,11 +306,6 @@ class InvalidTokenException(TwitchAPIException):
     pass
 
 
-class NotFoundException(TwitchAPIException):
-    """Resource was not found with the given parameter"""
-    pass
-
-
 class TwitchAuthorizationException(TwitchAPIException):
     """Exception in the Twitch Authorization"""
     pass
@@ -332,7 +327,7 @@ class TwitchBackendException(TwitchAPIException):
 
 
 class PubSubListenTimeoutException(TwitchAPIException):
-    """when a a PubSub listen command times out"""
+    """when a PubSub listen command times out"""
     pass
 
 
