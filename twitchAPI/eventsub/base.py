@@ -199,12 +199,16 @@ class EventSubBase(ABC):
                 self.logger.warning(f'failed to unsubscribe from event {key}: {str(e)}')
         self._callbacks.clear()
 
+    @abstractmethod
+    async def _unsubscribe_hook(self, topic_id: str) -> bool:
+        pass
+
     async def unsubscribe_topic(self, topic_id: str) -> bool:
         """Unsubscribe from a specific topic."""
         try:
             await self._twitch.delete_eventsub_subscription(topic_id)
             self._callbacks.pop(topic_id, None)
-            return True
+            return await self._unsubscribe_hook(topic_id)
         except TwitchAPIException as e:
             self.logger.warning(f'failed to unsubscribe from {topic_id}: {str(e)}')
         return False

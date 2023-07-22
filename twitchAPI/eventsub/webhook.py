@@ -158,6 +158,9 @@ class EventSubWebhook(EventSubBase):
             raise RuntimeError('HTTPS is required for authenticated webhook.\n'
                                + 'Either use non authenticated webhook or use a HTTPS proxy!')
 
+    async def _unsubscribe_hook(self, topic_id: str) -> bool:
+        return True
+
     def __build_runner(self):
         hook_app = web.Application()
         hook_app.add_routes([web.post('/callback', self.__handle_callback),

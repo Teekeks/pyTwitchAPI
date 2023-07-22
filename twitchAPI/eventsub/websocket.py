@@ -9,6 +9,7 @@ EventSub Websocket
 import asyncio
 import datetime
 import json
+import logging
 import threading
 from asyncio import CancelledError
 from time import sleep
@@ -42,7 +43,7 @@ class EventSubWebsocket(EventSubBase):
     def __init__(self, twitch: Twitch, connection_url: Optional[str] = None):
         super().__init__(twitch)
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_EVENT_SUB_WEBSOCKET_URL
-        self.session: Optional[Session] = None
+        self.active_session: Optional[Session] = None
         self._running: bool = False
         self._socket_thread = None
         self._startup_complete: bool = False
@@ -51,7 +52,9 @@ class EventSubWebsocket(EventSubBase):
         self._closing: bool = False
         self._connection = None
         self._session = None
-        self._reconnect_timeout: datetime.datetime = None
+        self._is_reconnecting: bool = False
+        self._active_subscriptions = {}
+        self._reconnect_timeout: Optional[datetime.datetime] = None
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
 
     def start(self):
@@ -65,6 +68,7 @@ class EventSubWebsocket(EventSubBase):
         self._closing = False
         self._socket_thread = threading.Thread(target=self._run_socket)
         self._running = True
+        self._active_subscriptions = {}
         self._socket_thread.start()
         while not self._startup_complete:
             sleep(0.01)
@@ -83,7 +87,7 @@ class EventSubWebsocket(EventSubBase):
     def _get_transport(self):
         return {
             'method': 'websocket',
-            'session_id': self.session.id
+            'session_id': self.active_session.id
         }
 
     async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback) -> str:
@@ -110,16 +114,25 @@ class EventSubWebsocket(EventSubBase):
         self.logger.debug(f'subscription for {sub_type} version {sub_version} with condition {condition} has id {sub_id}')
         self._add_callback(sub_id, callback)
         self._callbacks[sub_id]['active'] = True
+        self._active_subscriptions[sub_id] = {
+            'sub_type': sub_type,
+            'sub_version': sub_version,
+            'condition': condition,
+            'callback': callback
+        }
         return sub_id
 
     async def _connect(self, is_startup: bool = False):
         if is_startup:
             self.logger.debug('connectiong...')
         else:
+            self._is_reconnecting = True
             self.logger.debug('reconnecting...')
         self._reconnect_timeout = None
         if self._connection is not None and not self._connection.closed:
             await self._connection.close()
+            while not self._connection.closed:
+                await asyncio.sleep(0.1)
         retry = 0
         need_retry = True
         if self._session is None:
@@ -135,8 +148,7 @@ class EventSubWebsocket(EventSubBase):
                 need_retry = True
         if retry >= len(self.reconnect_delay_steps):
             raise TwitchBackendException(f'can\'t connect to EventSub websocket {self.connection_url}')
-        if not is_startup:
-            await self._resubscribe()
+
 
     def _run_socket(self):
         self._socket_loop = asyncio.new_event_loop()
@@ -146,7 +158,6 @@ class EventSubWebsocket(EventSubBase):
 
         self._tasks = [
             asyncio.ensure_future(self._task_receive(), loop=self._socket_loop),
-            asyncio.ensure_future(self._task_startup(), loop=self._socket_loop),
             asyncio.ensure_future(self._task_reconnect_handler(), loop=self._socket_loop)
         ]
         self._socket_loop.run_until_complete(self._keep_loop_alive())
@@ -163,11 +174,6 @@ class EventSubWebsocket(EventSubBase):
         while not self._closing:
             await asyncio.sleep(0.1)
 
-    async def _task_startup(self):
-        while self.session is None:
-            await asyncio.sleep(0.1)
-        self._startup_complete = True
-
     async def _task_reconnect_handler(self):
         try:
             while not self._closing:
@@ -176,6 +182,7 @@ class EventSubWebsocket(EventSubBase):
                     continue
                 if self._reconnect_timeout <= datetime.datetime.now():
                     self.logger.warning('keepalive missed, connection lost. reconnecting...')
+                    self._reconnect_timeout = None
                     await self._connect(is_startup=False)
         except CancelledError:
             return
@@ -187,7 +194,10 @@ class EventSubWebsocket(EventSubBase):
             'notification': self._handle_notification
         }
         try:
-            while not self._connection.closed:
+            while not self._closing:
+                if self._connection.closed:
+                    await asyncio.sleep(0.01)
+                    continue
                 message = await self._connection.receive()
                 if message.type == aiohttp.WSMsgType.TEXT:
                     data = json.loads(message.data)
@@ -202,6 +212,8 @@ class EventSubWebsocket(EventSubBase):
                 elif message.type == aiohttp.WSMsgType.CLOSED:
                     self.logger.debug('websocket is closing')
                     if self._running:
+                        if self._is_reconnecting:
+                            continue
                         try:
                             await self._connect(is_startup=False)
                         except TwitchBackendException:
@@ -214,6 +226,7 @@ class EventSubWebsocket(EventSubBase):
                     break
         except CancelledError:
             return
+        self.logger.info('exited loop, that aint supposted to happen yet!')
 
     def _build_request_header(self):
         token = self._twitch.get_user_auth_token()
@@ -225,17 +238,33 @@ class EventSubWebsocket(EventSubBase):
             'Authorization': f'Bearer {token}'
         }
 
+    async def _unsubscribe_hook(self, topic_id: str) -> bool:
+        self._active_subscriptions.pop(topic_id, None)
+        return True
+
     async def _resubscribe(self):
-        # TODO resubscribe to all subscriptions on startup
-        pass
+        self.logger.debug('resubscribe to all active subscriptions of this websocket...')
+        subs = self._active_subscriptions.copy()
+        self._active_subscriptions = {}
+        for sub in subs.values():
+            try:
+                await self._subscribe(**sub)
+            except:
+                self.logger.exception('exception while resubscribing')
+        self.logger.debug('done resubscribing!')
 
     def _reset_timeout(self):
-        self._reconnect_timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.session.keepalive_timeout_seconds)
+        self._reconnect_timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.active_session.keepalive_timeout_seconds*2)
 
     async def _handle_welcome(self, data: dict):
         session = data.get('payload', {}).get('session', {})
-        self.session = Session(session)
+        self.active_session = Session(session)
+        self.logger.debug(f'new session id: {self.active_session.id}')
         self._reset_timeout()
+        if self._is_reconnecting:
+            await self._resubscribe()
+        self._is_reconnecting = False
+        self._startup_complete = True
 
     async def _handle_keepalive(self, data: dict):
         self.logger.debug('got session keep alive')
@@ -249,3 +278,4 @@ class EventSubWebsocket(EventSubBase):
         if callback is None:
             self.logger.error(f'received event for unknown subscription with ID {sub_id}')
         self._socket_loop.create_task(callback['callback'](_payload))
+
