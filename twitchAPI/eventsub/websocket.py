@@ -1,4 +1,11 @@
 #  Copyright (c) 2023. Lena "Teekeks" During <info@teawork.de>
+"""
+EventSub Websocket
+------------------
+
+.. warning:: Rework in progress, docs not accurate
+
+"""
 import asyncio
 import datetime
 import json
