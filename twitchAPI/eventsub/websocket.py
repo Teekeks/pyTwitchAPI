@@ -16,7 +16,7 @@ from time import sleep
 from typing import Optional, List, Dict, Callable
 
 import aiohttp
-from aiohttp import ClientSession
+from aiohttp import ClientSession, WSMessage
 
 from .base import EventSubBase
 
@@ -40,8 +40,9 @@ class Session:
 
 class EventSubWebsocket(EventSubBase):
     
-    def __init__(self, twitch: Twitch, connection_url: Optional[str] = None):
+    def __init__(self, twitch: Twitch, connection_url: Optional[str] = None, subscription_url: Optional[str] = None):
         super().__init__(twitch)
+        self.subscription_url: Optional[str] = subscription_url
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_EVENT_SUB_WEBSOCKET_URL
         self.active_session: Optional[Session] = None
         self._running: bool = False
@@ -101,7 +102,8 @@ class EventSubWebsocket(EventSubBase):
             'transport': self._get_transport()
         }
         async with ClientSession(timeout=self._twitch.session_timeout) as session:
-            r_data = await self._api_post_request(session, TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data)
+            sub_base = self.subscription_url if self.subscription_url is not None else self._twitch.base_url
+            r_data = await self._api_post_request(session, sub_base + 'eventsub/subscriptions', data=data)
             result = await r_data.json()
         error = result.get('error')
         if r_data.status == 500:
@@ -123,7 +125,7 @@ class EventSubWebsocket(EventSubBase):
         return sub_id
 
     async def _connect(self, is_startup: bool = False):
-        _con_url = self.connection_url if self.active_session is not None and self.active_session.reconnect_url is not None else \
+        _con_url = self.connection_url if self.active_session is None or self.active_session.reconnect_url is None else \
             self.active_session.reconnect_url
         if is_startup:
             self.logger.debug(f'connecting to {_con_url}...')
@@ -193,14 +195,15 @@ class EventSubWebsocket(EventSubBase):
             'session_welcome': self._handle_welcome,
             'session_keepalive': self._handle_keepalive,
             'notification': self._handle_notification,
-            'session_reconnect': self._handle_reconnect
+            'session_reconnect': self._handle_reconnect,
+            'revocation': self._handle_revocation
         }
         try:
             while not self._closing:
                 if self._connection.closed:
                     await asyncio.sleep(0.01)
                     continue
-                message = await self._connection.receive()
+                message: WSMessage = await self._connection.receive()
                 if message.type == aiohttp.WSMsgType.TEXT:
                     data = json.loads(message.data)
                     _type = data.get('metadata', {}).get('message_type')
@@ -211,6 +214,18 @@ class EventSubWebsocket(EventSubBase):
                     else:
                         from pprint import pprint
                         pprint(data)
+                elif message.type == aiohttp.WSMsgType.CLOSE:
+                    msg_lookup = {
+                        4000: "4000 - Internal server error",
+                        4001: "4001 - Client sent inbound traffic",
+                        4002: "4002 - Client failed ping-pong",
+                        4003: "4003 - Connection unused, you have to create a subscription within 10 seconds",
+                        4004: "4004 - Reconnect grace time expired",
+                        4005: "4005 - Network timeout",
+                        4006: "4006 - Network error",
+                        4007: "4007 - Invalid reconnect"
+                    }
+                    self.logger.info(f'Websocket closing: {msg_lookup.get(message.data, f" {message.data} - Unknown")}')
                 elif message.type == aiohttp.WSMsgType.CLOSED:
                     self.logger.debug('websocket is closing')
                     if self._running:
@@ -228,7 +243,6 @@ class EventSubWebsocket(EventSubBase):
                     break
         except CancelledError:
             return
-        self.logger.info('exited loop, that aint supposted to happen yet!')
 
     def _build_request_header(self):
         token = self._twitch.get_user_auth_token()
@@ -258,6 +272,10 @@ class EventSubWebsocket(EventSubBase):
     def _reset_timeout(self):
         self._reconnect_timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.active_session.keepalive_timeout_seconds*2)
 
+    async def _handle_revocation(self, data: dict):
+        # TODO: https://dev.twitch.tv/docs/eventsub/handling-websocket-events/#revocation-message
+        pass
+
     async def _handle_reconnect(self, data: dict):
         session = data.get('payload', {}).get('session', {})
         self.active_session = Session(session)
@@ -266,10 +284,11 @@ class EventSubWebsocket(EventSubBase):
 
     async def _handle_welcome(self, data: dict):
         session = data.get('payload', {}).get('session', {})
+        _old_session = self.active_session.status if self.active_session is not None else None
         self.active_session = Session(session)
         self.logger.debug(f'new session id: {self.active_session.id}')
         self._reset_timeout()
-        if self._is_reconnecting:
+        if self._is_reconnecting and _old_session != "reconnecting":
             await self._resubscribe()
         self._is_reconnecting = False
         self._startup_complete = True
@@ -285,5 +304,6 @@ class EventSubWebsocket(EventSubBase):
         callback = self._callbacks.get(sub_id)
         if callback is None:
             self.logger.error(f'received event for unknown subscription with ID {sub_id}')
-        self._socket_loop.create_task(callback['callback'](_payload))
+        else:
+            self._socket_loop.create_task(callback['callback'](_payload))
 
