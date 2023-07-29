@@ -123,7 +123,8 @@ class EventSubWebhook(EventSubBase):
                  port: int,
                  twitch: Twitch,
                  ssl_context: Optional[SSLContext] = None,
-                 host_binding: str = '0.0.0.0'):
+                 host_binding: str = '0.0.0.0',
+                 callback_loop: Optional[asyncio.AbstractEventLoop] = None):
         """
         :param callback_url: The full URL of the webhook.
         :param port: the port on which this webhook should run
@@ -142,6 +143,7 @@ class EventSubWebhook(EventSubBase):
             |default| :code:`30`"""
 
         self._port: int = port
+        self._callback_loop = callback_loop
         self._host: str = host_binding
         self.__running = False
         self._startup_complete = False
@@ -170,6 +172,8 @@ class EventSubWebhook(EventSubBase):
     def __run_hook(self, runner: 'web.AppRunner'):
         self.__hook_runner = runner
         self.__hook_loop = asyncio.new_event_loop()
+        if self._callback_loop is None:
+            self._callback_loop = self.__hook_loop
         asyncio.set_event_loop(self.__hook_loop)
         self.__hook_loop.run_until_complete(runner.setup())
         site = web.TCPSite(runner, str(self._host), self._port, ssl_context=self.__ssl_context)
@@ -304,5 +308,5 @@ class EventSubWebhook(EventSubBase):
             if not await self._verify_signature(request):
                 self.logger.warning(f'message signature is not matching! Discarding message')
                 return web.Response(status=403)
-            self.__hook_loop.create_task(callback['callback'](data))
+            self._callback_loop.create_task(callback['callback'](data))
         return web.Response(status=200)

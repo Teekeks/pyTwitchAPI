@@ -40,7 +40,11 @@ class Session:
 
 class EventSubWebsocket(EventSubBase):
     
-    def __init__(self, twitch: Twitch, connection_url: Optional[str] = None, subscription_url: Optional[str] = None):
+    def __init__(self,
+                 twitch: Twitch,
+                 connection_url: Optional[str] = None,
+                 subscription_url: Optional[str] = None,
+                 callback_loop: Optional[asyncio.AbstractEventLoop] = None):
         super().__init__(twitch)
         self.subscription_url: Optional[str] = subscription_url
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_EVENT_SUB_WEBSOCKET_URL
@@ -53,6 +57,7 @@ class EventSubWebsocket(EventSubBase):
         self._closing: bool = False
         self._connection = None
         self._session = None
+        self._callback_loop = callback_loop
         self._is_reconnecting: bool = False
         self._active_subscriptions = {}
         self._reconnect_timeout: Optional[datetime.datetime] = None
@@ -155,6 +160,8 @@ class EventSubWebsocket(EventSubBase):
 
     def _run_socket(self):
         self._socket_loop = asyncio.new_event_loop()
+        if self._callback_loop is None:
+            self._callback_loop = self._socket_loop
         asyncio.set_event_loop(self._socket_loop)
 
         self._socket_loop.run_until_complete(self._connect(is_startup=True))
@@ -305,5 +312,5 @@ class EventSubWebsocket(EventSubBase):
         if callback is None:
             self.logger.error(f'received event for unknown subscription with ID {sub_id}')
         else:
-            self._socket_loop.create_task(callback['callback'](_payload))
+            self._callback_loop.create_task(callback['callback'](_payload))
 
