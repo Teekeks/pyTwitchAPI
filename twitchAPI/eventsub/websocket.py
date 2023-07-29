@@ -123,11 +123,13 @@ class EventSubWebsocket(EventSubBase):
         return sub_id
 
     async def _connect(self, is_startup: bool = False):
+        _con_url = self.connection_url if self.active_session is not None and self.active_session.reconnect_url is not None else \
+            self.active_session.reconnect_url
         if is_startup:
-            self.logger.debug('connectiong...')
+            self.logger.debug(f'connecting to {_con_url}...')
         else:
             self._is_reconnecting = True
-            self.logger.debug('reconnecting...')
+            self.logger.debug(f'reconnecting using {_con_url}...')
         self._reconnect_timeout = None
         if self._connection is not None and not self._connection.closed:
             await self._connection.close()
@@ -140,15 +142,14 @@ class EventSubWebsocket(EventSubBase):
         while need_retry and retry < len(self.reconnect_delay_steps):
             need_retry = False
             try:
-                self._connection = await self._session.ws_connect(self.connection_url)
+                self._connection = await self._session.ws_connect(_con_url)
             except Exception:
                 self.logger.warning(f'connection attempt failed, retry in {self.reconnect_delay_steps[retry]} seconds...')
                 await asyncio.sleep(self.reconnect_delay_steps[retry])
                 retry += 1
                 need_retry = True
         if retry >= len(self.reconnect_delay_steps):
-            raise TwitchBackendException(f'can\'t connect to EventSub websocket {self.connection_url}')
-
+            raise TwitchBackendException(f'can\'t connect to EventSub websocket {_con_url}')
 
     def _run_socket(self):
         self._socket_loop = asyncio.new_event_loop()
@@ -191,7 +192,8 @@ class EventSubWebsocket(EventSubBase):
         handler: Dict[str, Callable] = {
             'session_welcome': self._handle_welcome,
             'session_keepalive': self._handle_keepalive,
-            'notification': self._handle_notification
+            'notification': self._handle_notification,
+            'session_reconnect': self._handle_reconnect
         }
         try:
             while not self._closing:
@@ -255,6 +257,12 @@ class EventSubWebsocket(EventSubBase):
 
     def _reset_timeout(self):
         self._reconnect_timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.active_session.keepalive_timeout_seconds*2)
+
+    async def _handle_reconnect(self, data: dict):
+        session = data.get('payload', {}).get('session', {})
+        self.active_session = Session(session)
+        self.logger.debug(f'got request from websocket to reconnect')
+        await self._connect(False)
 
     async def _handle_welcome(self, data: dict):
         session = data.get('payload', {}).get('session', {})
