@@ -136,6 +136,8 @@ class EventSubWebhook(EventSubBase):
         super().__init__(twitch)
         self.logger.name = 'twitchAPI.eventsub.webhook'
         self.callback_url: str = callback_url
+        if self.callback_url[-1] == '/':
+            self.callback_url = self.callback_url[:-1]
         """The full URL of the webhook."""
         self.secret: str = ''.join(choice(ascii_lowercase) for _ in range(20))
         """A random secret string. Set this for added security. |default| :code:`A random 20 character long string`"""
