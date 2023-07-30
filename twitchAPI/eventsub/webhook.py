@@ -99,6 +99,7 @@ import hashlib
 import hmac
 import threading
 from functools import partial
+from json import JSONDecodeError
 from logging import Logger, getLogger
 from random import choice
 from string import ascii_lowercase
@@ -303,7 +304,11 @@ class EventSubWebhook(EventSubBase):
         return web.Response(text=data.get('challenge'))
 
     async def __handle_callback(self, request: 'web.Request'):
-        data: dict = await request.json()
+        try:
+            data: dict = await request.json()
+        except JSONDecodeError:
+            self.logger.error('got request with malformed body! Discarding message')
+            return web.Response(status=400)
         if data.get('challenge') is not None:
             return await self.__handle_challenge(request, data)
         sub_id = data.get('subscription', {}).get('id')
