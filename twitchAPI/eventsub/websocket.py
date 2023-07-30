@@ -12,6 +12,8 @@ import json
 import logging
 import threading
 from asyncio import CancelledError
+from functools import partial
+from logging import getLogger, Logger
 from time import sleep
 from typing import Optional, List, Dict, Callable
 
@@ -24,7 +26,7 @@ from .base import EventSubBase
 __all__ = ['EventSubWebsocket']
 
 from .. import Twitch
-from ..helper import TWITCH_EVENT_SUB_WEBSOCKET_URL, TWITCH_API_BASE_URL
+from ..helper import TWITCH_EVENT_SUB_WEBSOCKET_URL, TWITCH_API_BASE_URL, done_task_callback
 from ..types import AuthType, UnauthorizedException, TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, \
     TwitchAuthorizationException
 
@@ -45,7 +47,14 @@ class EventSubWebsocket(EventSubBase):
                  connection_url: Optional[str] = None,
                  subscription_url: Optional[str] = None,
                  callback_loop: Optional[asyncio.AbstractEventLoop] = None):
+        """
+        :param twitch: The Twitch instance to be used
+        :param connection_url: Alternative connection URL, usefull for development with the twitch-cli
+        :param subscription_url: Alternative subscription URL, usefull for development with the twitch-cli
+        :param callback_loop: The asyncio eventloop to be used for callbacks. Set this if you
+        """
         super().__init__(twitch)
+        self.logger.name = 'twitchAPI.eventsub.websocket'
         self.subscription_url: Optional[str] = subscription_url
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_EVENT_SUB_WEBSOCKET_URL
         self.active_session: Optional[Session] = None
@@ -60,6 +69,7 @@ class EventSubWebsocket(EventSubBase):
         self._callback_loop = callback_loop
         self._is_reconnecting: bool = False
         self._active_subscriptions = {}
+        self._task_callback = partial(done_task_callback, self.logger)
         self._reconnect_timeout: Optional[datetime.datetime] = None
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
 
@@ -312,5 +322,6 @@ class EventSubWebsocket(EventSubBase):
         if callback is None:
             self.logger.error(f'received event for unknown subscription with ID {sub_id}')
         else:
-            self._callback_loop.create_task(callback['callback'](_payload))
+            t = self._callback_loop.create_task(callback['callback'](_payload))
+            t.add_done_callback(self._task_callback)
 

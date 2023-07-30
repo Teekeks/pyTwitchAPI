@@ -98,6 +98,8 @@ import asyncio
 import hashlib
 import hmac
 import threading
+from functools import partial
+from logging import Logger, getLogger
 from random import choice
 from string import ascii_lowercase
 from ssl import SSLContext
@@ -109,7 +111,7 @@ from aiohttp import web, ClientSession
 
 from .base import EventSubBase
 from .. import Twitch
-from ..helper import TWITCH_API_BASE_URL
+from ..helper import TWITCH_API_BASE_URL, done_task_callback
 from ..types import TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, EventSubSubscriptionTimeout, \
     TwitchAuthorizationException
 
@@ -132,6 +134,7 @@ class EventSubWebhook(EventSubBase):
         :param ssl_context: optional ssl context to be used |default| :code:`None`
         """
         super().__init__(twitch)
+        self.logger.name = 'twitchAPI.eventsub.webhook'
         self.callback_url: str = callback_url
         """The full URL of the webhook."""
         self.secret: str = ''.join(choice(ascii_lowercase) for _ in range(20))
@@ -156,6 +159,7 @@ class EventSubWebhook(EventSubBase):
         self.__hook_thread: Union['threading.Thread', None] = None
         self.__hook_loop: Union['asyncio.AbstractEventLoop', None] = None
         self.__hook_runner: Union['web.AppRunner', None] = None
+        self._task_callback = partial(done_task_callback, self.logger)
         if not self.callback_url.startswith('https'):
             raise RuntimeError('HTTPS is required for authenticated webhook.\n'
                                + 'Either use non authenticated webhook or use a HTTPS proxy!')
@@ -308,5 +312,6 @@ class EventSubWebhook(EventSubBase):
             if not await self._verify_signature(request):
                 self.logger.warning(f'message signature is not matching! Discarding message')
                 return web.Response(status=403)
-            self._callback_loop.create_task(callback['callback'](data))
+            t = self._callback_loop.create_task(callback['callback'](data))
+            t.add_done_callback(self._task_callback)
         return web.Response(status=200)

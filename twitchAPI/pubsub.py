@@ -63,13 +63,14 @@ Class Documentation
 *******************
 """
 from asyncio import CancelledError
+from functools import partial
 
 import aiohttp
 from aiohttp import ClientSession
 
 from .twitch import Twitch
 from .types import *
-from .helper import get_uuid, make_enum, TWITCH_PUB_SUB_URL
+from .helper import get_uuid, make_enum, TWITCH_PUB_SUB_URL, done_task_callback
 import asyncio
 import threading
 import json
@@ -119,6 +120,7 @@ class PubSub:
         self.__waiting_for_pong: bool = False
         self.__nonce_waiting_confirm: dict = {}
         self._closing = False
+        self._task_callback = partial(done_task_callback, self.logger)
 
     def start(self) -> None:
         """
@@ -361,7 +363,8 @@ class PubSub:
         msg_data = json.loads(data.get('data', {}).get('message', '{}'))
         if topic_data is not None:
             for uuid, sub in topic_data.get('subs', {}).items():
-                self._callback_loop.create_task(sub(uuid, msg_data))
+                t = self._callback_loop.create_task(sub(uuid, msg_data))
+                t.add_done_callback(self._task_callback)
 
     async def __handle_auth_revoked(self, data):
         revoked_topics = data.get('data', {}).get('topics', [])
