@@ -978,7 +978,7 @@ class Chat:
         for handler in self._event_handler.get(ChatEvent.NOTICE, []):
             t = asyncio.ensure_future(handler(e), loop=self._callback_loop)
             t.add_done_callback(self._task_callback)
-        self.logger.debug(f'got NOTICE for channel {parsed["command"]["channel"]}: {parsed["tags"]["msg-id"]}')
+        self.logger.debug(f'got NOTICE for channel {parsed["command"]["channel"]}: {parsed["tags"].get("msg-id")}')
 
     async def _handle_clear_msg(self, parsed: dict):
         ev = MessageDeletedEvent(self, parsed)
