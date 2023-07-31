@@ -56,6 +56,8 @@ class EventSubWebsocket(EventSubBase):
         super().__init__(twitch)
         self.logger.name = 'twitchAPI.eventsub.websocket'
         self.subscription_url: Optional[str] = subscription_url
+        if self.subscription_url is not None and self.subscription_url[-1] != '/':
+            self.subscription_url += '/'
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_EVENT_SUB_WEBSOCKET_URL
         self.active_session: Optional[Session] = None
         self._running: bool = False

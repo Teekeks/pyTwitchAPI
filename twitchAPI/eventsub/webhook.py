@@ -127,12 +127,15 @@ class EventSubWebhook(EventSubBase):
                  twitch: Twitch,
                  ssl_context: Optional[SSLContext] = None,
                  host_binding: str = '0.0.0.0',
+                 subscription_url: Optional[str] = None,
                  callback_loop: Optional[asyncio.AbstractEventLoop] = None):
         """
         :param callback_url: The full URL of the webhook.
         :param port: the port on which this webhook should run
         :param twitch: a app authenticated instance of :const:`~twitchAPI.twitch.Twitch`
         :param ssl_context: optional ssl context to be used |default| :code:`None`
+        :param host_binding: the host to bind the internal server to |default| :code:`0.0.0.0`
+        :param subscription_url: Alternative subscription URL, usefull for development with the twitch-cli
         """
         super().__init__(twitch)
         self.logger.name = 'twitchAPI.eventsub.webhook'
@@ -149,6 +152,9 @@ class EventSubWebhook(EventSubBase):
             |default| :code:`30`"""
 
         self._port: int = port
+        self.subscription_url: Optional[str] = subscription_url
+        if self.subscription_url is not None and self.subscription_url[-1] != '/':
+            self.subscription_url += '/'
         self._callback_loop = callback_loop
         self._host: str = host_binding
         self.__running = False
@@ -257,8 +263,10 @@ class EventSubWebhook(EventSubBase):
             'condition': condition,
             'transport': self._get_transport()
         }
+
         async with ClientSession(timeout=self._twitch.session_timeout) as session:
-            r_data = await self._api_post_request(session, TWITCH_API_BASE_URL + 'eventsub/subscriptions', data=data)
+            sub_base = self.subscription_url if self.subscription_url is not None else self._twitch.base_url
+            r_data = await self._api_post_request(session, sub_base + 'eventsub/subscriptions', data=data)
             result = await r_data.json()
         error = result.get('error')
         if r_data.status == 500:
