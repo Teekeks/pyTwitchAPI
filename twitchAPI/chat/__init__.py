@@ -286,7 +286,7 @@ if TYPE_CHECKING:
 
 
 __all__ = ['Chat', 'ChatUser', 'EventData', 'ChatMessage', 'ChatCommand', 'ChatSub', 'ChatRoom', 'ChatEvent', 'RoomStateChangeEvent',
-           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent', 'MessageDeletedEvent', 'NoticeEvent']
+           'JoinEvent', 'JoinedEvent', 'LeftEvent', 'ClearChatEvent', 'WhisperEvent', 'MessageDeletedEvent', 'NoticeEvent', 'HypeChat']
 
 
 class ChatUser:
@@ -407,6 +407,26 @@ class LeftEvent(EventData):
         """the cached room state, might bo Null"""
 
 
+class HypeChat:
+
+    def __init__(self, parsed):
+        self.amount: int = int(parsed['tags'].get('pinned-chat-paid-amount'))
+        """The value of the Hype Chat sent by the user."""
+        self.currency: str = parsed['tags'].get('pinned-chat-paid-currency')
+        """The ISO 4217 alphabetic currency code the user has sent the Hype Chat in."""
+        self.exponent: int = int(parsed['tags'].get('pinned-chat-paid-exponent'))
+        """Indicates how many decimal points this currency represents partial amounts in. 
+        Decimal points start from the right side of the value defined in :const:`~twitchAPI.chat.HypeChat.amount`"""
+        self.level: str = parsed['tags'].get('pinned-chat-paid-level')
+        """The level of the Hype Chat, in English.\n
+        Possible Values are:
+        :code:`ONE`, :code:`TWO`, :code:`THREE`, :code:`FOUR`, :code:`FIVE`, :code:`SIX`, :code:`SEVEN`, :code:`EIGHT`, :code:`NINE`, :code:`TEN`"""
+        self.is_system_message: bool = parsed['tags'].get('pinned-chat-paid-is-system-message') == 1
+        """A Boolean value that determines if the message sent with the Hype Chat was filled in by the system.\n
+           If True, the user entered no message and the body message was automatically filled in by the system.\n
+           If False, the user provided their own message to send with the Hype Chat."""
+
+
 class ChatMessage(EventData):
     """Represents a chat message"""
 
@@ -433,6 +453,8 @@ class ChatMessage(EventData):
         """The emotes used in the message"""
         self.id: str = parsed['tags'].get('id')
         """the ID of the message"""
+        self.hype_chat: Optional[HypeChat] = HypeChat(parsed) if parsed['tags'].get('pinned-chat-paid-level') is not None else None
+        """Hype Chat related data, is None if the message was not a hype chat"""
 
     @property
     def room(self) -> Optional[ChatRoom]:
@@ -1058,6 +1080,8 @@ class Chat:
             _failed = await self.join_room(self._join_target)
             if len(_failed) > 0:
                 self.logger.warning(f'failed to join the following channel of the initial following list: {", ".join(_failed)}')
+            else:
+                self.logger.info('done joining initial channels')
         if not was_ready:
             for h in self._event_handler.get(ChatEvent.READY, []):
                 t = asyncio.ensure_future(h(dat), loop=self._callback_loop)
