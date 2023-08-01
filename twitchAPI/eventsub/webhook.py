@@ -100,19 +100,18 @@ import hmac
 import threading
 from functools import partial
 from json import JSONDecodeError
-from logging import Logger, getLogger
 from random import choice
 from string import ascii_lowercase
 from ssl import SSLContext
 from time import sleep
-from typing import Optional, Union
+from typing import Optional, Union, Callable, Awaitable
 import datetime
 
 from aiohttp import web, ClientSession
 
 from .base import EventSubBase
 from .. import Twitch
-from ..helper import TWITCH_API_BASE_URL, done_task_callback
+from ..helper import done_task_callback
 from ..types import TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, EventSubSubscriptionTimeout, \
     TwitchAuthorizationException
 
@@ -128,7 +127,8 @@ class EventSubWebhook(EventSubBase):
                  ssl_context: Optional[SSLContext] = None,
                  host_binding: str = '0.0.0.0',
                  subscription_url: Optional[str] = None,
-                 callback_loop: Optional[asyncio.AbstractEventLoop] = None):
+                 callback_loop: Optional[asyncio.AbstractEventLoop] = None,
+                 revocation_handler: Optional[Callable[[dict], Awaitable[None]]] = None):
         """
         :param callback_url: The full URL of the webhook.
         :param port: the port on which this webhook should run
@@ -139,6 +139,7 @@ class EventSubWebhook(EventSubBase):
         :param callback_loop: The asyncio eventloop to be used for callbacks. \n
             Set this if you or a library you use cares about which asyncio event loop is running the callbacks.
             Defaults to the one used by EventSub Webhook.
+        :param revocation_handler: Optional handler for when subscriptions get revoked. |default| :code:`None`
         """
         super().__init__(twitch)
         self.logger.name = 'twitchAPI.eventsub.webhook'
@@ -161,6 +162,7 @@ class EventSubWebhook(EventSubBase):
         self._callback_loop = callback_loop
         self._host: str = host_binding
         self.__running = False
+        self.revokation_handler: Optional[Callable[[dict], Awaitable[None]]] = revocation_handler
         self._startup_complete = False
         self.unsubscribe_on_stop: bool = True
         """Unsubscribe all currently active Webhooks on calling :const:`~twitchAPI.eventsub.EventSub.stop()` |default| :code:`True`"""
@@ -314,6 +316,16 @@ class EventSubWebhook(EventSubBase):
         await self._activate_callback(data.get('subscription').get('id'))
         return web.Response(text=data.get('challenge'))
 
+    async def _handle_revokation(self, data):
+        sub_id: str = data.get('subscription', {}).get('id')
+        self.logger.debug(f'got revocation of subscription {sub_id} for reason {data.get("subscription").get("status")}')
+        if sub_id not in self._callbacks.keys():
+            self.logger.warning(f'unknown subscription {sub_id} got revoked. ignore')
+            return
+        self._callbacks.pop(sub_id)
+        t = self._callback_loop.create_task(self.revokation_handler(data))
+        t.add_done_callback(self._task_callback)
+
     async def __handle_callback(self, request: 'web.Request'):
         try:
             data: dict = await request.json()
@@ -330,6 +342,12 @@ class EventSubWebhook(EventSubBase):
             if not await self._verify_signature(request):
                 self.logger.warning(f'message signature is not matching! Discarding message')
                 return web.Response(status=403)
-            t = self._callback_loop.create_task(callback['callback'](data))
-            t.add_done_callback(self._task_callback)
+            msg_type = request.headers['Twitch-Eventsub-Message-Type']
+            from pprint import pprint
+            pprint(msg_type)
+            if msg_type.lower() == 'revocation':
+                await self._handle_revokation(data)
+            else:
+                t = self._callback_loop.create_task(callback['callback'](data))
+                t.add_done_callback(self._task_callback)
         return web.Response(status=200)
