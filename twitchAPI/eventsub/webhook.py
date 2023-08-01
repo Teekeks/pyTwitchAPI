@@ -323,8 +323,9 @@ class EventSubWebhook(EventSubBase):
             self.logger.warning(f'unknown subscription {sub_id} got revoked. ignore')
             return
         self._callbacks.pop(sub_id)
-        t = self._callback_loop.create_task(self.revokation_handler(data))
-        t.add_done_callback(self._task_callback)
+        if self.revokation_handler is not None:
+            t = self._callback_loop.create_task(self.revokation_handler(data))
+            t.add_done_callback(self._task_callback)
 
     async def __handle_callback(self, request: 'web.Request'):
         try:

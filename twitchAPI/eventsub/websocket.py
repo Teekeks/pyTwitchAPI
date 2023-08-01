@@ -302,8 +302,9 @@ class EventSubWebsocket(EventSubBase):
             return
         self._active_subscriptions.pop(sub_id)
         self._callbacks.pop(sub_id)
-        t = self._callback_loop.create_task(self.revokation_handler(_payload))
-        t.add_done_callback(self._task_callback)
+        if self.revokation_handler is not None:
+            t = self._callback_loop.create_task(self.revokation_handler(_payload))
+            t.add_done_callback(self._task_callback)
 
     async def _handle_reconnect(self, data: dict):
         session = data.get('payload', {}).get('session', {})
