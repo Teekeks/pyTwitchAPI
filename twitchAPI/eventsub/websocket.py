@@ -58,10 +58,13 @@ class EventSubWebsocket(EventSubBase):
         super().__init__(twitch)
         self.logger.name = 'twitchAPI.eventsub.websocket'
         self.subscription_url: Optional[str] = subscription_url
+        """The URL where subscriptions are being send to. Defaults to :const:`~twitchAPI.helper.TWITCH_API_BASE_URL`"""
         if self.subscription_url is not None and self.subscription_url[-1] != '/':
             self.subscription_url += '/'
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_EVENT_SUB_WEBSOCKET_URL
+        """The URL where the websocket connects to. Defaults to :const:`~twitchAPI.helper.TWITCH_EVENT_SUB_WEBSOCKET_URL`"""
         self.active_session: Optional[Session] = None
+        """The currently used session"""
         self._running: bool = False
         self._socket_thread = None
         self._startup_complete: bool = False
@@ -74,9 +77,11 @@ class EventSubWebsocket(EventSubBase):
         self._is_reconnecting: bool = False
         self._active_subscriptions = {}
         self.revokation_handler: Optional[Callable[[dict], Awaitable[None]]] = revocation_handler
+        """Optional handler for when subscriptions get revoked."""
         self._task_callback = partial(done_task_callback, self.logger)
         self._reconnect_timeout: Optional[datetime.datetime] = None
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
+        """Time in seconds between reconnect attempts"""
 
     def start(self):
         self.logger.debug('starting websocket EventSub...')

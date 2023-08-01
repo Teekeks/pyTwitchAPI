@@ -144,9 +144,9 @@ class EventSubWebhook(EventSubBase):
         super().__init__(twitch)
         self.logger.name = 'twitchAPI.eventsub.webhook'
         self.callback_url: str = callback_url
+        """The full URL of the webhook."""
         if self.callback_url[-1] == '/':
             self.callback_url = self.callback_url[:-1]
-        """The full URL of the webhook."""
         self.secret: str = ''.join(choice(ascii_lowercase) for _ in range(20))
         """A random secret string. Set this for added security. |default| :code:`A random 20 character long string`"""
         self.wait_for_subscription_confirm: bool = True
@@ -157,12 +157,14 @@ class EventSubWebhook(EventSubBase):
 
         self._port: int = port
         self.subscription_url: Optional[str] = subscription_url
+        """Alternative subscription URL, usefull for development with the twitch-cli"""
         if self.subscription_url is not None and self.subscription_url[-1] != '/':
             self.subscription_url += '/'
         self._callback_loop = callback_loop
         self._host: str = host_binding
         self.__running = False
         self.revokation_handler: Optional[Callable[[dict], Awaitable[None]]] = revocation_handler
+        """Optional handler for when subscriptions get revoked."""
         self._startup_complete = False
         self.unsubscribe_on_stop: bool = True
         """Unsubscribe all currently active Webhooks on calling :const:`~twitchAPI.eventsub.EventSub.stop()` |default| :code:`True`"""

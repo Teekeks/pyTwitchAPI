@@ -598,14 +598,20 @@ class Chat:
         """The logger used for Chat related log messages"""
         self._prefix: str = "!"
         self.twitch: Twitch = twitch
+        """The twitch instance being used"""
         if not self.twitch.has_required_auth(AuthType.USER, [AuthScope.CHAT_READ]):
             raise ValueError('passed twitch instance is missing User Auth.')
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_CHAT_URL
+        """Alternative connection url |default|:code:`None`"""
         self.ping_frequency: int = 120
+        """Frequency in seconds for sending ping messages. This should usually not be changed."""
         self.ping_jitter: int = 4
+        """Jitter in seconds for ping messages. This should usually not be changed."""
         self._callback_loop = callback_loop
         self.listen_confirm_timeout: int = 30
+        """Time in second that any :code:`listen_` should wait for its subscription to be completed."""
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
+        """Time in seconds between reconnect attempts"""
         self.log_no_registered_command_handler: bool = True
         """Controls if instances of commands being issued in chat where no handler exists should be logged. |default|:code:`True`"""
         self.__connection = None
@@ -623,6 +629,7 @@ class Chat:
         self._event_handler = {}
         self._command_handler = {}
         self.room_cache: Dict[str, ChatRoom] = {}
+        """internal cache of all chat rooms the bot is currently in"""
         self._room_join_locks = []
         self._room_leave_locks = []
         self._closing: bool = False
