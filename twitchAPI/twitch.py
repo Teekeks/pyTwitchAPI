@@ -260,13 +260,6 @@ class Twitch:
         """The URL to the Twitch API used"""
         self._user_token_refresh_lock: bool = False
         self._app_token_refresh_lock: bool = False
-        self._r_lookup: Dict[str, Callable] = {
-            'get': self.__api_get_request,
-            'post': self.__api_post_request,
-            'delete': self.__api_delete_request,
-            'patch': self.__api_patch_request,
-            'put': self.__api_put_request
-        }
 
     def __await__(self):
         if self._authenticate_app:
@@ -383,7 +376,7 @@ class Twitch:
     async def __check_request_return(self,
                                      session: ClientSession,
                                      response: ClientResponse,
-                                     retry_func: Callable,
+                                     method: str,
                                      url: str,
                                      auth_type: 'AuthType',
                                      required_scope: List[AuthScope],
@@ -395,11 +388,11 @@ class Twitch:
                 # unauthorized, lets try to refresh the token once
                 self.logger.debug('got 401 response -> try to refresh token')
                 await self.refresh_used_token()
-                return await retry_func(session, url, auth_type, required_scope, data=data, retries=retries - 1)
+                return await self.__api_request(method, session, url, auth_type, required_scope, data=data, retries=retries - 1)
             elif response.status == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 self.logger.debug('got 503 response -> retry once')
-                return await retry_func(session, url, auth_type, required_scope, data=data, retries=retries - 1)
+                return await self.__api_request(method, session, url, auth_type, required_scope, data=data, retries=retries - 1)
         elif self.auto_refresh_auth and retries <= 0:
             if response.status == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
@@ -426,73 +419,22 @@ class Twitch:
             await asyncio.sleep((reset - time.time()) + 0.1)
         return response
 
-    async def __api_post_request(self,
-                                 session: ClientSession,
-                                 url: str,
-                                 auth_type: 'AuthType',
-                                 required_scope: List[Union[AuthScope, List[AuthScope]]],
-                                 data: Optional[dict] = None,
-                                 retries: int = 1) -> ClientResponse:
-        """Make POST request with authorization"""
+    async def __api_request(self,
+                            method: str,
+                            session: ClientSession,
+                            url: str,
+                            auth_type: 'AuthType',
+                            required_scope: List[Union[AuthScope, List[AuthScope]]],
+                            data: Optional[dict] = None,
+                            retries: int = 1) -> ClientResponse:
+        """Make API request"""
         headers = self.__generate_header(auth_type, required_scope)
-        self.logger.debug(f'making POST request to {url}')
-        req = await session.post(url, headers=headers, json=data)
-        return await self.__check_request_return(session, req, self.__api_post_request, url, auth_type, required_scope, data, retries)
-
-    async def __api_put_request(self,
-                                session: ClientSession,
-                                url: str,
-                                auth_type: 'AuthType',
-                                required_scope: List[Union[AuthScope, List[AuthScope]]],
-                                data: Optional[dict] = None,
-                                retries: int = 1) -> ClientResponse:
-        """Make PUT request with authorization"""
-        headers = self.__generate_header(auth_type, required_scope)
-        self.logger.debug(f'making PUT request to {url}')
-        req = await session.put(url, headers=headers, json=data)
-        return await self.__check_request_return(session, req, self.__api_put_request, url, auth_type, required_scope, data, retries)
-
-    async def __api_patch_request(self,
-                                  session: ClientSession,
-                                  url: str,
-                                  auth_type: 'AuthType',
-                                  required_scope: List[Union[AuthScope, List[AuthScope]]],
-                                  data: Optional[dict] = None,
-                                  retries: int = 1) -> ClientResponse:
-        """Make PATCH request with authorization"""
-        headers = self.__generate_header(auth_type, required_scope)
-        self.logger.debug(f'making PATCH request to {url}')
-        req = await session.patch(url, headers=headers, json=data)
-        return await self.__check_request_return(session, req, self.__api_patch_request, url, auth_type, required_scope, data, retries)
-
-    async def __api_delete_request(self,
-                                   session: ClientSession,
-                                   url: str,
-                                   auth_type: 'AuthType',
-                                   required_scope: List[Union[AuthScope, List[AuthScope]]],
-                                   data: Optional[dict] = None,
-                                   retries: int = 1) -> ClientResponse:
-        """Make DELETE request with authorization"""
-        headers = self.__generate_header(auth_type, required_scope)
-        self.logger.debug(f'making DELETE request to {url}')
-        req = await session.delete(url, headers=headers, json=data)
-        return await self.__check_request_return(session, req, self.__api_delete_request, url, auth_type, required_scope, data, retries)
-
-    async def __api_get_request(self,
-                                session: ClientSession,
-                                url: str,
-                                auth_type: 'AuthType',
-                                required_scope: List[Union[AuthScope, List[AuthScope]]],
-                                data: Optional[dict] = None,
-                                retries: int = 1) -> ClientResponse:
-        """Make GET request with authorization"""
-        headers = self.__generate_header(auth_type, required_scope)
-        self.logger.debug(f'making GET request to {url}')
-        req = await session.get(url, headers=headers, json=data)
-        return await self.__check_request_return(session, req, self.__api_get_request, url, auth_type, required_scope, data, retries)
+        self.logger.debug(f'making {method} request to {url}')
+        req = await session.request(method, url, headers=headers, json=data)
+        return await self.__check_request_return(session, req, method, url, auth_type, required_scope, data, retries)
 
     async def _build_generator(self,
-                               req,
+                               method: str,
                                url: str,
                                url_params: dict,
                                auth_type: AuthType,
@@ -501,14 +443,13 @@ class Twitch:
                                body_data: Optional[dict] = None,
                                split_lists: bool = False,
                                error_handler: Optional[Dict[int, BaseException]] = None) -> AsyncGenerator[T, None]:
-        req = self._r_lookup.get(req.lower())
         _after = url_params.get('after')
         _first = True
         async with ClientSession(timeout=self.session_timeout) as session:
             while _first or _after is not None:
                 url_params['after'] = _after
                 _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
-                response = await req(session, _url, auth_type, auth_scope, data=body_data)
+                response = await self.__api_request(method, session, _url, auth_type, auth_scope, data=body_data)
                 if error_handler is not None:
                     if response.status in error_handler.keys():
                         raise error_handler[response.status]
@@ -519,7 +460,7 @@ class Twitch:
                 _first = False
 
     async def _build_iter_result(self,
-                                 req,
+                                 method: str,
                                  url: str,
                                  url_params: dict,
                                  auth_type: AuthType,
@@ -529,16 +470,16 @@ class Twitch:
                                  split_lists: bool = False,
                                  iter_field: str = 'data',
                                  in_data: bool = False):
-        req = self._r_lookup.get(req.lower())
         _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
         async with ClientSession(timeout=self.session_timeout) as session:
-            response = await req(session, _url, auth_type, auth_scope, data=body_data)
+            response = await self.__api_request(method, session, _url, auth_type, auth_scope, data=body_data)
             data = await response.json()
         url_params['after'] = data.get('pagination', {}).get('cursor')
         if in_data:
             data = data['data']
         cont_data = {
-            'req': req,
+            'req': self.__api_request,
+            'method': method,
             'url': self.base_url + url,
             'param': url_params,
             'split': split_lists,
@@ -551,7 +492,7 @@ class Twitch:
         return return_type(cont_data, **data)
 
     async def _build_result(self,
-                            req,
+                            method: str,
                             url: str,
                             url_params: dict,
                             auth_type: AuthType,
@@ -563,9 +504,8 @@ class Twitch:
                             result_type: ResultType = ResultType.RETURN_TYPE,
                             error_handler: Optional[Dict[int, BaseException]] = None):
         async with ClientSession(timeout=self.session_timeout) as session:
-            req = self._r_lookup.get(req.lower())
             _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
-            response = await req(session, _url, auth_type, auth_scope, data=body_data)
+            response = await self.__api_request(method, session, _url, auth_type, auth_scope, data=body_data)
             if error_handler is not None:
                 if response.status in error_handler.keys():
                     raise error_handler[response.status]
