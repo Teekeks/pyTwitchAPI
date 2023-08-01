@@ -343,8 +343,6 @@ class EventSubWebhook(EventSubBase):
                 self.logger.warning(f'message signature is not matching! Discarding message')
                 return web.Response(status=403)
             msg_type = request.headers['Twitch-Eventsub-Message-Type']
-            from pprint import pprint
-            pprint(msg_type)
             if msg_type.lower() == 'revocation':
                 await self._handle_revokation(data)
             else:
