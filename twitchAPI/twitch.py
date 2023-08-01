@@ -687,6 +687,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the extension specified in extension_id was not found
         :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in
                         range 1 to 100
         """
@@ -736,6 +737,7 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the game specified in game_id was not found
         :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in
                         range 1 to 100
         """
@@ -829,6 +831,7 @@ class Twitch:
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if one or more transaction IDs specified in transaction_id where not found
         :raises ValueError: if first is not in range 1 to 100
         :raises ValueError: if transaction_ids is longer than 100 entries
         """
@@ -949,6 +952,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the broadcaster is not live
         """
         param = {
             'broadcaster_id': broadcaster_id,
@@ -987,6 +991,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ValueError: if not exactly one of clip_id, broadcaster_id or game_id is given
         :raises ValueError: if first is not in range 1 to 100
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the game specified in game_id was not found
         """
         if clip_id is not None and len(clip_id) > 100:
             raise ValueError('A maximum of 100 clips can be queried in one call')
@@ -1414,6 +1419,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if description has more than 140 characters
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the user in user_id is not live, the ID is not valid or has not enabled VODs
         """
         if description is not None and len(description) > 140:
             raise ValueError('max length for description is 140')
@@ -1504,6 +1510,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if first is not in range 1 to 100 or neither user_id nor video_id is provided
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the user specified in user_id does not have videos
         """
         if first > 100 or first < 1:
             raise ValueError('first must be between 1 and 100')
@@ -1592,6 +1599,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the broadcaster was not found or is not member of a team
         """
         return await self._build_result('GET', 'teams/channel', {'broadcaster_id': broadcaster_id}, AuthType.EITHER, [], List[ChannelTeam])
 
@@ -1612,6 +1620,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if neither team_id nor name are given or if both team_id and names are given.
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the specified team was not found
         """
         if team_id is None and name is None:
             raise ValueError('You need to specify one of the two optional parameter.')
@@ -1826,6 +1835,7 @@ class Twitch:
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the extension specified in id and version was not found
         """
         dat = {'data': data.to_dict(False)}
         return await self._build_result('PUT', 'users/extensions', {}, AuthType.USER, [AuthScope.USER_EDIT_BROADCAST], UserActiveExtensions,
@@ -1862,6 +1872,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if first is not in range 1 to 100, ids has more than 100 entries or none of ids, user_id nor game_id is provided.
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the game_id was not found or all IDs in video_id where not found
         """
         if ids is None and user_id is None and game_id is None:
             raise ValueError('you must use either ids, user_id or game_id')
@@ -2047,6 +2058,7 @@ class Twitch:
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the broadcaster_id was not found
         :raises ValueError: if length is not one of these: :code:`30, 60, 90, 120, 150, 180`
         """
         if length not in [30, 60, 90, 120, 150, 180]:
@@ -2236,6 +2248,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ~twitchAPI.types.TwitchResourceNotFound: if the broadcaster has no custom reward with the given id
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the custom reward specified in reward_id was not found
         """
 
         await self._build_result('DELETE', 'channel_points/custom_rewards', {'broadcaster_id': broadcaster_id, 'id': reward_id}, AuthType.USER,
@@ -2260,6 +2273,7 @@ class Twitch:
         :raises ~twitchAPI.types.MissingScopeException: if the user or app authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if all custom rewards specified in reward_id where not found
         :raises ValueError: if if reward_id is longer than 50 entries
         """
 
@@ -2304,6 +2318,7 @@ class Twitch:
         :raises ~twitchAPI.types.MissingScopeException: if the user or app authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if all redemptions specified in redemption_id where not found
         :raises ValueError: if id has more than 50 entries
         :raises ValueError: if first is not in range 1 to 50
         :raises ValueError: if status and id are both :code:`None`
@@ -2380,8 +2395,9 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
-        :raises ~twitchAPI.types.TwitchResourceNotFound: if Channel Points are not available for the broadcaster or
+        :raises ~twitchAPI.types.TwitchAPIException: if Channel Points are not available for the broadcaster or
                         the custom reward belongs to a different broadcaster
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the custom reward specified in reward_id was not found
         :raises ValueError: if the given reward_id does not match a custom reward by the given broadcaster
         """
 
@@ -2644,6 +2660,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if none of the IDs in poll_id where found
         :raises ValueError: if first is not in range 1 to 20
         """
         if first is not None and (first < 1 or first > 20):
@@ -2827,6 +2844,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ValueError: if winning_outcome_id is None and status is RESOLVED
         :raises ValueError: if status is not one of RESOLVED, CANCELED or LOCKED
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if prediction_id or winning_outcome_id where not found
         """
         if status not in (PredictionStatus.RESOLVED, PredictionStatus.CANCELED, PredictionStatus.LOCKED):
             raise ValueError('status has to be one of RESOLVED, CANCELED or LOCKED')
@@ -2857,6 +2875,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the target channel was not found
         """
         param = {
             'from_broadcaster_id': from_broadcaster_id,
@@ -2878,6 +2897,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the broadcaster does not have a pending raid to cancel
         """
         await self._build_result('DELETE', 'raids', {'broadcaster_id': broadcaster_id}, AuthType.USER, [AuthScope.CHANNEL_MANAGE_RAIDS], None)
 
@@ -2899,6 +2919,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the message specified in msg_id was not found
         """
         body = {
             'user_id': user_id,
@@ -2996,6 +3017,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the subscription was not found
         """
         await self._build_result('DELETE', 'eventsub/subscriptions', {'id': subscription_id}, AuthType.APP, [], None)
 
@@ -3051,6 +3073,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the broadcaster has not created a streaming schedule
         :raises ValueError: if stream_segment_ids has more than 100 entries
         :raises ValueError: if first is not in range 1 to 25
         """
@@ -3105,6 +3128,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the broadcasters schedule was not found
         """
         param = {
             'broadcaster_id': broadcaster_id,
@@ -3183,6 +3207,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the specified broadcast segment was not found
         """
         param = {
             'broadcaster_id': broadcaster_id,
@@ -3266,6 +3291,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the user specified in to_user_id was not found
         :raises ValueError: if message is empty
         """
         if len(message) == 0:
@@ -3293,6 +3319,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the moderator_id or user_id where not found
         :returns: True if channel vip was removed, False if user was not a channel vip
         """
         param = {
@@ -3319,6 +3346,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ValueError: if broadcaster does not have available VIP slots or has not completed the "Build a Community" requirements
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the broadcaster_id or user_id where not found
         :returns: True if user was added as vip, False when user was already vip or is moderator
         """
         param = {
@@ -3477,6 +3505,7 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ~twitchAPI.types.ForbiddenError: if moderator_id is not a moderator of broadcaster_id
+        :raises ~twitchAPI.types.TwitchResourceNotFound: if the message_id was not found or the message was created mroe than 6 hours ago
         """
         param = {
             'broadcaster_id': broadcaster_id,
