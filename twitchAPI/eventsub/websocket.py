@@ -9,13 +9,11 @@ EventSub Websocket
 import asyncio
 import datetime
 import json
-import logging
 import threading
 from asyncio import CancelledError
 from functools import partial
-from logging import getLogger, Logger
 from time import sleep
-from typing import Optional, List, Dict, Callable
+from typing import Optional, List, Dict, Callable, Awaitable
 
 import aiohttp
 from aiohttp import ClientSession, WSMessage
@@ -26,7 +24,7 @@ from .base import EventSubBase
 __all__ = ['EventSubWebsocket']
 
 from .. import Twitch
-from ..helper import TWITCH_EVENT_SUB_WEBSOCKET_URL, TWITCH_API_BASE_URL, done_task_callback
+from ..helper import TWITCH_EVENT_SUB_WEBSOCKET_URL, done_task_callback
 from ..types import AuthType, UnauthorizedException, TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, \
     TwitchAuthorizationException
 
@@ -46,12 +44,16 @@ class EventSubWebsocket(EventSubBase):
                  twitch: Twitch,
                  connection_url: Optional[str] = None,
                  subscription_url: Optional[str] = None,
-                 callback_loop: Optional[asyncio.AbstractEventLoop] = None):
+                 callback_loop: Optional[asyncio.AbstractEventLoop] = None,
+                 revocation_handler: Optional[Callable[[dict], Awaitable[None]]] = None):
         """
         :param twitch: The Twitch instance to be used
         :param connection_url: Alternative connection URL, usefull for development with the twitch-cli
         :param subscription_url: Alternative subscription URL, usefull for development with the twitch-cli
-        :param callback_loop: The asyncio eventloop to be used for callbacks. Set this if you
+        :param callback_loop: The asyncio eventloop to be used for callbacks. \n
+            Set this if you or a library you use cares about which asyncio event loop is running the callbacks.
+            Defaults to the one used by EventSub Websocket.
+        :param revocation_handler: Optional handler for when subscriptions get revoked. |default| :code:`None`
         """
         super().__init__(twitch)
         self.logger.name = 'twitchAPI.eventsub.websocket'
@@ -71,6 +73,7 @@ class EventSubWebsocket(EventSubBase):
         self._callback_loop = callback_loop
         self._is_reconnecting: bool = False
         self._active_subscriptions = {}
+        self.revokation_handler: Optional[Callable[[dict], Awaitable[None]]] = revocation_handler
         self._task_callback = partial(done_task_callback, self.logger)
         self._reconnect_timeout: Optional[datetime.datetime] = None
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
@@ -231,8 +234,7 @@ class EventSubWebsocket(EventSubBase):
                         asyncio.ensure_future(_handler(data))
                     # debug
                     else:
-                        from pprint import pprint
-                        pprint(data)
+                        self.logger.warning(f'got message for unknown message_type: {_type}, ignoring...')
                 elif message.type == aiohttp.WSMsgType.CLOSE:
                     msg_lookup = {
                         4000: "4000 - Internal server error",
@@ -292,8 +294,16 @@ class EventSubWebsocket(EventSubBase):
         self._reconnect_timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.active_session.keepalive_timeout_seconds*2)
 
     async def _handle_revocation(self, data: dict):
-        # TODO: https://dev.twitch.tv/docs/eventsub/handling-websocket-events/#revocation-message
-        pass
+        _payload = data.get('payload', {})
+        sub_id: str = _payload.get('subscription', {}).get('id')
+        self.logger.debug(f'got revocation of subscription {sub_id} for reason {_payload.get("subscription").get("status")}')
+        if sub_id not in self._active_subscriptions.keys():
+            self.logger.warning(f'unknown subscription {sub_id} got revoked. ignore')
+            return
+        self._active_subscriptions.pop(sub_id)
+        self._callbacks.pop(sub_id)
+        t = self._callback_loop.create_task(self.revokation_handler(_payload))
+        t.add_done_callback(self._task_callback)
 
     async def _handle_reconnect(self, data: dict):
         session = data.get('payload', {}).get('session', {})

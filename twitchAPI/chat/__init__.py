@@ -590,6 +590,9 @@ class Chat:
         :param connection_url: alternative connection url |default|:code:`None`
         :param is_verified_bot: set to true if your bot is verified by twitch |default|:code:`False`
         :param initial_channel: List of channel which should be automatically joined on startup |default| :code:`None`
+        :param callback_loop: The asyncio eventloop to be used for callbacks. \n
+            Set this if you or a library you use cares about which asyncio event loop is running the callbacks.
+            Defaults to the one used by Chat.
         """
         self.logger: Logger = getLogger('twitchAPI.chat')
         """The logger used for Chat related log messages"""

@@ -96,6 +96,9 @@ class PubSub:
         """
 
         :param twitch:  A authenticated Twitch instance
+        :param callback_loop: The asyncio eventloop to be used for callbacks. \n
+            Set this if you or a library you use cares about which asyncio event loop is running the callbacks.
+            Defaults to the one used by PubSub.
         """
         self.__twitch: Twitch = twitch
         self.logger: Logger = getLogger('twitchAPI.pubsub')

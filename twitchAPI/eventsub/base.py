@@ -98,16 +98,13 @@ Class Documentation
 *******************
 """
 from ..helper import remove_none_values
-from ..types import TwitchAuthorizationException, TwitchAPIException
-from aiohttp import web
-import threading
+from ..types import TwitchAPIException
 import asyncio
 from logging import getLogger, Logger
 from ..twitch import Twitch
 from abc import ABC, abstractmethod
 
 from typing import Union, Callable, Optional, Awaitable
-
 
 __all__ = ['CALLBACK_TYPE', 'EventSubBase']
 

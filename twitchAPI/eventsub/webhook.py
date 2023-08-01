@@ -136,6 +136,9 @@ class EventSubWebhook(EventSubBase):
         :param ssl_context: optional ssl context to be used |default| :code:`None`
         :param host_binding: the host to bind the internal server to |default| :code:`0.0.0.0`
         :param subscription_url: Alternative subscription URL, usefull for development with the twitch-cli
+        :param callback_loop: The asyncio eventloop to be used for callbacks. \n
+            Set this if you or a library you use cares about which asyncio event loop is running the callbacks.
+            Defaults to the one used by EventSub Webhook.
         """
         super().__init__(twitch)
         self.logger.name = 'twitchAPI.eventsub.webhook'
