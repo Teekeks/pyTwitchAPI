@@ -2640,7 +2640,7 @@ class Twitch:
 
     async def get_polls(self,
                         broadcaster_id: str,
-                        poll_id: Optional[str] = None,
+                        poll_id: Union[None, str, List[str]] = None,
                         after: Optional[str] = None,
                         first: Optional[int] = 20) -> AsyncGenerator[Poll, None]:
         """Get information about all polls or specific polls for a Twitch channel.
@@ -2651,7 +2651,7 @@ class Twitch:
 
         :param broadcaster_id: The broadcaster running polls.
                 Provided broadcaster_id must match the user_id in the user OAuth token.
-        :param poll_id: ID of a poll. |default| :code:`None`
+        :param poll_id: ID(s) of a poll. You can specify up to 20 poll ids |default| :code:`None`
         :param after: Cursor for forward pagination. |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum 20 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
@@ -2662,7 +2662,10 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ~twitchAPI.types.TwitchResourceNotFound: if none of the IDs in poll_id where found
         :raises ValueError: if first is not in range 1 to 20
+        :raises ValueError if poll_id has more than 20 entries
         """
+        if poll_id is not None and isinstance(poll_id, List) and len(poll_id) > 20:
+            raise ValueError('You may only specify up to 20 poll IDs')
         if first is not None and (first < 1 or first > 20):
             raise ValueError('first must be in range 1 to 20')
         param = {
@@ -2671,7 +2674,7 @@ class Twitch:
             'after': after,
             'first': first
         }
-        async for y in self._build_generator('GET', 'polls', param, AuthType.USER, [AuthScope.CHANNEL_READ_POLLS], Poll):
+        async for y in self._build_generator('GET', 'polls', param, AuthType.USER, [AuthScope.CHANNEL_READ_POLLS], Poll, split_lists=True):
             yield y
 
     async def create_poll(self,
