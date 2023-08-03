@@ -674,22 +674,22 @@ class Twitch:
         Requires User authentication with scope :py:const:`~twitchAPI.types.AuthScope.ANALYTICS_READ_EXTENSION`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-extension-analytics
 
-        :param after: cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param extension_id: If this is specified, the returned URL points to an analytics report for just the
                     specified extension. |default| :code:`None`
-        :param first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
+        :param first: Maximum number of objects returned per page, range 1 to 100, |default| :code:`20`
         :param ended_at: Ending date/time for returned reports, if this is provided, `started_at` must also be specified. |default| :code:`None`
         :param started_at: Starting date/time for returned reports, if this is provided, `ended_at` must also be specified. |default| :code:`None`
         :param report_type: Type of analytics report that is returned |default| :code:`None`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
-        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
-                        and a re authentication failed
+        :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed and a re authentication failed
         :raises ~twitchAPI.types.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.types.TwitchResourceNotFound: if the extension specified in extension_id was not found
-        :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in
-                        range 1 to 100
+        :raises ValueError: When you only supply `started_at` or `ended_at` without the other or when first is not in range 1 to 100
         """
         if ended_at is not None or started_at is not None:
             # you have to put in both:
@@ -725,7 +725,9 @@ class Twitch:
         Requires User authentication with scope :py:const:`~twitchAPI.types.AuthScope.ANALYTICS_READ_GAMES`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-game-analytics
 
-        :param after: cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
         :param game_id: Game ID |default| :code:`None`
         :param ended_at: Ending date/time for returned reports, if this is provided, `started_at` must also be specified. |default| :code:`None`
@@ -824,7 +826,9 @@ class Twitch:
 
         :param extension_id: ID of the extension to list transactions for.
         :param transaction_id: Transaction IDs to look up. Can either be a list of str or str |default| :code:`None`
-        :param after: cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -979,7 +983,9 @@ class Twitch:
         :param game_id: ID of the game for which clips are returned. |default| :code:`None`
         :param clip_id: ID of the clip being queried. Limit: 100. |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
         :param ended_at: Ending date/time for returned clips |default| :code:`None`
         :param started_at: Starting date/time for returned clips |default| :code:`None`
@@ -1021,7 +1027,9 @@ class Twitch:
         Requires App or User authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-top-games
 
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
@@ -1181,7 +1189,9 @@ class Twitch:
         :param broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
         :param user_id: Filters the results and only returns a status object for users who are banned in this
                         channel and have a matching user_id. |default| :code:`None`
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
@@ -1288,7 +1298,9 @@ class Twitch:
         :param broadcaster_id: The ID of the broadcaster whose blocked terms you’re getting.
         :param moderator_id: The ID of a user that has permission to moderate the broadcaster’s chat room.
                     This ID must match the user ID associated with the user OAuth token.
-        :param after: The cursor used to get the next page of results. |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: The maximum number of blocked terms to return per page in the response. Maximum 100 |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
@@ -1379,7 +1391,9 @@ class Twitch:
         :param broadcaster_id: Provided broadcaster ID must match the user ID in the user auth token.
         :param user_ids: Filters the results and only returns a status object for users who are moderator in
                         this channel and have a matching user_id. Maximum 100 |default| :code:`None`
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
@@ -1445,7 +1459,9 @@ class Twitch:
         Requires App or User authentication.\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-streams
 
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :param game_id: Returns streams broadcasting a specified game ID. You can specify up to 100 IDs. |default| :code:`None`
@@ -1501,7 +1517,9 @@ class Twitch:
 
         :param user_id: ID of the broadcaster from whose stream markers are returned.
         :param video_id: ID of the VOD/video whose stream markers are returned.
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
         :param first: Number of values to be returned when getting videos by user or game ID. Limit: 100. |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
@@ -1539,7 +1557,9 @@ class Twitch:
 
         :param broadcaster_id: User ID of the broadcaster. Must match the User ID in the Bearer token.
         :param user_ids: Unique identifier of account to get subscription status of. Maximum 100 entries |default| :code:`None`
-        :param after: Cursor for forward pagination. |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -1680,7 +1700,9 @@ class Twitch:
         You have to use at least one of the following fields: from_id, to_id
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users-follows
 
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
         :param from_id: User ID. The request returns information about users who are being followed by the from_id user. |default| :code:`None`
         :param to_id: User ID. The request returns information about users who are following the to_id user. |default| :code:`None`
@@ -1718,7 +1740,9 @@ class Twitch:
             If specified, the response contains this user if they follow the broadcaster.
             If not specified, the response contains all users that follow the broadcaster. |default|:code:`None`
         :param first: The maximum number of items to return per page in the response. Minimum 1, Maximum 100 |default| :code:`20`
-        :param after: The cursor used to get the next page of results.
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -1754,7 +1778,9 @@ class Twitch:
             If specified, the response contains this broadcaster if the user follows them.
             If not specified, the response contains all broadcasters that the user follows. |default| :code:`None`
         :param first: The maximum number of items to return per page in the response. Minimum 1, Maximum 100 |default| :code:`20`
-        :param after: The cursor used to get the next page of results.
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -1860,7 +1886,9 @@ class Twitch:
         :param ids: ID of the video being queried. Limit: 100. |default| :code:`None`
         :param user_id: ID of the user who owns the video. |default| :code:`None`
         :param game_id: ID of the game the video is of. |default| :code:`None`
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
         :param first: Number of values to be returned when getting videos by user or game ID. Limit: 100. |default| :code:`20`
         :param language: Language of the video being queried. |default| :code:`None`
@@ -1982,7 +2010,9 @@ class Twitch:
 
         :param query: search query
         :param first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param live_only: Filter results for live streams only. |default| :code:`False`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
@@ -2010,7 +2040,9 @@ class Twitch:
 
         :param query: search query
         :param first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
@@ -2133,7 +2165,9 @@ class Twitch:
         :param entitlement_id: Unique Identifier of the entitlement |default| :code:`None`
         :param user_id: A Twitch User ID |default| :code:`None`
         :param game_id: A Twitch Game ID |default| :code:`None`
-        :param after: The cursor used to fetch the next page of data. |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: Maximum number of entitlements to return. Maximum: 100 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
@@ -2310,7 +2344,9 @@ class Twitch:
                 for redemptions with the matching status. |default| :code:`None`
         :param sort: Sort order of redemptions returned when getting the paginated Custom Reward Redemption objects for a reward.
                 |default| :code:`SortOrder.OLDEST`
-        :param after: Cursor for forward pagination. |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: Number of results to be returned when getting the paginated Custom Reward Redemption objects for a reward. Limit: 50
                 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
@@ -2539,7 +2575,9 @@ class Twitch:
 
         :param broadcaster_id: User ID for a twitch user
         :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -2618,7 +2656,9 @@ class Twitch:
 
         :param user_id: Results will only include active streams from the channels that this Twitch user follows.
                 user_id must match the User ID in the bearer token.
-        :param after: Cursor for forward pagination. |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum 100 |default| :code:`100`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
@@ -2652,7 +2692,9 @@ class Twitch:
         :param broadcaster_id: The broadcaster running polls.
                 Provided broadcaster_id must match the user_id in the user OAuth token.
         :param poll_id: ID(s) of a poll. You can specify up to 20 poll ids |default| :code:`None`
-        :param after: Cursor for forward pagination. |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum 20 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
@@ -2764,7 +2806,9 @@ class Twitch:
 
         :param broadcaster_id: The broadcaster running the prediction
         :param prediction_ids: List of prediction ids. |default| :code:`None`
-        :param after: Cursor for forward pagination. |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :param first: Maximum number of objects to return. Maximum 20 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
@@ -3038,7 +3082,9 @@ class Twitch:
         :param status: Filter subscriptions by its status. |default| :code:`None`
         :param sub_type: Filter subscriptions by subscription type. |default| :code:`None`
         :param user_id: Filter subscriptions by user ID. |default| :code:`None`
-        :param after: The cursor used to get the next page of results. |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
@@ -3070,7 +3116,9 @@ class Twitch:
         :param start_time: optional timestamp to start returning stream segments from. |default| :code:`None`
         :param utc_offset: A timezone offset to be used. |default| :code:`None`
         :param first: Maximum Number of stream segments to return. Maximum 25. |default| :code:`20`
-        :param after: Cursor for forward pagination |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
@@ -3376,7 +3424,9 @@ class Twitch:
         :param broadcaster_id: The ID of the broadcaster whose list of VIPs you want to get.
         :param user_ids: Filters the list for specific VIPs. Maximum 100 |default|:code:`None`
         :param first: The maximum number of items to return per page in the response. Maximum 100 |default|:code:`None`
-        :param after: The cursor used to get the next page of results. |default|:code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -3601,7 +3651,9 @@ class Twitch:
                     This ID must match the user ID in the user access token.
         :param first: The maximum number of items to return per page in the response.
                     The minimum page size is 1 item per page and the maximum is 1,000. |default| :code:`100`
-        :param after: The cursor used to get the next page of results |default| :code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -3702,7 +3754,9 @@ class Twitch:
 
         :param broadcaster_id: The ID of the broadcaster that’s currently running a charity campaign.
         :param first: The maximum number of items to return per page in a single response. Maximum 100 |default|:code:`20`
-        :param after: The cursor used to get the next page of results. |default|:code:`None`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
