@@ -421,7 +421,7 @@ class HypeChat:
         """The level of the Hype Chat, in English.\n
         Possible Values are:
         :code:`ONE`, :code:`TWO`, :code:`THREE`, :code:`FOUR`, :code:`FIVE`, :code:`SIX`, :code:`SEVEN`, :code:`EIGHT`, :code:`NINE`, :code:`TEN`"""
-        self.is_system_message: bool = parsed['tags'].get('pinned-chat-paid-is-system-message') == 1
+        self.is_system_message: bool = parsed['tags'].get('pinned-chat-paid-is-system-message') == '1'
         """A Boolean value that determines if the message sent with the Hype Chat was filled in by the system.\n
            If True, the user entered no message and the body message was automatically filled in by the system.\n
            If False, the user provided their own message to send with the Hype Chat."""
