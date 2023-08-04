@@ -449,6 +449,11 @@ class ChatMessage(EventData):
         """The display name of the sender of the parent message."""
         self.reply_parent_msg_body: Optional[str] = parsed['tags'].get('reply-parent-msg-body')
         """The text of the parent message"""
+        self.reply_thread_parent_msg_id: Optional[str] = parsed['tags'].get('reply-thread-parent-msg-id')
+        """An ID that uniquely identifies the top-level parent message of the reply thread that this message is replying to.
+           Is :code:`None` if this message is not a reply."""
+        self.reply_thread_parent_user_login: Optional[str] = parsed['tags'].get('reply-thread-parent-user-login')
+        """The login name of the sender of the top-level parent message. Is :code:`None` if this message is not a reply."""
         self.emotes = parsed['tags'].get('emotes')
         """The emotes used in the message"""
         self.id: str = parsed['tags'].get('id')
