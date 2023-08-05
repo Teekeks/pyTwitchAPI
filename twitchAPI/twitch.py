@@ -273,10 +273,10 @@ class Twitch:
         # ensure that asyncio actually gracefully shut down
         await asyncio.sleep(0.25)
 
-    def __generate_header(self, auth_type: 'AuthType', required_scope: List[Union[AuthScope, List[AuthScope]]]) -> dict:
+    def _generate_header(self, auth_type: 'AuthType', required_scope: List[Union[AuthScope, List[AuthScope]]]) -> dict:
         header = {"Client-ID": self.app_id}
         if auth_type == AuthType.EITHER:
-            has_auth, target, token, scope = self.__get_used_either_auth(required_scope)
+            has_auth, target, token, scope = self._get_used_either_auth(required_scope)
             if not has_auth:
                 raise UnauthorizedException('No authorization with correct scope set!')
             header['Authorization'] = f'Bearer {token}'
@@ -304,13 +304,12 @@ class Twitch:
             header['Authorization'] = f'Bearer {self.__user_auth_token}'
         elif auth_type == AuthType.NONE:
             # set one anyway for better performance if possible but don't error if none found
-            has_auth, target, token, scope = self.__get_used_either_auth(required_scope)
+            has_auth, target, token, scope = self._get_used_either_auth(required_scope)
             if has_auth:
                 header['Authorization'] = f'Bearer {token}'
         return header
 
-    def __get_used_either_auth(self, required_scope: List[AuthScope]) -> \
-            (bool, AuthType, Union[None, str], List[AuthScope]):
+    def _get_used_either_auth(self, required_scope: List[AuthScope]) -> (bool, AuthType, Union[None, str], List[AuthScope]):
         if self.has_required_auth(AuthType.USER, required_scope):
             return True, AuthType.USER, self.__user_auth_token, self.__user_auth_scope
         if self.has_required_auth(AuthType.APP, required_scope):
@@ -368,31 +367,31 @@ class Twitch:
             else:
                 self._app_token_refresh_lock = True
                 self.logger.debug('refreshing app token')
-                await self.__generate_app_token()
+                await self._generate_app_token()
                 self._app_token_refresh_lock = False
                 if self.app_auth_refresh_callback is not None:
                     await self.app_auth_refresh_callback(self.__app_auth_token)
 
-    async def __check_request_return(self,
-                                     session: ClientSession,
-                                     response: ClientResponse,
-                                     method: str,
-                                     url: str,
-                                     auth_type: 'AuthType',
-                                     required_scope: List[AuthScope],
-                                     data: Optional[dict] = None,
-                                     retries: int = 1
-                                     ) -> ClientResponse:
+    async def _check_request_return(self,
+                                    session: ClientSession,
+                                    response: ClientResponse,
+                                    method: str,
+                                    url: str,
+                                    auth_type: 'AuthType',
+                                    required_scope: List[AuthScope],
+                                    data: Optional[dict] = None,
+                                    retries: int = 1
+                                    ) -> ClientResponse:
         if self.auto_refresh_auth and retries > 0:
             if response.status == 401:
                 # unauthorized, lets try to refresh the token once
                 self.logger.debug('got 401 response -> try to refresh token')
                 await self.refresh_used_token()
-                return await self.__api_request(method, session, url, auth_type, required_scope, data=data, retries=retries - 1)
+                return await self._api_request(method, session, url, auth_type, required_scope, data=data, retries=retries - 1)
             elif response.status == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 self.logger.debug('got 503 response -> retry once')
-                return await self.__api_request(method, session, url, auth_type, required_scope, data=data, retries=retries - 1)
+                return await self._api_request(method, session, url, auth_type, required_scope, data=data, retries=retries - 1)
         elif self.auto_refresh_auth and retries <= 0:
             if response.status == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
@@ -424,19 +423,19 @@ class Twitch:
             await asyncio.sleep((reset - time.time()) + 0.1)
         return response
 
-    async def __api_request(self,
-                            method: str,
-                            session: ClientSession,
-                            url: str,
-                            auth_type: 'AuthType',
-                            required_scope: List[Union[AuthScope, List[AuthScope]]],
-                            data: Optional[dict] = None,
-                            retries: int = 1) -> ClientResponse:
+    async def _api_request(self,
+                           method: str,
+                           session: ClientSession,
+                           url: str,
+                           auth_type: 'AuthType',
+                           required_scope: List[Union[AuthScope, List[AuthScope]]],
+                           data: Optional[dict] = None,
+                           retries: int = 1) -> ClientResponse:
         """Make API request"""
-        headers = self.__generate_header(auth_type, required_scope)
+        headers = self._generate_header(auth_type, required_scope)
         self.logger.debug(f'making {method} request to {url}')
         req = await session.request(method, url, headers=headers, json=data)
-        return await self.__check_request_return(session, req, method, url, auth_type, required_scope, data, retries)
+        return await self._check_request_return(session, req, method, url, auth_type, required_scope, data, retries)
 
     async def _build_generator(self,
                                method: str,
@@ -454,7 +453,7 @@ class Twitch:
             while _first or _after is not None:
                 url_params['after'] = _after
                 _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
-                response = await self.__api_request(method, session, _url, auth_type, auth_scope, data=body_data)
+                response = await self._api_request(method, session, _url, auth_type, auth_scope, data=body_data)
                 if error_handler is not None:
                     if response.status in error_handler.keys():
                         raise error_handler[response.status]
@@ -477,13 +476,13 @@ class Twitch:
                                  in_data: bool = False):
         _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
         async with ClientSession(timeout=self.session_timeout) as session:
-            response = await self.__api_request(method, session, _url, auth_type, auth_scope, data=body_data)
+            response = await self._api_request(method, session, _url, auth_type, auth_scope, data=body_data)
             data = await response.json()
         url_params['after'] = data.get('pagination', {}).get('cursor')
         if in_data:
             data = data['data']
         cont_data = {
-            'req': self.__api_request,
+            'req': self._api_request,
             'method': method,
             'url': self.base_url + url,
             'param': url_params,
@@ -510,7 +509,7 @@ class Twitch:
                             error_handler: Optional[Dict[int, BaseException]] = None):
         async with ClientSession(timeout=self.session_timeout) as session:
             _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
-            response = await self.__api_request(method, session, _url, auth_type, auth_scope, data=body_data)
+            response = await self._api_request(method, session, _url, auth_type, auth_scope, data=body_data)
             if error_handler is not None:
                 if response.status in error_handler.keys():
                     raise error_handler[response.status]
@@ -537,7 +536,7 @@ class Twitch:
                 else:
                     return return_type(**data)
 
-    async def __generate_app_token(self) -> None:
+    async def _generate_app_token(self) -> None:
         if self.app_secret is None:
             raise MissingAppSecretException()
         params = {
@@ -568,7 +567,7 @@ class Twitch:
         :return: None
         """
         self.__app_auth_scope = scope
-        await self.__generate_app_token()
+        await self._generate_app_token()
         self.__has_app_auth = True
 
     async def set_app_authentication(self, token: str, scope: List[AuthScope]):
@@ -2182,7 +2181,7 @@ class Twitch:
         """
         if first < 1 or first > 1000:
             raise ValueError('first must be between 1 and 1000')
-        can_use, auth_type, token, scope = self.__get_used_either_auth([])
+        can_use, auth_type, token, scope = self._get_used_either_auth([])
         if auth_type == AuthType.USER:
             if user_id is not None:
                 raise ValueError('cant use user_id when using User Authentication')
