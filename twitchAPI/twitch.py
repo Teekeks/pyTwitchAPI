@@ -245,13 +245,13 @@ class Twitch:
         """If set, gets called whenever a app auth token gets refreshed. Parameter: Auth Token |default| :code:`None`"""
         self.session_timeout: Union[object, ClientTimeout] = session_timeout
         """Override the time in seconds before any request times out. Defaults to aiohttp default (300 seconds)"""
-        self.__app_auth_token: Optional[str] = None
-        self.__app_auth_scope: List[AuthScope] = []
-        self.__has_app_auth: bool = False
-        self.__user_auth_token: Optional[str] = None
-        self.__user_auth_refresh_token: Optional[str] = None
-        self.__user_auth_scope: List[AuthScope] = []
-        self.__has_user_auth: bool = False
+        self._app_auth_token: Optional[str] = None
+        self._app_auth_scope: List[AuthScope] = []
+        self._has_app_auth: bool = False
+        self._user_auth_token: Optional[str] = None
+        self._user_auth_refresh_token: Optional[str] = None
+        self._user_auth_scope: List[AuthScope] = []
+        self._has_user_auth: bool = False
         self.auto_refresh_auth: bool = True
         """If set to true, auto refresh the auth token once it expires. |default| :code:`True`"""
         self._authenticate_app = authenticate_app
@@ -281,27 +281,27 @@ class Twitch:
                 raise UnauthorizedException('No authorization with correct scope set!')
             header['Authorization'] = f'Bearer {token}'
         elif auth_type == AuthType.APP:
-            if not self.__has_app_auth:
+            if not self._has_app_auth:
                 raise UnauthorizedException('Require app authentication!')
             for s in required_scope:
                 if isinstance(s, list):
-                    if not any([x in self.__app_auth_scope for x in s]):
+                    if not any([x in self._app_auth_scope for x in s]):
                         raise MissingScopeException(f'Require at least one of the following app auth scopes: {", ".join([x.name for x in s])}')
                 else:
-                    if s not in self.__app_auth_scope:
+                    if s not in self._app_auth_scope:
                         raise MissingScopeException('Require app auth scope ' + s.name)
-            header['Authorization'] = f'Bearer {self.__app_auth_token}'
+            header['Authorization'] = f'Bearer {self._app_auth_token}'
         elif auth_type == AuthType.USER:
-            if not self.__has_user_auth:
+            if not self._has_user_auth:
                 raise UnauthorizedException('require user authentication!')
             for s in required_scope:
                 if isinstance(s, list):
-                    if not any([x in self.__user_auth_scope for x in s]):
+                    if not any([x in self._user_auth_scope for x in s]):
                         raise MissingScopeException(f'Require at least one of the following user auth scopes: {", ".join([x.name for x in s])}')
                 else:
-                    if s not in self.__user_auth_scope:
+                    if s not in self._user_auth_scope:
                         raise MissingScopeException('Require user auth scope ' + s.name)
-            header['Authorization'] = f'Bearer {self.__user_auth_token}'
+            header['Authorization'] = f'Bearer {self._user_auth_token}'
         elif auth_type == AuthType.NONE:
             # set one anyway for better performance if possible but don't error if none found
             has_auth, target, token, scope = self._get_used_either_auth(required_scope)
@@ -311,14 +311,14 @@ class Twitch:
 
     def _get_used_either_auth(self, required_scope: List[AuthScope]) -> (bool, AuthType, Union[None, str], List[AuthScope]):
         if self.has_required_auth(AuthType.USER, required_scope):
-            return True, AuthType.USER, self.__user_auth_token, self.__user_auth_scope
+            return True, AuthType.USER, self._user_auth_token, self._user_auth_scope
         if self.has_required_auth(AuthType.APP, required_scope):
-            return True, AuthType.APP, self.__app_auth_token, self.__app_auth_scope
+            return True, AuthType.APP, self._app_auth_token, self._app_auth_scope
         return False, AuthType.NONE, None, []
 
     def get_user_auth_scope(self) -> List[AuthScope]:
         """Returns the set User auth Scope"""
-        return self.__user_auth_scope
+        return self._user_auth_scope
 
     def has_required_auth(self, required_type: AuthType, required_scope: List[AuthScope]) -> bool:
         if required_type == AuthType.NONE:
@@ -327,17 +327,17 @@ class Twitch:
             return self.has_required_auth(AuthType.USER, required_scope) or \
                    self.has_required_auth(AuthType.APP, required_scope)
         if required_type == AuthType.USER:
-            if not self.__has_user_auth:
+            if not self._has_user_auth:
                 return False
             for s in required_scope:
-                if s not in self.__user_auth_scope:
+                if s not in self._user_auth_scope:
                     return False
             return True
         if required_type == AuthType.APP:
-            if not self.__has_app_auth:
+            if not self._has_app_auth:
                 return False
             for s in required_scope:
-                if s not in self.__app_auth_scope:
+                if s not in self._app_auth_scope:
                     return False
             return True
         # default to false
@@ -346,7 +346,7 @@ class Twitch:
     # FIXME rewrite refresh_used_token
     async def refresh_used_token(self):
         """Refreshes the currently used token"""
-        if self.__has_user_auth:
+        if self._has_user_auth:
             from .oauth import refresh_access_token
             if self._user_token_refresh_lock:
                 while self._user_token_refresh_lock:
@@ -354,12 +354,12 @@ class Twitch:
             else:
                 self.logger.debug('refreshing user token')
                 self._user_token_refresh_lock = True
-                self.__user_auth_token, self.__user_auth_refresh_token = await refresh_access_token(self.__user_auth_refresh_token,
-                                                                                                    self.app_id,
-                                                                                                    self.app_secret)
+                self._user_auth_token, self._user_auth_refresh_token = await refresh_access_token(self._user_auth_refresh_token,
+                                                                                                  self.app_id,
+                                                                                                  self.app_secret)
                 self._user_token_refresh_lock = False
                 if self.user_auth_refresh_callback is not None:
-                    await self.user_auth_refresh_callback(self.__user_auth_token, self.__user_auth_refresh_token)
+                    await self.user_auth_refresh_callback(self._user_auth_token, self._user_auth_refresh_token)
         else:
             if self._app_token_refresh_lock:
                 while self._app_token_refresh_lock:
@@ -370,7 +370,7 @@ class Twitch:
                 await self._generate_app_token()
                 self._app_token_refresh_lock = False
                 if self.app_auth_refresh_callback is not None:
-                    await self.app_auth_refresh_callback(self.__app_auth_token)
+                    await self.app_auth_refresh_callback(self._app_auth_token)
 
     async def _check_request_return(self,
                                     session: ClientSession,
@@ -543,7 +543,7 @@ class Twitch:
             'client_id': self.app_id,
             'client_secret': self.app_secret,
             'grant_type': 'client_credentials',
-            'scope': build_scope(self.__app_auth_scope)
+            'scope': build_scope(self._app_auth_scope)
         }
         self.logger.debug('generating fresh app token')
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', params)
@@ -553,7 +553,7 @@ class Twitch:
             raise TwitchAuthorizationException(f'Authentication failed with code {result.status} ({result.text})')
         try:
             data = await result.json()
-            self.__app_auth_token = data['access_token']
+            self._app_auth_token = data['access_token']
         except ValueError:
             raise TwitchAuthorizationException('Authentication response did not have a valid json body')
         except KeyError:
@@ -566,18 +566,18 @@ class Twitch:
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the authentication fails
         :return: None
         """
-        self.__app_auth_scope = scope
+        self._app_auth_scope = scope
         await self._generate_app_token()
-        self.__has_app_auth = True
+        self._has_app_auth = True
 
     async def set_app_authentication(self, token: str, scope: List[AuthScope]):
         """Set a app token, most likely only used for testing purposes
 
         :param token: the app token
         :param scope: List of Authorization scopes that the given app token has"""
-        self.__app_auth_token = token
-        self.__app_auth_scope = scope
-        self.__has_app_auth = True
+        self._app_auth_token = token
+        self._app_auth_scope = scope
+        self._has_app_auth = True
 
     async def set_user_authentication(self,
                                       token: str,
@@ -621,37 +621,37 @@ class Twitch:
                 if s not in scopes:
                     raise MissingScopeException(f'given token is missing scope {s.value}')
 
-        self.__user_auth_token = token
-        self.__user_auth_refresh_token = refresh_token
-        self.__user_auth_scope = scope
-        self.__has_user_auth = True
+        self._user_auth_token = token
+        self._user_auth_refresh_token = refresh_token
+        self._user_auth_scope = scope
+        self._has_user_auth = True
 
     def get_app_token(self) -> Union[str, None]:
         """Returns the app token that the api uses or None when not authenticated.
 
         :return: app token
         """
-        return self.__app_auth_token
+        return self._app_auth_token
 
     def get_user_auth_token(self) -> Union[str, None]:
         """Returns the current user auth token, None if no user Authentication is set
 
         :return: current user auth token
         """
-        return self.__user_auth_token
+        return self._user_auth_token
 
     async def get_refreshed_user_auth_token(self) -> Union[str, None]:
         """Validates the current set user auth token and returns it
 
         Will reauth if token is invalid"""
-        if self.__user_auth_token is None:
+        if self._user_auth_token is None:
             return None
         from .oauth import validate_token
-        val_result = await validate_token(self.__user_auth_token)
+        val_result = await validate_token(self._user_auth_token)
         if val_result.get('status', 200) != 200:
             # refresh token
             await self.refresh_used_token()
-        return self.__user_auth_token
+        return self._user_auth_token
 
     def get_used_token(self) -> Union[str, None]:
         """Returns the currently used token, can be either the app or user auth Token or None if no auth is set
@@ -659,7 +659,7 @@ class Twitch:
         :return: the currently used auth token or None if no Authentication is set
         """
         # if no auth is set, self.__app_auth_token will be None
-        return self.__user_auth_token if self.__has_user_auth else self.__app_auth_token
+        return self._user_auth_token if self._has_user_auth else self._app_auth_token
 
     # ======================================================================================================================
     # API calls

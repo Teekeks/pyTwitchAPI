@@ -187,8 +187,8 @@ class UserAuthenticator:
         :param force_verify: If this is true, the user will always be prompted for authorization by twitch |default| :code:`False`
         :param url: The reachable URL that will be opened in the browser. |default| :code:`http://localhost:17563`
         """
-        self.__twitch: 'Twitch' = twitch
-        self.__client_id: str = twitch.app_id
+        self._twitch: 'Twitch' = twitch
+        self._client_id: str = twitch.app_id
         self.scopes: List[AuthScope] = scopes
         self.force_verify: bool = force_verify
         self.logger: Logger = getLogger('twitchAPI.oauth')
@@ -211,18 +211,18 @@ class UserAuthenticator:
         self.host: str = '0.0.0.0'
         """the host the webserver will bind to. |default| :code:`0.0.0.0`"""
         self.state: str = str(get_uuid())
-        self.__callback_func = None
-        self.__server_running: bool = False
-        self.__loop: Union[asyncio.AbstractEventLoop, None] = None
-        self.__runner: Union[web.AppRunner, None] = None
-        self.__thread: Union[Thread, None] = None
-        self.__user_token: Union[str, None] = None
-        self.__can_close: bool = False
-        self.__is_closed = False
+        self._callback_func = None
+        self._server_running: bool = False
+        self._loop: Union[asyncio.AbstractEventLoop, None] = None
+        self._runner: Union[web.AppRunner, None] = None
+        self._thread: Union[Thread, None] = None
+        self._user_token: Union[str, None] = None
+        self._can_close: bool = False
+        self._is_closed = False
 
-    def __build_auth_url(self):
+    def _build_auth_url(self):
         params = {
-            'client_id': self.__twitch.app_id,
+            'client_id': self._twitch.app_id,
             'redirect_uri': self.url,
             'response_type': 'code',
             'scope': build_scope(self.scopes),
@@ -231,61 +231,61 @@ class UserAuthenticator:
         }
         return build_url(TWITCH_AUTH_BASE_URL + 'oauth2/authorize', params)
 
-    def __build_runner(self):
+    def _build_runner(self):
         app = web.Application()
-        app.add_routes([web.get('/', self.__handle_callback)])
+        app.add_routes([web.get('/', self._handle_callback)])
         return web.AppRunner(app)
 
-    async def __run_check(self):
-        while not self.__can_close:
+    async def _run_check(self):
+        while not self._can_close:
             await asyncio.sleep(0.1)
-        await self.__runner.shutdown()
-        await self.__runner.cleanup()
+        await self._runner.shutdown()
+        await self._runner.cleanup()
         self.logger.info('shutting down oauth Webserver')
-        self.__is_closed = True
+        self._is_closed = True
 
-    def __run(self, runner: web.AppRunner):
-        self.__runner = runner
-        self.__loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.__loop)
-        self.__loop.run_until_complete(runner.setup())
+    def _run(self, runner: web.AppRunner):
+        self._runner = runner
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
+        self._loop.run_until_complete(runner.setup())
         site = web.TCPSite(runner, self.host, self.port)
-        self.__loop.run_until_complete(site.start())
-        self.__server_running = True
+        self._loop.run_until_complete(site.start())
+        self._server_running = True
         self.logger.info('running oauth Webserver')
         try:
-            self.__loop.run_until_complete(self.__run_check())
+            self._loop.run_until_complete(self._run_check())
         except (CancelledError, asyncio.CancelledError):
             pass
 
-    def __start(self):
-        self.__thread = Thread(target=self.__run, args=(self.__build_runner(),))
-        self.__thread.start()
+    def _start(self):
+        self._thread = Thread(target=self._run, args=(self._build_runner(),))
+        self._thread.start()
 
     def stop(self):
         """Manually stop the flow
 
         :rtype: None
         """
-        self.__can_close = True
+        self._can_close = True
 
-    async def __handle_callback(self, request: web.Request):
+    async def _handle_callback(self, request: web.Request):
         val = request.rel_url.query.get('state')
         self.logger.debug(f'got callback with state {val}')
         # invalid state!
         if val != self.state:
             return web.Response(status=401)
-        self.__user_token = request.rel_url.query.get('code')
-        if self.__user_token is None:
+        self._user_token = request.rel_url.query.get('code')
+        if self._user_token is None:
             # must provide code
             return web.Response(status=400)
-        if self.__callback_func is not None:
-            self.__callback_func(self.__user_token)
+        if self._callback_func is not None:
+            self._callback_func(self._user_token)
         return web.Response(text=self.document, content_type='text/html')
 
     def return_auth_url(self):
         """Returns the URL that will authenticate the app, used for headless server environments."""
-        return self.__build_auth_url()
+        return self._build_auth_url()
 
     async def authenticate(self,
                            callback_func: Optional[Callable[[str, str], None]] = None,
@@ -309,46 +309,46 @@ class UserAuthenticator:
         :raises ~twitchAPI.types.TwitchAPIException: if authentication fails
         :rtype: None or (str, str)
         """
-        self.__callback_func = callback_func
-        self.__can_close = False
-        self.__user_token = None
-        self.__is_closed = False
+        self._callback_func = callback_func
+        self._can_close = False
+        self._user_token = None
+        self._is_closed = False
 
         if user_token is None:
-            self.__start()
+            self._start()
             # wait for the server to start up
-            while not self.__server_running:
+            while not self._server_running:
                 await asyncio.sleep(0.01)
             # open in browser
             browser = webbrowser.get(browser_name)
-            browser.open(self.__build_auth_url(), new=browser_new)
-            while self.__user_token is None:
+            browser.open(self._build_auth_url(), new=browser_new)
+            while self._user_token is None:
                 await asyncio.sleep(0.01)
             # now we need to actually get the correct token
         else:
-            self.__user_token = user_token
-            self.__is_closed = True
+            self._user_token = user_token
+            self._is_closed = True
 
         param = {
-            'client_id': self.__client_id,
-            'client_secret': self.__twitch.app_secret,
-            'code': self.__user_token,
+            'client_id': self._client_id,
+            'client_secret': self._twitch.app_secret,
+            'code': self._user_token,
             'grant_type': 'authorization_code',
             'redirect_uri': self.url
         }
         url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', param)
-        async with aiohttp.ClientSession(timeout=self.__twitch.session_timeout) as session:
+        async with aiohttp.ClientSession(timeout=self._twitch.session_timeout) as session:
             async with session.post(url) as response:
                 data: dict = await response.json()
         if callback_func is None:
             self.stop()
-            while not self.__is_closed:
+            while not self._is_closed:
                 await asyncio.sleep(0.1)
             if data.get('access_token') is None:
                 raise TwitchAPIException(f'Authentication failed:\n{str(data)}')
             return data['access_token'], data['refresh_token']
         elif user_token is not None:
-            self.__callback_func(data['access_token'], data['refresh_token'])
+            self._callback_func(data['access_token'], data['refresh_token'])
 
 
 class UserAuthenticationStorageHelper:
