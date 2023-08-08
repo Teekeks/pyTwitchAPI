@@ -683,7 +683,10 @@ class Twitch:
                     |default| :code:`None`
         :param extension_id: If this is specified, the returned URL points to an analytics report for just the
                     specified extension. |default| :code:`None`
-        :param first: Maximum number of objects returned per page, range 1 to 100, |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :param ended_at: Ending date/time for returned reports, if this is provided, `started_at` must also be specified. |default| :code:`None`
         :param started_at: Starting date/time for returned reports, if this is provided, `ended_at` must also be specified. |default| :code:`None`
         :param report_type: Type of analytics report that is returned |default| :code:`None`
@@ -732,7 +735,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :param game_id: Game ID |default| :code:`None`
         :param ended_at: Ending date/time for returned reports, if this is provided, `started_at` must also be specified. |default| :code:`None`
         :param started_at: Starting date/time for returned reports, if this is provided, `ended_at` must also be specified. |default| :code:`None`
@@ -833,7 +839,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: Maximum number of objects returned, range 1 to 100, |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
                         and a re authentication failed
@@ -986,7 +995,10 @@ class Twitch:
         :param broadcaster_id: ID of the broadcaster for whom clips are returned. |default| :code:`None`
         :param game_id: ID of the game for which clips are returned. |default| :code:`None`
         :param clip_id: ID of the clip being queried. Limit: 100. |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -1035,7 +1047,10 @@ class Twitch:
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid
@@ -1197,7 +1212,10 @@ class Twitch:
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -1305,7 +1323,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: The maximum number of blocked terms to return per page in the response. Maximum 100 |default| :code:`None`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -1398,7 +1419,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -1467,7 +1491,10 @@ class Twitch:
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :param game_id: Returns streams broadcasting a specified game ID. You can specify up to 100 IDs. |default| :code:`None`
         :param language: Stream language. You can specify up to 100 languages. |default| :code:`None`
         :param user_id: Returns streams broadcast by one or more specified user IDs. You can specify up to 100 IDs. |default| :code:`None`
@@ -1525,7 +1552,10 @@ class Twitch:
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
-        :param first: Number of values to be returned when getting videos by user or game ID. Limit: 100. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -1564,7 +1594,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
@@ -1707,7 +1740,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :param from_id: User ID. The request returns information about users who are being followed by the from_id user. |default| :code:`None`
         :param to_id: User ID. The request returns information about users who are following the to_id user. |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
@@ -1743,7 +1779,10 @@ class Twitch:
         :param user_id: A user’s ID. Use this parameter to see whether the user follows this broadcaster.
             If specified, the response contains this user if they follow the broadcaster.
             If not specified, the response contains all users that follow the broadcaster. |default|:code:`None`
-        :param first: The maximum number of items to return per page in the response. Minimum 1, Maximum 100 |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                    You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                    fetch the amount of results you desire.\n
+                    Minimum 1, Maximum 100 |default| :code:`20`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -1781,7 +1820,10 @@ class Twitch:
         :param broadcaster_id: A broadcaster’s ID. Use this parameter to see whether the user follows this broadcaster.
             If specified, the response contains this broadcaster if the user follows them.
             If not specified, the response contains all broadcasters that the user follows. |default| :code:`None`
-        :param first: The maximum number of items to return per page in the response. Minimum 1, Maximum 100 |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -1894,7 +1936,10 @@ class Twitch:
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
         :param before: Cursor for backward pagination |default| :code:`None`
-        :param first: Number of values to be returned when getting videos by user or game ID. Limit: 100. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :param language: Language of the video being queried. |default| :code:`None`
         :param period: Period during which the video was created. |default| :code:`TimePeriod.ALL`
         :param sort: Sort order of the videos. |default| :code:`SortMethod.TIME`
@@ -2013,7 +2058,10 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#search-channels
 
         :param query: search query
-        :param first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -2043,7 +2091,10 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#search-categories
 
         :param query: search query
-        :param first: Maximum number of objects to return. Maximum: 100 |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -2135,7 +2186,10 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-hype-train-events
 
         :param broadcaster_id: User ID of the broadcaster.
-        :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`1`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`1`
         :param cursor: Cursor for forward pagination |default| :code:`None`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
@@ -2172,7 +2226,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: Maximum number of entitlements to return. Maximum: 100 |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
@@ -2351,8 +2408,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: Number of results to be returned when getting the paginated Custom Reward Redemption objects for a reward. Limit: 50
-                |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 50 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user or app authentication is missing the required scope
@@ -2578,7 +2637,10 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-block-list
 
         :param broadcaster_id: User ID for a twitch user
-        :param first: Maximum number of objects to return. Maximum: 100. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`20`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -2663,7 +2725,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum 100 |default| :code:`100`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default| :code:`100`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -2699,7 +2764,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum 20 |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 20 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -2813,7 +2881,10 @@ class Twitch:
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
-        :param first: Maximum number of objects to return. Maximum 20 |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 20 |default| :code:`20`
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.types.MissingScopeException: if the user authentication is missing the required scope
@@ -3119,7 +3190,10 @@ class Twitch:
         :param stream_segment_ids: optional list of stream segment ids. Maximum 100 entries. |default| :code:`None`
         :param start_time: optional timestamp to start returning stream segments from. |default| :code:`None`
         :param utc_offset: A timezone offset to be used. |default| :code:`None`
-        :param first: Maximum Number of stream segments to return. Maximum 25. |default| :code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 25 |default| :code:`20`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -3427,7 +3501,10 @@ class Twitch:
 
         :param broadcaster_id: The ID of the broadcaster whose list of VIPs you want to get.
         :param user_ids: Filters the list for specific VIPs. Maximum 100 |default|:code:`None`
-        :param first: The maximum number of items to return per page in the response. Maximum 100 |default|:code:`None`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default|:code:`None`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -3653,8 +3730,10 @@ class Twitch:
         :param broadcaster_id: The ID of the broadcaster whose list of chatters you want to get.
         :param moderator_id: The ID of the broadcaster or one of the broadcaster’s moderators.
                     This ID must match the user ID in the user access token.
-        :param first: The maximum number of items to return per page in the response.
-                    The minimum page size is 1 item per page and the maximum is 1,000. |default| :code:`100`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 1000 |default| :code:`100`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -3757,7 +3836,10 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-charity-campaign-donations
 
         :param broadcaster_id: The ID of the broadcaster that’s currently running a charity campaign.
-        :param first: The maximum number of items to return per page in a single response. Maximum 100 |default|:code:`20`
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used the
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default|:code:`20`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
