@@ -25,7 +25,7 @@ __all__ = ['EventSubWebsocket']
 
 from .. import Twitch
 from ..helper import TWITCH_EVENT_SUB_WEBSOCKET_URL, done_task_callback
-from ..types import AuthType, UnauthorizedException, TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, \
+from ..type import AuthType, UnauthorizedException, TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, \
     TwitchAuthorizationException
 
 

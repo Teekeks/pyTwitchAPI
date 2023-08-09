@@ -264,9 +264,7 @@ Class Documentation
 import asyncio
 import dataclasses
 import datetime
-import sys
 import threading
-import traceback
 from asyncio import CancelledError
 from functools import partial
 from logging import getLogger, Logger
@@ -275,9 +273,9 @@ import aiohttp
 
 
 from twitchAPI.twitch import Twitch
-from twitchAPI.object import TwitchUser
+from twitchAPI.object.api import TwitchUser
 from twitchAPI.helper import TWITCH_CHAT_URL, first, RateLimitBucket, RATE_LIMIT_SIZES, done_task_callback
-from twitchAPI.types import ChatRoom, TwitchBackendException, AuthType, AuthScope, ChatEvent, UnauthorizedException
+from twitchAPI.type import ChatRoom, TwitchBackendException, AuthType, AuthScope, ChatEvent, UnauthorizedException
 
 from typing import List, Optional, Union, Callable, Dict, Awaitable, Any, TYPE_CHECKING
 

@@ -98,7 +98,7 @@ Class Documentation
 *******************
 """
 from ..helper import remove_none_values
-from ..types import TwitchAPIException
+from ..type import TwitchAPIException
 import asyncio
 from logging import getLogger, Logger
 from ..twitch import Twitch

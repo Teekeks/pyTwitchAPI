@@ -69,7 +69,7 @@ import aiohttp
 from aiohttp import ClientSession
 
 from .twitch import Twitch
-from .types import *
+from .type import *
 from .helper import get_uuid, make_enum, TWITCH_PUB_SUB_URL, done_task_callback
 import asyncio
 import threading

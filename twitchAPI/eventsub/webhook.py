@@ -110,9 +110,9 @@ import datetime
 from aiohttp import web, ClientSession
 
 from .base import EventSubBase
-from .. import Twitch
+from ..twitch import Twitch
 from ..helper import done_task_callback
-from ..types import TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, EventSubSubscriptionTimeout, \
+from ..type import TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, EventSubSubscriptionTimeout, \
     TwitchAuthorizationException
 
 __all__ = ['EventSubWebhook']

@@ -12,7 +12,7 @@ from logging import Logger
 from typing import AsyncGenerator, TypeVar
 from enum import Enum
 
-from .types import AuthScope
+from .type import AuthScope
 
 from typing import Union, List, Type, Optional
 

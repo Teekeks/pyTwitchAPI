@@ -207,8 +207,8 @@ from aiohttp.client import ClientTimeout
 from .helper import TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, enum_value_or_none, datetime_to_str, remove_none_values, ResultType, \
     build_url
 from logging import getLogger, Logger
-from .object import *
-from .types import *
+from .object.api import *
+from .type import *
 from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict, Awaitable
 
 __all__ = ['Twitch']
