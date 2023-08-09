@@ -380,7 +380,7 @@ Indices and tables
    twitchAPI.chat
    twitchAPI.chat.middleware
    twitchAPI.oauth
-   twitchAPI.types
+   twitchAPI.type
    twitchAPI.helper
    twitchAPI.object
 

@@ -1,5 +1,5 @@
 ﻿
-.. automodule:: twitchAPI.types
+.. automodule:: twitchAPI.type
     :members:
     :undoc-members:
     :show-inheritance:
