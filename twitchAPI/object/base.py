@@ -1,4 +1,8 @@
 #  Copyright (c) 2023. Lena "Teekeks" During <info@teawork.de>
+"""
+Base Objects used by the Library
+--------------------------------
+"""
 from datetime import datetime
 from enum import Enum
 from typing import TypeVar, Union, Generic, Optional

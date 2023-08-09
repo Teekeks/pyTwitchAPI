@@ -2,6 +2,13 @@
 """
 Objects used by this Library
 ----------------------------
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   twitchAPI.object.base
+   twitchAPI.object.api
 """
 
 __all__ = []
