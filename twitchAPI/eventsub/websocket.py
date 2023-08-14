@@ -23,7 +23,7 @@ from .base import EventSubBase
 
 __all__ = ['EventSubWebsocket']
 
-from .. import Twitch
+from twitchAPI.twitch import Twitch
 from ..helper import TWITCH_EVENT_SUB_WEBSOCKET_URL, done_task_callback
 from ..type import AuthType, UnauthorizedException, TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, \
     TwitchAuthorizationException
@@ -116,7 +116,7 @@ class EventSubWebsocket(EventSubBase):
             'session_id': self.active_session.id
         }
 
-    async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback) -> str:
+    async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback, event, is_batching_enabled: Optional[bool] = None) -> str:
         if not asyncio.iscoroutinefunction(callback):
             raise ValueError('callback needs to be a async function which takes one parameter')
         self.logger.debug(f'subscribe to {sub_type} version {sub_version} with condition {condition}')
@@ -126,6 +126,8 @@ class EventSubWebsocket(EventSubBase):
             'condition': condition,
             'transport': self._get_transport()
         }
+        if is_batching_enabled is not None:
+            data['is_batching_enabled'] = is_batching_enabled
         async with ClientSession(timeout=self._twitch.session_timeout) as session:
             sub_base = self.subscription_url if self.subscription_url is not None else self._twitch.base_url
             r_data = await self._api_post_request(session, sub_base + 'eventsub/subscriptions', data=data)
@@ -139,13 +141,14 @@ class EventSubWebsocket(EventSubBase):
             raise EventSubSubscriptionError(result.get('message'))
         sub_id = result['data'][0]['id']
         self.logger.debug(f'subscription for {sub_type} version {sub_version} with condition {condition} has id {sub_id}')
-        self._add_callback(sub_id, callback)
+        self._add_callback(sub_id, callback, event)
         self._callbacks[sub_id]['active'] = True
         self._active_subscriptions[sub_id] = {
             'sub_type': sub_type,
             'sub_version': sub_version,
             'condition': condition,
-            'callback': callback
+            'callback': callback,
+            'event': event
         }
         return sub_id
 
@@ -340,6 +343,6 @@ class EventSubWebsocket(EventSubBase):
         if callback is None:
             self.logger.error(f'received event for unknown subscription with ID {sub_id}')
         else:
-            t = self._callback_loop.create_task(callback['callback'](_payload))
+            t = self._callback_loop.create_task(callback['callback'](callback['event'](**_payload)))
             t.add_done_callback(self._task_callback)
 

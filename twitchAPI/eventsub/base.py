@@ -97,6 +97,17 @@ Code Example
 Class Documentation
 *******************
 """
+from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent, ChannelFollowEvent, ChannelSubscribeEvent,
+                                       ChannelSubscribtionEndEvent,  ChannelSubscribtionGiftEvent, ChannelSubscriptionMessageEvent,
+                                       ChannelCheerEvent, ChannelRaidEvent, ChannelBanEvent, ChannelUnbanEvent,
+                                       ChannelModeratorAddEvent, ChannelModeratorRemoveEvent, ChannelPointsCustomRewardAddEvent,
+                                       ChannelPointsCustomRewardUpdateEvent, ChannelPointsCustomRewardRemoveEvent,
+                                       ChannelPointsCustomRewardRedemptionAddEvent, ChannelPointsCustomRewardRedemptionUpdateEvent,
+                                       ChannelPollProgressEvent, ChannelPollEndEvent, ChannelPredictionEvent, ChannelPredictionEndEvent,
+                                       DropEntitlementGrantEvent, ExtensionBitsTransactionCreateEvent, GoalEvent, HypeTrainEvent, HypeTrainEndEvent,
+                                       StreamOnlineEvent, StreamOfflineEvent, UserAuthorizationGrantEvent, UserAuthorizationRevokeEvent,
+                                       UserUpdateEvent, ShieldModeEvent, CharityCampaignStartEvent, CharityCampaignProgressEvent,
+                                       CharityCampaignStopEvent, CharityDonationEvent, ChannelShoutoutCreateEvent, ChannelShoutoutReceiveEvent)
 from ..helper import remove_none_values
 from ..type import TwitchAPIException
 import asyncio
@@ -158,8 +169,8 @@ class EventSubBase(ABC):
         headers = self._build_request_header()
         return await session.post(url, headers=headers, json=data)
 
-    def _add_callback(self, c_id: str, callback):
-        self._callbacks[c_id] = {'id': c_id, 'callback': callback, 'active': False}
+    def _add_callback(self, c_id: str, callback, event):
+        self._callbacks[c_id] = {'id': c_id, 'callback': callback, 'active': False, 'event': event}
 
     async def _activate_callback(self, c_id: str):
         if c_id not in self._callbacks:
@@ -169,7 +180,7 @@ class EventSubBase(ABC):
         self._callbacks[c_id]['active'] = True
 
     @abstractmethod
-    async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback) -> str:
+    async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback, event, is_batching_enabled: Optional[bool] = None) -> str:
         pass
 
     # ==================================================================================================================
@@ -226,7 +237,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.update', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.update', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     ChannelUpdateEvent)
 
     async def listen_channel_update_v2(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A broadcaster updates their channel properties e.g., category, title, content classification labels or language.
@@ -244,7 +256,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.update', '2', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.update', '2', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     ChannelUpdateEvent)
 
     async def listen_channel_follow(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A specified channel receives a follow.
@@ -263,7 +276,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     ChannelFollowEvent)
 
     async def listen_channel_follow_v2(self,
                                        broadcaster_user_id: str,
@@ -288,7 +302,8 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.follow',
                                      '2',
                                      {'broadcaster_user_id': broadcaster_user_id, 'moderator_user_id': moderator_user_id},
-                                     callback)
+                                     callback,
+                                     ChannelFollowEvent)
 
     async def listen_channel_subscribe(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A notification when a specified channel receives a subscriber. This does not include resubscribes.
@@ -306,7 +321,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.subscribe', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.subscribe', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     ChannelSubscribeEvent)
 
     async def listen_channel_subscription_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A notification when a subscription to the specified channel ends.
@@ -324,7 +340,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.subscription.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.subscription.end', '1', {'broadcaster_user_id': broadcaster_user_id},
+                                     callback, ChannelSubscribtionEndEvent)
 
     async def listen_channel_subscription_gift(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A notification when a viewer gives a gift subscription to one or more users in the specified channel.
@@ -342,7 +359,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.subscription.gift', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.subscription.gift', '1', {'broadcaster_user_id': broadcaster_user_id},
+                                     callback, ChannelSubscribtionGiftEvent)
 
     async def listen_channel_subscription_message(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A notification when a user sends a resubscription chat message in a specific channel.
@@ -363,7 +381,8 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.subscription.message',
                                      '1',
                                      {'broadcaster_user_id': broadcaster_user_id},
-                                     callback)
+                                     callback,
+                                     ChannelSubscriptionMessageEvent)
 
     async def listen_channel_cheer(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A user cheers on the specified channel.
@@ -384,7 +403,8 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.cheer',
                                      '1',
                                      {'broadcaster_user_id': broadcaster_user_id},
-                                     callback)
+                                     callback,
+                                     ChannelCheerEvent)
 
     async def listen_channel_raid(self,
                                   callback: CALLBACK_TYPE,
@@ -411,7 +431,8 @@ class EventSubBase(ABC):
                                      remove_none_values({
                                          'from_broadcaster_user_id': from_broadcaster_user_id,
                                          'to_broadcaster_user_id': to_broadcaster_user_id}),
-                                     callback)
+                                     callback,
+                                     ChannelRaidEvent)
 
     async def listen_channel_ban(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A viewer is banned from the specified channel.
@@ -432,7 +453,8 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.ban',
                                      '1',
                                      {'broadcaster_user_id': broadcaster_user_id},
-                                     callback)
+                                     callback,
+                                     ChannelBanEvent)
 
     async def listen_channel_unban(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A viewer is unbanned from the specified channel.
@@ -453,7 +475,8 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.unban',
                                      '1',
                                      {'broadcaster_user_id': broadcaster_user_id},
-                                     callback)
+                                     callback,
+                                     ChannelUnbanEvent)
 
     async def listen_channel_moderator_add(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """Moderator privileges were added to a user on a specified channel.
@@ -474,7 +497,8 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.moderator.add',
                                      '1',
                                      {'broadcaster_user_id': broadcaster_user_id},
-                                     callback)
+                                     callback,
+                                     ChannelModeratorAddEvent)
 
     async def listen_channel_moderator_remove(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """Moderator privileges were removed from a user on a specified channel.
@@ -495,7 +519,8 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.moderator.remove',
                                      '1',
                                      {'broadcaster_user_id': broadcaster_user_id},
-                                     callback)
+                                     callback,
+                                     ChannelModeratorRemoveEvent)
 
     async def listen_channel_points_custom_reward_add(self, broadcaster_user_id: str,
                                                       callback: CALLBACK_TYPE) -> str:
@@ -518,7 +543,8 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.channel_points_custom_reward.add',
                                      '1',
                                      {'broadcaster_user_id': broadcaster_user_id},
-                                     callback)
+                                     callback,
+                                     ChannelPointsCustomRewardAddEvent)
 
     async def listen_channel_points_custom_reward_update(self,
                                                          broadcaster_user_id: str,
@@ -546,7 +572,8 @@ class EventSubBase(ABC):
                                      remove_none_values({
                                          'broadcaster_user_id': broadcaster_user_id,
                                          'reward_id': reward_id}),
-                                     callback)
+                                     callback,
+                                     ChannelPointsCustomRewardUpdateEvent)
 
     async def listen_channel_points_custom_reward_remove(self,
                                                          broadcaster_user_id: str,
@@ -574,7 +601,8 @@ class EventSubBase(ABC):
                                      remove_none_values({
                                          'broadcaster_user_id': broadcaster_user_id,
                                          'reward_id': reward_id}),
-                                     callback)
+                                     callback,
+                                     ChannelPointsCustomRewardRemoveEvent)
 
     async def listen_channel_points_custom_reward_redemption_add(self,
                                                                  broadcaster_user_id: str,
@@ -603,7 +631,8 @@ class EventSubBase(ABC):
                                      remove_none_values({
                                          'broadcaster_user_id': broadcaster_user_id,
                                          'reward_id': reward_id}),
-                                     callback)
+                                     callback,
+                                     ChannelPointsCustomRewardRedemptionAddEvent)
 
     async def listen_channel_points_custom_reward_redemption_update(self,
                                                                     broadcaster_user_id: str,
@@ -632,7 +661,8 @@ class EventSubBase(ABC):
                                      remove_none_values({
                                          'broadcaster_user_id': broadcaster_user_id,
                                          'reward_id': reward_id}),
-                                     callback)
+                                     callback,
+                                     ChannelPointsCustomRewardRedemptionUpdateEvent)
 
     async def listen_channel_poll_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A poll started on a specified channel.
@@ -651,7 +681,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.poll.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.poll.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     ChannelPollBeginEvent)
 
     async def listen_channel_poll_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """Users respond to a poll on a specified channel.
@@ -670,7 +701,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.poll.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.poll.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     ChannelPollProgressEvent)
 
     async def listen_channel_poll_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A poll ended on a specified channel.
@@ -689,7 +721,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.poll.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.poll.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     ChannelPollEndEvent)
 
     async def listen_channel_prediction_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Prediction started on a specified channel.
@@ -708,7 +741,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.prediction.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.prediction.begin', '1', {'broadcaster_user_id': broadcaster_user_id},
+                                     callback, ChannelPredictionEvent)
 
     async def listen_channel_prediction_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """Users participated in a Prediction on a specified channel.
@@ -727,7 +761,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.prediction.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.prediction.progress', '1', {'broadcaster_user_id': broadcaster_user_id},
+                                     callback, ChannelPredictionEvent)
 
     async def listen_channel_prediction_lock(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Prediction was locked on a specified channel.
@@ -746,7 +781,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.prediction.lock', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.prediction.lock', '1', {'broadcaster_user_id': broadcaster_user_id},
+                                     callback, ChannelPredictionEvent)
 
     async def listen_channel_prediction_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Prediction ended on a specified channel.
@@ -765,7 +801,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.prediction.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.prediction.end', '1', {'broadcaster_user_id': broadcaster_user_id},
+                                     callback, ChannelPredictionEndEvent)
 
     async def listen_drop_entitlement_grant(self,
                                             organisation_id: str,
@@ -796,7 +833,7 @@ class EventSubBase(ABC):
                                          'category_id': category_id,
                                          'campaign_id': campaign_id
                                      }),
-                                     callback)
+                                     callback, DropEntitlementGrantEvent, is_batching_enabled=True)
 
     async def listen_extension_bits_transaction_create(self,
                                                        extension_client_id: str,
@@ -816,7 +853,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('extension.bits_transaction.create', '1', {'extension_client_id': extension_client_id}, callback)
+        return await self._subscribe('extension.bits_transaction.create', '1', {'extension_client_id': extension_client_id}, callback,
+                                     ExtensionBitsTransactionCreateEvent)
 
     async def listen_goal_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A goal begins on the specified channel.
@@ -834,7 +872,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.goal.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.goal.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     GoalEvent)
 
     async def listen_goal_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A goal makes progress on the specified channel.
@@ -852,7 +891,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.goal.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.goal.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     GoalEvent)
 
     async def listen_goal_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A goal ends on the specified channel.
@@ -870,7 +910,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.goal.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.goal.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     GoalEvent)
 
     async def listen_hype_train_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Hype Train begins on the specified channel.
@@ -888,7 +929,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.hype_train.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.hype_train.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     HypeTrainEvent)
 
     async def listen_hype_train_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Hype Train makes progress on the specified channel.
@@ -906,7 +948,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.hype_train.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.hype_train.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     HypeTrainEvent)
 
     async def listen_hype_train_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """A Hype Train ends on the specified channel.
@@ -924,7 +967,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('channel.hype_train.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('channel.hype_train.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
+                                     HypeTrainEndEvent)
 
     async def listen_stream_online(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """The specified broadcaster starts a stream.
@@ -942,7 +986,7 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('stream.online', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('stream.online', '1', {'broadcaster_user_id': broadcaster_user_id}, callback, StreamOnlineEvent)
 
     async def listen_stream_offline(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
         """The specified broadcaster stops a stream.
@@ -960,7 +1004,7 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('stream.offline', '1', {'broadcaster_user_id': broadcaster_user_id}, callback)
+        return await self._subscribe('stream.offline', '1', {'broadcaster_user_id': broadcaster_user_id}, callback, StreamOfflineEvent)
 
     async def listen_user_authorization_grant(self, client_id: str, callback: CALLBACK_TYPE) -> str:
         """A user’s authorization has been granted to your client id.
@@ -978,7 +1022,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('user.authorization.grant', '1', {'client_id': client_id}, callback)
+        return await self._subscribe('user.authorization.grant', '1', {'client_id': client_id}, callback,
+                                     UserAuthorizationGrantEvent)
 
     async def listen_user_authorization_revoke(self, client_id: str, callback: CALLBACK_TYPE) -> str:
         """A user’s authorization has been revoked for your client id.
@@ -996,7 +1041,8 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('user.authorization.revoke', '1', {'client_id': client_id}, callback)
+        return await self._subscribe('user.authorization.revoke', '1', {'client_id': client_id}, callback,
+                                     UserAuthorizationRevokeEvent)
 
     async def listen_user_update(self, user_id: str, callback: CALLBACK_TYPE) -> str:
         """A user has updated their account.
@@ -1015,7 +1061,7 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
-        return await self._subscribe('user.update', '1', {'user_id': user_id}, callback)
+        return await self._subscribe('user.update', '1', {'user_id': user_id}, callback, UserUpdateEvent)
 
     async def listen_channel_shield_mode_begin(self,
                                                broadcaster_user_id: str,
@@ -1042,7 +1088,7 @@ class EventSubBase(ABC):
             'broadcaster_user_id': broadcaster_user_id,
             'moderator_user_id': moderator_user_id
         }
-        return await self._subscribe('channel.shield_mode.begin', '1', param, callback)
+        return await self._subscribe('channel.shield_mode.begin', '1', param, callback, ShieldModeEvent)
 
     async def listen_channel_shield_mode_end(self,
                                              broadcaster_user_id: str,
@@ -1069,7 +1115,7 @@ class EventSubBase(ABC):
             'broadcaster_user_id': broadcaster_user_id,
             'moderator_user_id': moderator_user_id
         }
-        return await self._subscribe('channel.shield_mode.end', '1', param, callback)
+        return await self._subscribe('channel.shield_mode.end', '1', param, callback, ShieldModeEvent)
 
     async def listen_channel_charity_campaign_start(self,
                                                     broadcaster_user_id: str,
@@ -1090,7 +1136,7 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {'broadcaster_user_id': broadcaster_user_id}
-        return await self._subscribe('channel.charity_campaign.start', '1', param, callback)
+        return await self._subscribe('channel.charity_campaign.start', '1', param, callback, CharityCampaignStartEvent)
 
     async def listen_channel_charity_campaign_progress(self,
                                                        broadcaster_user_id: str,
@@ -1112,7 +1158,7 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {'broadcaster_user_id': broadcaster_user_id}
-        return await self._subscribe('channel.charity_campaign.progress', '1', param, callback)
+        return await self._subscribe('channel.charity_campaign.progress', '1', param, callback, CharityCampaignProgressEvent)
 
     async def listen_channel_charity_campaign_stop(self,
                                                    broadcaster_user_id: str,
@@ -1133,7 +1179,7 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {'broadcaster_user_id': broadcaster_user_id}
-        return await self._subscribe('channel.charity_campaign.stop', '1', param, callback)
+        return await self._subscribe('channel.charity_campaign.stop', '1', param, callback, CharityCampaignStopEvent)
 
     async def listen_channel_charity_campaign_donate(self,
                                                      broadcaster_user_id: str,
@@ -1154,7 +1200,7 @@ class EventSubBase(ABC):
         :raises ~twitchAPI.types.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {'broadcaster_user_id': broadcaster_user_id}
-        return await self._subscribe('channel.charity_campaign.donate', '1', param, callback)
+        return await self._subscribe('channel.charity_campaign.donate', '1', param, callback, CharityDonationEvent)
 
     async def listen_channel_shoutout_create(self,
                                              broadcaster_user_id: str,
@@ -1175,7 +1221,7 @@ class EventSubBase(ABC):
             'broadcaster_user_id': broadcaster_user_id,
             'moderator_user_id': moderator_user_id
         }
-        return await self._subscribe('channel.shoutout.create', '1', param, callback)
+        return await self._subscribe('channel.shoutout.create', '1', param, callback, ChannelShoutoutCreateEvent)
 
     async def listen_channel_shoutout_receive(self,
                                               broadcaster_user_id: str,
@@ -1196,4 +1242,4 @@ class EventSubBase(ABC):
             'broadcaster_user_id': broadcaster_user_id,
             'moderator_user_id': moderator_user_id
         }
-        return await self._subscribe('channel.shoutout.receive', '1', param, callback)
+        return await self._subscribe('channel.shoutout.receive', '1', param, callback, ChannelShoutoutReceiveEvent)

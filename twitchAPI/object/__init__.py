@@ -9,6 +9,14 @@ Objects used by this Library
 
    twitchAPI.object.base
    twitchAPI.object.api
+   twitchAPI.object.eventsub
+
+.. autosummary::
+
+   twitchAPI.object.base
+   twitchAPI.object.api
+   twitchAPI.object.eventsub
+
 """
 
 __all__ = []

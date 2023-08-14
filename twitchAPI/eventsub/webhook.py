@@ -109,7 +109,7 @@ import datetime
 
 from aiohttp import web, ClientSession
 
-from .base import EventSubBase
+from twitchAPI.eventsub.base import EventSubBase
 from ..twitch import Twitch
 from ..helper import done_task_callback
 from ..type import TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, EventSubSubscriptionTimeout, \
@@ -259,7 +259,7 @@ class EventSubWebhook(EventSubBase):
             'Authorization': f'Bearer {token}'
         }
 
-    async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback) -> str:
+    async def _subscribe(self, sub_type: str, sub_version: str, condition: dict, callback, event, is_batching_enabled: Optional[bool] = None) -> str:
         """"Subscribe to Twitch Topic"""
         if not asyncio.iscoroutinefunction(callback):
             raise ValueError('callback needs to be a async function which takes one parameter')
@@ -270,6 +270,8 @@ class EventSubWebhook(EventSubBase):
             'condition': condition,
             'transport': self._get_transport()
         }
+        if is_batching_enabled is not None:
+            data['is_batching_enabled'] = is_batching_enabled
 
         async with ClientSession(timeout=self._twitch.session_timeout) as session:
             sub_base = self.subscription_url if self.subscription_url is not None else self._twitch.base_url
@@ -284,7 +286,7 @@ class EventSubWebhook(EventSubBase):
             raise EventSubSubscriptionError(result.get('message'))
         sub_id = result['data'][0]['id']
         self.logger.debug(f'subscription for {sub_type} version {sub_version} with condition {condition} has id {sub_id}')
-        self._add_callback(sub_id, callback)
+        self._add_callback(sub_id, callback, event)
         if self.wait_for_subscription_confirm:
             timeout = datetime.datetime.utcnow() + datetime.timedelta(
                 seconds=self.wait_for_subscription_confirm_timeout)
@@ -349,6 +351,7 @@ class EventSubWebhook(EventSubBase):
             if msg_type.lower() == 'revocation':
                 await self._handle_revokation(data)
             else:
-                t = self._callback_loop.create_task(callback['callback'](data))
+                dat = callback['event'](**data)
+                t = self._callback_loop.create_task(callback['callback'](dat))
                 t.add_done_callback(self._task_callback)
         return web.Response(status=200)

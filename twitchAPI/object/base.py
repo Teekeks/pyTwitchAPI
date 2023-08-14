@@ -10,7 +10,7 @@ from typing import TypeVar, Union, Generic, Optional
 from aiohttp import ClientSession
 from dateutil import parser as du_parser
 
-from ..helper import build_url
+from twitchAPI.helper import build_url
 
 T = TypeVar('T')
 
