@@ -9,8 +9,8 @@ from twitchAPI.object.base import TwitchObject
 from datetime import datetime
 from typing import List, Optional
 
-__all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 'ChannelSubscribeEvent', 'ChannelSubscribtionEndEvent',
-           'ChannelSubscribtionGiftEvent', 'ChannelSubscriptionMessageEvent', 'ChannelCheerEvent', 'ChannelRaidEvent', 'ChannelBanEvent',
+__all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 'ChannelSubscribeEvent', 'ChannelSubscriptionEndEvent',
+           'ChannelSubscriptionGiftEvent', 'ChannelSubscriptionMessageEvent', 'ChannelCheerEvent', 'ChannelRaidEvent', 'ChannelBanEvent',
            'ChannelUnbanEvent', 'ChannelModeratorAddEvent', 'ChannelModeratorRemoveEvent', 'ChannelPointsCustomRewardAddEvent',
            'ChannelPointsCustomRewardUpdateEvent', 'ChannelPointsCustomRewardRemoveEvent', 'ChannelPointsCustomRewardRedemptionAddEvent',
            'ChannelPointsCustomRewardRedemptionUpdateEvent', 'ChannelPollProgressEvent', 'ChannelPollEndEvent', 'ChannelPredictionEvent',
@@ -1043,12 +1043,12 @@ class ChannelSubscribeEvent(TwitchObject):
     event: ChannelSubscribeData
 
 
-class ChannelSubscribtionEndEvent(TwitchObject):
+class ChannelSubscriptionEndEvent(TwitchObject):
     subscription: Subscription
     event: ChannelSubscribeData
 
 
-class ChannelSubscribtionGiftEvent(TwitchObject):
+class ChannelSubscriptionGiftEvent(TwitchObject):
     subscription: Subscription
     event: ChannelSubscriptionGiftData
 
