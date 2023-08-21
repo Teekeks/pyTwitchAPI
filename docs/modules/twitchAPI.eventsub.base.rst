@@ -1,5 +1,5 @@
 ﻿:orphan:
-.. automodule:: twitchAPI.eventsub.webhook
+.. automodule:: twitchAPI.eventsub.base
     :members:
     :undoc-members:
     :show-inheritance:
