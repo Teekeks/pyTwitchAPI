@@ -626,7 +626,7 @@ class Chat:
         self.__tasks = None
         self._ready = False
         self._send_buckets = {}
-        self._join_target = initial_channel if initial_channel is not None else []
+        self._join_target = [c[1:].lower() if c[0] == '#' else c.lower() for c in initial_channel] if initial_channel is not None else []
         self._join_bucket = RateLimitBucket(10, 2000 if is_verified_bot else 20, 'channel_join', self.logger)
         self.__waiting_for_pong: bool = False
         self._event_handler = {}
