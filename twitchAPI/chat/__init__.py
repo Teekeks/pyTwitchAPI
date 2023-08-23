@@ -1318,6 +1318,8 @@ class Chat:
             await asyncio.sleep(0.01)
         failed_to_join = [r for r in self._room_join_locks if r in target]
         self._join_target.extend([x for x in target if x not in failed_to_join])
+        # deduplicate join target
+        self._join_target = list(set(self._join_target))
         for r in failed_to_join:
             self._room_join_locks.remove(r)
         return failed_to_join
