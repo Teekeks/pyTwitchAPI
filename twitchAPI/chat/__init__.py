@@ -1124,6 +1124,8 @@ class Chat:
                 if _can_execute_command(command, command_name):
                     t = asyncio.ensure_future(handler(command), loop=self._callback_loop)
                     t.add_done_callback(self._task_callback)
+                    for _mid in self._command_middleware + self._command_specific_middleware.get(command_name, []):
+                        await _mid.was_executed(command)
             else:
                 if self.log_no_registered_command_handler:
                     self.logger.info(f'no handler registered for command "{command_name}"')

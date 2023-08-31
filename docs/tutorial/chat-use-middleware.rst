@@ -192,6 +192,11 @@ In the following example, we will create a middleware which allows the command t
          # add your own logic here, return True if the command should execute and False otherwise
          return random.choice([True, False])
 
+      async def was_executed(cmd: ChatCommand):
+         # this will be called whenever a command this Middleware is attached to was executed, use this to update your internal state
+         # since this is a basic example, we do nothing here
+         pass
+
 
 Now use this middleware as any other:
 

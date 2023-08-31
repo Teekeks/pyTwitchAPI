@@ -34,6 +34,11 @@ class BaseCommandMiddleware(ABC):
         :param command: The command to check if it should be executed"""
         pass
 
+    @abstractmethod
+    async def was_executed(self, command: 'ChatCommand'):
+        """Will be called when a command was executed, use to update internal state"""
+        pass
+
 
 class ChannelRestriction(BaseCommandMiddleware):
     """Filters in which channels a command can be executed in"""
@@ -56,6 +61,9 @@ class ChannelRestriction(BaseCommandMiddleware):
             if command.room.name not in self.allowed:
                 return False
         return command.room.name not in self.denied
+
+    async def was_executed(self, command: 'ChatCommand'):
+        pass
 
 
 class UserRestriction(BaseCommandMiddleware):
@@ -80,6 +88,9 @@ class UserRestriction(BaseCommandMiddleware):
                 return False
         return command.user.name not in self.denied
 
+    async def was_executed(self, command: 'ChatCommand'):
+        pass
+
 
 class StreamerOnly(BaseCommandMiddleware):
     """Restricts the use of commands to only the streamer in their channel"""
@@ -92,6 +103,9 @@ class StreamerOnly(BaseCommandMiddleware):
 
     async def can_execute(self, command: 'ChatCommand') -> bool:
         return command.room.name == command.user.name
+
+    async def was_executed(self, command: 'ChatCommand'):
+        pass
 
 
 class ChannelCommandCooldown(BaseCommandMiddleware):
@@ -108,17 +122,19 @@ class ChannelCommandCooldown(BaseCommandMiddleware):
 
     async def can_execute(self, command: 'ChatCommand') -> bool:
         if self._last_executed.get(command.name) is None:
-            self._last_executed[command.name] = {}
-            self._last_executed[command.name][command.room.name] = datetime.now()
             return True
-        last_executed = self._last_executed.get(command.name).get(command.room.name)
+        last_executed = self._last_executed[command.name].get(command.room.name)
         if last_executed is None:
-            self._last_executed[command.name][command.room.name] = datetime.now()
             return True
         since = (datetime.now() - last_executed).total_seconds()
-        if since >= self.cooldown:
-            self._last_executed[command.name][command.room.name] = datetime.now()
         return since >= self.cooldown
+
+    async def was_executed(self, command: 'ChatCommand'):
+        if self._last_executed.get(command.name) is None:
+            self._last_executed[command.name] = {}
+            self._last_executed[command.name][command.room.name] = datetime.now()
+            return
+        self._last_executed[command.name][command.room.name] = datetime.now()
 
 
 class ChannelUserCommandCooldown(BaseCommandMiddleware):
@@ -135,20 +151,24 @@ class ChannelUserCommandCooldown(BaseCommandMiddleware):
 
     async def can_execute(self, command: 'ChatCommand') -> bool:
         if self._last_executed.get(command.name) is None:
-            self._last_executed[command.name] = {}
-            self._last_executed[command.name][command.room.name] = {}
-            self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
             return True
         if self._last_executed[command.name].get(command.room.name) is None:
-            self._last_executed[command.name][command.room.name] = {}
-            self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
             return True
         last_executed = self._last_executed[command.name][command.room.name].get(command.user.name)
         if last_executed is None:
-            self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
             return True
         since = (datetime.now() - last_executed).total_seconds()
-        if since >= self.cooldown:
-            self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
         return since >= self.cooldown
+
+    async def was_executed(self, command: 'ChatCommand'):
+        if self._last_executed.get(command.name) is None:
+            self._last_executed[command.name] = {}
+            self._last_executed[command.name][command.room.name] = {}
+            self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
+            return
+        if self._last_executed[command.name].get(command.room.name) is None:
+            self._last_executed[command.name][command.room.name] = {}
+            self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
+            return
+        self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
 
