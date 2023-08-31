@@ -22,19 +22,16 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        StreamOnlineEvent, StreamOfflineEvent, UserAuthorizationGrantEvent, UserAuthorizationRevokeEvent,
                                        UserUpdateEvent, ShieldModeEvent, CharityCampaignStartEvent, CharityCampaignProgressEvent,
                                        CharityCampaignStopEvent, CharityDonationEvent, ChannelShoutoutCreateEvent, ChannelShoutoutReceiveEvent)
-from ..helper import remove_none_values
-from ..type import TwitchAPIException
+from twitchAPI.helper import remove_none_values
+from twitchAPI.type import TwitchAPIException
 import asyncio
 from logging import getLogger, Logger
-from ..twitch import Twitch
+from twitchAPI.twitch import Twitch
 from abc import ABC, abstractmethod
 
 from typing import Union, Callable, Optional, Awaitable
 
-__all__ = ['CALLBACK_TYPE', 'EventSubBase']
-
-
-CALLBACK_TYPE = Callable[[dict], Awaitable[None]]
+__all__ = ['EventSubBase']
 
 
 class EventSubBase(ABC):
@@ -135,7 +132,7 @@ class EventSubBase(ABC):
             self.logger.warning(f'failed to unsubscribe from {topic_id}: {str(e)}')
         return False
 
-    async def listen_channel_update(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_update(self, broadcaster_user_id: str, callback: Callable[[ChannelUpdateEvent], Awaitable[None]]) -> str:
         """A broadcaster updates their channel properties e.g., category, title, mature flag, broadcast, or language.
 
         No Authentication required.
@@ -154,7 +151,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.update', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelUpdateEvent)
 
-    async def listen_channel_update_v2(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_update_v2(self, broadcaster_user_id: str, callback: Callable[[ChannelUpdateEvent], Awaitable[None]]) -> str:
         """A broadcaster updates their channel properties e.g., category, title, content classification labels or language.
 
         No Authentication required.
@@ -173,7 +170,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.update', '2', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelUpdateEvent)
 
-    async def listen_channel_follow(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_follow(self, broadcaster_user_id: str, callback: Callable[[ChannelFollowEvent], Awaitable[None]]) -> str:
         """A specified channel receives a follow.
 
         .. warning:: This subscription is deprecated and will be removed on or soon after the 3rd of August 2023\n
@@ -196,7 +193,7 @@ class EventSubBase(ABC):
     async def listen_channel_follow_v2(self,
                                        broadcaster_user_id: str,
                                        moderator_user_id: str,
-                                       callback: CALLBACK_TYPE) -> str:
+                                       callback: Callable[[ChannelFollowEvent], Awaitable[None]]) -> str:
         """A specified channel receives a follow.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_FOLLOWERS` is required.
@@ -219,7 +216,7 @@ class EventSubBase(ABC):
                                      callback,
                                      ChannelFollowEvent)
 
-    async def listen_channel_subscribe(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_subscribe(self, broadcaster_user_id: str, callback: Callable[[ChannelSubscribeEvent], Awaitable[None]]) -> str:
         """A notification when a specified channel receives a subscriber. This does not include resubscribes.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` is required.
@@ -238,7 +235,9 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.subscribe', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelSubscribeEvent)
 
-    async def listen_channel_subscription_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_subscription_end(self,
+                                              broadcaster_user_id: str,
+                                              callback: Callable[[ChannelSubscriptionEndEvent], Awaitable[None]]) -> str:
         """A notification when a subscription to the specified channel ends.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` is required.
@@ -257,7 +256,9 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.subscription.end', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelSubscriptionEndEvent)
 
-    async def listen_channel_subscription_gift(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_subscription_gift(self,
+                                               broadcaster_user_id: str,
+                                               callback: Callable[[ChannelSubscriptionGiftEvent], Awaitable[None]]) -> str:
         """A notification when a viewer gives a gift subscription to one or more users in the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` is required.
@@ -276,7 +277,9 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.subscription.gift', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelSubscriptionGiftEvent)
 
-    async def listen_channel_subscription_message(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_subscription_message(self,
+                                                  broadcaster_user_id: str,
+                                                  callback: Callable[[ChannelSubscriptionMessageEvent], Awaitable[None]]) -> str:
         """A notification when a user sends a resubscription chat message in a specific channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_SUBSCRIPTIONS` is required.
@@ -298,7 +301,7 @@ class EventSubBase(ABC):
                                      callback,
                                      ChannelSubscriptionMessageEvent)
 
-    async def listen_channel_cheer(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_cheer(self, broadcaster_user_id: str, callback: Callable[[ChannelCheerEvent], Awaitable[None]]) -> str:
         """A user cheers on the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.BITS_READ` is required.
@@ -321,7 +324,7 @@ class EventSubBase(ABC):
                                      ChannelCheerEvent)
 
     async def listen_channel_raid(self,
-                                  callback: CALLBACK_TYPE,
+                                  callback: Callable[[ChannelRaidEvent], Awaitable[None]],
                                   to_broadcaster_user_id: Optional[str] = None,
                                   from_broadcaster_user_id: Optional[str] = None) -> str:
         """A broadcaster raids another broadcaster’s channel.
@@ -348,7 +351,7 @@ class EventSubBase(ABC):
                                      callback,
                                      ChannelRaidEvent)
 
-    async def listen_channel_ban(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_ban(self, broadcaster_user_id: str, callback: Callable[[ChannelBanEvent], Awaitable[None]]) -> str:
         """A viewer is banned from the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MODERATE` is required.
@@ -370,7 +373,7 @@ class EventSubBase(ABC):
                                      callback,
                                      ChannelBanEvent)
 
-    async def listen_channel_unban(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_unban(self, broadcaster_user_id: str, callback: Callable[[ChannelUnbanEvent], Awaitable[None]]) -> str:
         """A viewer is unbanned from the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_MODERATE` is required.
@@ -392,7 +395,7 @@ class EventSubBase(ABC):
                                      callback,
                                      ChannelUnbanEvent)
 
-    async def listen_channel_moderator_add(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_moderator_add(self, broadcaster_user_id: str, callback: Callable[[ChannelModeratorAddEvent], Awaitable[None]]) -> str:
         """Moderator privileges were added to a user on a specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATION_READ` is required.
@@ -414,7 +417,9 @@ class EventSubBase(ABC):
                                      callback,
                                      ChannelModeratorAddEvent)
 
-    async def listen_channel_moderator_remove(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_moderator_remove(self,
+                                              broadcaster_user_id: str,
+                                              callback: Callable[[ChannelModeratorRemoveEvent], Awaitable[None]]) -> str:
         """Moderator privileges were removed from a user on a specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.MODERATION_READ` is required.
@@ -436,8 +441,9 @@ class EventSubBase(ABC):
                                      callback,
                                      ChannelModeratorRemoveEvent)
 
-    async def listen_channel_points_custom_reward_add(self, broadcaster_user_id: str,
-                                                      callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_points_custom_reward_add(self,
+                                                      broadcaster_user_id: str,
+                                                      callback: Callable[[ChannelPointsCustomRewardAddEvent], Awaitable[None]]) -> str:
         """A custom channel points reward has been created for the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_REDEMPTIONS` or
@@ -462,7 +468,7 @@ class EventSubBase(ABC):
 
     async def listen_channel_points_custom_reward_update(self,
                                                          broadcaster_user_id: str,
-                                                         callback: CALLBACK_TYPE,
+                                                         callback: Callable[[ChannelPointsCustomRewardUpdateEvent], Awaitable[None]],
                                                          reward_id: Optional[str] = None) -> str:
         """A custom channel points reward has been updated for the specified channel.
 
@@ -491,7 +497,7 @@ class EventSubBase(ABC):
 
     async def listen_channel_points_custom_reward_remove(self,
                                                          broadcaster_user_id: str,
-                                                         callback: CALLBACK_TYPE,
+                                                         callback: Callable[[ChannelPointsCustomRewardRemoveEvent], Awaitable[None]],
                                                          reward_id: Optional[str] = None) -> str:
         """A custom channel points reward has been removed from the specified channel.
 
@@ -520,7 +526,7 @@ class EventSubBase(ABC):
 
     async def listen_channel_points_custom_reward_redemption_add(self,
                                                                  broadcaster_user_id: str,
-                                                                 callback: CALLBACK_TYPE,
+                                                                 callback: Callable[[ChannelPointsCustomRewardRedemptionAddEvent], Awaitable[None]],
                                                                  reward_id: Optional[str] = None) -> str:
         """A viewer has redeemed a custom channel points reward on the specified channel.
 
@@ -550,7 +556,7 @@ class EventSubBase(ABC):
 
     async def listen_channel_points_custom_reward_redemption_update(self,
                                                                     broadcaster_user_id: str,
-                                                                    callback: CALLBACK_TYPE,
+                                                                    callback: Callable[[ChannelPointsCustomRewardRedemptionUpdateEvent], Awaitable[None]],
                                                                     reward_id: Optional[str] = None) -> str:
         """A redemption of a channel points custom reward has been updated for the specified channel.
 
@@ -578,7 +584,7 @@ class EventSubBase(ABC):
                                      callback,
                                      ChannelPointsCustomRewardRedemptionUpdateEvent)
 
-    async def listen_channel_poll_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_poll_begin(self, broadcaster_user_id: str, callback: Callable[[ChannelPollBeginEvent], Awaitable[None]]) -> str:
         """A poll started on a specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_POLLS` or
@@ -598,7 +604,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.poll.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelPollBeginEvent)
 
-    async def listen_channel_poll_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_poll_progress(self, broadcaster_user_id: str, callback: Callable[[ChannelPollProgressEvent], Awaitable[None]]) -> str:
         """Users respond to a poll on a specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_POLLS` or
@@ -618,7 +624,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.poll.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelPollProgressEvent)
 
-    async def listen_channel_poll_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_poll_end(self, broadcaster_user_id: str, callback: Callable[[ChannelPollEndEvent], Awaitable[None]]) -> str:
         """A poll ended on a specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_POLLS` or
@@ -638,7 +644,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.poll.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelPollEndEvent)
 
-    async def listen_channel_prediction_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_prediction_begin(self, broadcaster_user_id: str, callback: Callable[[ChannelPredictionEvent], Awaitable[None]]) -> str:
         """A Prediction started on a specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS` or
@@ -658,7 +664,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.prediction.begin', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelPredictionEvent)
 
-    async def listen_channel_prediction_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_prediction_progress(self, broadcaster_user_id: str, callback: Callable[[ChannelPredictionEvent], Awaitable[None]]) -> str:
         """Users participated in a Prediction on a specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS` or
@@ -678,7 +684,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.prediction.progress', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelPredictionEvent)
 
-    async def listen_channel_prediction_lock(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_prediction_lock(self, broadcaster_user_id: str, callback: Callable[[ChannelPredictionEvent], Awaitable[None]]) -> str:
         """A Prediction was locked on a specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS` or
@@ -698,7 +704,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.prediction.lock', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelPredictionEvent)
 
-    async def listen_channel_prediction_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_channel_prediction_end(self, broadcaster_user_id: str, callback: Callable[[ChannelPredictionEndEvent], Awaitable[None]]) -> str:
         """A Prediction ended on a specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_PREDICTIONS` or
@@ -720,7 +726,7 @@ class EventSubBase(ABC):
 
     async def listen_drop_entitlement_grant(self,
                                             organisation_id: str,
-                                            callback: CALLBACK_TYPE,
+                                            callback: Callable[[DropEntitlementGrantEvent], Awaitable[None]],
                                             category_id: Optional[str] = None,
                                             campaign_id: Optional[str] = None) -> str:
         """An entitlement for a Drop is granted to a user.
@@ -751,7 +757,7 @@ class EventSubBase(ABC):
 
     async def listen_extension_bits_transaction_create(self,
                                                        extension_client_id: str,
-                                                       callback: CALLBACK_TYPE) -> str:
+                                                       callback: Callable[[ExtensionBitsTransactionCreateEvent], Awaitable[None]]) -> str:
         """A Bits transaction occurred for a specified Twitch Extension.
 
         The OAuth token client ID must match the Extension client ID.
@@ -770,7 +776,7 @@ class EventSubBase(ABC):
         return await self._subscribe('extension.bits_transaction.create', '1', {'extension_client_id': extension_client_id}, callback,
                                      ExtensionBitsTransactionCreateEvent)
 
-    async def listen_goal_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_goal_begin(self, broadcaster_user_id: str, callback: Callable[[GoalEvent], Awaitable[None]]) -> str:
         """A goal begins on the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_GOALS` is required.
@@ -789,7 +795,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.goal.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      GoalEvent)
 
-    async def listen_goal_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_goal_progress(self, broadcaster_user_id: str, callback: Callable[[GoalEvent], Awaitable[None]]) -> str:
         """A goal makes progress on the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_GOALS` is required.
@@ -808,7 +814,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.goal.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      GoalEvent)
 
-    async def listen_goal_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_goal_end(self, broadcaster_user_id: str, callback: Callable[[GoalEvent], Awaitable[None]]) -> str:
         """A goal ends on the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_GOALS` is required.
@@ -827,7 +833,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.goal.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      GoalEvent)
 
-    async def listen_hype_train_begin(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_hype_train_begin(self, broadcaster_user_id: str, callback: Callable[[HypeTrainEvent], Awaitable[None]]) -> str:
         """A Hype Train begins on the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_HYPE_TRAIN` is required.
@@ -846,7 +852,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.hype_train.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      HypeTrainEvent)
 
-    async def listen_hype_train_progress(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_hype_train_progress(self, broadcaster_user_id: str, callback: Callable[[HypeTrainEvent], Awaitable[None]]) -> str:
         """A Hype Train makes progress on the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_HYPE_TRAIN` is required.
@@ -865,7 +871,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.hype_train.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      HypeTrainEvent)
 
-    async def listen_hype_train_end(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_hype_train_end(self, broadcaster_user_id: str, callback: Callable[[HypeTrainEndEvent], Awaitable[None]]) -> str:
         """A Hype Train ends on the specified channel.
 
         User Authentication with :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_HYPE_TRAIN` is required.
@@ -884,7 +890,7 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.hype_train.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      HypeTrainEndEvent)
 
-    async def listen_stream_online(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_stream_online(self, broadcaster_user_id: str, callback: Callable[[StreamOnlineEvent], Awaitable[None]]) -> str:
         """The specified broadcaster starts a stream.
 
         No authorization required.
@@ -902,7 +908,7 @@ class EventSubBase(ABC):
         """
         return await self._subscribe('stream.online', '1', {'broadcaster_user_id': broadcaster_user_id}, callback, StreamOnlineEvent)
 
-    async def listen_stream_offline(self, broadcaster_user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_stream_offline(self, broadcaster_user_id: str, callback: Callable[[StreamOfflineEvent], Awaitable[None]]) -> str:
         """The specified broadcaster stops a stream.
 
         No authorization required.
@@ -920,7 +926,7 @@ class EventSubBase(ABC):
         """
         return await self._subscribe('stream.offline', '1', {'broadcaster_user_id': broadcaster_user_id}, callback, StreamOfflineEvent)
 
-    async def listen_user_authorization_grant(self, client_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_user_authorization_grant(self, client_id: str, callback: Callable[[UserAuthorizationGrantEvent], Awaitable[None]]) -> str:
         """A user’s authorization has been granted to your client id.
 
         Provided client_id must match the client id in the application access token.
@@ -939,7 +945,7 @@ class EventSubBase(ABC):
         return await self._subscribe('user.authorization.grant', '1', {'client_id': client_id}, callback,
                                      UserAuthorizationGrantEvent)
 
-    async def listen_user_authorization_revoke(self, client_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_user_authorization_revoke(self, client_id: str, callback: Callable[[UserAuthorizationRevokeEvent], Awaitable[None]]) -> str:
         """A user’s authorization has been revoked for your client id.
 
         Provided client_id must match the client id in the application access token.
@@ -958,7 +964,7 @@ class EventSubBase(ABC):
         return await self._subscribe('user.authorization.revoke', '1', {'client_id': client_id}, callback,
                                      UserAuthorizationRevokeEvent)
 
-    async def listen_user_update(self, user_id: str, callback: CALLBACK_TYPE) -> str:
+    async def listen_user_update(self, user_id: str, callback: Callable[[UserUpdateEvent], Awaitable[None]]) -> str:
         """A user has updated their account.
 
         No authorization required. If you have the :const:`~twitchAPI.types.AuthScope.USER_READ_EMAIL` scope,
@@ -980,7 +986,7 @@ class EventSubBase(ABC):
     async def listen_channel_shield_mode_begin(self,
                                                broadcaster_user_id: str,
                                                moderator_user_id: str,
-                                               callback: CALLBACK_TYPE) -> str:
+                                               callback: Callable[[ShieldModeEvent], Awaitable[None]]) -> str:
         """Sends a notification when the broadcaster activates Shield Mode.
 
         Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHIELD_MODE` or
@@ -1007,7 +1013,7 @@ class EventSubBase(ABC):
     async def listen_channel_shield_mode_end(self,
                                              broadcaster_user_id: str,
                                              moderator_user_id: str,
-                                             callback: CALLBACK_TYPE) -> str:
+                                             callback: Callable[[ShieldModeEvent], Awaitable[None]]) -> str:
         """Sends a notification when the broadcaster deactivates Shield Mode.
 
         Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHIELD_MODE` or
@@ -1033,7 +1039,7 @@ class EventSubBase(ABC):
 
     async def listen_channel_charity_campaign_start(self,
                                                     broadcaster_user_id: str,
-                                                    callback: CALLBACK_TYPE) -> str:
+                                                    callback: Callable[[CharityCampaignStartEvent], Awaitable[None]]) -> str:
         """Sends a notification when the broadcaster starts a charity campaign.
 
         Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY` auth scope.
@@ -1054,7 +1060,7 @@ class EventSubBase(ABC):
 
     async def listen_channel_charity_campaign_progress(self,
                                                        broadcaster_user_id: str,
-                                                       callback: CALLBACK_TYPE) -> str:
+                                                       callback: Callable[[CharityCampaignProgressEvent], Awaitable[None]]) -> str:
         """Sends notifications when progress is made towards the campaign’s goal or when the broadcaster changes the fundraising goal.
 
         Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY` auth scope.
@@ -1076,7 +1082,7 @@ class EventSubBase(ABC):
 
     async def listen_channel_charity_campaign_stop(self,
                                                    broadcaster_user_id: str,
-                                                   callback: CALLBACK_TYPE) -> str:
+                                                   callback: Callable[[CharityCampaignStopEvent], Awaitable[None]]) -> str:
         """Sends a notification when the broadcaster stops a charity campaign.
 
         Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY` auth scope.
@@ -1097,7 +1103,7 @@ class EventSubBase(ABC):
 
     async def listen_channel_charity_campaign_donate(self,
                                                      broadcaster_user_id: str,
-                                                     callback: CALLBACK_TYPE) -> str:
+                                                     callback: Callable[[CharityDonationEvent], Awaitable[None]]) -> str:
         """Sends a notification when a user donates to the broadcaster’s charity campaign.
 
         Requires the :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY` auth scope.
@@ -1119,7 +1125,7 @@ class EventSubBase(ABC):
     async def listen_channel_shoutout_create(self,
                                              broadcaster_user_id: str,
                                              moderator_user_id: str,
-                                             callback: CALLBACK_TYPE) -> str:
+                                             callback: Callable[[ChannelShoutoutCreateEvent], Awaitable[None]]) -> str:
         """Sends a notification when the specified broadcaster sends a Shoutout.
 
         Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHOUTOUTS` or :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHOUTOUTS`
@@ -1140,7 +1146,7 @@ class EventSubBase(ABC):
     async def listen_channel_shoutout_receive(self,
                                               broadcaster_user_id: str,
                                               moderator_user_id: str,
-                                              callback: CALLBACK_TYPE) -> str:
+                                              callback: Callable[[ChannelShoutoutReceiveEvent], Awaitable[None]]) -> str:
         """Sends a notification when the specified broadcaster receives a Shoutout.
 
         Requires the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHOUTOUTS` or :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHOUTOUTS`
