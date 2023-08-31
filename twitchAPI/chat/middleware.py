@@ -9,7 +9,7 @@ A selection of preimplemented chat command middleware.
 
 """
 from abc import ABC, abstractmethod
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, List, TYPE_CHECKING, Callable, Awaitable
 
 if TYPE_CHECKING:
     from . import ChatCommand
@@ -20,6 +20,9 @@ __all__ = ['BaseCommandMiddleware', 'ChannelRestriction', 'UserRestriction', 'St
 
 class BaseCommandMiddleware(ABC):
     """The base for chat command middleware, extend from this when implementing your own"""
+
+    execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None
+    """If set, this handler will be called should :const:`twitchAPI.chat.middleware.BaseCommandMiddleware.can_execute()` fail."""
 
     @abstractmethod
     async def can_execute(self, command: 'ChatCommand') -> bool:
@@ -35,11 +38,14 @@ class ChannelRestriction(BaseCommandMiddleware):
 
     def __init__(self,
                  allowed_channel: Optional[List[str]] = None,
-                 denied_channel: Optional[List[str]] = None):
+                 denied_channel: Optional[List[str]] = None,
+                 execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
         """
         :param allowed_channel: if provided, the command can only be used in channels on this list
         :param denied_channel:  if provided, the command can't be used in channels on this list
+        :param execute_blocked_handler: optional specific handler for when the execution is blocked
         """
+        self.execute_blocked_handler = execute_blocked_handler
         self.allowed = allowed_channel if allowed_channel is not None else []
         self.denied = denied_channel if denied_channel is not None else []
 
@@ -55,11 +61,14 @@ class UserRestriction(BaseCommandMiddleware):
 
     def __init__(self,
                  allowed_users: Optional[List[str]] = None,
-                 denied_users: Optional[List[str]] = None):
+                 denied_users: Optional[List[str]] = None,
+                 execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
         """
         :param allowed_users: if provided, the command can only be used by one of the provided users
         :param denied_users: if provided, the command can not be used by any of the provided users
+        :param execute_blocked_handler: optional specific handler for when the execution is blocked
         """
+        self.execute_blocked_handler = execute_blocked_handler
         self.allowed = allowed_users if allowed_users is not None else []
         self.denied = denied_users if denied_users is not None else []
 
@@ -72,6 +81,12 @@ class UserRestriction(BaseCommandMiddleware):
 
 class StreamerOnly(BaseCommandMiddleware):
     """Restricts the use of commands to only the streamer in their channel"""
+
+    def __int__(self, execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
+        """
+        :param execute_blocked_handler: optional specific handler for when the execution is blocked
+        """
+        self.execute_blocked_handler = execute_blocked_handler
 
     async def can_execute(self, command: 'ChatCommand') -> bool:
         return command.room.name == command.user.name

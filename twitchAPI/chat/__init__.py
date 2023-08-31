@@ -644,6 +644,8 @@ class Chat:
         self._command_middleware: List['BaseCommandMiddleware'] = []
         self._command_specific_middleware: Dict[str, List['BaseCommandMiddleware']] = {}
         self._task_callback = partial(done_task_callback, self.logger)
+        self.default_command_execution_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None
+        """The default handler to be called should a command execution be blocked by a middleware that has no specific handler set."""
 
     def __await__(self):
         t = asyncio.create_task(self._get_username())
@@ -1105,6 +1107,10 @@ class Chat:
         async def _can_execute_command(_com: ChatCommand, _name: str) -> bool:
             for mid in self._command_middleware + self._command_specific_middleware.get(_name, []):
                 if not await mid.can_execute(command):
+                    if mid.execute_blocked_handler is not None:
+                        await mid.execute_blocked_handler(_com)
+                    elif self.default_command_execution_blocked_handler is not None:
+                        await self.default_command_execution_blocked_handler(_com)
                     return False
             return True
 
