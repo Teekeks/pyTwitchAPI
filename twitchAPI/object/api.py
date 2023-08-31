@@ -7,8 +7,8 @@ Objects used by the Twitch API
 from datetime import datetime
 from typing import Optional, List, Dict
 
-from .base import TwitchObject, IterTwitchObject, AsyncIterTwitchObject
-from ..type import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus, CustomRewardRedemptionStatus, \
+from twitchAPI.object.base import TwitchObject, IterTwitchObject, AsyncIterTwitchObject
+from twitchAPI.type import StatusCode, VideoType, HypeTrainContributionMethod, DropsEntitlementFulfillmentStatus, CustomRewardRedemptionStatus, \
     PollStatus, PredictionStatus
 
 
