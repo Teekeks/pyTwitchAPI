@@ -23,7 +23,7 @@ __all__ = ['BaseCommandMiddleware', 'ChannelRestriction', 'UserRestriction', 'St
 class BaseCommandMiddleware(ABC):
     """The base for chat command middleware, extend from this when implementing your own"""
 
-    execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None
+    execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None
     """If set, this handler will be called should :const:`twitchAPI.chat.middleware.BaseCommandMiddleware.can_execute()` fail."""
 
     @abstractmethod
@@ -46,7 +46,7 @@ class ChannelRestriction(BaseCommandMiddleware):
     def __init__(self,
                  allowed_channel: Optional[List[str]] = None,
                  denied_channel: Optional[List[str]] = None,
-                 execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
+                 execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
         """
         :param allowed_channel: if provided, the command can only be used in channels on this list
         :param denied_channel:  if provided, the command can't be used in channels on this list
@@ -72,7 +72,7 @@ class UserRestriction(BaseCommandMiddleware):
     def __init__(self,
                  allowed_users: Optional[List[str]] = None,
                  denied_users: Optional[List[str]] = None,
-                 execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
+                 execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
         """
         :param allowed_users: if provided, the command can only be used by one of the provided users
         :param denied_users: if provided, the command can not be used by any of the provided users
@@ -95,7 +95,7 @@ class UserRestriction(BaseCommandMiddleware):
 class StreamerOnly(BaseCommandMiddleware):
     """Restricts the use of commands to only the streamer in their channel"""
 
-    def __int__(self, execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
+    def __int__(self, execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
         """
         :param execute_blocked_handler: optional specific handler for when the execution is blocked
         """
@@ -116,7 +116,7 @@ class ChannelCommandCooldown(BaseCommandMiddleware):
 
     def __int__(self,
                 cooldown_seconds: int,
-                execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
+                execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
         self.execute_blocked_handler = execute_blocked_handler
         self.cooldown = cooldown_seconds
 
@@ -145,7 +145,7 @@ class ChannelUserCommandCooldown(BaseCommandMiddleware):
 
     def __int__(self,
                 cooldown_seconds: int,
-                execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
+                execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
         self.execute_blocked_handler = execute_blocked_handler
         self.cooldown = cooldown_seconds
 
@@ -181,7 +181,7 @@ class GlobalCommandCooldown(BaseCommandMiddleware):
 
     def __int__(self,
                 cooldown_seconds: int,
-                execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
+                execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
         self.execute_blocked_handler = execute_blocked_handler
         self.cooldown = cooldown_seconds
 
