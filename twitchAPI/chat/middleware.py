@@ -9,13 +9,15 @@ A selection of preimplemented chat command middleware.
 
 """
 from abc import ABC, abstractmethod
-from typing import Optional, List, TYPE_CHECKING, Callable, Awaitable
+from datetime import datetime
+from typing import Optional, List, TYPE_CHECKING, Callable, Awaitable, Dict
 
 if TYPE_CHECKING:
     from . import ChatCommand
 
 
-__all__ = ['BaseCommandMiddleware', 'ChannelRestriction', 'UserRestriction', 'StreamerOnly']
+__all__ = ['BaseCommandMiddleware', 'ChannelRestriction', 'UserRestriction', 'StreamerOnly',
+           'ChannelCommandCooldown', 'ChannelUserCommandCooldown']
 
 
 class BaseCommandMiddleware(ABC):
@@ -90,3 +92,63 @@ class StreamerOnly(BaseCommandMiddleware):
 
     async def can_execute(self, command: 'ChatCommand') -> bool:
         return command.room.name == command.user.name
+
+
+class ChannelCommandCooldown(BaseCommandMiddleware):
+    """Restricts a command to only be executed once every :const:`cooldown_seconds` seconds in a channel regardless of user."""
+
+    # command -> channel -> datetime
+    _last_executed: Dict[str, Dict[str, datetime]]
+
+    def __int__(self,
+                cooldown_seconds: int,
+                execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
+        self.execute_blocked_handler = execute_blocked_handler
+        self.cooldown = cooldown_seconds
+
+    async def can_execute(self, command: 'ChatCommand') -> bool:
+        if self._last_executed.get(command.name) is None:
+            self._last_executed[command.name] = {}
+            self._last_executed[command.name][command.room.name] = datetime.now()
+            return True
+        last_executed = self._last_executed.get(command.name).get(command.room.name)
+        if last_executed is None:
+            self._last_executed[command.name][command.room.name] = datetime.now()
+            return True
+        since = (datetime.now() - last_executed).total_seconds()
+        if since >= self.cooldown:
+            self._last_executed[command.name][command.room.name] = datetime.now()
+        return since >= self.cooldown
+
+
+class ChannelUserCommandCooldown(BaseCommandMiddleware):
+    """Restricts a command to be only executed once every :const:`cooldown_seconds` in a channel by a user."""
+
+    # command -> channel -> user -> datetime
+    _last_executed: Dict[str, Dict[str, Dict[str, datetime]]]
+
+    def __int__(self,
+                cooldown_seconds: int,
+                execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
+        self.execute_blocked_handler = execute_blocked_handler
+        self.cooldown = cooldown_seconds
+
+    async def can_execute(self, command: 'ChatCommand') -> bool:
+        if self._last_executed.get(command.name) is None:
+            self._last_executed[command.name] = {}
+            self._last_executed[command.name][command.room.name] = {}
+            self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
+            return True
+        if self._last_executed[command.name].get(command.room.name) is None:
+            self._last_executed[command.name][command.room.name] = {}
+            self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
+            return True
+        last_executed = self._last_executed[command.name][command.room.name].get(command.user.name)
+        if last_executed is None:
+            self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
+            return True
+        since = (datetime.now() - last_executed).total_seconds()
+        if since >= self.cooldown:
+            self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
+        return since >= self.cooldown
+
