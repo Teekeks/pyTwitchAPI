@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 __all__ = ['BaseCommandMiddleware', 'ChannelRestriction', 'UserRestriction', 'StreamerOnly',
-           'ChannelCommandCooldown', 'ChannelUserCommandCooldown']
+           'ChannelCommandCooldown', 'ChannelUserCommandCooldown', 'GlobalCommandCooldown']
 
 
 class BaseCommandMiddleware(ABC):
@@ -112,7 +112,7 @@ class ChannelCommandCooldown(BaseCommandMiddleware):
     """Restricts a command to only be executed once every :const:`cooldown_seconds` seconds in a channel regardless of user."""
 
     # command -> channel -> datetime
-    _last_executed: Dict[str, Dict[str, datetime]]
+    _last_executed: Dict[str, Dict[str, datetime]] = {}
 
     def __int__(self,
                 cooldown_seconds: int,
@@ -141,7 +141,7 @@ class ChannelUserCommandCooldown(BaseCommandMiddleware):
     """Restricts a command to be only executed once every :const:`cooldown_seconds` in a channel by a user."""
 
     # command -> channel -> user -> datetime
-    _last_executed: Dict[str, Dict[str, Dict[str, datetime]]]
+    _last_executed: Dict[str, Dict[str, Dict[str, datetime]]] = {}
 
     def __int__(self,
                 cooldown_seconds: int,
@@ -172,3 +172,24 @@ class ChannelUserCommandCooldown(BaseCommandMiddleware):
             return
         self._last_executed[command.name][command.room.name][command.user.name] = datetime.now()
 
+
+class GlobalCommandCooldown(BaseCommandMiddleware):
+    """Restricts a command to be only executed once every :const:`cooldown_seconds` in any channel"""
+
+    # command -> datetime
+    _last_executed: Dict[str, datetime] = {}
+
+    def __int__(self,
+                cooldown_seconds: int,
+                execute_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None):
+        self.execute_blocked_handler = execute_blocked_handler
+        self.cooldown = cooldown_seconds
+
+    async def can_execute(self, command: 'ChatCommand') -> bool:
+        if self._last_executed.get(command.name) is None:
+            return True
+        since = (datetime.now() - self._last_executed[command.name]).total_seconds()
+        return since >= self.cooldown
+
+    async def was_executed(self, command: 'ChatCommand'):
+        self._last_executed[command.name] = datetime.now()
