@@ -7,6 +7,31 @@ A selection of preimplemented chat command middleware.
 
 .. note:: See :doc:`/tutorial/chat-use-middleware` for a more detailed walkthough on how to use these.
 
+Available Middleware
+====================
+
+.. list-table::
+   :header-rows: 1
+
+   * - Middleware
+     - Description
+   * - :const:`~twitchAPI.chat.middleware.ChannelRestriction`
+     - Filters in which channels a command can be executed in.
+   * - :const:`~twitchAPI.chat.middleware.UserRestriction`
+     - Filters which users can execute a command.
+   * - :const:`~twitchAPI.chat.middleware.StreamerOnly`
+     - Restricts the use of commands to only the streamer in their channel.
+   * - :const:`~twitchAPI.chat.middleware.ChannelCommandCooldown`
+     - Restricts a command to only be executed once every :const:`cooldown_seconds` in a channel regardless of user.
+   * - :const:`~twitchAPI.chat.middleware.ChannelUserCommandCooldown`
+     - Restricts a command to be only executed once every :const:`cooldown_seconds` in a channel by a user.
+   * - :const:`~twitchAPI.chat.middleware.GlobalCommandCooldown`
+     - Restricts a command to be only executed once every :const:`cooldown_seconds` in any channel.
+
+
+Class Documentation
+===================
+
 """
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -24,7 +49,7 @@ class BaseCommandMiddleware(ABC):
     """The base for chat command middleware, extend from this when implementing your own"""
 
     execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None
-    """If set, this handler will be called should :const:`twitchAPI.chat.middleware.BaseCommandMiddleware.can_execute()` fail."""
+    """If set, this handler will be called should :const:`~twitchAPI.chat.middleware.BaseCommandMiddleware.can_execute()` fail."""
 
     @abstractmethod
     async def can_execute(self, command: 'ChatCommand') -> bool:
@@ -95,7 +120,7 @@ class UserRestriction(BaseCommandMiddleware):
 class StreamerOnly(BaseCommandMiddleware):
     """Restricts the use of commands to only the streamer in their channel"""
 
-    def __int__(self, execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
+    def __init__(self, execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
         """
         :param execute_blocked_handler: optional specific handler for when the execution is blocked
         """
@@ -109,14 +134,18 @@ class StreamerOnly(BaseCommandMiddleware):
 
 
 class ChannelCommandCooldown(BaseCommandMiddleware):
-    """Restricts a command to only be executed once every :const:`cooldown_seconds` seconds in a channel regardless of user."""
+    """Restricts a command to only be executed once every :const:`cooldown_seconds` in a channel regardless of user."""
 
     # command -> channel -> datetime
     _last_executed: Dict[str, Dict[str, datetime]] = {}
 
-    def __int__(self,
-                cooldown_seconds: int,
-                execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
+    def __init__(self,
+                 cooldown_seconds: int,
+                 execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
+        """
+        :param cooldown_seconds: time in seconds a command should not be used again
+        :param execute_blocked_handler: optional specific handler for when the execution is blocked
+        """
         self.execute_blocked_handler = execute_blocked_handler
         self.cooldown = cooldown_seconds
 
@@ -143,9 +172,13 @@ class ChannelUserCommandCooldown(BaseCommandMiddleware):
     # command -> channel -> user -> datetime
     _last_executed: Dict[str, Dict[str, Dict[str, datetime]]] = {}
 
-    def __int__(self,
-                cooldown_seconds: int,
-                execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
+    def __init__(self,
+                 cooldown_seconds: int,
+                 execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
+        """
+        :param cooldown_seconds: time in seconds a command should not be used again
+        :param execute_blocked_handler: optional specific handler for when the execution is blocked
+        """
         self.execute_blocked_handler = execute_blocked_handler
         self.cooldown = cooldown_seconds
 
@@ -179,9 +212,13 @@ class GlobalCommandCooldown(BaseCommandMiddleware):
     # command -> datetime
     _last_executed: Dict[str, datetime] = {}
 
-    def __int__(self,
-                cooldown_seconds: int,
-                execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
+    def __init__(self,
+                 cooldown_seconds: int,
+                 execute_blocked_handler: Optional[Callable[['ChatCommand'], Awaitable[None]]] = None):
+        """
+        :param cooldown_seconds: time in seconds a command should not be used again
+        :param execute_blocked_handler: optional specific handler for when the execution is blocked
+        """
         self.execute_blocked_handler = execute_blocked_handler
         self.cooldown = cooldown_seconds
 
