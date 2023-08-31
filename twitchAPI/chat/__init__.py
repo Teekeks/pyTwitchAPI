@@ -41,6 +41,14 @@ Example:
 
     chat.register_command('say', say_command_handler)
 
+******************
+Command Middleware
+******************
+
+Command Middleware is a way to control when a command should be executed.
+
+See :doc:`/modules/twitchAPI.chat.middleware` and :doc:`/tutorial/chat-use-middleware` for more information.
+
 ******
 Events
 ******
