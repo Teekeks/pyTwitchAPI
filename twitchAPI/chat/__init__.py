@@ -1101,6 +1101,13 @@ class Chat:
                 t.add_done_callback(self._task_callback)
 
     async def _handle_msg(self, parsed: dict):
+
+        async def _can_execute_command(_com: ChatCommand, _name: str) -> bool:
+            for mid in self._command_middleware + self._command_specific_middleware.get(_name, []):
+                if not await mid.can_execute(command):
+                    return False
+            return True
+
         self.logger.debug('got new message, call handler')
         if parsed['command'].get('bot_command') is not None:
             command_name = parsed['command'].get('bot_command').lower()
@@ -1108,9 +1115,7 @@ class Chat:
             if handler is not None:
                 command = ChatCommand(self, parsed)
                 # check middleware
-                execute = all([await mid.can_execute(command) for mid in self._command_middleware])
-                execute = execute and all([await mid.can_execute(command) for mid in self._command_specific_middleware.get(command_name, [])])
-                if execute:
+                if _can_execute_command(command, command_name):
                     t = asyncio.ensure_future(handler(command), loop=self._callback_loop)
                     t.add_done_callback(self._task_callback)
             else:
