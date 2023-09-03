@@ -370,6 +370,7 @@ class UserAuthenticationStorageHelper:
                  auth_generator_func: Optional[Callable[['Twitch', List[AuthScope]], Awaitable[Tuple[str, str]]]] = None):
         self.twitch = twitch
         self.logger: Logger = getLogger('twitchAPI.oauth.storage_helper')
+        """The logger used for OAuth Storage Helper related log messages"""
         self._target_scopes = scopes
         self.storage_path = storage_path if storage_path is not None else PurePath('user_token.json')
         self.auth_generator = auth_generator_func if auth_generator_func is not None else self._default_auth_gen

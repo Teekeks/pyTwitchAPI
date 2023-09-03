@@ -351,13 +351,33 @@ Logging
 This module uses the `logging` module for creating Logs.
 Valid loggers are:
 
-* `twitchAPI.twitch`
-* `twitchAPI.eventsub`
-* `twitchAPI.pubsub`
-* `twitchAPI.chat`
-* `twitchAPI.oauth`
+.. list-table::
+   :header-rows: 1
 
-
+   * - Logger Name
+     - Class
+     - Variable
+   * - :code:`twitchAPI.twitch`
+     - :const:`~twitchAPI.twitch.Twitch`
+     - :const:`~twitchAPI.twitch.Twitch.logger`
+   * - :code:`twitchAPI.chat`
+     - :const:`~twitchAPI.chat.Chat`
+     - :const:`~twitchAPI.chat.Chat.logger`
+   * - :code:`twitchAPI.eventsub.webhook`
+     - :const:`~twitchAPI.eventsub.webhook.EventSubWebhook`
+     - :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.logger`
+   * - :code:`twitchAPI.eventsub.websocket`
+     - :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket`
+     - :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket.logger`
+   * - :code:`twitchAPI.pubsub`
+     - :const:`~twitchAPI.pubsub.PubSub`
+     - :const:`~twitchAPI.pubsub.PubSub.logger`
+   * - :code:`twitchAPI.oauth`
+     - :const:`~twitchAPI.oauth.UserAuthenticator`
+     - :const:`~twitchAPI.oauth.UserAuthenticator.logger`
+   * - :code:`twitchAPI.oauth.storage_helper`
+     - :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper`
+     - :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper.logger`
 
 
 
