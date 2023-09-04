@@ -33,7 +33,7 @@ Code example
 
     from twitchAPI.twitch import Twitch
     from twitchAPI.oauth import UserAuthenticator
-    from twitchAPI.types import AuthScope
+    from twitchAPI.type import AuthScope
 
     twitch = await Twitch('my_app_id', 'my_app_secret')
 

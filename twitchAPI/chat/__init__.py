@@ -184,9 +184,9 @@ Code example
 
 .. code-block:: python
 
-    from twitchAPI import Twitch
+    from twitchAPI.twitch import Twitch
     from twitchAPI.oauth import UserAuthenticator
-    from twitchAPI.types import AuthScope, ChatEvent
+    from twitchAPI.type import AuthScope, ChatEvent
     from twitchAPI.chat import Chat, EventData, ChatMessage, ChatSub, ChatCommand
     import asyncio
 

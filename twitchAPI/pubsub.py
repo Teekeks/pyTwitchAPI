@@ -19,7 +19,7 @@ Code Example
     from twitchAPI.pubsub import PubSub
     from twitchAPI.twitch import Twitch
     from twitchAPI.helper import first
-    from twitchAPI.types import AuthScope
+    from twitchAPI.type import AuthScope
     from twitchAPI.oauth import UserAuthenticator
     import asyncio
     from pprint import pprint
