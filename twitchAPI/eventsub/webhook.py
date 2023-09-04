@@ -3,14 +3,12 @@
 EventSub Webhook
 ----------------
 
-.. warning:: Rework in progress, docs not accurate
+.. note:: EventSub Webhook is targeted at programs which have to subscribe to topics for multiple broadcasters.\n
+    Should you only need to target a single broadcaster or are building a client side projekt, look at :doc:`/modules/twitchAPI.eventsub.websocket`
 
 EventSub lets you listen for events that happen on Twitch.
 
 The EventSub client runs in its own thread, calling the given callback function whenever an event happens.
-
-Look at the `Twitch EventSub reference <https://dev.twitch.tv/docs/eventsub/eventsub-reference>`__ to find the topics
-you are interested in.
 
 ************
 Requirements
@@ -22,7 +20,7 @@ Requirements
 In the case that you don't hand in a valid ssl context to the constructor, you can specify any port you want in the constructor and handle the
 bridge between this program and your public URL on port 443 via reverse proxy.\n
 You can check on whether or not your webhook is publicly reachable by navigating to the URL set in `callback_url`.
-You should get a 200 response with the text `pyTwitchAPI eventsub`.
+You should get a 200 response with the text :code:`pyTwitchAPI eventsub`.
 
 *******************
 Listening to topics
@@ -30,7 +28,10 @@ Listening to topics
 
 After you started your EventSub client, you can use the :code:`listen_` prefixed functions to listen to the topics you are interested in.
 
-The function you hand in as callback will be called whenever that event happens with the event data as a parameter.
+Look at :ref:`eventsub-available-topics` to find the topics you are interested in.
+
+The function you hand in as callback will be called whenever that event happens with the event data as a parameter,
+the type of that parameter is also listed in the link above.
 
 ************
 Code Example
@@ -40,9 +41,10 @@ Code Example
 
     from twitchAPI.twitch import Twitch
     from twitchAPI.helper import first
-    from twitchAPI.eventsub import EventSub
+    from twitchAPI.eventsub.webhook import EventSubWebhook
+    from twitchAPI.object.eventsub import ChannelFollowEvent
     from twitchAPI.oauth import UserAuthenticator
-    from twitchAPI.types import AuthScope
+    from twitchAPI.type import AuthScope
     import asyncio
 
     TARGET_USERNAME = 'target_username_here'
@@ -52,12 +54,12 @@ Code Example
     TARGET_SCOPES = [AuthScope.MODERATOR_READ_FOLLOWERS]
 
 
-    async def on_follow(data: dict):
+    async def on_follow(data: ChannelFollowEvent):
         # our event happend, lets do things with the data we got!
-        print(data)
+        print(f'{data.event.user_name} now follows {data.event.broadcaster_user_name}!')
 
 
-    async def eventsub_example():
+    async def eventsub_webhook_example():
         # create the api instance and get the ID of the target user
         twitch = await Twitch(APP_ID, APP_SECRET)
         user = await first(twitch.get_users(logins=TARGET_USERNAME))
@@ -69,17 +71,17 @@ Code Example
         await auth.authenticate()
 
         # basic setup, will run on port 8080 and a reverse proxy takes care of the https and certificate
-        event_sub = EventSub(EVENTSUB_URL, APP_ID, 8080, twitch)
+        eventsub = EventSubWebhook(EVENTSUB_URL, 8080, twitch)
 
         # unsubscribe from all old events that might still be there
         # this will ensure we have a clean slate
-        await event_sub.unsubscribe_all()
+        await eventsub.unsubscribe_all()
         # start the eventsub client
-        event_sub.start()
+        eventsub.start()
         # subscribing to the desired eventsub hook for our user
         # the given function (in this example on_follow) will be called every time this event is triggered
         # the broadcaster is a moderator in their own channel by default so specifying both as the same works in this example
-        await event_sub.listen_channel_follow_v2(user.id, user.id, on_follow)
+        await eventsub.listen_channel_follow_v2(user.id, user.id, on_follow)
 
         # eventsub will run in its own process
         # so lets just wait for user input before shutting it all down again
@@ -87,13 +89,13 @@ Code Example
             input('press Enter to shut down...')
         finally:
             # stopping both eventsub as well as gracefully closing the connection to the API
-            await event_sub.stop()
+            await eventsub.stop()
             await twitch.close()
         print('done')
 
 
     # lets run our example
-    asyncio.run(eventsub_example())"""
+    asyncio.run(eventsub_webhook_example())"""
 import asyncio
 import hashlib
 import hmac

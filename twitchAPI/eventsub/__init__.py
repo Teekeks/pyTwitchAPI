@@ -3,14 +3,11 @@
 EventSub
 --------
 
-.. warning:: Rework in progress, docs not accurate
-
 EventSub lets you listen for events that happen on Twitch.
 
-The EventSub client runs in its own thread, calling the given callback function whenever an event happens.
+All available EventSub clients runs in their own thread, calling the given callback function whenever an event happens.
 
-Look at the `Twitch EventSub reference <https://dev.twitch.tv/docs/eventsub/eventsub-reference>`__ to find the topics
-you are interested in.
+Look at :ref:`eventsub-available-topics` to find the topics you are interested in.
 
 Available Transports
 ====================
@@ -30,6 +27,8 @@ EventSub is available with different types of transports, used for different app
      - Client / Single User
      - User Authentication
 
+
+.. _eventsub-available-topics:
 
 Available Topics and Callback Payloads
 ======================================
