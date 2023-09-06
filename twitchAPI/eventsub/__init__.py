@@ -232,10 +232,4 @@ The Callback Payload is the type of the parameter passed to the callback functio
        Payload: :const:`~twitchAPI.object.eventsub.ChannelShoutoutReceiveEvent`
      - Sends a notification when the specified broadcaster receives a Shoutout.
 
-
-
-.. |br| raw:: html
-
-      <br>
-
 """

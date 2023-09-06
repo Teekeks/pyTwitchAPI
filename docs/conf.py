@@ -73,6 +73,10 @@ rst_prolog = """
 .. |default| raw:: html
 
     <div class="default-value-section"> <span class="default-value-label">Default:</span>
+
+.. |br| raw:: html
+
+      <br>
 """
 
 
