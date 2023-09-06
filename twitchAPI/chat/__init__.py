@@ -1222,7 +1222,7 @@ class Chat:
         """Check if chat bot is a mod in a channel
 
         :param room: The chat room you want to check if bot is a mod in.
-            This can either be a instance of :const:`~twitchAPI.types.ChatRoom` or a string with the room name (either with leading # or without)
+            This can either be a instance of :const:`~twitchAPI.type.ChatRoom` or a string with the room name (either with leading # or without)
         :return: Returns True if chat bot is a mod """
         if isinstance(room, ChatRoom):
             room = room.name
@@ -1236,7 +1236,7 @@ class Chat:
         """Check if chat bot is a subscriber in a channel
 
         :param room: The chat room you want to check if bot is a subscriber in.
-            This can either be a instance of :const:`~twitchAPI.types.ChatRoom` or a string with the room name (either with leading # or without)
+            This can either be a instance of :const:`~twitchAPI.type.ChatRoom` or a string with the room name (either with leading # or without)
         :return: Returns True if chat bot is a subscriber """
         if isinstance(room, ChatRoom):
             room = room.name
@@ -1250,7 +1250,7 @@ class Chat:
         """Check if the bot is currently in the given chat room
 
         :param room: The chat room you want to check
-            This can either be a instance of :const:`~twitchAPI.types.ChatRoom` or a string with the room name (either with leading # or without)
+            This can either be a instance of :const:`~twitchAPI.type.ChatRoom` or a string with the room name (either with leading # or without)
         """
         if isinstance(room, ChatRoom):
             room = room.name
@@ -1314,7 +1314,7 @@ class Chat:
         Please note that you first need to join a channel before you can send a message to it.
 
         :param room: The chat room you want to send the message to.
-            This can either be a instance of :const:`~twitchAPI.types.ChatRoom` or a string with the room name (either with leading # or without)
+            This can either be a instance of :const:`~twitchAPI.type.ChatRoom` or a string with the room name (either with leading # or without)
         :param text: The text you want to send
         :raises ValueError: if message is empty or room is not given
         :raises ValueError: if bot is not ready

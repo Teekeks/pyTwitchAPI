@@ -86,7 +86,7 @@ def get_uuid() -> uuid.UUID:
 def build_scope(scopes: List[AuthScope]) -> str:
     """Builds a valid scope string from list
 
-    :param scopes: list of :class:`~twitchAPI.types.AuthScope`
+    :param scopes: list of :class:`~twitchAPI.type.AuthScope`
     :returns: the valid auth scope string
     """
     return ' '.join([s.value for s in scopes])

@@ -81,8 +81,8 @@ async def refresh_access_token(refresh_token: str,
     :param str app_secret: the secret key of your app
     :param ~aiohttp.ClientSession session: optionally a active client session to be used for the web request to avoid having to open a new one
     :return: access_token, refresh_token
-    :raises ~twitchAPI.types.InvalidRefreshTokenException: if refresh token is invalid
-    :raises ~twitchAPI.types.UnauthorizedException: if both refresh and access token are invalid (eg if the user changes
+    :raises ~twitchAPI.type.InvalidRefreshTokenException: if refresh token is invalid
+    :raises ~twitchAPI.type.UnauthorizedException: if both refresh and access token are invalid (eg if the user changes
                 their password of the app gets disconnected)
     :rtype: (str, str)
     """
@@ -306,7 +306,7 @@ class UserAuthenticator:
                             See `the webbrowser documentation <https://docs.python.org/3/library/webbrowser.html#webbrowser.open>`__ for more info
                             |default|:code:`2`
         :return: None if callback_func is set, otherwise access_token and refresh_token
-        :raises ~twitchAPI.types.TwitchAPIException: if authentication fails
+        :raises ~twitchAPI.type.TwitchAPIException: if authentication fails
         :rtype: None or (str, str)
         """
         self._callback_func = callback_func
