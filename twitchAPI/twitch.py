@@ -1970,7 +1970,7 @@ class Twitch:
         Requires App or user authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-information
 
-        :param broadcaster_id: ID of the channel to be updated, can either be a string or a list of strings with up to 100 entries
+        :param broadcaster_id: ID of the channel to be returned, can either be a string or a list of strings with up to 100 entries
         :raises ~twitchAPI.types.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.types.UnauthorizedException: if app authentication is not set or invalid
         :raises ~twitchAPI.types.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
