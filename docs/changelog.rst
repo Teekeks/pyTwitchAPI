@@ -3,6 +3,91 @@
 Changelog
 =========
 
+*************
+Version 4.0.0
+*************
+
+.. note:: This Version introduces a lot of breaking changes. Please see the :doc:`v4-migration` to learn how to migrate.
+
+Keystone Features
+-----------------
+
+- EventSub now supports the newly added Webhook transport
+- EventSub is now using TwitchObject based callback payloads instead of raw dictionaries
+- Chat now supports Command Middleware, check out :doc:`/tutorial/chat-use-middleware` for more info
+- Added :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper` to cut down on common boilerplate code, check out :doc:`/tutorial/reuse-user-token` for more info
+
+Twitch
+------
+
+- Added new fields :const:`~twitchAPI.object.api.ChannelInformation.is_branded_content` and :const:`~twitchAPI.object.api.ChannelInformation.content_classification_labels` to response of :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
+- Added new parameters :paramref:`~twitchAPI.twitch.Twitch.modify_channel_information.is_branded_content` and :paramref:`~twitchAPI.twitch.Twitch.modify_channel_information.content_classification_labels` to :const:`~twitchAPI.twitch.Twitch.modify_channel_information()`
+- Added new Endpoint "Get Content Classification Labels" :const:`~twitchAPI.twitch.Twitch.get_content_classification_labels()`
+
+- Removed the following deprecated Endpoints:
+
+  - "Get Soundstrack Current Track"
+  - "Get SoundTrack Playlist"
+  - "Get Soundtrack Playlists"
+
+- :const:`~twitchAPI.twitch.Twitch.get_polls()` now allows up to 20 poll IDs
+
+EventSub
+--------
+
+- Moved old EventSub from :const:`twitchAPI.eventsub` to new package :const:`twitchAPI.eventsub.webhook` and renamed it to :const:`~twitchAPI.eventsub.webhook.EventSubWebhook`
+- Added new EventSub Websocket transport :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket`
+- All EventSub callbacks now use :const:`~twitchAPI.object.base.TwitchObject` based Payloads instead of raw dictionaries. See :ref:`eventsub-available-topics` for a list of all available Payloads
+- Added :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_update_v2()`
+- Added option for :const:`~twitchAPI.eventsub.webhook.EventSubWebhook` to specify a asyncio loop via :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.callback_loop` in which to run all callbacks in
+- Added option for :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket` to specify a asyncio loop via :paramref:`~twitchAPI.eventsub.websocket.EventSubWebsocket.callback_loop` in which to run all callbacks in
+- Added automatical removal of tailing ``/`` in :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.callback_url` if present
+- Fixed broken handling of malformed HTTP requests made to the callback endport of :const:`~twitchAPI.eventsub.webhook.EventSubWebhook`
+- Made :const:`~twitchAPI.eventsub.webhook.EventSubWebhook` more easily mockable via ``twitch-cli`` by adding :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.subscription_url`
+- Added optional subscription revokation handler via :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.revocation_handler` to :const:`~twitchAPI.eventsub.webhook.EventSubWebhook`
+
+PubSub
+------
+
+- Handle Authorization Revoked messages (Thanks https://github.com/Braastos )
+- Added option to specify a asyncio loop via :paramref:`~twitchAPI.pubsub.PubSub.callback_loop` in which to run all callbacks in
+
+Chat
+----
+
+- Added Chat Command Middleware, a way to decide if a command should run, see :doc:`/tutorial/chat-use-middleware` for more info.
+- Added the following default Chat Command Middleware:
+
+  - :const:`~twitchAPI.chat.middleware.ChannelRestriction`
+  - :const:`~twitchAPI.chat.middleware.UserRestriction`
+  - :const:`~twitchAPI.chat.middleware.StreamerOnly`
+  - :const:`~twitchAPI.chat.middleware.ChannelCommandCooldown`
+  - :const:`~twitchAPI.chat.middleware.ChannelUserCommandCooldown`
+  - :const:`~twitchAPI.chat.middleware.GlobalCommandCooldown`
+
+- Added option to specify a asyncio loop via :paramref:`~twitchAPI.chat.Chat.callback_loop` in which to run all callbacks in
+- Fixed errors raised in callbacks not being properly reported
+- Added Hype Chat related fields to :const:`~twitchAPI.chat.ChatMessage`
+- Improved logging
+- Fixed KeyError when encountering some Notice events
+- Added new reply tags :paramref:`~twitchAPI.chat.ChatMessage.reply_thread_parent_msg_id` and :paramref:`~twitchAPI.chat.ChatMessage.reply_thread_parent_user_login` to :const:`~twitchAPI.chat.ChatMessage`
+- Reconnects no longer duplicate the channel join list
+
+
+OAuth
+-----
+
+- Added :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper`, a easy plug and play way to generate user auth tokens only on demand
+
+Other
+-----
+
+- Added :const:`~twitchAPI.object.base.AsyncIterTwitchObject.current_cursor()` to :const:`~twitchAPI.object.base.AsyncIterTwitchObject`
+- Renamed module ``twitchAPI.types`` to :const:`twitchAPI.type`
+- Moved all API related TwitchObjects from module :const:`twitchAPI.object` to :const:`twitchAPI.object.api`
+- Removed default imports from module :const:`twitchAPI`
+
+
 ****************
 Version 3.11.0
 ****************
