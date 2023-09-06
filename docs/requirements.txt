@@ -8,3 +8,4 @@ typing_extensions
 sphinx-autodoc-typehints
 pydata-sphinx-theme
 recommonmark
+sphinx-paramlinks
