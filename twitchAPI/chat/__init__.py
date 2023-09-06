@@ -51,7 +51,7 @@ Events
 You can listen to different events happening in the chat rooms you joined.
 
 Generally you register a event listener using :const:`~twitchAPI.chat.Chat.register_event()`.
-The first parameter has to be of type :const:`~twitchAPI.types.ChatEvent` and the second one is your listener function.
+The first parameter has to be of type :const:`~twitchAPI.type.ChatEvent` and the second one is your listener function.
 
 Those Listeners always have to be async functions taking in one parameter (the payload). The Payload type is described below.
 
@@ -64,113 +64,67 @@ Example:
 
     chat.register_event(ChatEvent.READY, on_ready)
 
-Bot Ready
-=========
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.READY`
-- Payload: :const:`~twitchAPI.chat.EventData`
-
-This Event is triggered when the bot is started up and ready to join channels.
-
-Message send
-============
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.MESSAGE`
-- Payload: :const:`~twitchAPI.chat.ChatMessage`
-
-This Event is triggered when someone wrote a message in a channel we joined
-
-Channel Subscription
-====================
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.SUB`
-- Payload: :const:`~twitchAPI.chat.ChatSub`
-
-This Event is triggered when someone subscribed to a channel we joined.
-
-Raid
-====
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.RAID`
-- Payload: :const:`dict`
-
-Triggered when a channel gets raided
-
-Channel config changed
-======================
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.ROOM_STATE_CHANGE`
-- Payload: :const:`~twitchAPI.chat.RoomStateChangeEvent`
-
-Triggered when a channel is changed (e.g. sub only mode was enabled)
-
-User channel join
-=================
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.JOIN`
-- Payload: :const:`~twitchAPI.chat.JoinEvent`
-
-Triggered when someone other than the bot joins a channel.
-
-.. note:: this will not always trigger, depending on channel size
-
-User channel leave
-==================
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.USER_LEFT`
-- Payload: :const:`~twitchAPI.chat.LeftEvent`
-
-.. note:: this will not always trigger, depending on channel size
-
-Bot channel join
+Available Events
 ================
 
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.JOINED`
-- Payload: :const:`~twitchAPI.chat.JoinedEvent`
+.. list-table::
+   :header-rows: 1
 
-Triggered when the bot joins a channel
-
-Bot channel leave
-=================
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.LEFT`
-- Payload: :const:`~twitchAPI.chat.LeftEvent`
-
-Triggered when the bot left a channel
-
-Message delete
-==============
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.MESSAGE_DELETE`
-- Payload: :const:`~twitchAPI.chat.MessageDeletedEvent`
-
-Triggered when a single message in a channel got deleted
-
-User messages cleared
-=====================
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.CHAT_CLEARED`
-- Payload: :const:`~twitchAPI.chat.ClearChatEvent`
-
-Triggered when a user was banned, timed out and/or all messaged from a user where deleted
-
-Bot recieves whisper message
-============================
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.WHISPER`
-- Payload: :const:`~twitchAPI.chat.WhisperEvent`
-
-Triggered when someone whispers to your bot.
-
-.. note:: You need the :const:`~twitchAPI.types.AuthScope.WHISPERS_READ` Auth Scope to receive this Event.
-
-Server notice
-============================
-
-- ChatEvent: :const:`~twitchAPI.types.ChatEvent.NOTICE`
-- Payload: :const:`~twitchAPI.chat.NoticeEvent`
-
-Triggered when server sends a notice message.
+   * - Event Name
+     - Event Data
+     - Description
+   * - Bot Ready
+     - ChatEvent: :obj:`~twitchAPI.type.ChatEvent.READY` |br|
+       Payload: :const:`~twitchAPI.chat.EventData`
+     - This Event is triggered when the bot is started up and ready to join channels.
+   * - Message Send
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.MESSAGE` |br|
+       Payload: :const:`~twitchAPI.chat.ChatMessage`
+     - This Event is triggered when someone wrote a message in a channel we joined
+   * - Channel Subscription
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.SUB` |br|
+       Payload: :const:`~twitchAPI.chat.ChatSub`
+     - This Event is triggered when someone subscribed to a channel we joined.
+   * - Raid
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.RAID` |br|
+       Payload: :const:`dict`
+     - Triggered when a channel gets raided
+   * - Channel Config Changed
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.ROOM_STATE_CHANGE` |br|
+       Payload: :const:`~twitchAPI.chat.RoomStateChangeEvent`
+     - Triggered when a channel is changed (e.g. sub only mode was enabled)
+   * - User Channel Join
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.JOIN` |br|
+       Payload: :const:`~twitchAPI.chat.JoinEvent`
+     - Triggered when someone other than the bot joins a channel. |br| **This will not always trigger, depending on channel size**
+   * - User Channel Leave
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.USER_LEFT` |br|
+       Payload: :const:`~twitchAPI.chat.LeftEvent`
+     - Triggered when someone other than the bot leaves a channel. |br| **This will not always trigger, depending on channel size**
+   * - Bot Channel Join
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.JOINED` |br|
+       Payload: :const:`~twitchAPI.chat.JoinedEvent`
+     - Triggered when the bot joins a channel
+   * - Bot Channel Leave
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.LEFT` |br|
+       Payload: :const:`~twitchAPI.chat.LeftEvent`
+     - Triggered when the bot left a channel
+   * - Message Delete
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.MESSAGE_DELETE` |br|
+       Payload: :const:`~twitchAPI.chat.MessageDeletedEvent`
+     - Triggered when a single message in a channel got deleted
+   * - User Messages Cleared
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.CHAT_CLEARED` |br|
+       Payload: :const:`~twitchAPI.chat.ClearChatEvent`
+     - Triggered when a user was banned, timed out and/or all messaged from a user where deleted
+   * - Bot Reveives Whisper Message
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.WHISPER` |br|
+       Payload: :const:`~twitchAPI.chat.WhisperEvent`
+     - Triggered when someone whispers to your bot. |br| **You need the** :const:`~twitchAPI.type.AuthScope.WHISPERS_READ` **Auth Scope to receive this Event.**
+   * - Server Notice
+     - ChatEvent: :const:`~twitchAPI.type.ChatEvent.NOTICE` |br|
+       Payload: :const:`~twitchAPI.chat.NoticeEvent`
+     - Triggered when server sends a notice message.
 
 
 ************
