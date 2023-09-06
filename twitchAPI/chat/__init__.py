@@ -6,11 +6,6 @@ Twitch Chat Bot
 A simple twitch chat bot.\n
 Chat bots can join channels, listen to chat and reply to messages, commands, subscriptions and many more.
 
-.. warning::
-    Please note that the Chat Bot is currently in a **alpha** stage!\n
-    Bugs and oddities are to be expected.\n
-    Please report all feature requests and bug requests to the `github page <https://github.com/Teekeks/pyTwitchAPI/issues>`_.
-
 
 ********
 Commands
