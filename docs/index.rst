@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Python Twitch API
-=====================================
+=================
 
 This is a full implementation of the Twitch Helix API, PubSub, EventSub and Chat in python 3.7+.
 
@@ -12,10 +12,10 @@ On Github: https://github.com/Teekeks/pyTwitchAPI
 
 On PyPi: https://pypi.org/project/twitchAPI/
 
+Changelog: :doc:`changelog`
 
-.. note:: There where major changes to the library with version 3, see the :doc:`v3-migration` to learn how to migrate.
 
-Visit the :doc:`changelog` to see all changes.
+.. note:: There where major changes to the library with version 4, see the :doc:`v4-migration` to learn how to migrate.
 
 
 Installation
@@ -41,7 +41,7 @@ TwitchAPI
 
 Calls to the Twitch Helix API, this is the base of this library.
 
-See here for more info: `twitchAPI.twitch <modules/twitchAPI.twitch.html>`_
+See here for more info: :doc:`/modules/twitchAPI.twitch`
 
 .. code-block:: python
 
@@ -73,7 +73,7 @@ Which one you need (or if one at all) depends on what calls you want to use.
 
 It's always good to get at least App authentication even for calls where you don't need it since the rate limits are way better for authenticated calls.
 
-See here for more info about user authentication: `twitchAPI.oauth <modules/twitchAPI.oauth.html>`_
+See here for more info about user authentication: :doc:`/modules/twitchAPI.oauth`
 
 App Authentication
 ^^^^^^^^^^^^^^^^^^
@@ -152,7 +152,7 @@ PubSub
 
 PubSub enables you to subscribe to a topic, for updates (e.g., when a user cheers in a channel).
 
-See here for more info: `twitchAPI.pubsub <modules/twitchAPI.pubsub.html>`_
+See here for more info: :doc:`/modules/twitchAPI.pubsub`
 
 .. code-block:: python
 
@@ -332,6 +332,7 @@ Indices and tables
 * :doc:`tutorials`
 * :doc:`changelog`
 * :doc:`v3-migration`
+* :doc:`v4-migration`
 
 
 .. autosummary::
