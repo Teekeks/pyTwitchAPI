@@ -1770,6 +1770,9 @@ class Twitch:
         Requires User Authentication with :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_FOLLOWERS`\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-channel-followers
 
+        .. note:: This can also be used without the required scope or just with App Authentication, but the result will only include the total number
+                  of followers in these cases.
+
         :param broadcaster_id: The broadcaster’s ID. Returns the list of users that follow this broadcaster.
         :param user_id: A user’s ID. Use this parameter to see whether the user follows this broadcaster.
             If specified, the response contains this user if they follow the broadcaster.
@@ -1797,8 +1800,7 @@ class Twitch:
             'first': first,
             'after': after
         }
-        return await self._build_iter_result('GET', 'channels/followers', param, AuthType.USER, [AuthScope.MODERATOR_READ_FOLLOWERS],
-                                             ChannelFollowersResult)
+        return await self._build_iter_result('GET', 'channels/followers', param, AuthType.EITHER, [], ChannelFollowersResult)
 
     async def get_followed_channels(self,
                                     user_id: str,

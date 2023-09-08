@@ -31,6 +31,7 @@ Twitch
   - "Get Soundtrack Playlists"
 
 - :const:`~twitchAPI.twitch.Twitch.get_polls()` now allows up to 20 poll IDs
+- :const:`~twitchAPI.twitch.Twitch.get_channel_followers()` can now also be used without the required Scope or just with App Authentication
 
 EventSub
 --------
