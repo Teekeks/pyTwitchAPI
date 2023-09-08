@@ -603,6 +603,7 @@ class Chat:
         self._task_callback = partial(done_task_callback, self.logger)
         self.default_command_execution_blocked_handler: Optional[Callable[[ChatCommand], Awaitable[None]]] = None
         """The default handler to be called should a command execution be blocked by a middleware that has no specific handler set."""
+        self.username: Optional[str] = None
 
     def __await__(self):
         t = asyncio.create_task(self._get_username())
@@ -784,6 +785,8 @@ class Chat:
         self.logger.debug('starting chat...')
         if self.__running:
             raise RuntimeError('already started')
+        if self.username is None:
+            raise RuntimeError('Chat() was not awaited')
         if not self.twitch.has_required_auth(AuthType.USER, [AuthScope.CHAT_READ]):
             raise UnauthorizedException('CHAT_READ authscope is required to run a chat bot')
         self.__startup_complete = False

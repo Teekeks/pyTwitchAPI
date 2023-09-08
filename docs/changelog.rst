@@ -72,6 +72,7 @@ Chat
 - Fixed KeyError when encountering some Notice events
 - Added new reply tags :paramref:`~twitchAPI.chat.ChatMessage.reply_thread_parent_msg_id` and :paramref:`~twitchAPI.chat.ChatMessage.reply_thread_parent_user_login` to :const:`~twitchAPI.chat.ChatMessage`
 - Reconnects no longer duplicate the channel join list
+- :const:`twitchAPI.chat.Chat.start()` now thows an error should Chat() not have been awaited
 
 
 OAuth
