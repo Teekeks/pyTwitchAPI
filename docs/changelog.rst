@@ -78,6 +78,7 @@ OAuth
 -----
 
 - Added :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper`, a easy plug and play way to generate user auth tokens only on demand
+- Made it possible to mock all auth flows with ``twitch-cli``
 
 Other
 -----

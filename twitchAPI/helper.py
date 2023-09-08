@@ -24,7 +24,7 @@ T = TypeVar('T')
 
 TWITCH_API_BASE_URL: str = "https://api.twitch.tv/helix/"
 """The base url to the Twitch API endpoints"""
-TWITCH_AUTH_BASE_URL: str = "https://id.twitch.tv/"
+TWITCH_AUTH_BASE_URL: str = "https://id.twitch.tv/oauth2/"
 """The base url to the twitch authentication endpoints"""
 TWITCH_PUB_SUB_URL: str = "wss://pubsub-edge.twitch.tv"
 """The url to the Twitch PubSub websocket"""

@@ -226,6 +226,7 @@ class Twitch:
                  authenticate_app: bool = True,
                  target_app_auth_scope: Optional[List[AuthScope]] = None,
                  base_url: str = TWITCH_API_BASE_URL,
+                 auth_base_url: str = TWITCH_AUTH_BASE_URL,
                  session_timeout: Union[object, ClientTimeout] = aiohttp.helpers.sentinel):
         """
         :param app_id: Your app id
@@ -233,6 +234,7 @@ class Twitch:
         :param authenticate_app: If true, auto generate a app token on startup |default| :code:`True`
         :param target_app_auth_scope: AuthScope to use if :code:`authenticate_app` is True |default| :code:`None`
         :param base_url: The URL to the Twitch API |default| :const:`~twitchAPI.helper.TWITCH_API_BASE_URL`
+        :param auth_base_url: The URL to the Twitch API auth server |default| :const:`~twitchAPI.helper.TWITCH_AUTH_BASE_URL`
         :param session_timeout: Override the time in seconds before any request times out. Defaults to aiohttp default (300 seconds)
         """
         self.app_id: Optional[str] = app_id
@@ -258,6 +260,7 @@ class Twitch:
         self._target_app_scope = target_app_auth_scope
         self.base_url: str = base_url
         """The URL to the Twitch API used"""
+        self.auth_base_url: str = auth_base_url
         self._user_token_refresh_lock: bool = False
         self._app_token_refresh_lock: bool = False
 
@@ -356,7 +359,8 @@ class Twitch:
                 self._user_token_refresh_lock = True
                 self._user_auth_token, self._user_auth_refresh_token = await refresh_access_token(self._user_auth_refresh_token,
                                                                                                   self.app_id,
-                                                                                                  self.app_secret)
+                                                                                                  self.app_secret,
+                                                                                                  auth_base_url=self.auth_base_url)
                 self._user_token_refresh_lock = False
                 if self.user_auth_refresh_callback is not None:
                     await self.user_auth_refresh_callback(self._user_auth_token, self._user_auth_refresh_token)
@@ -546,7 +550,7 @@ class Twitch:
             'scope': build_scope(self._app_auth_scope)
         }
         self.logger.debug('generating fresh app token')
-        url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', params)
+        url = build_url(self.auth_base_url + 'token', params)
         async with ClientSession(timeout=self.session_timeout) as session:
             result = await session.post(url)
         if result.status != 200:
@@ -601,13 +605,13 @@ class Twitch:
             raise MissingScopeException('scope was not provided')
         if validate:
             from .oauth import validate_token, refresh_access_token
-            val_result = await validate_token(token)
+            val_result = await validate_token(token, auth_base_url=self.auth_base_url)
             if val_result.get('status', 200) == 401 and refresh_token is not None:
                 # try to refresh once and revalidate
-                token, refresh_token = await refresh_access_token(refresh_token, self.app_id, self.app_secret)
+                token, refresh_token = await refresh_access_token(refresh_token, self.app_id, self.app_secret, auth_base_url=self.auth_base_url)
                 if self.user_auth_refresh_callback is not None:
                     await self.user_auth_refresh_callback(token, refresh_token)
-                val_result = await validate_token(token)
+                val_result = await validate_token(token, auth_base_url=self.auth_base_url)
             if val_result.get('status', 200) == 401:
                 raise InvalidTokenException(val_result.get('message', ''))
             if 'login' not in val_result or 'user_id' not in val_result:
@@ -647,7 +651,7 @@ class Twitch:
         if self._user_auth_token is None:
             return None
         from .oauth import validate_token
-        val_result = await validate_token(self._user_auth_token)
+        val_result = await validate_token(self._user_auth_token, auth_base_url=self.auth_base_url)
         if val_result.get('status', 200) != 200:
             # refresh token
             await self.refresh_used_token()

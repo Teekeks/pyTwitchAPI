@@ -73,13 +73,15 @@ __all__ = ['refresh_access_token', 'validate_token', 'get_user_info', 'revoke_to
 async def refresh_access_token(refresh_token: str,
                                app_id: str,
                                app_secret: str,
-                               session: Optional[aiohttp.ClientSession] = None):
+                               session: Optional[aiohttp.ClientSession] = None,
+                               auth_base_url: str = TWITCH_AUTH_BASE_URL):
     """Simple helper function for refreshing a user access token.
 
     :param str refresh_token: the current refresh_token
     :param str app_id: the id of your app
     :param str app_secret: the secret key of your app
     :param ~aiohttp.ClientSession session: optionally a active client session to be used for the web request to avoid having to open a new one
+    :param auth_base_url: The URL to the Twitch API auth server |default| :const:`~twitchAPI.helper.TWITCH_AUTH_BASE_URL`
     :return: access_token, refresh_token
     :raises ~twitchAPI.type.InvalidRefreshTokenException: if refresh token is invalid
     :raises ~twitchAPI.type.UnauthorizedException: if both refresh and access token are invalid (eg if the user changes
@@ -92,7 +94,7 @@ async def refresh_access_token(refresh_token: str,
         'grant_type': 'refresh_token',
         'client_secret': app_secret
     }
-    url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', {})
+    url = build_url(auth_base_url + 'token', {})
     ses = session if session is not None else aiohttp.ClientSession()
     async with ses.post(url, data=param) as result:
         data = await result.json()
@@ -106,17 +108,19 @@ async def refresh_access_token(refresh_token: str,
 
 
 async def validate_token(access_token: str,
-                         session: Optional[aiohttp.ClientSession] = None) -> dict:
+                         session: Optional[aiohttp.ClientSession] = None,
+                         auth_base_url: str = TWITCH_AUTH_BASE_URL) -> dict:
     """Helper function for validating a user or app access token.
 
     https://dev.twitch.tv/docs/authentication/validate-tokens
 
     :param access_token: either a user or app OAuth access token
     :param session: optionally a active client session to be used for the web request to avoid having to open a new one
+    :param auth_base_url: The URL to the Twitch API auth server |default| :const:`~twitchAPI.helper.TWITCH_AUTH_BASE_URL`
     :return: response from the api
     """
     header = {'Authorization': f'OAuth {access_token}'}
-    url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/validate', {})
+    url = build_url(auth_base_url + 'validate', {})
     ses = session if session is not None else aiohttp.ClientSession()
     async with ses.get(url, headers=header) as result:
         data = await result.json()
@@ -126,18 +130,20 @@ async def validate_token(access_token: str,
 
 
 async def get_user_info(access_token: str,
-                        session: Optional[aiohttp.ClientSession] = None) -> dict:
+                        session: Optional[aiohttp.ClientSession] = None,
+                        auth_base_url: str = TWITCH_AUTH_BASE_URL) -> dict:
     """Helper function to get claims information from an OAuth2 access token.
 
     https://dev.twitch.tv/docs/authentication/getting-tokens-oidc/#getting-claims-information-from-an-access-token
 
     :param access_token: a OAuth2 access token
     :param session: optionally a active client session to be used for the web request to avoid having to open a new one
+    :param auth_base_url: The URL to the Twitch API auth server |default| :const:`~twitchAPI.helper.TWITCH_AUTH_BASE_URL`
     :return: response from the API
     """
     header = {'Authorization': f'Bearer {access_token}',
               'Content-Type': 'application/json'}
-    url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/userinfo', {})
+    url = build_url(auth_base_url + 'userinfo', {})
     ses = session if session is not None else aiohttp.ClientSession()
     async with ses.get(url, headers=header) as result:
         data = await result.json()
@@ -148,7 +154,8 @@ async def get_user_info(access_token: str,
 
 async def revoke_token(client_id: str,
                        access_token: str,
-                       session: Optional[aiohttp.ClientSession] = None) -> bool:
+                       session: Optional[aiohttp.ClientSession] = None,
+                       auth_base_url: str = TWITCH_AUTH_BASE_URL) -> bool:
     """Helper function for revoking a user or app OAuth access token.
 
     https://dev.twitch.tv/docs/authentication/revoke-tokens
@@ -156,10 +163,11 @@ async def revoke_token(client_id: str,
     :param str client_id: client id belonging to the access token
     :param str access_token: user or app OAuth access token
     :param ~aiohttp.ClientSession session: optionally a active client session to be used for the web request to avoid having to open a new one
+    :param auth_base_url: The URL to the Twitch API auth server |default| :const:`~twitchAPI.helper.TWITCH_AUTH_BASE_URL`
     :rtype: bool
     :return: :code:`True` if revoking succeeded, otherwise :code:`False`
     """
-    url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/revoke', {
+    url = build_url(auth_base_url + 'revoke', {
         'client_id': client_id,
         'token': access_token
     })
@@ -179,13 +187,15 @@ class UserAuthenticator:
                  twitch: 'Twitch',
                  scopes: List[AuthScope],
                  force_verify: bool = False,
-                 url: str = 'http://localhost:17563'):
+                 url: str = 'http://localhost:17563',
+                 auth_base_url: str = TWITCH_AUTH_BASE_URL):
         """
 
         :param twitch: A twitch instance
         :param scopes: List of the desired Auth scopes
         :param force_verify: If this is true, the user will always be prompted for authorization by twitch |default| :code:`False`
         :param url: The reachable URL that will be opened in the browser. |default| :code:`http://localhost:17563`
+        :param auth_base_url: The URL to the Twitch API auth server |default| :const:`~twitchAPI.helper.TWITCH_AUTH_BASE_URL`
         """
         self._twitch: 'Twitch' = twitch
         self._client_id: str = twitch.app_id
@@ -194,6 +204,7 @@ class UserAuthenticator:
         self.logger: Logger = getLogger('twitchAPI.oauth')
         """The logger used for OAuth related log messages"""
         self.url = url
+        self.auth_base_url: str = auth_base_url
         self.document: str = """<!DOCTYPE html>
         <html lang="en">
         <head>
@@ -229,7 +240,7 @@ class UserAuthenticator:
             'force_verify': str(self.force_verify).lower(),
             'state': self.state
         }
-        return build_url(TWITCH_AUTH_BASE_URL + 'oauth2/authorize', params)
+        return build_url(self.auth_base_url + 'authorize', params)
 
     def _build_runner(self):
         app = web.Application()
@@ -336,7 +347,7 @@ class UserAuthenticator:
             'grant_type': 'authorization_code',
             'redirect_uri': self.url
         }
-        url = build_url(TWITCH_AUTH_BASE_URL + 'oauth2/token', param)
+        url = build_url(self.auth_base_url + 'token', param)
         async with aiohttp.ClientSession(timeout=self._twitch.session_timeout) as session:
             async with session.post(url) as response:
                 data: dict = await response.json()
@@ -367,17 +378,18 @@ class UserAuthenticationStorageHelper:
                  twitch: 'Twitch',
                  scopes: List[AuthScope],
                  storage_path: Optional[PurePath] = None,
-                 auth_generator_func: Optional[Callable[['Twitch', List[AuthScope]], Awaitable[Tuple[str, str]]]] = None):
+                 auth_generator_func: Optional[Callable[['Twitch', List[AuthScope]], Awaitable[Tuple[str, str]]]] = None,
+                 auth_base_url: str = TWITCH_AUTH_BASE_URL):
         self.twitch = twitch
         self.logger: Logger = getLogger('twitchAPI.oauth.storage_helper')
         """The logger used for OAuth Storage Helper related log messages"""
         self._target_scopes = scopes
         self.storage_path = storage_path if storage_path is not None else PurePath('user_token.json')
         self.auth_generator = auth_generator_func if auth_generator_func is not None else self._default_auth_gen
+        self.auth_base_url: str = auth_base_url
 
-    @staticmethod
-    async def _default_auth_gen(twitch: 'Twitch', scopes: List[AuthScope]) -> (str, str):
-        auth = UserAuthenticator(twitch, scopes, force_verify=True)
+    async def _default_auth_gen(self, twitch: 'Twitch', scopes: List[AuthScope]) -> (str, str):
+        auth = UserAuthenticator(twitch, scopes, force_verify=True, auth_base_url=self.auth_base_url)
         return await auth.authenticate()
 
     async def _update_stored_tokens(self, token: str, refresh_token: str):
