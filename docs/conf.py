@@ -87,7 +87,7 @@ def setup(app):
 html_theme = 'pydata_sphinx_theme'
 
 # Define the json_url for our version switcher.
-json_url = "https://pytwitchapi.readthedocs.io/en/latest/_static/switcher.json"
+json_url = "/en/latest/_static/switcher.json"
 
 # Define the version we use for matching in the version switcher.
 version_match = os.environ.get("READTHEDOCS_VERSION")
@@ -96,11 +96,11 @@ version_match = os.environ.get("READTHEDOCS_VERSION")
 if not version_match or version_match.isdigit():
     # For local development, infer the version to match from the package.
     # release = release
-    if "dev" in release or "rc" in release:
+    if "-a" in release or "-b" in release or "rc" in release:
         version_match = "develop"
         # We want to keep the relative reference if we are in dev mode
         # but we want the whole url if we are effectively in a released version
-        json_url = "_static/switcher.json"
+        json_url = "/en/latest/_static/switcher.json"
     else:
         version_match = release
 
