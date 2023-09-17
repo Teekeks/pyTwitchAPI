@@ -12,7 +12,7 @@ Version 4.0.0
 Keystone Features
 -----------------
 
-- EventSub now supports the newly added Webhook transport
+- EventSub now supports the newly added Websocket transport
 - EventSub is now using TwitchObject based callback payloads instead of raw dictionaries
 - Chat now supports Command Middleware, check out :doc:`/tutorial/chat-use-middleware` for more info
 - Added :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper` to cut down on common boilerplate code, check out :doc:`/tutorial/reuse-user-token` for more info
