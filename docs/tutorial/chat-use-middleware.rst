@@ -42,7 +42,7 @@ The following basic chat example will be used in this entire tutorial
 
 
     async def command_two(cmd: ChatCommand):
-        await cmd.reply('This is the first command!')
+        await cmd.reply('This is the second command!')
 
 
     async def run():
@@ -97,7 +97,7 @@ The highlighted lines in the code below show how easy it is to set this up:
 
 
    async def command_two(cmd: ChatCommand):
-       await cmd.reply('This is the first command!')
+       await cmd.reply('This is the second command!')
 
 
    async def run():
@@ -153,7 +153,7 @@ The highlighted lines in the code below show how easy it is to set this up:
 
 
    async def command_two(cmd: ChatCommand):
-       await cmd.reply('This is the first command!')
+       await cmd.reply('This is the second command!')
 
 
    async def run():
@@ -220,7 +220,7 @@ You can define a simple handler which just replies to the user as follows using 
 
 
    async def command_two(cmd: ChatCommand):
-       await cmd.reply('This is the first command!')
+       await cmd.reply('This is the second command!')
 
 
    async def handle_command_blocked(cmd: ChatCommand):
@@ -287,7 +287,7 @@ In the following example we will be responding different based on which middlewa
 
 
    async def command_two(cmd: ChatCommand):
-       await cmd.reply('This is the first command!')
+       await cmd.reply('This is the second command!')
 
 
    async def handle_blocked_user(cmd: ChatCommand):
