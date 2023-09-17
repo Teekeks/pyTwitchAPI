@@ -978,6 +978,7 @@ class Twitch:
                         broadcaster_id: Optional[str] = None,
                         game_id: Optional[str] = None,
                         clip_id: Optional[List[str]] = None,
+                        is_featured: Optional[bool] = None,
                         after: Optional[str] = None,
                         before: Optional[str] = None,
                         ended_at: Optional[datetime] = None,
@@ -992,6 +993,10 @@ class Twitch:
         :param broadcaster_id: ID of the broadcaster for whom clips are returned. |default| :code:`None`
         :param game_id: ID of the game for which clips are returned. |default| :code:`None`
         :param clip_id: ID of the clip being queried. Limit: 100. |default| :code:`None`
+        :param is_featured: A Boolean value that determines whether the response includes featured clips. |br|
+                     If :code:`True`, returns only clips that are featured. |br|
+                     If :code:`False`, returns only clips that aren’t featured. |br|
+                     If :code:`None`, all clips are returned. |default| :code:`None`
         :param first: The maximum number of items to return per API call.
                      You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used to
                      fetch the amount of results you desire.\n
@@ -1025,7 +1030,8 @@ class Twitch:
             'before': before,
             'first': first,
             'ended_at': datetime_to_str(ended_at),
-            'started_at': datetime_to_str(started_at)
+            'started_at': datetime_to_str(started_at),
+            'is_featured': is_featured
         }
         async for y in self._build_generator('GET', 'clips', param, AuthType.EITHER, [], Clip, split_lists=True):
             yield y

@@ -32,6 +32,7 @@ Twitch
 
 - :const:`~twitchAPI.twitch.Twitch.get_polls()` now allows up to 20 poll IDs
 - :const:`~twitchAPI.twitch.Twitch.get_channel_followers()` can now also be used without the required Scope or just with App Authentication
+- Added new parameter :paramref:`~twitchAPI.twitch.Twitch.get_clips.is_featured` to :const:`~twitchAPI.twitch.Twitch.get_clips()` and added :const:`~twitchAPI.object.api.Clip.is_featured` to result.
 
 EventSub
 --------

@@ -190,6 +190,7 @@ class Clip(TwitchObject):
     thumbnail_url: str
     duration: float
     vod_offset: int
+    is_featured: bool
 
 
 class CodeStatus(TwitchObject):
