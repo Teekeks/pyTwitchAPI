@@ -6,6 +6,9 @@ User OAuth Authenticator and helper functions
 This tool is an alternative to various online services that give you a user auth token.
 It provides non-server and server options.
 
+Additionally, :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper` provides a simplified way to store & reuse user tokens.
+See :doc:`/tutorial/reuse-user-token` for more information.
+
 ***************************************
 Requirements for non-server environment
 ***************************************
@@ -364,7 +367,7 @@ class UserAuthenticator:
 
 class UserAuthenticationStorageHelper:
     """Helper for automating the generation and storage of a user auth token.\n
-    See Tutorial for more detailed examples and use cases.
+    See :doc:`/tutorial/reuse-user-token` for more detailed examples and use cases.
 
     Basic example use:
 
