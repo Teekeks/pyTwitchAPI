@@ -1,15 +1,14 @@
 #  Copyright (c) 2020. Lena "Teekeks" During <info@teawork.de>
 """
 User OAuth Authenticator and helper functions
----------------------------------------------
+=============================================
 
-This tool is an alternative to various online services that give you a user auth token.
+User Authenticator
+-----------------
+
+:const:`~twitchAPI.oauth.UserAuthenticator` is an alternative to various online services that give you a user auth token.
 It provides non-server and server options.
 
-Additionally, :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper` provides a simplified way to store & reuse user tokens.
-See :doc:`/tutorial/reuse-user-token` for more information.
-
-***************************************
 Requirements for non-server environment
 ***************************************
 
@@ -19,7 +18,6 @@ open a browser window and render the `<twitch.tv>`__ website.
 For my authenticator you have to add the following URL as a "OAuth Redirect URL": :code:`http://localhost:17563`
 You can set that `here in your twitch dev dashboard <https://dev.twitch.tv/console>`__.
 
-***********************************
 Requirements for server environment
 ***********************************
 
@@ -28,7 +26,8 @@ You need the user code provided by Twitch when the user logs-in at the url retur
 Create the UserAuthenticator with the URL of your webserver that will handle the redirect, and add it as a "OAuth Redirect URL"
 You can set that `here in your twitch dev dashboard <https://dev.twitch.tv/console>`__.
 
-************
+.. seealso:: This tutorial has a more detailed example how to use UserAuthenticator on a headless server: :doc:`/tutorial/user-auth-headless`
+
 Code example
 ************
 
@@ -46,6 +45,14 @@ Code example
     token, refresh_token = await auth.authenticate()
     # add User authentication
     await twitch.set_user_authentication(token, target_scope, refresh_token)
+
+User Authentication Storage Helper
+----------------------------------
+
+:const:`~twitchAPI.oauth.UserAuthenticationStorageHelper` provides a simplified way to store & reuse user tokens.
+
+.. seealso:: See :doc:`/tutorial/reuse-user-token` for more information.
+
 
 *******************
 Class Documentation

@@ -1,7 +1,7 @@
 :orphan:
 
-Step by Step Tutorials
-======================
+Tutorials
+=========
 
 
 This is a collection of detailed Tutorials regarding this library.
@@ -15,4 +15,5 @@ Available Tutorials
    :maxdepth: 1
 
    tutorial/reuse-user-token
+   tutorial/user-auth-headless
    tutorial/chat-use-middleware
