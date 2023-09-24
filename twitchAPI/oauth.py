@@ -4,7 +4,7 @@ User OAuth Authenticator and helper functions
 =============================================
 
 User Authenticator
------------------
+------------------
 
 :const:`~twitchAPI.oauth.UserAuthenticator` is an alternative to various online services that give you a user auth token.
 It provides non-server and server options.
@@ -315,6 +315,30 @@ class UserAuthenticator:
     def return_auth_url(self):
         """Returns the URL that will authenticate the app, used for headless server environments."""
         return self._build_auth_url()
+
+    async def mock_authenticate(self, user_id: str) -> str:
+        """Authenticate with a mocked auth flow via ``twitch-cli``
+
+        For more info see :doc:`/tutorial/mocking`
+
+        :param user_id: the id of the user to generate a auth token for
+        :return: the user auth token
+        """
+        param = {
+            'client_id': self._client_id,
+            'client_secret': self._twitch.app_secret,
+            'code': self._user_token,
+            'user_id': user_id,
+            'scope': build_scope(self.scopes),
+            'grant_type': 'user_token'
+        }
+        url = build_url(self.auth_base_url + 'authorize', param)
+        async with aiohttp.ClientSession(timeout=self._twitch.session_timeout) as session:
+            async with session.post(url) as response:
+                data: dict = await response.json()
+        if data is None or data.get('access_token') is None:
+            raise TwitchAPIException(f'Authentication failed:\n{str(data)}')
+        return data['access_token']
 
     async def authenticate(self,
                            callback_func: Optional[Callable[[str, str], None]] = None,
