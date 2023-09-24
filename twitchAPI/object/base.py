@@ -14,6 +14,8 @@ from twitchAPI.helper import build_url
 
 T = TypeVar('T')
 
+__all__ = ['TwitchObject', 'IterTwitchObject', 'AsyncIterTwitchObject']
+
 
 class TwitchObject:
     """
