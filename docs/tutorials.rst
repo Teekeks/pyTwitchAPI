@@ -14,6 +14,7 @@ Available Tutorials
 .. toctree::
    :maxdepth: 1
 
+   tutorial/mocking
    tutorial/reuse-user-token
    tutorial/user-auth-headless
    tutorial/chat-use-middleware
