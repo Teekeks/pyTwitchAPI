@@ -14,6 +14,8 @@ On PyPi: https://pypi.org/project/twitchAPI/
 
 Changelog: :doc:`changelog`
 
+Tutorials: :doc:`tutorials`
+
 
 .. note:: There where major changes to the library with version 4, see the :doc:`v4-migration` to learn how to migrate.
 
