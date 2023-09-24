@@ -51,12 +51,20 @@ User Authentication Storage Helper
 
 :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper` provides a simplified way to store & reuse user tokens.
 
+Code example
+************
+
+.. code-block:: python
+
+      twitch = await Twitch(APP_ID, APP_SECRET)
+      helper = UserAuthenticationStorageHelper(twitch, TARGET_SCOPES)
+      await helper.bind()"
+
 .. seealso:: See :doc:`/tutorial/reuse-user-token` for more information.
 
 
-*******************
 Class Documentation
-*******************
+-------------------
 """
 import json
 import os.path
