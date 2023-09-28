@@ -1081,7 +1081,7 @@ class Chat:
             if handler is not None:
                 command = ChatCommand(self, parsed)
                 # check middleware
-                if _can_execute_command(command, command_name):
+                if await _can_execute_command(command, command_name):
                     t = asyncio.ensure_future(handler(command), loop=self._callback_loop)
                     t.add_done_callback(self._task_callback)
                     for _mid in self._command_middleware + self._command_specific_middleware.get(command_name, []):
