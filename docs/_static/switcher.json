@@ -1,11 +1,11 @@
 [
   {
     "name": "develop",
-    "version": "develop",
+    "version": "latest",
     "url": "https://pytwitchapi.dev/en/latest/"
   },
   {
-    "name": "4.0.0 (stable)",
+    "name": "4.0.1 (stable)",
     "version": "stable",
     "url": "https://pytwitchapi.readthedocs.io/en/stable/",
     "preferred": true

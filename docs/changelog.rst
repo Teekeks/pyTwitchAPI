@@ -4,6 +4,15 @@ Changelog
 =========
 
 *************
+Version 4.0.1
+*************
+
+Chat
+----
+
+- Fixed RuntimeWarning when handling chat commands
+
+*************
 Version 4.0.0
 *************
 
