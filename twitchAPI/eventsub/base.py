@@ -170,26 +170,6 @@ class EventSubBase(ABC):
         return await self._subscribe('channel.update', '2', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelUpdateEvent)
 
-    async def listen_channel_follow(self, broadcaster_user_id: str, callback: Callable[[ChannelFollowEvent], Awaitable[None]]) -> str:
-        """A specified channel receives a follow.
-
-        .. warning:: This subscription is deprecated and will be removed on or soon after the 3rd of August 2023\n
-            Please use :const:`~twitchAPI.eventsub.EventSub.listen_channel_follow_v2()`
-
-        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelfollow
-
-        :param broadcaster_user_id: the id of the user you want to listen to
-        :param callback: function for callback
-        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
-            (e.g. already subscribed to this exact topic)
-        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
-            is true and the subscription was not fully confirmed in time
-        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
-        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
-        """
-        return await self._subscribe('channel.follow', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
-                                     ChannelFollowEvent)
-
     async def listen_channel_follow_v2(self,
                                        broadcaster_user_id: str,
                                        moderator_user_id: str,

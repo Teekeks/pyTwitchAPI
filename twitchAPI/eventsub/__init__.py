@@ -51,10 +51,6 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_update_v2()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelUpdateEvent`
      - A broadcaster updates their channel properties e.g., category, title, content classification labels, broadcast, or language.
-   * - **Channel Follow** v1
-     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_follow()` |br|
-       Payload: :const:`~twitchAPI.object.eventsub.ChannelFollowEvent`
-     - A specified channel receives a follow.
    * - **Channel Follow** v2
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_follow_v2()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelFollowEvent`

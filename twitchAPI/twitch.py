@@ -1723,48 +1723,6 @@ class Twitch:
         async for f in self._build_generator('GET', 'users', url_params, at, [], TwitchUser, split_lists=True):
             yield f
 
-    async def get_users_follows(self,
-                                after: Optional[str] = None,
-                                first: int = 20,
-                                from_id: Optional[str] = None,
-                                to_id: Optional[str] = None) -> TwitchUserFollowResult:
-        """Gets information on follow relationships between two Twitch users.
-        Information returned is sorted in order, most recent follow first.\n\n
-
-        .. warning:: This Endpoint will stop working on or soon after the 3rd of August 2023\n
-            Please switch to :const:`~twitchAPI.twitch.Twitch.get_channel_followers()` and :const:`~twitchAPI.twitch.Twitch.get_followed_channels()`.
-
-        Requires App authentication.\n
-        You have to use at least one of the following fields: from_id, to_id
-        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-users-follows
-
-        :param after: Cursor for forward pagination.\n
-                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
-                    |default| :code:`None`
-        :param first: The maximum number of items to return per API call.
-                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used to
-                     fetch the amount of results you desire.\n
-                     Minimum 1, Maximum 100 |default| :code:`20`
-        :param from_id: User ID. The request returns information about users who are being followed by the from_id user. |default| :code:`None`
-        :param to_id: User ID. The request returns information about users who are following the to_id user. |default| :code:`None`
-        :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
-        :raises ~twitchAPI.type.UnauthorizedException: if app authentication is not set or invalid
-        :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
-        :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
-        :raises ValueError: if first is not in range 1 to 100 or neither from_id nor to_id is provided
-        """
-        if first > 100 or first < 1:
-            raise ValueError('first must be between 1 and 100')
-        if from_id is None and to_id is None:
-            raise ValueError('at least one of from_id and to_id needs to be set')
-        param = {
-            'after': after,
-            'first': first,
-            'from_id': from_id,
-            'to_id': to_id
-        }
-        return await self._build_iter_result('GET', 'users/follows', param, AuthType.EITHER, [], TwitchUserFollowResult)
-
     async def get_channel_followers(self,
                                     broadcaster_id: str,
                                     user_id: Optional[str] = None,

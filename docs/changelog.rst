@@ -4,6 +4,21 @@ Changelog
 =========
 
 *************
+Version 4.1.0
+*************
+
+Twitch
+------
+
+- Removed the deprecated Endpoint "Get Users Follows"
+
+EventSub
+--------
+
+- Removed the deprecated version 1 of topic "Channel Follow"
+
+
+*************
 Version 4.0.1
 *************
 
