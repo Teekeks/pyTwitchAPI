@@ -894,7 +894,18 @@ class Chat:
                 'USERSTATE': self._handle_user_state
             }
             while not self.__connection.closed:
-                message = await self.__connection.receive()
+                try:  # At minimum we should receive a PING request just under every 5 minutes
+                    message = await self.__connection.receive(timeout=5*60)
+                except asyncio.TimeoutError:
+                    self.logger.warning(f"Reached timeout for websocket receive, will attempt a reconnect")
+                    if self.__running:
+                        try:
+                            await self._handle_base_reconnect()
+                        except TwitchBackendException:
+                            self.logger.exception('Connection to chat websocket lost and unable to reestablish connection!')
+                            break
+                    else:
+                        break
                 if message.type == aiohttp.WSMsgType.TEXT:
                     messages = message.data.split('\r\n')
                     for m in messages:
