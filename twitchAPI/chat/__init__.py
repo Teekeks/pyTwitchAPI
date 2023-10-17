@@ -545,7 +545,7 @@ class Chat:
                  is_verified_bot: bool = False,
                  initial_channel: Optional[List[str]] = None,
                  callback_loop: Optional[asyncio.AbstractEventLoop] = None,
-                 no_message_reset_time: int = 10):
+                 no_message_reset_time: Optional[float] = 10):
         """
         :param twitch: A Authenticated twitch instance
         :param connection_url: alternative connection url |default|:code:`None`
@@ -572,7 +572,7 @@ class Chat:
         self.ping_jitter: int = 4
         """Jitter in seconds for ping messages. This should usually not be changed."""
         self._callback_loop = callback_loop
-        self.no_message_reset_time: int = no_message_reset_time
+        self.no_message_reset_time: Optional[float] = no_message_reset_time
         self.listen_confirm_timeout: int = 30
         """Time in second that any :code:`listen_` should wait for its subscription to be completed."""
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
@@ -881,6 +881,7 @@ class Chat:
         await self.__connection.send_str(message)
 
     async def __task_receive(self):
+        receive_timeout = None if self.no_message_reset_time is None else self.no_message_reset_time * 60
         try:
             handlers: Dict[str, Callable] = {
                 'PING': self._handle_ping,
@@ -900,7 +901,7 @@ class Chat:
             }
             while not self.__connection.closed:
                 try:  # At minimum we should receive a PING request just under every 5 minutes
-                    message = await self.__connection.receive(timeout=self.no_message_reset_time*60)
+                    message = await self.__connection.receive(timeout=receive_timeout)
                 except asyncio.TimeoutError:
                     self.logger.warning(f"Reached timeout for websocket receive, will attempt a reconnect")
                     if self.__running:
