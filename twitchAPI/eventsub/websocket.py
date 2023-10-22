@@ -344,8 +344,8 @@ class EventSubWebsocket(EventSubBase):
         except CancelledError:
             return
 
-    def _build_request_header(self):
-        token = self._twitch.get_user_auth_token()
+    async def _build_request_header(self):
+        token = await self._twitch.get_refreshed_user_auth_token()
         if token is None:
             raise TwitchAuthorizationException('no Authorization set!')
         return {

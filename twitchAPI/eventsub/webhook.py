@@ -251,8 +251,8 @@ class EventSubWebhook(EventSubBase):
             'secret': self.secret
         }
 
-    def _build_request_header(self):
-        token = self._twitch.get_app_token()
+    async def _build_request_header(self):
+        token = await self._twitch.get_refreshed_app_token()
         if token is None:
             raise TwitchAuthorizationException('no Authorization set!')
         return {

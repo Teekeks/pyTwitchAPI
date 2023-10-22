@@ -365,16 +365,19 @@ class Twitch:
                 if self.user_auth_refresh_callback is not None:
                     await self.user_auth_refresh_callback(self._user_auth_token, self._user_auth_refresh_token)
         else:
-            if self._app_token_refresh_lock:
-                while self._app_token_refresh_lock:
-                    await asyncio.sleep(0.1)
-            else:
-                self._app_token_refresh_lock = True
-                self.logger.debug('refreshing app token')
-                await self._generate_app_token()
-                self._app_token_refresh_lock = False
-                if self.app_auth_refresh_callback is not None:
-                    await self.app_auth_refresh_callback(self._app_auth_token)
+            await self._refresh_app_token()
+
+    async def _refresh_app_token(self):
+        if self._app_token_refresh_lock:
+            while self._app_token_refresh_lock:
+                await asyncio.sleep(0.1)
+        else:
+            self._app_token_refresh_lock = True
+            self.logger.debug('refreshing app token')
+            await self._generate_app_token()
+            self._app_token_refresh_lock = False
+            if self.app_auth_refresh_callback is not None:
+                await self.app_auth_refresh_callback(self._app_auth_token)
 
     async def _check_request_return(self,
                                     session: ClientSession,
@@ -656,6 +659,15 @@ class Twitch:
             # refresh token
             await self.refresh_used_token()
         return self._user_auth_token
+
+    async def get_refreshed_app_token(self) -> Optional[str]:
+        if self._app_auth_token is None:
+            return None
+        from .oauth import validate_token
+        val_result = await validate_token(self._app_auth_token, auth_base_url=self.auth_base_url)
+        if val_result.get('status', 200) != 200:
+            await self._refresh_app_token()
+        return self._app_auth_token
 
     def get_used_token(self) -> Union[str, None]:
         """Returns the currently used token, can be either the app or user auth Token or None if no auth is set

@@ -73,11 +73,11 @@ class EventSubBase(ABC):
     # ==================================================================================================================
 
     @abstractmethod
-    def _build_request_header(self):
+    async def _build_request_header(self):
         pass
 
     async def _api_post_request(self, session, url: str, data: Union[dict, None] = None):
-        headers = self._build_request_header()
+        headers = await self._build_request_header()
         return await session.post(url, headers=headers, json=data)
 
     def _add_callback(self, c_id: str, callback, event):
