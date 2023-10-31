@@ -108,6 +108,7 @@ from ssl import SSLContext
 from time import sleep
 from typing import Optional, Union, Callable, Awaitable
 import datetime
+from collections import deque
 
 from aiohttp import web, ClientSession
 
@@ -130,7 +131,8 @@ class EventSubWebhook(EventSubBase):
                  host_binding: str = '0.0.0.0',
                  subscription_url: Optional[str] = None,
                  callback_loop: Optional[asyncio.AbstractEventLoop] = None,
-                 revocation_handler: Optional[Callable[[dict], Awaitable[None]]] = None):
+                 revocation_handler: Optional[Callable[[dict], Awaitable[None]]] = None,
+                 message_deduplication_history_length: int = 50):
         """
         :param callback_url: The full URL of the webhook.
         :param port: the port on which this webhook should run
@@ -142,6 +144,7 @@ class EventSubWebhook(EventSubBase):
             Set this if you or a library you use cares about which asyncio event loop is running the callbacks.
             Defaults to the one used by EventSub Webhook.
         :param revocation_handler: Optional handler for when subscriptions get revoked. |default| :code:`None`
+        :param message_deduplication_history_length: The amount of messages being considered for the duplicate message deduplication. |default| :code:`50`
         """
         super().__init__(twitch)
         self.logger.name = 'twitchAPI.eventsub.webhook'
@@ -181,6 +184,7 @@ class EventSubWebhook(EventSubBase):
         if not self.callback_url.startswith('https'):
             raise RuntimeError('HTTPS is required for authenticated webhook.\n'
                                + 'Either use non authenticated webhook or use a HTTPS proxy!')
+        self._msg_id_history: deque = deque(maxlen=message_deduplication_history_length)
 
     async def _unsubscribe_hook(self, topic_id: str) -> bool:
         return True
@@ -353,7 +357,12 @@ class EventSubWebhook(EventSubBase):
             if msg_type.lower() == 'revocation':
                 await self._handle_revokation(data)
             else:
-                dat = callback['event'](**data)
-                t = self._callback_loop.create_task(callback['callback'](dat))
-                t.add_done_callback(self._task_callback)
+                msg_id = request.headers.get('Twitch-Eventsub-Message-Id')
+                if msg_id is not None and msg_id in self._msg_id_history:
+                    self.logger.warning(f'got message with duplicate id {msg_id}! Discarding message')
+                else:
+                    self._msg_id_history.append(msg_id)
+                    dat = callback['event'](**data)
+                    t = self._callback_loop.create_task(callback['callback'](dat))
+                    t.add_done_callback(self._task_callback)
         return web.Response(status=200)
