@@ -24,7 +24,7 @@ EventSub
 Chat
 ----
 
-- Improved recovery from broken network connection
+- Improved recovery from broken network connection (thanks https://github.com/Latent-Logic )
 
 
 *************
