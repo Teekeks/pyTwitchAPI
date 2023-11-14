@@ -556,7 +556,6 @@ class PollChoice(TwitchObject):
     title: str
     votes: int
     channel_point_votes: int
-    bits_votes: int
 
 
 class Poll(TwitchObject):
@@ -566,8 +565,6 @@ class Poll(TwitchObject):
     broadcaster_login: str
     title: str
     choices: List[PollChoice]
-    bits_voting_enabled: bool
-    bits_per_vote: int
     channel_point_voting_enabled: bool
     channel_points_per_vote: int
     status: PollStatus
