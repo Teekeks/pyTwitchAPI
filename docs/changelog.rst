@@ -3,19 +3,28 @@
 Changelog
 =========
 
-*************
-Version 4.1.0
-*************
+*************************
+Development Version 4.1.0
+*************************
 
 Twitch
 ------
 
 - Removed the deprecated Endpoint "Get Users Follows"
+- Removed the deprecated bits related fields from Poll Endpoint data
 
 EventSub
 --------
 
 - Removed the deprecated version 1 of topic "Channel Follow"
+- Duplicate Webhook messages will now be ignored
+- EventSub will now recover properly from a disconnect when auth token is expired
+
+
+Chat
+----
+
+- Improved recovery from broken network connection
 
 
 *************
