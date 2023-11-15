@@ -25,6 +25,8 @@ Chat
 ----
 
 - Improved recovery from broken network connection (thanks https://github.com/Latent-Logic )
+- Added :const:`~twitchAPI.chat.ChatMessage.is_me` flag to :const:`~twitchAPI.chat.ChatMessage`
+- Fixed parsing of messages using the :const:`/me` chat command
 
 
 *************

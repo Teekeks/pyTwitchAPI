@@ -221,6 +221,7 @@ Class Documentation
 import asyncio
 import dataclasses
 import datetime
+import re
 import threading
 from asyncio import CancelledError
 from functools import partial
@@ -390,6 +391,13 @@ class ChatMessage(EventData):
         self._parsed = parsed
         self.text: str = parsed['parameters']
         """The message"""
+        self.is_me: bool = False
+        """This message used the /me command"""
+        result = _ME_REGEX.match(self.text)
+        if result is not None:
+            chat.logger.debug('GOT ME')
+            self.text = result.group('msg')
+            self.is_me = True
         self.bits: int = int(parsed['tags'].get('bits', '0'))
         """The amount of Bits the user cheered"""
         self.sent_timestamp: int = int(parsed['tags'].get('tmi-sent-ts'))
@@ -534,6 +542,8 @@ class NoticeEvent(EventData):
 COMMAND_CALLBACK_TYPE = Callable[[ChatCommand], Awaitable[None]]
 EVENT_CALLBACK_TYPE = Callable[[Any], Awaitable[None]]
 CHATROOM_TYPE = Union[str, ChatRoom]
+
+_ME_REGEX = re.compile(r'^\x01ACTION (?P<msg>\S+)\x01$')
 
 
 class Chat:
