@@ -395,7 +395,6 @@ class ChatMessage(EventData):
         """This message used the /me command"""
         result = _ME_REGEX.match(self.text)
         if result is not None:
-            chat.logger.debug('GOT ME')
             self.text = result.group('msg')
             self.is_me = True
         self.bits: int = int(parsed['tags'].get('bits', '0'))
