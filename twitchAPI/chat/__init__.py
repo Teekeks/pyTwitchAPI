@@ -392,7 +392,7 @@ class ChatMessage(EventData):
         self.text: str = parsed['parameters']
         """The message"""
         self.is_me: bool = False
-        """This message used the /me command"""
+        """Flag indicating if the message used the /me command"""
         result = _ME_REGEX.match(self.text)
         if result is not None:
             self.text = result.group('msg')
@@ -542,7 +542,7 @@ COMMAND_CALLBACK_TYPE = Callable[[ChatCommand], Awaitable[None]]
 EVENT_CALLBACK_TYPE = Callable[[Any], Awaitable[None]]
 CHATROOM_TYPE = Union[str, ChatRoom]
 
-_ME_REGEX = re.compile(r'^\x01ACTION (?P<msg>\S+)\x01$')
+_ME_REGEX = re.compile(r'^\x01ACTION (?P<msg>.+)\x01$')
 
 
 class Chat:
