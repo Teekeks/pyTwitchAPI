@@ -83,6 +83,9 @@ class AuthScope(Enum):
     MODERATOR_READ_FOLLOWERS = 'moderator:read:followers'
     MODERATOR_MANAGE_SHOUTOUTS = 'moderator:manage:shoutouts'
     MODERATOR_READ_SHOUTOUTS = 'moderator:read:shoutouts'
+    CHANNEL_BOT = 'channel:bot'
+    USER_BOT = 'user:bot'
+    USER_READ_CHAT = 'user:read:chat'
 
 
 class ModerationEventType(Enum):
