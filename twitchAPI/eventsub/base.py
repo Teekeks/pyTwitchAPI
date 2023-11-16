@@ -22,7 +22,7 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        StreamOnlineEvent, StreamOfflineEvent, UserAuthorizationGrantEvent, UserAuthorizationRevokeEvent,
                                        UserUpdateEvent, ShieldModeEvent, CharityCampaignStartEvent, CharityCampaignProgressEvent,
                                        CharityCampaignStopEvent, CharityDonationEvent, ChannelShoutoutCreateEvent, ChannelShoutoutReceiveEvent,
-                                       ChannelChatClearEvent)
+                                       ChannelChatClearEvent, ChannelChatClearUserMessagesEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1166,3 +1166,23 @@ class EventSubBase(ABC):
             'user_id': user_id
         }
         return await self._subscribe('channel.chat.clear', '1', param, callback, ChannelChatClearEvent)
+
+    async def listen_channel_chat_clear_user_messages(self,
+                                                      broadcaster_user_id: str,
+                                                      user_id: str,
+                                                      callback: Callable[[ChannelChatClearUserMessagesEvent], Awaitable[None]]) -> str:
+        """A moderator or bot has cleared all messages from a specific user.
+
+        Requires :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT` scope from chatting user. If app access token used, then additionally requires
+        :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from chatting user, and either :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` scope from
+        broadcaster or moderator status.
+
+        :param broadcaster_user_id: User ID of the channel to receive chat clear user messages events for.
+        :param user_id: The user ID to read chat as.
+        :param callback: function for callback
+        """
+        param = {
+            'broadcaster_user_id': broadcaster_user_id,
+            'user_id': user_id
+        }
+        return await self._subscribe('channel.chat.clear_user_messages', '1', param, callback, ChannelChatClearUserMessagesEvent)

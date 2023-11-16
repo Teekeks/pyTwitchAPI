@@ -18,6 +18,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'HypeTrainEndEvent', 'StreamOnlineEvent', 'StreamOfflineEvent', 'UserAuthorizationGrantEvent', 'UserAuthorizationRevokeEvent',
            'UserUpdateEvent', 'ShieldModeEvent', 'CharityCampaignStartEvent', 'CharityCampaignProgressEvent', 'CharityCampaignStopEvent',
            'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
+           'ChannelChatClearUserMessagesEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -27,7 +28,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'GoalData', 'TopContribution', 'LastContribution', 'HypeTrainData', 'HypeTrainEndData', 'StreamOnlineData', 'StreamOfflineData',
            'UserAuthorizationGrantData', 'UserAuthorizationRevokeData', 'UserUpdateData', 'ShieldModeData', 'Amount', 'CharityCampaignStartData',
            'CharityCampaignStopData', 'CharityCampaignProgressData', 'CharityDonationData', 'ChannelShoutoutCreateData', 'ChannelShoutoutReceiveData',
-           'ChannelChatClearData']
+           'ChannelChatClearData', 'ChannelChatClearUserMessagesData']
 
 
 # Event Data
@@ -1031,6 +1032,21 @@ class ChannelChatClearData(TwitchObject):
     """The broadcaster login."""
 
 
+class ChannelChatClearUserMessagesData(TwitchObject):
+    broadcaster_user_id: str
+    """The broadcaster user ID."""
+    broadcaster_user_name: str
+    """The broadcaster display name."""
+    broadcaster_user_login: str
+    """The broadcaster login."""
+    target_user_id: str
+    """The ID of the user that was banned or put in a timeout. All of their messages are deleted."""
+    target_user_name: str
+    """The user name of the user that was banned or put in a timeout."""
+    target_user_login: str
+    """The user login of the user that was banned or put in a timeout."""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -1230,3 +1246,8 @@ class ChannelShoutoutReceiveEvent(TwitchObject):
 class ChannelChatClearEvent(TwitchObject):
     subscription: Subscription
     event: ChannelChatClearData
+
+
+class ChannelChatClearUserMessagesEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelChatClearUserMessagesData
