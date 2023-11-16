@@ -21,7 +21,8 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        DropEntitlementGrantEvent, ExtensionBitsTransactionCreateEvent, GoalEvent, HypeTrainEvent, HypeTrainEndEvent,
                                        StreamOnlineEvent, StreamOfflineEvent, UserAuthorizationGrantEvent, UserAuthorizationRevokeEvent,
                                        UserUpdateEvent, ShieldModeEvent, CharityCampaignStartEvent, CharityCampaignProgressEvent,
-                                       CharityCampaignStopEvent, CharityDonationEvent, ChannelShoutoutCreateEvent, ChannelShoutoutReceiveEvent)
+                                       CharityCampaignStopEvent, CharityDonationEvent, ChannelShoutoutCreateEvent, ChannelShoutoutReceiveEvent,
+                                       ChannelChatClearEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1143,3 +1144,25 @@ class EventSubBase(ABC):
             'moderator_user_id': moderator_user_id
         }
         return await self._subscribe('channel.shoutout.receive', '1', param, callback, ChannelShoutoutReceiveEvent)
+
+    async def listen_channel_chat_clear(self,
+                                        broadcaster_user_id: str,
+                                        user_id: str,
+                                        callback: Callable[[ChannelChatClearEvent], Awaitable[None]]) -> str:
+        """A moderator or bot has cleared all messages from the chat room.
+
+        Requires :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT` scope from chatting user. If app access token used, then additionally requires
+        :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from chatting user, and either :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` scope from
+        broadcaster or moderator status.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchatclear
+
+        :param broadcaster_user_id: User ID of the channel to receive chat clear events for.
+        :param user_id: The user ID to read chat as.
+        :param callback: function for callback
+        """
+        param = {
+            'broadcaster_user_id': broadcaster_user_id,
+            'user_id': user_id
+        }
+        return await self._subscribe('channel.chat.clear', '1', param, callback, ChannelChatClearEvent)

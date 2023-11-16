@@ -17,7 +17,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelPredictionEndEvent', 'DropEntitlementGrantEvent', 'ExtensionBitsTransactionCreateEvent', 'GoalEvent', 'HypeTrainEvent',
            'HypeTrainEndEvent', 'StreamOnlineEvent', 'StreamOfflineEvent', 'UserAuthorizationGrantEvent', 'UserAuthorizationRevokeEvent',
            'UserUpdateEvent', 'ShieldModeEvent', 'CharityCampaignStartEvent', 'CharityCampaignProgressEvent', 'CharityCampaignStopEvent',
-           'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent',
+           'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -26,7 +26,8 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'TopPredictors', 'ChannelPredictionEndData', 'DropEntitlementGrantData', 'Entitlement', 'Product', 'ExtensionBitsTransactionCreateData',
            'GoalData', 'TopContribution', 'LastContribution', 'HypeTrainData', 'HypeTrainEndData', 'StreamOnlineData', 'StreamOfflineData',
            'UserAuthorizationGrantData', 'UserAuthorizationRevokeData', 'UserUpdateData', 'ShieldModeData', 'Amount', 'CharityCampaignStartData',
-           'CharityCampaignStopData', 'CharityCampaignProgressData', 'CharityDonationData', 'ChannelShoutoutCreateData', 'ChannelShoutoutReceiveData']
+           'CharityCampaignStopData', 'CharityCampaignProgressData', 'CharityDonationData', 'ChannelShoutoutCreateData', 'ChannelShoutoutReceiveData',
+           'ChannelChatClearData']
 
 
 # Event Data
@@ -1021,6 +1022,15 @@ class ChannelShoutoutReceiveData(TwitchObject):
     """The timestamp of when the moderator sent the Shoutout."""
 
 
+class ChannelChatClearData(TwitchObject):
+    broadcaster_user_id: str
+    """The broadcaster user ID."""
+    broadcaster_user_name: str
+    """The broadcaster display name."""
+    broadcaster_user_login: str
+    """The broadcaster login."""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -1216,3 +1226,7 @@ class ChannelShoutoutCreateEvent(TwitchObject):
 class ChannelShoutoutReceiveEvent(TwitchObject):
     subscription: Subscription
     event: ChannelShoutoutReceiveData
+
+class ChannelChatClearEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelChatClearData

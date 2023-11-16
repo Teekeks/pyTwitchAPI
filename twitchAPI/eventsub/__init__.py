@@ -227,5 +227,9 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shoutout_receive()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelShoutoutReceiveEvent`
      - Sends a notification when the specified broadcaster receives a Shoutout.
+   * - **Channel Chat Clear**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_clear()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.ChannelChatClearEvent`
+     - A moderator or bot has cleared all messages from the chat room.
 
 """
