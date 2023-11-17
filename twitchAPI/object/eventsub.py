@@ -18,7 +18,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'HypeTrainEndEvent', 'StreamOnlineEvent', 'StreamOfflineEvent', 'UserAuthorizationGrantEvent', 'UserAuthorizationRevokeEvent',
            'UserUpdateEvent', 'ShieldModeEvent', 'CharityCampaignStartEvent', 'CharityCampaignProgressEvent', 'CharityCampaignStopEvent',
            'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
-           'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent',
+           'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -28,7 +28,11 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'GoalData', 'TopContribution', 'LastContribution', 'HypeTrainData', 'HypeTrainEndData', 'StreamOnlineData', 'StreamOfflineData',
            'UserAuthorizationGrantData', 'UserAuthorizationRevokeData', 'UserUpdateData', 'ShieldModeData', 'Amount', 'CharityCampaignStartData',
            'CharityCampaignStopData', 'CharityCampaignProgressData', 'CharityDonationData', 'ChannelShoutoutCreateData', 'ChannelShoutoutReceiveData',
-           'ChannelChatClearData', 'ChannelChatClearUserMessagesData', 'ChannelChatMessageDeleteData']
+           'ChannelChatClearData', 'ChannelChatClearUserMessagesData', 'ChannelChatMessageDeleteData', 'Badge', 'FragmentCheermote',
+           'FragmentEmote', 'FragmentMention', 'MessageFragment', 'Message', 'AnnouncementNoticeMetadata', 'CharityDonationNoticeMetadata',
+           'BitsBadgeTierNoticeMetadata', 'SubNoticeMetadata', 'RaidNoticeMetadata', 'ResubNoticeMetadata', 'UnraidNoticeMetadata',
+           'SubGiftNoticeMetadata', 'CommunitySubGiftNoticeMetadata', 'GiftPaidUpgradeNoticeMetadata', 'PrimePaidUpgradeNoticeMetadata',
+           'PayItForwardNoticeMetadata', 'ChannelChatNotificationData']
 
 
 # Event Data
@@ -1064,6 +1068,283 @@ class ChannelChatMessageDeleteData(TwitchObject):
     """A UUID that identifies the message that was removed."""
 
 
+class Badge(TwitchObject):
+    set_id: str
+    """An ID that identifies this set of chat badges. For example, Bits or Subscriber."""
+    id: str
+    """An ID that identifies this version of the badge. The ID can be any value. For example, for Bits, the ID is the Bits tier level, but for 
+    World of Warcraft, it could be Alliance or Horde."""
+    info: str
+    """Contains metadata related to the chat badges in the badges tag. Currently, this tag contains metadata only for subscriber badges, 
+    to indicate the number of months the user has been a subscriber."""
+
+
+class FragmentCheermote(TwitchObject):
+    prefix: str
+    """The name portion of the Cheermote string that you use in chat to cheer Bits. The full Cheermote string is the concatenation of 
+    {prefix} + {number of Bits}. For example, if the prefix is “Cheer” and you want to cheer 100 Bits, the full Cheermote string is Cheer100. 
+    When the Cheermote string is entered in chat, Twitch converts it to the image associated with the Bits tier that was cheered."""
+    bits: int
+    """The amount of bits cheered."""
+    tier: int
+    """The tier level of the cheermote."""
+
+
+class FragmentEmote(TwitchObject):
+    id: str
+    """An ID that uniquely identifies this emote."""
+    emote_set_id: str
+    """An ID that identifies the emote set that the emote belongs to."""
+    owner_id: str
+    """The ID of the broadcaster who owns the emote."""
+    format: List[str]
+    """The formats that the emote is available in. For example, if the emote is available only as a static PNG, the array contains only static. But if the emote is available as a static PNG and an animated GIF, the array contains static and animated. The possible formats are:
+        
+        - animated — An animated GIF is available for this emote.
+        - static — A static PNG file is available for this emote."""
+
+
+class FragmentMention(TwitchObject):
+    user_id: str
+    """The user ID of the mentioned user."""
+    user_name: str
+    """The user name of the mentioned user."""
+    user_login: str
+    """The user login of the mentioned user."""
+
+
+class MessageFragment(TwitchObject):
+    type: str
+    """The type of message fragment. Possible values:
+    
+        - text
+        - cheermote
+        - emote
+        - mention"""
+    text: str
+    """Message text in fragment"""
+    cheermote: Optional[FragmentCheermote]
+    """Metadata pertaining to the cheermote."""
+    emote: Optional[FragmentEmote]
+    """Metadata pertaining to the emote."""
+    mention: Optional[FragmentMention]
+    """Metadata pertaining to the mention."""
+
+
+class Message(TwitchObject):
+    text: str
+    """The chat message in plain text."""
+    fragments: List[MessageFragment]
+    """Ordered list of chat message fragments."""
+
+
+class SubNoticeMetadata(TwitchObject):
+    sub_tier: str
+    """The type of subscription plan being used. Possible values are:
+    
+        - 1000 — First level of paid or Prime subscription
+        - 2000 — Second level of paid subscription
+        - 3000 — Third level of paid subscription"""
+    is_prime: bool
+    """Indicates if the subscription was obtained through Amazon Prime."""
+    duration_months: int
+    """The number of months the subscription is for."""
+
+
+class ResubNoticeMetadata(TwitchObject):
+    cumulative_months: int
+    """The total number of months the user has subscribed."""
+    duration_months: int
+    """The number of months the subscription is for."""
+    streak_months: int
+    """Optional. The number of consecutive months the user has subscribed."""
+    sub_tier: str
+    """The type of subscription plan being used. Possible values are:
+    
+    - 1000 — First level of paid or Prime subscription
+    - 2000 — Second level of paid subscription
+    - 3000 — Third level of paid subscription"""
+    is_prime: bool
+    """Indicates if the resub was obtained through Amazon Prime."""
+    is_gift: bool
+    """Whether or not the resub was a result of a gift."""
+    gifter_is_anonymous: Optional[bool]
+    """Optional. Whether or not the gift was anonymous."""
+    gifter_user_id: Optional[str]
+    """Optional. The user ID of the subscription gifter. None if anonymous."""
+    gifter_user_name: Optional[str]
+    """Optional. The user name of the subscription gifter. None if anonymous."""
+    gifter_user_login: Optional[str]
+    """Optional. The user login of the subscription gifter. None if anonymous."""
+
+
+class SubGiftNoticeMetadata(TwitchObject):
+    duration_months: int
+    """The number of months the subscription is for."""
+    cumulative_total: Optional[int]
+    """Optional. The amount of gifts the gifter has given in this channel. None if anonymous."""
+    recipient_user_id: str
+    """The user ID of the subscription gift recipient."""
+    recipient_user_name: str
+    """The user name of the subscription gift recipient."""
+    recipient_user_login: str
+    """The user login of the subscription gift recipient."""
+    sub_tier: str
+    """The type of subscription plan being used. Possible values are:
+    
+    - 1000 — First level of paid subscription
+    - 2000 — Second level of paid subscription
+    - 3000 — Third level of paid subscription"""
+    community_gift_id: Optional[str]
+    """Optional. The ID of the associated community gift. None if not associated with a community gift."""
+
+
+class CommunitySubGiftNoticeMetadata(TwitchObject):
+    id: str
+    """The ID of the associated community gift."""
+    total: int
+    """Number of subscriptions being gifted."""
+    sub_tier: str
+    """The type of subscription plan being used. Possible values are:
+    
+    - 1000 — First level of paid subscription
+    - 2000 — Second level of paid subscription
+    - 3000 — Third level of paid subscription"""
+    cumulative_total: Optional[int]
+    """Optional. The amount of gifts the gifter has given in this channel. None if anonymous."""
+
+
+class GiftPaidUpgradeNoticeMetadata(TwitchObject):
+    gifter_is_anonymous: bool
+    """Whether the gift was given anonymously."""
+    gifter_user_id: Optional[str]
+    """Optional. The user ID of the user who gifted the subscription. None if anonymous."""
+    gifter_user_name: Optional[str]
+    """Optional. The user name of the user who gifted the subscription. None if anonymous."""
+    gifter_user_login: Optional[str]
+    """Optional. The user login of the user who gifted the subscription. None if anonymous."""
+
+
+class PrimePaidUpgradeNoticeMetadata(TwitchObject):
+    sub_tier: str
+    """The type of subscription plan being used. Possible values are:
+    
+    - 1000 — First level of paid subscription
+    - 2000 — Second level of paid subscription
+    - 3000 — Third level of paid subscription"""
+
+
+class RaidNoticeMetadata(TwitchObject):
+    user_id: str
+    """The user ID of the broadcaster raiding this channel."""
+    user_name: str
+    """The user name of the broadcaster raiding this channel."""
+    user_login: str
+    """The login name of the broadcaster raiding this channel."""
+    viewer_count: int
+    """The number of viewers raiding this channel from the broadcaster’s channel."""
+    profile_image_url: str
+    """Profile image URL of the broadcaster raiding this channel."""
+
+
+class UnraidNoticeMetadata(TwitchObject):
+    pass
+
+class PayItForwardNoticeMetadata(TwitchObject):
+    gifter_is_anonymous: bool
+    """Whether the gift was given anonymously."""
+    gifter_user_id: Optional[str]
+    """Optional. The user ID of the user who gifted the subscription. None if anonymous."""
+    gifter_user_name: Optional[str]
+    """Optional. The user name of the user who gifted the subscription. None if anonymous."""
+    gifter_user_login: Optional[str]
+    """Optional. The user login of the user who gifted the subscription. None if anonymous."""
+
+
+class AnnouncementNoticeMetadata(TwitchObject):
+    color: str
+    """Color of the announcement."""
+
+
+class CharityDonationNoticeMetadata(TwitchObject):
+    charity_name: str
+    """Name of the charity."""
+    amount: Amount
+    """An object that contains the amount of money that the user paid."""
+
+
+class BitsBadgeTierNoticeMetadata(TwitchObject):
+    tier: int
+    """The tier of the Bits badge the user just earned. For example, 100, 1000, or 10000."""
+
+
+class ChannelChatNotificationData(TwitchObject):
+    broadcaster_user_id: str
+    """The broadcaster user ID."""
+    broadcaster_user_name: str
+    """The broadcaster display name."""
+    broadcaster_user_login: str
+    """The broadcaster login."""
+    chatter_user_id: str
+    """The user ID of the user that sent the message."""
+    chatter_user_name: str
+    """The user name of the user that sent the message."""
+    chatter_user_login: str
+    """The user login of the user that sent the message."""
+    chatter_is_anonymous: bool
+    """Whether or not the chatter is anonymous."""
+    color: str
+    """The color of the user’s name in the chat room."""
+    badges: List[Badge]
+    """List of chat badges."""
+    system_message: str
+    """The message Twitch shows in the chat room for this notice."""
+    message_id: str
+    """A UUID that identifies the message."""
+    message: Message
+    """The structured chat message"""
+    notice_type: str
+    """The type of notice. Possible values are:
+
+        - sub
+        - resub
+        - sub_gift
+        - community_sub_gift
+        - gift_paid_upgrade
+        - prime_paid_upgrade
+        - raid
+        - unraid
+        - pay_it_forward
+        - announcement
+        - bits_badge_tier
+        - charity_donation"""
+    sub: Optional[SubNoticeMetadata]
+    """Information about the sub event. None if notice_type is not sub."""
+    resub: Optional[ResubNoticeMetadata]
+    """Information about the resub event. None if notice_type is not resub."""
+    sub_gift: Optional[SubGiftNoticeMetadata]
+    """Information about the gift sub event. None if notice_type is not sub_gift."""
+    community_sub_gift: Optional[CommunitySubGiftNoticeMetadata]
+    """Information about the community gift sub event. None if notice_type is not community_sub_gift."""
+    gift_paid_upgrade: Optional[GiftPaidUpgradeNoticeMetadata]
+    """Information about the community gift paid upgrade event. None if notice_type is not gift_paid_upgrade."""
+    prime_paid_upgrade: Optional[PrimePaidUpgradeNoticeMetadata]
+    """Information about the Prime gift paid upgrade event. None if notice_type is not prime_paid_upgrade."""
+    raid: Optional[RaidNoticeMetadata]
+    """Information about the raid event. None if notice_type is not raid."""
+    unraid: Optional[UnraidNoticeMetadata]
+    """Returns an empty payload if notice_type is unraid, otherwise returns None."""
+    pay_it_forward: Optional[PayItForwardNoticeMetadata]
+    """Information about the pay it forward event. None if notice_type is not pay_it_forward."""
+    announcement: Optional[AnnouncementNoticeMetadata]
+    """Information about the announcement event. None if notice_type is not announcement"""
+    charity_donation: Optional[CharityDonationNoticeMetadata]
+    """Information about the charity donation event. None if notice_type is not charity_donation."""
+    bits_badge_tier: Optional[BitsBadgeTierNoticeMetadata]
+    """Information about the bits badge tier event. None if notice_type is not bits_badge_tier."""
+
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -1273,3 +1554,8 @@ class ChannelChatClearUserMessagesEvent(TwitchObject):
 class ChannelChatMessageDeleteEvent(TwitchObject):
     subscription: Subscription
     event: ChannelChatMessageDeleteData
+
+
+class ChannelChatNotificationEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelChatNotificationData
