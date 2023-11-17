@@ -16,9 +16,16 @@ Twitch
 EventSub
 --------
 
-- Removed the deprecated version 1 of topic "Channel Follow"
 - Duplicate Webhook messages will now be ignored
 - EventSub will now recover properly from a disconnect when auth token is expired
+- Added the following new Topics:
+
+  - "Channel Chat Clear" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_clear()`
+  - "Channel Chat Clear User Messages" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_clear_user_messages()`
+  - "Channel Chat Message Delete" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_message_delete()`
+  - "Channel Chat Notification" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_notification()`
+
+- Removed the deprecated version 1 of topic "Channel Follow"
 
 
 Chat
@@ -28,6 +35,15 @@ Chat
 - Added :const:`~twitchAPI.chat.ChatMessage.is_me` flag to :const:`~twitchAPI.chat.ChatMessage`
 - Fixed parsing of messages using the :const:`/me` chat command
 
+
+OAuth
+-----
+
+- Added the following new AuthScopes:
+
+  - :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT`
+  - :const:`~twitchAPI.type.AuthScope.USER_BOT`
+  - :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT`
 
 *************
 Version 4.0.1
