@@ -235,5 +235,9 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_clear_user_messages()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelChatClearUserMessagesEvent`
      - A moderator or bot has cleared all messages from a specific user.
+   * - **Channel Chat Message Delete**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_message_delete()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.ChannelChatMessageDeleteEvent`
+     - A moderator has removed a specific message.
 
 """
