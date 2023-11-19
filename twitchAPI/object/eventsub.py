@@ -28,8 +28,8 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'GoalData', 'TopContribution', 'LastContribution', 'HypeTrainData', 'HypeTrainEndData', 'StreamOnlineData', 'StreamOfflineData',
            'UserAuthorizationGrantData', 'UserAuthorizationRevokeData', 'UserUpdateData', 'ShieldModeData', 'Amount', 'CharityCampaignStartData',
            'CharityCampaignStopData', 'CharityCampaignProgressData', 'CharityDonationData', 'ChannelShoutoutCreateData', 'ChannelShoutoutReceiveData',
-           'ChannelChatClearData', 'ChannelChatClearUserMessagesData', 'ChannelChatMessageDeleteData', 'Badge', 'FragmentCheermote',
-           'FragmentEmote', 'FragmentMention', 'MessageFragment', 'Message', 'AnnouncementNoticeMetadata', 'CharityDonationNoticeMetadata',
+           'ChannelChatClearData', 'ChannelChatClearUserMessagesData', 'ChannelChatMessageDeleteData', 'Badge', 'MessageFragmentCheermote',
+           'MessageFragmentEmote', 'MessageFragmentMention', 'MessageFragment', 'Message', 'AnnouncementNoticeMetadata', 'CharityDonationNoticeMetadata',
            'BitsBadgeTierNoticeMetadata', 'SubNoticeMetadata', 'RaidNoticeMetadata', 'ResubNoticeMetadata', 'UnraidNoticeMetadata',
            'SubGiftNoticeMetadata', 'CommunitySubGiftNoticeMetadata', 'GiftPaidUpgradeNoticeMetadata', 'PrimePaidUpgradeNoticeMetadata',
            'PayItForwardNoticeMetadata', 'ChannelChatNotificationData']
@@ -1079,7 +1079,7 @@ class Badge(TwitchObject):
     to indicate the number of months the user has been a subscriber."""
 
 
-class FragmentCheermote(TwitchObject):
+class MessageFragmentCheermote(TwitchObject):
     prefix: str
     """The name portion of the Cheermote string that you use in chat to cheer Bits. The full Cheermote string is the concatenation of 
     {prefix} + {number of Bits}. For example, if the prefix is “Cheer” and you want to cheer 100 Bits, the full Cheermote string is Cheer100. 
@@ -1090,7 +1090,7 @@ class FragmentCheermote(TwitchObject):
     """The tier level of the cheermote."""
 
 
-class FragmentEmote(TwitchObject):
+class MessageFragmentEmote(TwitchObject):
     id: str
     """An ID that uniquely identifies this emote."""
     emote_set_id: str
@@ -1104,7 +1104,7 @@ class FragmentEmote(TwitchObject):
         - static — A static PNG file is available for this emote."""
 
 
-class FragmentMention(TwitchObject):
+class MessageFragmentMention(TwitchObject):
     user_id: str
     """The user ID of the mentioned user."""
     user_name: str
@@ -1123,11 +1123,11 @@ class MessageFragment(TwitchObject):
         - mention"""
     text: str
     """Message text in fragment"""
-    cheermote: Optional[FragmentCheermote]
+    cheermote: Optional[MessageFragmentCheermote]
     """Metadata pertaining to the cheermote."""
-    emote: Optional[FragmentEmote]
+    emote: Optional[MessageFragmentEmote]
     """Metadata pertaining to the emote."""
-    mention: Optional[FragmentMention]
+    mention: Optional[MessageFragmentMention]
     """Metadata pertaining to the mention."""
 
 
