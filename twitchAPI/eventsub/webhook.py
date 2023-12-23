@@ -234,6 +234,7 @@ class EventSubWebhook(EventSubBase):
         This also unsubscribes from all known subscriptions if unsubscribe_on_stop is True
 
         :rtype: None
+        :raises RuntimeError: if EventSub is not running
         """
         if not self.__running:
             raise RuntimeError('EventSubWebhook is not running')

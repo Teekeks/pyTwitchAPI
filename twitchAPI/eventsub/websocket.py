@@ -155,6 +155,11 @@ class EventSubWebsocket(EventSubBase):
         """Time in seconds between reconnect attempts"""
 
     def start(self):
+        """Starts the EventSub client
+
+        :raises RuntimeError: If EventSub is already running
+        :raises ~twitchAPI.type.UnauthorizedException: If Twitch instance is missing user authentication
+        """
         self.logger.debug('starting websocket EventSub...')
         if self._running:
             raise RuntimeError('EventSubWebsocket is already started!')
@@ -172,6 +177,10 @@ class EventSubWebsocket(EventSubBase):
         self.logger.debug('EventSubWebsocket started up!')
 
     async def stop(self):
+        """Stops the EventSub client
+
+        :raises RuntimeError: If EventSub is not running
+        """
         if not self._running:
             raise RuntimeError('EventSubWebsocket is not running')
         self.logger.debug('stopping websocket EventSub...')
