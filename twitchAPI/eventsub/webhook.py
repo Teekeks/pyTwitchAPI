@@ -235,6 +235,8 @@ class EventSubWebhook(EventSubBase):
 
         :rtype: None
         """
+        if not self.__running:
+            raise RuntimeError('EventSubWebhook is not running')
         self.logger.debug('shutting down eventsub')
         if self.__hook_runner is not None and self.unsubscribe_on_stop:
             await self.unsubscribe_all_known()
