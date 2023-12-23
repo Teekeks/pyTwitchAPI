@@ -2101,7 +2101,7 @@ class Twitch:
         """
         data = await self._build_result('GET', 'streams/key', {'broadcaster_id': broadcaster_id}, AuthType.USER, [AuthScope.CHANNEL_READ_STREAM_KEY],
                                         dict)
-        return data[0]['stream_key']
+        return data['stream_key']
 
     async def start_commercial(self,
                                broadcaster_id: str,
