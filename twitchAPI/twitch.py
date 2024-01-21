@@ -3869,3 +3869,25 @@ class Twitch:
                                         {'broadcaster_id': broadcaster_id},
                                         AuthType.USER, [AuthScope.CHANNEL_READ_ADS],
                                         AdSchedule)
+
+    async def snooze_next_ad(self,
+                             broadcaster_id: str) -> AdSnoozeResponse:
+        """If available, pushes back the timestamp of the upcoming automatic mid-roll ad by 5 minutes.
+        This endpoint duplicates the snooze functionality in the creator dashboard’s Ads Manager.
+
+        Requires User Authentication with :const:`~twitchAPI.type.AuthScope.CHANNEL_MANAGE_ADS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#snooze-next-ad
+
+        :param broadcaster_id: Provided broadcaster_id must match the user_id in the auth token.
+        :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.type.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.type.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
+        """
+        return await self._build_result('POST',
+                                        'channels/ads/schedule/snooze',
+                                        {'broadcaster_id': broadcaster_id},
+                                        AuthType.USER, [AuthScope.CHANNEL_MANAGE_ADS],
+                                        AdSnoozeResponse)
