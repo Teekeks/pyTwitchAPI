@@ -23,7 +23,7 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        UserUpdateEvent, ShieldModeEvent, CharityCampaignStartEvent, CharityCampaignProgressEvent,
                                        CharityCampaignStopEvent, CharityDonationEvent, ChannelShoutoutCreateEvent, ChannelShoutoutReceiveEvent,
                                        ChannelChatClearEvent, ChannelChatClearUserMessagesEvent, ChannelChatMessageDeleteEvent,
-                                       ChannelChatNotificationEvent)
+                                       ChannelChatNotificationEvent, ChannelAdBreakBeginEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1188,7 +1188,6 @@ class EventSubBase(ABC):
         }
         return await self._subscribe('channel.chat.clear_user_messages', '1', param, callback, ChannelChatClearUserMessagesEvent)
 
-
     async def listen_channel_chat_message_delete(self,
                                                  broadcaster_user_id: str,
                                                  user_id: str,
@@ -1209,11 +1208,10 @@ class EventSubBase(ABC):
         }
         return await self._subscribe('channel.chat.message_delete', '1', param, callback, ChannelChatMessageDeleteEvent)
 
-
     async def listen_channel_chat_notification(self,
-                                                 broadcaster_user_id: str,
-                                                 user_id: str,
-                                                 callback: Callable[[ChannelChatNotificationEvent], Awaitable[None]]) -> str:
+                                               broadcaster_user_id: str,
+                                               user_id: str,
+                                               callback: Callable[[ChannelChatNotificationEvent], Awaitable[None]]) -> str:
         """A notification for when an event that appears in chat has occurred.
 
         Requires :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT` scope from chatting user. If app access token used, then additionally requires
@@ -1229,3 +1227,18 @@ class EventSubBase(ABC):
             'user_id': user_id
         }
         return await self._subscribe('channel.chat.notification', '1', param, callback, ChannelChatNotificationEvent)
+
+    async def listen_channel_ad_break_begin(self,
+                                            broadcaster_user_id: str,
+                                            callback: Callable[[ChannelAdBreakBeginEvent], Awaitable[None]]) -> str:
+        """A midroll commercial break has started running.
+
+        Requires the :const:`~twitchAPI.type.AuthScope.CHANNEL_READ_ADS` scope.
+
+        :param broadcaster_user_id: The ID of the broadcaster that you want to get Channel Ad Break begin notifications for.
+        :param callback: function for callback
+        """
+        return await self._subscribe('channel.ad_break.begin', '1',
+                                     {'broadcaster_user_id': broadcaster_user_id},
+                                     callback,
+                                     ChannelAdBreakBeginEvent)

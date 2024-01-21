@@ -18,7 +18,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'HypeTrainEndEvent', 'StreamOnlineEvent', 'StreamOfflineEvent', 'UserAuthorizationGrantEvent', 'UserAuthorizationRevokeEvent',
            'UserUpdateEvent', 'ShieldModeEvent', 'CharityCampaignStartEvent', 'CharityCampaignProgressEvent', 'CharityCampaignStopEvent',
            'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
-           'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent',
+           'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent', 'ChannelAdBreakBeginEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -32,7 +32,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'MessageFragmentEmote', 'MessageFragmentMention', 'MessageFragment', 'Message', 'AnnouncementNoticeMetadata', 'CharityDonationNoticeMetadata',
            'BitsBadgeTierNoticeMetadata', 'SubNoticeMetadata', 'RaidNoticeMetadata', 'ResubNoticeMetadata', 'UnraidNoticeMetadata',
            'SubGiftNoticeMetadata', 'CommunitySubGiftNoticeMetadata', 'GiftPaidUpgradeNoticeMetadata', 'PrimePaidUpgradeNoticeMetadata',
-           'PayItForwardNoticeMetadata', 'ChannelChatNotificationData']
+           'PayItForwardNoticeMetadata', 'ChannelChatNotificationData', 'ChannelAdBreakBeginData']
 
 
 # Event Data
@@ -1344,6 +1344,27 @@ class ChannelChatNotificationData(TwitchObject):
     """Information about the bits badge tier event. None if notice_type is not bits_badge_tier."""
 
 
+class ChannelAdBreakBeginData(TwitchObject):
+    duration_seconds: int
+    """Length in seconds of the mid-roll ad break requested"""
+    started_at: datetime
+    """The UTC timestamp of when the ad break began, in RFC3339 format. Note that there is potential delay between this 
+    event, when the streamer requested the ad break, and when the viewers will see ads."""
+    is_automatic: bool
+    """Indicates if the ad was automatically scheduled via Ads Manager"""
+    broadcaster_user_id: str
+    """The broadcaster’s user ID for the channel the ad was run on."""
+    broadcaster_user_login: str
+    """The broadcaster’s user login for the channel the ad was run on."""
+    broadcaster_user_name: str
+    """The broadcaster’s user display name for the channel the ad was run on."""
+    requester_user_id: str
+    """The ID of the user that requested the ad. For automatic ads, this will be the ID of the broadcaster."""
+    requester_user_login: str
+    """The login of the user that requested the ad."""
+    requester_user_name: str
+    """The display name of the user that requested the ad."""
+
 
 # Events
 
@@ -1559,3 +1580,8 @@ class ChannelChatMessageDeleteEvent(TwitchObject):
 class ChannelChatNotificationEvent(TwitchObject):
     subscription: Subscription
     event: ChannelChatNotificationData
+
+
+class ChannelAdBreakBeginEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelAdBreakBeginData
