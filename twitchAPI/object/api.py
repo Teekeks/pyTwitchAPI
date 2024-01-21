@@ -25,7 +25,7 @@ __all__ = ['TwitchUser', 'TwitchUserFollow', 'TwitchUserFollowResult', 'DateRang
            'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment', 'StreamVacation', 'ChannelStreamSchedule',
            'ChannelVIP', 'UserChatColor', 'Chatter', 'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign',
            'CharityCampaignDonation', 'AutoModSettings', 'ChannelFollower', 'ChannelFollowersResult', 'FollowedChannel', 'FollowedChannelsResult',
-           'ContentClassificationLabel']
+           'ContentClassificationLabel', 'AdSchedule']
 
 
 class TwitchUser(TwitchObject):
@@ -766,3 +766,18 @@ class ContentClassificationLabel(TwitchObject):
     id: str
     description: str
     name: str
+
+
+class AdSchedule(TwitchObject):
+    snooze_count: int
+    """The number of snoozes available for the broadcaster."""
+    snooze_refresh_at: Optional[datetime]
+    """The UTC timestamp when the broadcaster will gain an additional snooze."""
+    next_ad_at: Optional[datetime]
+    """The UTC timestamp of the broadcaster’s next scheduled ad. Empty if the channel has no ad scheduled or is not live."""
+    duration: int
+    """The length in seconds of the scheduled upcoming ad break."""
+    last_ad_at: Optional[datetime]
+    """The UTC timestamp of the broadcaster’s last ad-break. Empty if the channel has not run an ad or is not live."""
+    preroll_free_time: int
+    """The amount of pre-roll free time remaining for the channel in seconds. Returns 0 if they are currently not pre-roll free."""
