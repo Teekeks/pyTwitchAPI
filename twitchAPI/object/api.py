@@ -25,7 +25,7 @@ __all__ = ['TwitchUser', 'TwitchUserFollow', 'TwitchUserFollowResult', 'DateRang
            'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment', 'StreamVacation', 'ChannelStreamSchedule',
            'ChannelVIP', 'UserChatColor', 'Chatter', 'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign',
            'CharityCampaignDonation', 'AutoModSettings', 'ChannelFollower', 'ChannelFollowersResult', 'FollowedChannel', 'FollowedChannelsResult',
-           'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse']
+           'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse', 'SendMessageResponse']
 
 
 class TwitchUser(TwitchObject):
@@ -791,3 +791,18 @@ class AdSnoozeResponse(TwitchObject):
     next_ad_at: Optional[datetime]
     """The UTC timestamp of the broadcaster’s next scheduled ad"""
 
+
+class SendMessageDropReason(TwitchObject):
+    code: str
+    """Code for why the message was dropped."""
+    message: str
+    """Message for why the message was dropped."""
+
+
+class SendMessageResponse(TwitchObject):
+    message_id: str
+    """The message id for the message that was sent."""
+    is_sent: bool
+    """If the message passed all checks and was sent."""
+    drop_reason: Optional[SendMessageDropReason]
+    """The reason the message was dropped, if any."""

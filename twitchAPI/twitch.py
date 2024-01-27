@@ -3891,3 +3891,35 @@ class Twitch:
                                         {'broadcaster_id': broadcaster_id},
                                         AuthType.USER, [AuthScope.CHANNEL_MANAGE_ADS],
                                         AdSnoozeResponse)
+
+    async def send_chat_message(self,
+                                broadcaster_id: str,
+                                sender_id: str,
+                                message: str,
+                                reply_parent_message_id: Optional[str] = None) -> SendMessageResponse:
+        """Sends a message to the broadcaster’s chat room.
+
+        Requires User or App Authentication with :const:`~twitchAPI.type.AuthScope.USER_WRITE_CHAT` \n
+        If App Authorization is used, then additionally requires :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from the
+        chatting user and either :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` from the broadcaster or moderator status.\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#send-chat-message
+
+        :param broadcaster_id: The ID of the broadcaster whose chat room the message will be sent to.
+        :param sender_id: The ID of the user sending the message. This ID must match the user ID in the user access token.
+        :param message: The message to send. The message is limited to a maximum of 500 characters.
+            Chat messages can also include emoticons. To include emoticons, use the name of the emote.
+            The names are case sensitive. Don’t include colons around the name (e.g., :bleedPurple:).
+            If Twitch recognizes the name, Twitch converts the name to the emote before writing the chat message to the chat room
+        :param reply_parent_message_id: The ID of the chat message being replied to.
+        """
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'sender_id': sender_id,
+            'message': message,
+            'reply_parent_message_id': reply_parent_message_id
+        }
+        return await self._build_result('POST',
+                                        'chat/messages',
+                                        param,
+                                        AuthType.EITHER, [AuthScope.USER_WRITE_CHAT],
+                                        SendMessageResponse)
