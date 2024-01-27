@@ -3911,6 +3911,11 @@ class Twitch:
             The names are case sensitive. Don’t include colons around the name (e.g., :bleedPurple:).
             If Twitch recognizes the name, Twitch converts the name to the emote before writing the chat message to the chat room
         :param reply_parent_message_id: The ID of the chat message being replied to.
+        :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.type.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
         """
         param = {
             'broadcaster_id': broadcaster_id,
