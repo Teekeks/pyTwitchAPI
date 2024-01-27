@@ -397,7 +397,7 @@ class EventSubWebsocket(EventSubBase):
     async def _handle_reconnect(self, data: dict):
         session = data.get('payload', {}).get('session', {})
         self.active_session = Session(session)
-        self.logger.debug(f'got request from websocket to reconnect')
+        self.logger.debug(f'got request from websocket to reconnect, reconnect url: {self.active_session.reconnect_url}')
         await self._connect(False)
 
     async def _handle_welcome(self, data: dict):
