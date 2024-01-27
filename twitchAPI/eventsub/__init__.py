@@ -243,6 +243,10 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_notification()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelChatNotificationEvent`
      - A notification for when an event that appears in chat has occurred.
+   * - **Channel Chat Message**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_message()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.ChannelChatMessageEvent`
+     - Any user sends a message to a specific chat room.
    * - **Channel Ad Break Begin**
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_ad_break_begin()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelAdBreakBeginEvent`

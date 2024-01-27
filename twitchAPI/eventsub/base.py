@@ -23,7 +23,7 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        UserUpdateEvent, ShieldModeEvent, CharityCampaignStartEvent, CharityCampaignProgressEvent,
                                        CharityCampaignStopEvent, CharityDonationEvent, ChannelShoutoutCreateEvent, ChannelShoutoutReceiveEvent,
                                        ChannelChatClearEvent, ChannelChatClearUserMessagesEvent, ChannelChatMessageDeleteEvent,
-                                       ChannelChatNotificationEvent, ChannelAdBreakBeginEvent)
+                                       ChannelChatNotificationEvent, ChannelAdBreakBeginEvent, ChannelChatMessageEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1242,3 +1242,19 @@ class EventSubBase(ABC):
                                      {'broadcaster_user_id': broadcaster_user_id},
                                      callback,
                                      ChannelAdBreakBeginEvent)
+
+    async def listen_channel_chat_message(self,
+                                          broadcaster_user_id: str,
+                                          user_id: str,
+                                          callback: Callable[[ChannelChatMessageEvent], Awaitable[None]]) -> str:
+        """Any user sends a message to a specific chat room.
+
+        :param broadcaster_user_id: User ID of the channel to receive chat message events for.
+        :param user_id: The user ID to read chat as.
+        :param callback: function for callback
+        """
+        param = {
+            'broadcaster_user_id': broadcaster_user_id,
+            'user_id': user_id
+        }
+        return await self._subscribe('channel.chat.message', '1', param, callback, ChannelChatMessageEvent)

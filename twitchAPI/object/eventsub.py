@@ -19,6 +19,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'UserUpdateEvent', 'ShieldModeEvent', 'CharityCampaignStartEvent', 'CharityCampaignProgressEvent', 'CharityCampaignStopEvent',
            'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
            'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent', 'ChannelAdBreakBeginEvent',
+           'ChannelChatMessageEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -29,10 +30,12 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'UserAuthorizationGrantData', 'UserAuthorizationRevokeData', 'UserUpdateData', 'ShieldModeData', 'Amount', 'CharityCampaignStartData',
            'CharityCampaignStopData', 'CharityCampaignProgressData', 'CharityDonationData', 'ChannelShoutoutCreateData', 'ChannelShoutoutReceiveData',
            'ChannelChatClearData', 'ChannelChatClearUserMessagesData', 'ChannelChatMessageDeleteData', 'Badge', 'MessageFragmentCheermote',
-           'MessageFragmentEmote', 'MessageFragmentMention', 'MessageFragment', 'Message', 'AnnouncementNoticeMetadata', 'CharityDonationNoticeMetadata',
-           'BitsBadgeTierNoticeMetadata', 'SubNoticeMetadata', 'RaidNoticeMetadata', 'ResubNoticeMetadata', 'UnraidNoticeMetadata',
-           'SubGiftNoticeMetadata', 'CommunitySubGiftNoticeMetadata', 'GiftPaidUpgradeNoticeMetadata', 'PrimePaidUpgradeNoticeMetadata',
-           'PayItForwardNoticeMetadata', 'ChannelChatNotificationData', 'ChannelAdBreakBeginData']
+           'MessageFragmentEmote', 'MessageFragmentMention', 'MessageFragment', 'Message', 'AnnouncementNoticeMetadata',
+           'CharityDonationNoticeMetadata', 'BitsBadgeTierNoticeMetadata', 'SubNoticeMetadata', 'RaidNoticeMetadata', 'ResubNoticeMetadata',
+           'UnraidNoticeMetadata', 'SubGiftNoticeMetadata', 'CommunitySubGiftNoticeMetadata', 'GiftPaidUpgradeNoticeMetadata',
+           'PrimePaidUpgradeNoticeMetadata', 'PayItForwardNoticeMetadata', 'ChannelChatNotificationData', 'ChannelAdBreakBeginData',
+           'ChannelChatMessageData', 'ChatMessage', 'ChatMessageBadge', 'ChatMessageFragment', 'ChatMessageFragmentCheermoteMetadata',
+           'ChatMessageFragmentMentionMetadata', 'ChatMessageReplyMetadata', 'ChatMessageCheerMetadata', 'ChatMessageFragmentEmoteMetadata']
 
 
 # Event Data
@@ -1250,6 +1253,7 @@ class RaidNoticeMetadata(TwitchObject):
 class UnraidNoticeMetadata(TwitchObject):
     pass
 
+
 class PayItForwardNoticeMetadata(TwitchObject):
     gifter_is_anonymous: bool
     """Whether the gift was given anonymously."""
@@ -1306,18 +1310,18 @@ class ChannelChatNotificationData(TwitchObject):
     notice_type: str
     """The type of notice. Possible values are:
 
-        - sub
-        - resub
-        - sub_gift
-        - community_sub_gift
-        - gift_paid_upgrade
-        - prime_paid_upgrade
-        - raid
-        - unraid
-        - pay_it_forward
-        - announcement
-        - bits_badge_tier
-        - charity_donation"""
+    - sub
+    - resub
+    - sub_gift
+    - community_sub_gift
+    - gift_paid_upgrade
+    - prime_paid_upgrade
+    - raid
+    - unraid
+    - pay_it_forward
+    - announcement
+    - bits_badge_tier
+    - charity_donation"""
     sub: Optional[SubNoticeMetadata]
     """Information about the sub event. None if notice_type is not sub."""
     resub: Optional[ResubNoticeMetadata]
@@ -1364,6 +1368,144 @@ class ChannelAdBreakBeginData(TwitchObject):
     """The login of the user that requested the ad."""
     requester_user_name: str
     """The display name of the user that requested the ad."""
+
+
+class ChatMessageFragmentCheermoteMetadata(TwitchObject):
+    prefix: str
+    """The name portion of the Cheermote string that you use in chat to cheer Bits. 
+    The full Cheermote string is the concatenation of {prefix} + {number of Bits}. 
+    For example, if the prefix is “Cheer” and you want to cheer 100 Bits, the full Cheermote string is Cheer100. 
+    When the Cheermote string is entered in chat, Twitch converts it to the image associated with the Bits tier that was cheered."""
+    bits: int
+    """The amount of bits cheered."""
+    tier: int
+    """The tier level of the cheermote."""
+
+
+class ChatMessageFragmentEmoteMetadata(TwitchObject):
+    id: str
+    """An ID that uniquely identifies this emote."""
+    emote_set_id: str
+    """An ID that identifies the emote set that the emote belongs to."""
+    owner_id: str
+    """The ID of the broadcaster who owns the emote."""
+    format: str
+    """
+    The formats that the emote is available in. For example, if the emote is available only as a static PNG, the array contains only static. 
+    But if the emote is available as a static PNG and an animated GIF, the array contains static and animated. The possible formats are:
+
+    - animated — An animated GIF is available for this emote.
+    - static — A static PNG file is available for this emote."""
+
+
+class ChatMessageFragmentMentionMetadata(TwitchObject):
+    user_id: str
+    """The user ID of the mentioned user."""
+    user_name: str
+    """The user name of the mentioned user."""
+    user_login: str
+    """The user login of the mentioned user."""
+
+
+class ChatMessageFragment(TwitchObject):
+    type: str
+    """
+    The type of message fragment. Possible values:
+
+    - text
+    - cheermote
+    - emote
+    - mention"""
+    text: str
+    """Message text in fragment."""
+    cheermote: Optional[ChatMessageFragmentCheermoteMetadata]
+    """Optional. Metadata pertaining to the cheermote."""
+    emote: Optional[ChatMessageFragmentEmoteMetadata]
+    """Optional. Metadata pertaining to the emote."""
+    mention: Optional[ChatMessageFragmentMentionMetadata]
+    """Optional. Metadata pertaining to the mention."""
+
+
+class ChatMessageBadge(TwitchObject):
+    set_id: str
+    """An ID that identifies this set of chat badges. For example, Bits or Subscriber."""
+    id: str
+    """An ID that identifies this version of the badge. The ID can be any value. For example, for Bits, 
+    the ID is the Bits tier level, but for World of Warcraft, it could be Alliance or Horde."""
+    info: str
+    """Contains metadata related to the chat badges in the badges tag. Currently, this tag contains metadata only for 
+    subscriber badges, to indicate the number of months the user has been a subscriber."""
+
+
+class ChatMessageCheerMetadata(TwitchObject):
+    bits: int
+    """The amount of Bits the user cheered."""
+
+
+class ChatMessageReplyMetadata(TwitchObject):
+    parent_message_id: str
+    """An ID that uniquely identifies the parent message that this message is replying to."""
+    parent_message_body: str
+    """The message body of the parent message."""
+    parent_user_id: str
+    """User ID of the sender of the parent message."""
+    parent_user_name: str
+    """User name of the sender of the parent message."""
+    parent_user_login: str
+    """User login of the sender of the parent message."""
+    thread_message_id: str
+    """An ID that identifies the parent message of the reply thread."""
+    thread_user_id: str
+    """User ID of the sender of the thread’s parent message."""
+    thread_user_name: str
+    """User name of the sender of the thread’s parent message."""
+    thread_user_login: str
+    """User login of the sender of the thread’s parent message."""
+
+
+class ChatMessage(TwitchObject):
+    text: str
+    """The chat message in plain text."""
+    fragments: List[ChatMessageFragment]
+    """Ordered list of chat message fragments."""
+
+
+class ChannelChatMessageData(TwitchObject):
+    broadcaster_user_id: str
+    """The broadcaster user ID."""
+    broadcaster_user_name: str
+    """The broadcaster display name."""
+    broadcaster_user_login: str
+    """The broadcaster login."""
+    chatter_user_id: str
+    """The user ID of the user that sent the message."""
+    chatter_user_name: str
+    """The user name of the user that sent the message."""
+    chatter_user_login: str
+    """The user login of the user that sent the message."""
+    message_id: str
+    """A UUID that identifies the message."""
+    message: ChatMessage
+    """The structured chat message."""
+    message_type: str
+    """
+    The type of message. Possible values:
+
+    - text
+    - channel_points_highlighted
+    - channel_points_sub_only
+    - user_intro"""
+    badges: List[ChatMessageBadge]
+    """List of chat badges."""
+    cheer: Optional[ChatMessageCheerMetadata]
+    """Optional. Metadata if this message is a cheer."""
+    color: str
+    """The color of the user’s name in the chat room. This is a hexadecimal RGB color code in the form, #<RGB>. 
+    This tag may be empty if it is never set."""
+    reply: Optional[ChatMessageReplyMetadata]
+    """Optional. Metadata if this message is a reply."""
+    channel_points_custom_reward_id: str
+    """Optional. The ID of a channel points custom reward that was redeemed."""
 
 
 # Events
@@ -1562,6 +1704,7 @@ class ChannelShoutoutReceiveEvent(TwitchObject):
     subscription: Subscription
     event: ChannelShoutoutReceiveData
 
+
 class ChannelChatClearEvent(TwitchObject):
     subscription: Subscription
     event: ChannelChatClearData
@@ -1585,3 +1728,8 @@ class ChannelChatNotificationEvent(TwitchObject):
 class ChannelAdBreakBeginEvent(TwitchObject):
     subscription: Subscription
     event: ChannelAdBreakBeginData
+
+
+class ChannelChatMessageEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelChatMessageData
