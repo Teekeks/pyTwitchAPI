@@ -69,6 +69,7 @@ Class Documentation
 import json
 import os.path
 from pathlib import PurePath
+from typing import Sequence
 
 import aiohttp
 
@@ -203,7 +204,7 @@ class UserAuthenticator:
 
     def __init__(self,
                  twitch: 'Twitch',
-                 scopes: List[AuthScope],
+                 scopes: Sequence[AuthScope],
                  force_verify: bool = False,
                  url: str = 'http://localhost:17563',
                  auth_base_url: str = TWITCH_AUTH_BASE_URL):
@@ -217,7 +218,7 @@ class UserAuthenticator:
         """
         self._twitch: 'Twitch' = twitch
         self._client_id: str = twitch.app_id
-        self.scopes: List[AuthScope] = scopes
+        self.scopes: List[AuthScope] = list(scopes)
         self.force_verify: bool = force_verify
         self.logger: Logger = getLogger('twitchAPI.oauth')
         """The logger used for OAuth related log messages"""
