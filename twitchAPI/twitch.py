@@ -3928,3 +3928,41 @@ class Twitch:
                                         param,
                                         AuthType.EITHER, [AuthScope.USER_WRITE_CHAT],
                                         SendMessageResponse)
+
+    async def get_moderated_channels(self,
+                                     user_id: str,
+                                     after: Optional[str] = None,
+                                     first: Optional[int] = None) -> AsyncGenerator[ChannelModerator, None]:
+        """Gets a list of channels that the specified user has moderator privileges in.
+
+        Requires User Authentication with :const:`~twitchAPI.type.AuthScope.USER_READ_MODERATED_CHANNELS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-moderated-channels
+
+        :param user_id: A user’s ID. Returns the list of channels that this user has moderator privileges in.
+                     This ID must match the user ID in the user OAuth token
+        :param first: The maximum number of items to return per API call.
+                     You can use this in combination with :const:`~twitchAPI.helper.limit()` to optimize the bandwith and number of API calls used to
+                     fetch the amount of results you desire.\n
+                     Minimum 1, Maximum 100 |default|:code:`20`
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
+        :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.type.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.type.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if first is set and not in range 1 to 100
+        """
+        if first is not None and (first < 1 or first > 100):
+            raise ValueError('first has to be between 1 and 100')
+        param = {
+            'user_id': user_id,
+            'after': after,
+            'first': first
+        }
+        async for y in self._build_generator('GET', 'moderation/channels', param,
+                                             AuthType.USER, [AuthScope.USER_READ_MODERATED_CHANNELS],
+                                             ChannelModerator):
+            yield y

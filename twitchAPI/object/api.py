@@ -25,7 +25,7 @@ __all__ = ['TwitchUser', 'TwitchUserFollow', 'TwitchUserFollowResult', 'DateRang
            'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment', 'StreamVacation', 'ChannelStreamSchedule',
            'ChannelVIP', 'UserChatColor', 'Chatter', 'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign',
            'CharityCampaignDonation', 'AutoModSettings', 'ChannelFollower', 'ChannelFollowersResult', 'FollowedChannel', 'FollowedChannelsResult',
-           'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse', 'SendMessageResponse']
+           'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse', 'SendMessageResponse', 'ChannelModerator']
 
 
 class TwitchUser(TwitchObject):
@@ -806,3 +806,13 @@ class SendMessageResponse(TwitchObject):
     """If the message passed all checks and was sent."""
     drop_reason: Optional[SendMessageDropReason]
     """The reason the message was dropped, if any."""
+
+
+class ChannelModerator(TwitchObject):
+    broadcaster_id: str
+    """An ID that uniquely identifies the channel this user can moderate."""
+    broadcaster_login: str
+    """The channel’s login name."""
+    broadcaster_name: str
+    """The channels’ display name."""
+

@@ -89,6 +89,7 @@ class AuthScope(Enum):
     CHANNEL_READ_ADS = 'channel:read:ads'
     CHANNEL_MANAGE_ADS = 'channel:manage:ads'
     USER_WRITE_CHAT = 'user:write:chat'
+    USER_READ_MODERATED_CHANNELS = 'user:read:moderated_channels'
 
 
 class ModerationEventType(Enum):
