@@ -27,8 +27,8 @@ setup(
     version=version,
     keywords=['twitch', 'twitch.tv', 'chat', 'bot', 'event sub', 'EventSub', 'pub sub', 'PubSub', 'helix', 'api'],
     install_requires=[
-        'aiohttp',
-        'python-dateutil',
+        'aiohttp>=3.9.3',
+        'python-dateutil>=2.8.2',
         'typing_extensions'
     ],
     package_data={'twitchAPI': ['py.typed']}
