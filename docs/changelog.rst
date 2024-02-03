@@ -4,6 +4,43 @@ Changelog
 =========
 
 *************
+Version 4.2.0
+*************
+
+Twitch
+------
+
+- Fixed Endpoint :const:`~twitchAPI.twitch.Twitch.get_stream_key()` (thanks https://github.com/moralrecordings )
+- Added the following new Endpoints:
+
+  - "Get Ad Schedule" :const:`~twitchAPI.twitch.Twitch.get_ad_schedule()`
+  - "Snooze Next Ad" :const:`~twitchAPI.twitch.Twitch.snooze_next_ad()`
+  - "Send Chat Message" :const:`~twitchAPI.twitch.Twitch.send_chat_message()`
+  - "Get Moderated Channels" :const:`~twitchAPI.twitch.Twitch.get_moderated_channels()`
+
+
+EventSub
+--------
+
+- Fixed :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket.stop()` not raising RuntimeException when called and socket not running.
+- Added the following new Topics:
+
+  - "Channel Ad Break Begin" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_ad_break_begin()`
+  - "Channel Chat Message" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_message()`
+
+
+OAuth
+-----
+
+- Added the following new AuthScopes:
+
+  - :const:`~twitchAPI.type.AuthScope.USER_WRITE_CHAT`
+  - :const:`~twitchAPI.type.AuthScope.CHANNEL_READ_ADS`
+  - :const:`~twitchAPI.type.AuthScope.CHANNEL_MANAGE_ADS`
+  - :const:`~twitchAPI.type.AuthScope.USER_READ_MODERATED_CHANNELS`
+
+
+*************
 Version 4.1.0
 *************
 
