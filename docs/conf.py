@@ -69,14 +69,14 @@ intersphinx_mapping = {
     'aio': ('https://docs.aiohttp.org/en/stable/', None)
 }
 
-rst_prolog = """
-.. |default| raw:: html
-
+rst_epilog = """
+.. |default| raw:: html 
+    
     <div class="default-value-section"> <span class="default-value-label">Default:</span>
 
 .. |br| raw:: html
-
-      <br>
+    
+    <br>
 """
 
 
