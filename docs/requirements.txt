@@ -6,6 +6,6 @@ sphinx
 pygments
 typing_extensions
 sphinx-autodoc-typehints
-pydata-sphinx-theme
+pydata-sphinx-theme==0.14.4
 recommonmark
 sphinx-paramlinks
