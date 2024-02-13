@@ -28,7 +28,7 @@ Should the file not exists, the auth scope not match the one of the stored auth 
         await helper.bind()
         # do things
 
-        await twitch.stop()
+        await twitch.close()
 
 
     # lets run our setup
@@ -63,7 +63,7 @@ You can specify a different file in which the token should be stored in like thi
         await helper.bind()
         # do things
 
-        await twitch.stop()
+        await twitch.close()
 
 
     # lets run our setup
@@ -101,7 +101,7 @@ For these cases, you can use your own function.
         await helper.bind()
         # do things
 
-        await twitch.stop()
+        await twitch.close()
 
 
     # lets run our setup
