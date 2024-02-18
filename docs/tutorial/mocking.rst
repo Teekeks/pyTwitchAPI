@@ -11,7 +11,7 @@ Basic setup
 
 First, run ``twitch mock-api generate`` once and note down the Client ID and secret as well as the ID from the line reading `User ID 53100947 has all applicable units`.
 
-To run the mock server, run ``twitch-cli mock-api start``
+To run the mock server, run ``twitch mock-api start``
 
 Mocking App Authentication and API
 ----------------------------------
