@@ -3966,3 +3966,34 @@ class Twitch:
                                              AuthType.USER, [AuthScope.USER_READ_MODERATED_CHANNELS],
                                              ChannelModerator):
             yield y
+
+    async def get_user_emotes(self,
+                              user_id: str,
+                              broadcaster_id: str,
+                              after: Optional[str] = None) -> UserEmotesResponse:
+        """Retrieves emotes available to the user across all channels.
+
+        Requires User Authentication with :const:`~twitchAPI.type.AuthScope.USER_READ_EMOTES`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-emotes
+
+        :param user_id: The ID of the user. This ID must match the user ID in the user access token.
+        :param broadcaster_id: Returns all emotes available to the user within the chat owned by the specified broadcaster. This includes the Global
+            and Subscriber Emotes the user has access to, as well as channel-only specific emotes such as Follower Emotes.
+        :param after: Cursor for forward pagination.\n
+                    Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
+                    |default| :code:`None`
+        :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.type.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.type.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
+        """
+        param = {
+            'user_id': user_id,
+            'after': after,
+            'broadcaster_id': broadcaster_id
+        }
+        return await self._build_iter_result('GET', 'chat/emotes/user', param,
+                                             AuthType.USER, [AuthScope.USER_READ_EMOTES],
+                                             UserEmotesResponse)

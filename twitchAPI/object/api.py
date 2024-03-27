@@ -25,7 +25,7 @@ __all__ = ['TwitchUser', 'TwitchUserFollow', 'TwitchUserFollowResult', 'DateRang
            'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment', 'StreamVacation', 'ChannelStreamSchedule',
            'ChannelVIP', 'UserChatColor', 'Chatter', 'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign',
            'CharityCampaignDonation', 'AutoModSettings', 'ChannelFollower', 'ChannelFollowersResult', 'FollowedChannel', 'FollowedChannelsResult',
-           'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse', 'SendMessageResponse', 'ChannelModerator']
+           'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse', 'SendMessageResponse', 'ChannelModerator', 'UserEmotesResponse']
 
 
 class TwitchUser(TwitchObject):
@@ -816,3 +816,9 @@ class ChannelModerator(TwitchObject):
     broadcaster_name: str
     """The channels’ display name."""
 
+
+class UserEmotesResponse(AsyncIterTwitchObject):
+    template: str
+    """A templated URL. Uses the values from the id, format, scale, and theme_mode fields to replace the like-named placeholder strings in the 
+    templated URL to create a CDN (content delivery network) URL that you use to fetch the emote."""
+    data: List[Emote]
