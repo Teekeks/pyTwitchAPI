@@ -984,7 +984,9 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'has_delay': has_delay
         }
-        return await self._build_result('POST', 'clips', param, AuthType.USER, [AuthScope.CLIPS_EDIT], CreatedClip)
+        errors = {403: TwitchAPIException('The broadcaster has restricted the ability to capture clips to followers and/or subscribers only or the'
+                                          'specified broadcaster has not enabled clips on their channel.')}
+        return await self._build_result('POST', 'clips', param, AuthType.USER, [AuthScope.CLIPS_EDIT], CreatedClip, error_handler=errors)
 
     async def get_clips(self,
                         broadcaster_id: Optional[str] = None,
