@@ -13,13 +13,14 @@
 import os
 import sys
 import aiohttp
+import datetime
 sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'twitchAPI'
-copyright = '2023, Lena "Teekeks" During'
+copyright = f'{datetime.date.today().year}, Lena "Teekeks" During'
 author = 'Lena "Teekeks" During'
 
 # The full version, including alpha/beta/rc tags
