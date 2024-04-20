@@ -23,7 +23,7 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        UserUpdateEvent, ShieldModeEvent, CharityCampaignStartEvent, CharityCampaignProgressEvent,
                                        CharityCampaignStopEvent, CharityDonationEvent, ChannelShoutoutCreateEvent, ChannelShoutoutReceiveEvent,
                                        ChannelChatClearEvent, ChannelChatClearUserMessagesEvent, ChannelChatMessageDeleteEvent,
-                                       ChannelChatNotificationEvent, ChannelAdBreakBeginEvent, ChannelChatMessageEvent)
+                                       ChannelChatNotificationEvent, ChannelAdBreakBeginEvent, ChannelChatMessageEvent, ChannelChatSettingsUpdateEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1258,3 +1258,23 @@ class EventSubBase(ABC):
             'user_id': user_id
         }
         return await self._subscribe('channel.chat.message', '1', param, callback, ChannelChatMessageEvent)
+
+    async def listen_channel_chat_settings_update(self,
+                                                  broadcaster_user_id: str,
+                                                  user_id: str,
+                                                  callback: Callable[[ChannelChatSettingsUpdateEvent], Awaitable[None]]) -> str:
+        """This event sends a notification when a broadcaster’s chat settings are updated.
+
+        Requires :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT` scope from chatting user.
+        If app access token used, then additionally requires :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from chatting user,
+        and either :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` scope from broadcaster or moderator status.
+
+        :param broadcaster_user_id: User ID of the channel to receive chat settings update events for.
+        :param user_id: The user ID to read chat as.
+        :param callback: function for callback
+        """
+        param = {
+            'broadcaster_user_id': broadcaster_user_id,
+            'user_id': user_id
+        }
+        return await self._subscribe('channel.chat_settings.update', '1', param, callback, ChannelChatSettingsUpdateEvent)

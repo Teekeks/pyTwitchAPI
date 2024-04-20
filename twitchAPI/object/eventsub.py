@@ -19,7 +19,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'UserUpdateEvent', 'ShieldModeEvent', 'CharityCampaignStartEvent', 'CharityCampaignProgressEvent', 'CharityCampaignStopEvent',
            'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
            'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent', 'ChannelAdBreakBeginEvent',
-           'ChannelChatMessageEvent',
+           'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -35,7 +35,8 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'UnraidNoticeMetadata', 'SubGiftNoticeMetadata', 'CommunitySubGiftNoticeMetadata', 'GiftPaidUpgradeNoticeMetadata',
            'PrimePaidUpgradeNoticeMetadata', 'PayItForwardNoticeMetadata', 'ChannelChatNotificationData', 'ChannelAdBreakBeginData',
            'ChannelChatMessageData', 'ChatMessage', 'ChatMessageBadge', 'ChatMessageFragment', 'ChatMessageFragmentCheermoteMetadata',
-           'ChatMessageFragmentMentionMetadata', 'ChatMessageReplyMetadata', 'ChatMessageCheerMetadata', 'ChatMessageFragmentEmoteMetadata']
+           'ChatMessageFragmentMentionMetadata', 'ChatMessageReplyMetadata', 'ChatMessageCheerMetadata', 'ChatMessageFragmentEmoteMetadata',
+           'ChannelChatSettingsUpdateData']
 
 
 # Event Data
@@ -1508,6 +1509,45 @@ class ChannelChatMessageData(TwitchObject):
     """Optional. The ID of a channel points custom reward that was redeemed."""
 
 
+class ChannelChatSettingsUpdateData(TwitchObject):
+    broadcaster_user_id: str
+    """The ID of the broadcaster specified in the request."""
+    broadcaster_user_login: str
+    """The login of the broadcaster specified in the request."""
+    broadcaster_user_name: str
+    """The user name of the broadcaster specified in the request."""
+    emote_mode: bool
+    """A Boolean value that determines whether chat messages must contain only emotes. True if only messages that are 100% emotes are allowed; otherwise false."""
+    follower_mode: bool
+    """A Boolean value that determines whether the broadcaster restricts the chat room to followers only, based on how long they’ve followed.
+
+    True if the broadcaster restricts the chat room to followers only; otherwise false.
+
+    See follower_mode_duration_minutes for how long the followers must have followed the broadcaster to participate in the chat room."""
+    follower_mode_duration_minutes: Optional[int]
+    """The length of time, in minutes, that the followers must have followed the broadcaster to participate in the chat room. See follower_mode.
+
+    None if follower_mode is false."""
+    slow_mode: bool
+    """A Boolean value that determines whether the broadcaster limits how often users in the chat room are allowed to send messages.
+
+    Is true, if the broadcaster applies a delay; otherwise, false.
+
+    See slow_mode_wait_time_seconds for the delay."""
+    slow_mode_wait_time_seconds: Optional[int]
+    """The amount of time, in seconds, that users need to wait between sending messages. See slow_mode.
+
+    None if slow_mode is false."""
+    subscriber_mode: bool
+    """A Boolean value that determines whether only users that subscribe to the broadcaster’s channel can talk in the chat room.
+
+    True if the broadcaster restricts the chat room to subscribers only; otherwise false."""
+    unique_chat_mode: bool
+    """A Boolean value that determines whether the broadcaster requires users to post only unique messages in the chat room.
+
+    True if the broadcaster requires unique messages only; otherwise false."""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -1733,3 +1773,8 @@ class ChannelAdBreakBeginEvent(TwitchObject):
 class ChannelChatMessageEvent(TwitchObject):
     subscription: Subscription
     event: ChannelChatMessageData
+
+
+class ChannelChatSettingsUpdateEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelChatSettingsUpdateData
