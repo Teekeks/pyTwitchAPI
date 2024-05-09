@@ -389,23 +389,29 @@ class Twitch:
                                     data: Optional[dict] = None,
                                     retries: int = 1
                                     ) -> ClientResponse:
-        if self.auto_refresh_auth and retries > 0:
-            if response.status == 401:
-                # unauthorized, lets try to refresh the token once
-                self.logger.debug('got 401 response -> try to refresh token')
-                await self.refresh_used_token()
-                return await self._api_request(method, session, url, auth_type, required_scope, data=data, retries=retries - 1)
-            elif response.status == 503:
+        if retries > 0:
+            if response.status == 503:
                 # service unavailable, retry exactly once as recommended by twitch documentation
                 self.logger.debug('got 503 response -> retry once')
                 return await self._api_request(method, session, url, auth_type, required_scope, data=data, retries=retries - 1)
-        elif self.auto_refresh_auth and retries <= 0:
+            elif response.status == 401:
+                if self.auto_refresh_auth:
+                    # unauthorized, lets try to refresh the token once
+                    self.logger.debug('got 401 response -> try to refresh token')
+                    await self.refresh_used_token()
+                    return await self._api_request(method, session, url, auth_type, required_scope, data=data, retries=retries - 1)
+                else:
+                    msg = (await response.json()).get('message', '')
+                    self.logger.debug(f'got 401 response and can\'t refresh. Message: "{msg}"')
+                    raise UnauthorizedException(msg)
+        else:
             if response.status == 503:
                 raise TwitchBackendException('The Twitch API returns a server error')
-            if response.status == 401:
+            elif response.status == 401:
                 msg = (await response.json()).get('message', '')
                 self.logger.debug(f'got 401 response and can\'t refresh. Message: "{msg}"')
                 raise UnauthorizedException(msg)
+
         if response.status == 500:
             raise TwitchBackendException('Internal Server Error')
         if response.status == 400:
