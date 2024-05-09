@@ -21,7 +21,7 @@ __all__ = ['TwitchUser', 'TwitchUserFollow', 'TwitchUserFollowResult', 'DateRang
            'SearchCategoryResult', 'StartCommercialResult', 'Cheermote', 'GetCheermotesResponse', 'HypeTrainContribution', 'HypeTrainEventData',
            'HypeTrainEvent', 'DropsEntitlement', 'MaxPerStreamSetting', 'MaxPerUserPerStreamSetting', 'GlobalCooldownSetting', 'CustomReward',
            'PartialCustomReward', 'CustomRewardRedemption', 'ChannelEditor', 'BlockListEntry', 'PollChoice', 'Poll', 'Predictor', 'PredictionOutcome',
-           'Prediction', 'RaidStartResult', 'ChatBadgeVersion', 'ChatBadge', 'Emote', 'GetEmotesResponse', 'EventSubSubscription',
+           'Prediction', 'RaidStartResult', 'ChatBadgeVersion', 'ChatBadge', 'Emote', 'UserEmote', 'GetEmotesResponse', 'EventSubSubscription',
            'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment', 'StreamVacation', 'ChannelStreamSchedule',
            'ChannelVIP', 'UserChatColor', 'Chatter', 'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign',
            'CharityCampaignDonation', 'AutoModSettings', 'ChannelFollower', 'ChannelFollowersResult', 'FollowedChannel', 'FollowedChannelsResult',
@@ -637,6 +637,10 @@ class Emote(TwitchObject):
     theme_mode: List[str]
 
 
+class UserEmote(Emote):
+    owner_id: str
+
+
 class GetEmotesResponse(IterTwitchObject):
     data: List[Emote]
     template: str
@@ -821,4 +825,4 @@ class UserEmotesResponse(AsyncIterTwitchObject):
     template: str
     """A templated URL. Uses the values from the id, format, scale, and theme_mode fields to replace the like-named placeholder strings in the 
     templated URL to create a CDN (content delivery network) URL that you use to fetch the emote."""
-    data: List[Emote]
+    data: List[UserEmote]
