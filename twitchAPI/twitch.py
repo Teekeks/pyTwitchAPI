@@ -3971,7 +3971,7 @@ class Twitch:
 
     async def get_user_emotes(self,
                               user_id: str,
-                              broadcaster_id: str,
+                              broadcaster_id: Optional[str] = None,
                               after: Optional[str] = None) -> UserEmotesResponse:
         """Retrieves emotes available to the user across all channels.
 
@@ -3979,8 +3979,11 @@ class Twitch:
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-user-emotes
 
         :param user_id: The ID of the user. This ID must match the user ID in the user access token.
-        :param broadcaster_id: Returns all emotes available to the user within the chat owned by the specified broadcaster. This includes the Global
-            and Subscriber Emotes the user has access to, as well as channel-only specific emotes such as Follower Emotes.
+        :param broadcaster_id: The User ID of a broadcaster you wish to get follower emotes of. Using this query parameter will guarantee inclusion
+                    of the broadcaster’s follower emotes in the response body.\n
+                    Note: If the user specified in user_id is subscribed to the broadcaster specified, their follower emotes will appear in the
+                    response body regardless if this query parameter is used.
+                    |default| :code:`None`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
