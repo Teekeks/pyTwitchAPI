@@ -1118,6 +1118,12 @@ class EventSubBase(ABC):
         :param broadcaster_user_id: The ID of the broadcaster that you want to receive notifications about when they send a Shoutout.
         :param moderator_user_id: The ID of the broadcaster that gave the Shoutout or one of the broadcaster’s moderators.
         :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1139,6 +1145,12 @@ class EventSubBase(ABC):
         :param broadcaster_user_id: The ID of the broadcaster that you want to receive notifications about when they receive a Shoutout.
         :param moderator_user_id: The ID of the broadcaster that received the Shoutout or one of the broadcaster’s moderators.
         :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1161,6 +1173,12 @@ class EventSubBase(ABC):
         :param broadcaster_user_id: User ID of the channel to receive chat clear events for.
         :param user_id: The user ID to read chat as.
         :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1178,9 +1196,17 @@ class EventSubBase(ABC):
         :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from chatting user, and either :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` scope from
         broadcaster or moderator status.
 
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchatclear_user_messages
+
         :param broadcaster_user_id: User ID of the channel to receive chat clear user messages events for.
         :param user_id: The user ID to read chat as.
         :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1198,9 +1224,17 @@ class EventSubBase(ABC):
         :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from chatting user, and either :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` scope from
         broadcaster or moderator status.
 
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchatmessage_delete
+
         :param broadcaster_user_id: User ID of the channel to receive chat message delete events for.
         :param user_id: The user ID to read chat as.
         :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1218,9 +1252,17 @@ class EventSubBase(ABC):
         :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from chatting user, and either :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` scope from
         broadcaster or moderator status.
 
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchatnotification
+
         :param broadcaster_user_id: User ID of the channel to receive chat notification events for.
         :param user_id: The user ID to read chat as.
         :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1235,8 +1277,16 @@ class EventSubBase(ABC):
 
         Requires the :const:`~twitchAPI.type.AuthScope.CHANNEL_READ_ADS` scope.
 
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelad_breakbegin
+
         :param broadcaster_user_id: The ID of the broadcaster that you want to get Channel Ad Break begin notifications for.
         :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         return await self._subscribe('channel.ad_break.begin', '1',
                                      {'broadcaster_user_id': broadcaster_user_id},
@@ -1249,9 +1299,21 @@ class EventSubBase(ABC):
                                           callback: Callable[[ChannelChatMessageEvent], Awaitable[None]]) -> str:
         """Any user sends a message to a specific chat room.
 
+        Requires :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT` scope from chatting user.
+        If app access token used, then additionally requires :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from chatting user, and either
+        :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` scope from broadcaster or moderator status.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchatmessage
+
         :param broadcaster_user_id: User ID of the channel to receive chat message events for.
         :param user_id: The user ID to read chat as.
         :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1269,9 +1331,17 @@ class EventSubBase(ABC):
         If app access token used, then additionally requires :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from chatting user, and either
         :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` scope from broadcaster or moderator status.
 
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchat_settingsupdate
+
         :param broadcaster_user_id: User ID of the channel to receive chat settings update events for.
         :param user_id: The user ID to read chat as.
         :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
