@@ -255,4 +255,8 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_settings_update()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelChatSettingsUpdateEvent`
      - A notification for when a broadcaster’s chat settings are updated.
+   * - **Whisper Received**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_user_whisper_message()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.UserWhisperMessageEvent`
+     - A user receives a whisper.
 """

@@ -74,6 +74,7 @@ class AuthScope(Enum):
     CHANNEL_MANAGE_MODERATORS = 'channel:manage:moderators'
     CHANNEL_READ_VIPS = 'channel:read:vips'
     CHANNEL_MANAGE_VIPS = 'channel:manage:vips'
+    USER_READ_WHISPERS = 'user:read:whispers'
     USER_MANAGE_WHISPERS = 'user:manage:whispers'
     MODERATOR_READ_CHATTERS = 'moderator:read:chatters'
     MODERATOR_READ_SHIELD_MODE = 'moderator:read:shield_mode'

@@ -23,7 +23,8 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        UserUpdateEvent, ShieldModeEvent, CharityCampaignStartEvent, CharityCampaignProgressEvent,
                                        CharityCampaignStopEvent, CharityDonationEvent, ChannelShoutoutCreateEvent, ChannelShoutoutReceiveEvent,
                                        ChannelChatClearEvent, ChannelChatClearUserMessagesEvent, ChannelChatMessageDeleteEvent,
-                                       ChannelChatNotificationEvent, ChannelAdBreakBeginEvent, ChannelChatMessageEvent, ChannelChatSettingsUpdateEvent)
+                                       ChannelChatNotificationEvent, ChannelAdBreakBeginEvent, ChannelChatMessageEvent, ChannelChatSettingsUpdateEvent,
+                                       UserWhisperMessageEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1277,3 +1278,24 @@ class EventSubBase(ABC):
             'user_id': user_id
         }
         return await self._subscribe('channel.chat_settings.update', '1', param, callback, ChannelChatSettingsUpdateEvent)
+
+    async def listen_user_whisper_message(self,
+                                          user_id: str,
+                                          callback: Callable[[UserWhisperMessageEvent], Awaitable[None]]) -> str:
+        """ The subscription type sends a notification when a user receives a whisper. Event Triggers - Anyone whispers the specified user.
+
+        Requires :const:`~twitchAPI.type.AuthScope.USER_READ_WHISPERS` or :const:`~twitchAPI.type.AuthScope.USER_MANAGE_WHISPERS` scope.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#userwhispermessage
+
+        :param user_id: The user_id of the person receiving whispers.
+        :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        """
+        param = {'user_id': user_id}
+        return await self._subscribe('user.whisper.message', '1', param, callback, UserWhisperMessageEvent)

@@ -19,7 +19,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'UserUpdateEvent', 'ShieldModeEvent', 'CharityCampaignStartEvent', 'CharityCampaignProgressEvent', 'CharityCampaignStopEvent',
            'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
            'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent', 'ChannelAdBreakBeginEvent',
-           'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent',
+           'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent', 'UserWhisperMessageEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -36,7 +36,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'PrimePaidUpgradeNoticeMetadata', 'PayItForwardNoticeMetadata', 'ChannelChatNotificationData', 'ChannelAdBreakBeginData',
            'ChannelChatMessageData', 'ChatMessage', 'ChatMessageBadge', 'ChatMessageFragment', 'ChatMessageFragmentCheermoteMetadata',
            'ChatMessageFragmentMentionMetadata', 'ChatMessageReplyMetadata', 'ChatMessageCheerMetadata', 'ChatMessageFragmentEmoteMetadata',
-           'ChannelChatSettingsUpdateData']
+           'ChannelChatSettingsUpdateData', 'WhisperInformation', 'UserWhisperMessageData']
 
 
 # Event Data
@@ -1548,6 +1548,30 @@ class ChannelChatSettingsUpdateData(TwitchObject):
     True if the broadcaster requires unique messages only; otherwise false."""
 
 
+class WhisperInformation(TwitchObject):
+    text: str
+    """The body of the whisper message."""
+
+class UserWhisperMessageData(TwitchObject):
+    from_user_id: str
+    """The ID of the user sending the message."""
+    from_user_name: str
+    """The name of the user sending the message."""
+    from_user_login: str
+    """The login of the user sending the message."""
+    to_user_id: str
+    """The ID of the user receiving the message."""
+    to_user_name: str
+    """The name of the user receiving the message."""
+    to_user_login: str
+    """The login of the user receiving the message."""
+    whisper_id: str
+    """The whisper ID."""
+    whisper: WhisperInformation
+    """Object containing whisper information."""
+
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -1778,3 +1802,9 @@ class ChannelChatMessageEvent(TwitchObject):
 class ChannelChatSettingsUpdateEvent(TwitchObject):
     subscription: Subscription
     event: ChannelChatSettingsUpdateData
+
+
+class UserWhisperMessageEvent(TwitchObject):
+    subscription: Subscription
+    event: UserWhisperMessageData
+
