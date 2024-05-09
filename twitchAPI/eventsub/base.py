@@ -1049,8 +1049,7 @@ class EventSubBase(ABC):
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelcharity_campaignprogress
 
-        :param broadcaster_user_id: The ID of the broadcaster that you want to receive notifications about when their campaign makes progress or
-                is updated.
+        :param broadcaster_user_id: The ID of the broadcaster that you want to receive notifications about when their campaign makes progress or is updated.
         :param callback: function for callback
         :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
             (e.g. already subscribed to this exact topic)
@@ -1266,8 +1265,8 @@ class EventSubBase(ABC):
         """This event sends a notification when a broadcaster’s chat settings are updated.
 
         Requires :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT` scope from chatting user.
-        If app access token used, then additionally requires :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from chatting user,
-        and either :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` scope from broadcaster or moderator status.
+        If app access token used, then additionally requires :const:`~twitchAPI.type.AuthScope.USER_BOT` scope from chatting user, and either
+        :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT` scope from broadcaster or moderator status.
 
         :param broadcaster_user_id: User ID of the channel to receive chat settings update events for.
         :param user_id: The user ID to read chat as.

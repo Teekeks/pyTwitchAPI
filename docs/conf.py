@@ -36,6 +36,11 @@ language = 'en'
 
 master_doc = 'index'
 
+add_module_names = True
+
+show_warning_types = True
+
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
