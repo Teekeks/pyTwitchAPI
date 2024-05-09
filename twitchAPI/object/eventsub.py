@@ -19,7 +19,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'UserUpdateEvent', 'ShieldModeEvent', 'CharityCampaignStartEvent', 'CharityCampaignProgressEvent', 'CharityCampaignStopEvent',
            'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
            'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent', 'ChannelAdBreakBeginEvent',
-           'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent', 'UserWhisperMessageEvent',
+           'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent', 'UserWhisperMessageEvent', 'ChannelPointsAutomaticRewardRedemptionAddEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -36,7 +36,8 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'PrimePaidUpgradeNoticeMetadata', 'PayItForwardNoticeMetadata', 'ChannelChatNotificationData', 'ChannelAdBreakBeginData',
            'ChannelChatMessageData', 'ChatMessage', 'ChatMessageBadge', 'ChatMessageFragment', 'ChatMessageFragmentCheermoteMetadata',
            'ChatMessageFragmentMentionMetadata', 'ChatMessageReplyMetadata', 'ChatMessageCheerMetadata', 'ChatMessageFragmentEmoteMetadata',
-           'ChannelChatSettingsUpdateData', 'WhisperInformation', 'UserWhisperMessageData']
+           'ChannelChatSettingsUpdateData', 'WhisperInformation', 'UserWhisperMessageData', 'AutomaticReward', 'RewardMessage', 'RewardEmote',
+           'ChannelPointsAutomaticRewardRedemptionAddData']
 
 
 # Event Data
@@ -1571,6 +1572,57 @@ class UserWhisperMessageData(TwitchObject):
     """Object containing whisper information."""
 
 
+class RewardEmote(TwitchObject):
+    id: str
+    """The emote ID."""
+    name: str
+    """The human readable emote token."""
+
+class AutomaticReward(TwitchObject):
+    type: str
+    """The type of reward. One of:
+    
+    - ssingle_message_bypass_sub_mode
+    - send_highlighted_message
+    - random_sub_emote_unlock
+    - chosen_sub_emote_unlock
+    - chosen_modified_sub_emote_unlock"""
+    cost: int
+    """The reward cost."""
+    unlocked_emote: Optional[MessageFragmentEmote]
+    """Emote that was unlocked."""
+
+
+class RewardMessage(TwitchObject):
+    text: str
+    """The text of the chat message."""
+    emotes: List[Emote]
+    """An array that includes the emote ID and start and end positions for where the emote appears in the text."""
+
+
+class ChannelPointsAutomaticRewardRedemptionAddData(TwitchObject):
+    broadcaster_user_id: str
+    """The ID of the channel where the reward was redeemed."""
+    broadcaster_user_login: str
+    """The login of the channel where the reward was redeemed."""
+    broadcaster_user_name: str
+    """The display name of the channel where the reward was redeemed."""
+    user_id: str
+    """The ID of the redeeming user."""
+    user_login: str
+    """The login of the redeeming user."""
+    user_name: str
+    """The display name of the redeeming user."""
+    id: str
+    """The ID of the Redemption."""
+    reward: AutomaticReward
+    """An object that contains the reward information."""
+    message: RewardMessage
+    """An object that contains the user message and emote information needed to recreate the message."""
+    user_input: Optional[str]
+    """A string that the user entered if the reward requires input."""
+    redeemed_at: datetime
+    """The time of when the reward was redeemed."""
 
 # Events
 
@@ -1808,3 +1860,7 @@ class UserWhisperMessageEvent(TwitchObject):
     subscription: Subscription
     event: UserWhisperMessageData
 
+
+class ChannelPointsAutomaticRewardRedemptionAddEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelPointsAutomaticRewardRedemptionAddData

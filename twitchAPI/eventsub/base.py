@@ -24,7 +24,7 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        CharityCampaignStopEvent, CharityDonationEvent, ChannelShoutoutCreateEvent, ChannelShoutoutReceiveEvent,
                                        ChannelChatClearEvent, ChannelChatClearUserMessagesEvent, ChannelChatMessageDeleteEvent,
                                        ChannelChatNotificationEvent, ChannelAdBreakBeginEvent, ChannelChatMessageEvent, ChannelChatSettingsUpdateEvent,
-                                       UserWhisperMessageEvent)
+                                       UserWhisperMessageEvent, ChannelPointsAutomaticRewardRedemptionAddEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1423,3 +1423,26 @@ class EventSubBase(ABC):
         """
         param = {'user_id': user_id}
         return await self._subscribe('user.whisper.message', '1', param, callback, UserWhisperMessageEvent)
+
+    async def listen_channel_points_automatic_reward_redemption_add(self,
+                                                                    broadcaster_user_id: str,
+                                                                    callback: Callable[[ChannelPointsAutomaticRewardRedemptionAddEvent], Awaitable[None]]) -> str:
+        """A viewer has redeemed an automatic channel points reward on the specified channel.
+
+        Requires :const:`~twitchAPI.type.AuthScope.CHANNEL_READ_REDEMPTIONS` or :const:`~twitchAPI.type.AuthScope.CHANNEL_MANAGE_REDEMPTIONS` scope.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_automatic_reward_redemptionadd
+
+        :param broadcaster_user_id: The broadcaster user ID for the channel you want to receive channel points reward add notifications for.
+        :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
+        """
+        param = {'broadcaster_user_id': broadcaster_user_id}
+        return await self._subscribe('channel.channel_points_automatic_reward_redemption.add', '1', param, callback,
+                                     ChannelPointsAutomaticRewardRedemptionAddEvent)
