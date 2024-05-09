@@ -150,6 +150,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.update', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelUpdateEvent)
@@ -169,6 +170,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.update', '2', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelUpdateEvent)
@@ -192,6 +194,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.follow',
                                      '2',
@@ -214,6 +217,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.subscribe', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelSubscribeEvent)
@@ -235,6 +239,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.subscription.end', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelSubscriptionEndEvent)
@@ -256,6 +261,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.subscription.gift', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelSubscriptionGiftEvent)
@@ -277,6 +283,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.subscription.message',
                                      '1',
@@ -299,6 +306,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.cheer',
                                      '1',
@@ -325,6 +333,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.raid',
                                      '1',
@@ -349,6 +358,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.ban',
                                      '1',
@@ -371,6 +381,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.unban',
                                      '1',
@@ -393,6 +404,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.moderator.add',
                                      '1',
@@ -417,6 +429,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.moderator.remove',
                                      '1',
@@ -442,6 +455,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.channel_points_custom_reward.add',
                                      '1',
@@ -469,6 +483,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.channel_points_custom_reward.update',
                                      '1',
@@ -498,6 +513,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.channel_points_custom_reward.remove',
                                      '1',
@@ -528,6 +544,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.channel_points_custom_reward_redemption.add',
                                      '1',
@@ -558,6 +575,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.channel_points_custom_reward_redemption.update',
                                      '1',
@@ -583,6 +601,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.poll.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelPollBeginEvent)
@@ -603,6 +622,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.poll.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelPollProgressEvent)
@@ -623,6 +643,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.poll.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      ChannelPollEndEvent)
@@ -643,6 +664,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.prediction.begin', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelPredictionEvent)
@@ -663,6 +685,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.prediction.progress', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelPredictionEvent)
@@ -683,6 +706,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.prediction.lock', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelPredictionEvent)
@@ -703,6 +727,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.prediction.end', '1', {'broadcaster_user_id': broadcaster_user_id},
                                      callback, ChannelPredictionEndEvent)
@@ -728,6 +753,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('drop.entitlement.grant',
                                      '1',
@@ -755,6 +781,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('extension.bits_transaction.create', '1', {'extension_client_id': extension_client_id}, callback,
                                      ExtensionBitsTransactionCreateEvent)
@@ -774,6 +801,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.goal.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      GoalEvent)
@@ -793,6 +821,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.goal.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      GoalEvent)
@@ -812,6 +841,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.goal.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      GoalEvent)
@@ -831,6 +861,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.hype_train.begin', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      HypeTrainEvent)
@@ -850,6 +881,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.hype_train.progress', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      HypeTrainEvent)
@@ -869,6 +901,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.hype_train.end', '1', {'broadcaster_user_id': broadcaster_user_id}, callback,
                                      HypeTrainEndEvent)
@@ -888,6 +921,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('stream.online', '1', {'broadcaster_user_id': broadcaster_user_id}, callback, StreamOnlineEvent)
 
@@ -906,6 +940,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('stream.offline', '1', {'broadcaster_user_id': broadcaster_user_id}, callback, StreamOfflineEvent)
 
@@ -924,6 +959,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('user.authorization.grant', '1', {'client_id': client_id}, callback,
                                      UserAuthorizationGrantEvent)
@@ -943,6 +979,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('user.authorization.revoke', '1', {'client_id': client_id}, callback,
                                      UserAuthorizationRevokeEvent)
@@ -963,6 +1000,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('user.update', '1', {'user_id': user_id}, callback, UserUpdateEvent)
 
@@ -986,6 +1024,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1013,6 +1052,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1037,6 +1077,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {'broadcaster_user_id': broadcaster_user_id}
         return await self._subscribe('channel.charity_campaign.start', '1', param, callback, CharityCampaignStartEvent)
@@ -1058,6 +1099,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {'broadcaster_user_id': broadcaster_user_id}
         return await self._subscribe('channel.charity_campaign.progress', '1', param, callback, CharityCampaignProgressEvent)
@@ -1079,6 +1121,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {'broadcaster_user_id': broadcaster_user_id}
         return await self._subscribe('channel.charity_campaign.stop', '1', param, callback, CharityCampaignStopEvent)
@@ -1100,6 +1143,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {'broadcaster_user_id': broadcaster_user_id}
         return await self._subscribe('channel.charity_campaign.donate', '1', param, callback, CharityDonationEvent)
@@ -1124,6 +1168,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1151,6 +1196,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1179,6 +1225,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1207,6 +1254,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1235,6 +1283,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1263,6 +1312,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1287,6 +1337,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         return await self._subscribe('channel.ad_break.begin', '1',
                                      {'broadcaster_user_id': broadcaster_user_id},
@@ -1314,6 +1365,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1342,6 +1394,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {
             'broadcaster_user_id': broadcaster_user_id,
@@ -1352,7 +1405,7 @@ class EventSubBase(ABC):
     async def listen_user_whisper_message(self,
                                           user_id: str,
                                           callback: Callable[[UserWhisperMessageEvent], Awaitable[None]]) -> str:
-        """ The subscription type sends a notification when a user receives a whisper. Event Triggers - Anyone whispers the specified user.
+        """ Sends a notification when a user receives a whisper. Event Triggers - Anyone whispers the specified user.
 
         Requires :const:`~twitchAPI.type.AuthScope.USER_READ_WHISPERS` or :const:`~twitchAPI.type.AuthScope.USER_MANAGE_WHISPERS` scope.
 
@@ -1366,6 +1419,7 @@ class EventSubBase(ABC):
             is true and the subscription was not fully confirmed in time
         :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
         :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
         """
         param = {'user_id': user_id}
         return await self._subscribe('user.whisper.message', '1', param, callback, UserWhisperMessageEvent)
