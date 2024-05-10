@@ -66,6 +66,7 @@ Code example
 Class Documentation
 -------------------
 """
+import datetime
 import json
 import os.path
 from pathlib import PurePath
@@ -85,7 +86,8 @@ from logging import getLogger, Logger
 
 from typing import List, Union
 
-__all__ = ['refresh_access_token', 'validate_token', 'get_user_info', 'revoke_token', 'UserAuthenticator', 'UserAuthenticationStorageHelper']
+__all__ = ['refresh_access_token', 'validate_token', 'get_user_info', 'revoke_token', 'UserAuthenticator', 'UserAuthenticationStorageHelper',
+           'CodeFlow']
 
 
 async def refresh_access_token(refresh_token: str,
@@ -195,6 +197,54 @@ async def revoke_token(client_id: str,
     if session is None:
         await ses.close()
     return ret
+
+
+class CodeFlow:
+    def __init__(self,
+                 twitch: 'Twitch',
+                 scopes: List[AuthScope],
+                 auth_base_url: str = TWITCH_AUTH_BASE_URL):
+        self._twitch: 'Twitch' = twitch
+        self._client_id: str = twitch.app_id
+        self._scopes: List[AuthScope] = scopes
+        self.logger: Logger = getLogger('twitchAPI.oauth.code_flow')
+        self.auth_base_url: str = auth_base_url
+        self._device_code: Optional[str] = None
+        self._expires_in: Optional[datetime.datetime] = None
+
+    async def get_code(self) -> (str, str):
+        async with aiohttp.ClientSession(timeout=self._twitch.session_timeout) as session:
+            data = {
+                'client_id': self._client_id,
+                'scopes': build_scope(self._scopes)
+            }
+            async with session.post(self.auth_base_url + 'device', data=data) as result:
+                data = await result.json()
+                self._device_code = data['device_code']
+                self._expires_in = datetime.datetime.now() + datetime.timedelta(seconds=data['expires_in'])
+                return data['user_code'], data['verification_uri']
+
+    async def wait_for_auth_complete(self) -> (str, str):
+        if self._device_code is None:
+            raise ValueError('Please start the code flow first using CodeFlow.get_code()')
+        request_data = {
+            'client_id': self._client_id,
+            'scopes': build_scope(self._scopes),
+            'device_code': self._device_code,
+            'grant_type': 'urn:ietf:params:oauth:grant-type:device_code'
+        }
+        async with aiohttp.ClientSession(timeout=self._twitch.session_timeout) as session:
+            while True:
+                if datetime.datetime.now() > self._expires_in:
+                    raise TimeoutError('Timed out waiting for auth complete')
+                async with session.post(self.auth_base_url + 'token', data=request_data) as result:
+                    result_data = await result.json()
+                    if result_data.get('access_token') is not None:
+                        # reset state for reuse before exit
+                        self._device_code = None
+                        self._expires_in = None
+                        return result_data['access_token'], result_data['refresh_token']
+                await asyncio.sleep(1)
 
 
 class UserAuthenticator:
