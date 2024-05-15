@@ -2444,6 +2444,7 @@ class Twitch:
                                    max_per_user_per_stream: Optional[int] = None,
                                    is_global_cooldown_enabled: Optional[bool] = False,
                                    global_cooldown_seconds: Optional[int] = None,
+                                   is_paused: Optional[bool] = False,
                                    should_redemptions_skip_request_queue: Optional[bool] = False) -> CustomReward:
         """Updates a Custom Reward created on a channel.
 
@@ -2455,15 +2456,16 @@ class Twitch:
         :param title: The title of the reward |default| :code:`None`
         :param prompt: The prompt for the viewer when they are redeeming the reward |default| :code:`None`
         :param cost: The cost of the reward |default| :code:`None`
-        :param is_enabled: Is the reward currently enabled, if false the reward won’t show up to viewers. |default| :code:`true`
+        :param is_enabled: Is the reward currently enabled, if false the reward won’t show up to viewers. |default| :code:`True`
         :param background_color: Custom background color for the reward. |default| :code:`None` Format: Hex with # prefix. Example: :code:`#00E5CB`.
-        :param is_user_input_required: Does the user need to enter information when redeeming the reward. |default| :code:`false`
+        :param is_user_input_required: Does the user need to enter information when redeeming the reward. |default| :code:`False`
         :param is_max_per_stream_enabled: Whether a maximum per stream is enabled. |default| :code:`False`
         :param max_per_stream: The maximum number per stream if enabled |default| :code:`None`
         :param is_max_per_user_per_stream_enabled: Whether a maximum per user per stream is enabled. |default| :code:`False`
         :param max_per_user_per_stream: The maximum number per user per stream if enabled |default| :code:`None`
-        :param is_global_cooldown_enabled: Whether a cooldown is enabled. |default| :code:`false`
+        :param is_global_cooldown_enabled: Whether a cooldown is enabled. |default| :code:`False`
         :param global_cooldown_seconds: The cooldown in seconds if enabled |default| :code:`None`
+        :param is_paused: Whether to pause the reward, if true viewers cannot redeem the reward. |default| :code:`False`
         :param should_redemptions_skip_request_queue: Should redemptions be set to FULFILLED status immediately
                     when redeemed and skip the request queue instead of the normal UNFULFILLED status. |default| :code:`False`
         :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
@@ -2511,6 +2513,7 @@ class Twitch:
             'max_per_user_per_stream': max_per_user_per_stream,
             'is_global_cooldown_enabled': is_global_cooldown_enabled,
             'global_cooldown_seconds': global_cooldown_seconds,
+            'is_paused': is_paused,
             'should_redemptions_skip_request_queue': should_redemptions_skip_request_queue
         }.items() if y is not None}
         error_handler = {
