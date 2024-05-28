@@ -379,10 +379,10 @@ class UserAuthenticator:
                 # open in browser
                 browser = webbrowser.get(browser_name)
                 browser.open(self._build_auth_url(), new=browser_new)
-                while self._user_token is None:
-                    await asyncio.sleep(0.01)
             else:
                 self.logger.info(f"To authenticate open: {self._build_auth_url()}")
+            while self._user_token is None:
+                await asyncio.sleep(0.01)
             # now we need to actually get the correct token
         else:
             self._user_token = user_token
