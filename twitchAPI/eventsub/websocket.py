@@ -435,29 +435,27 @@ class EventSubWebsocket(EventSubBase):
         if new_connection is None:  # We failed to establish new connection, do nothing and force a full refresh
             self.logger.warning(f"Failed to establish connection to {new_session.reconnect_url}, Twitch will close and we'll reconnect")
             return
-        self._reconnect = Reconnect(session=new_session, connection=new_connection)
+        reconnect = Reconnect(session=new_session, connection=new_connection)
         try:
-            message: WSMessage = await self._reconnect.connection.receive(timeout=30)
+            message: WSMessage = await reconnect.connection.receive(timeout=30)
         except asyncio.TimeoutError:
-            await self._reconnect.connection.close()
-            self._reconnect = None
-            self.logger.warning(f"Reconnect socket got a timeout waiting for first message {self._reconnect.session}")
+            await reconnect.connection.close()
+            self.logger.warning(f"Reconnect socket got a timeout waiting for first message {reconnect.session}")
             return
         self._reset_timeout()
         if message.type != aiohttp.WSMsgType.TEXT:
             self.logger.warning(f"Reconnect socket got an unknown message {message}")
-            await self._reconnect.connection.close()
-            self._reconnect = None
+            await reconnect.connection.close()
             return
         data = message.json()
         message_type = data.get('metadata', {}).get('message_type')
         if message_type != "session_welcome":
             self.logger.warning(f"Reconnect socket got a non session_welcome first message {data}")
-            await self._reconnect.connection.close()
-            self._reconnect = None
+            await reconnect.connection.close()
             return
         session_dict = data.get('payload', {}).get('session', {})
-        self._reconnect.session = Session.from_twitch(session_dict)
+        reconnect.session = Session.from_twitch(session_dict)
+        self._reconnect = reconnect
         await self._connection.close()  # This will wake up _task_receive with a CLOSING message
 
     async def _handle_welcome(self, data: dict):
