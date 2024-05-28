@@ -122,7 +122,6 @@ class Session:
 class Reconnect:
     session: Session
     connection: ClientWebSocketResponse
-    task: asyncio.Task
 
 
 class EventSubWebsocket(EventSubBase):
@@ -308,10 +307,6 @@ class EventSubWebsocket(EventSubBase):
         try:
             while not self._closing:
                 await asyncio.sleep(0.1)
-                if self._reconnect is not None and self._reconnect.connection.closed:
-                    await self._reconnect.task  # Await the task to clear it out
-                    self._reconnect = None
-                    self.logger.debug("Cleared out failed session_reconnect attempt")
                 if self._reconnect_timeout is None:
                     continue
                 if self._reconnect_timeout <= datetime.datetime.now():
@@ -358,12 +353,9 @@ class EventSubWebsocket(EventSubBase):
                     self.logger.info(f'Websocket closing: {msg_lookup.get(message.data, f" {message.data} - Unknown")}')
                 elif message.type == aiohttp.WSMsgType.CLOSING:
                     if self._reconnect and self._reconnect.session.status == "connected":
-                        reconnect_data = self._reconnect
+                        self._connection = self._reconnect.connection
+                        self.active_session = self._reconnect.session
                         self._reconnect = None
-                        self._connection = reconnect_data.connection
-                        self.active_session = reconnect_data.session
-                        await reconnect_data.task  # Clean up the reconnect task
-                        del reconnect_data  # No need to hold the reference anymore
                         self.logger.debug("websocket session_reconnect completed")
                         continue
                 elif message.type == aiohttp.WSMsgType.CLOSED:
@@ -425,28 +417,6 @@ class EventSubWebsocket(EventSubBase):
             t = self._callback_loop.create_task(self.revokation_handler(_payload))
             t.add_done_callback(self._task_callback)
 
-    async def _handle_reconnect_until_ready(self):
-        try:
-            message: WSMessage = await self._reconnect.connection.receive(timeout=30)
-        except asyncio.TimeoutError:
-            await self._reconnect.connection.close()
-            self.logger.warning(f"Reconnect socket got a timeout waiting for first message {self._reconnect.session}")
-            return
-        self._reset_timeout()
-        if message.type != aiohttp.WSMsgType.TEXT:
-            self.logger.warning(f"Reconnect socket got an unknown message {message}")
-            await self._reconnect.connection.close()
-            return
-        data = message.json()
-        message_type = data.get('metadata', {}).get('message_type')
-        if message_type != "session_welcome":
-            self.logger.warning(f"Reconnect socket got a non session_welcome first message {data}")
-            await self._reconnect.connection.close()
-            return
-        session_dict = data.get('payload', {}).get('session', {})
-        self._reconnect.session = Session.from_twitch(session_dict)
-        await self._connection.close()  # This will wake up _task_receive with a CLOSING message
-
     async def _handle_reconnect(self, data: dict):
         session = data.get('payload', {}).get('session', {})
         new_session = Session.from_twitch(session)
@@ -467,9 +437,30 @@ class EventSubWebsocket(EventSubBase):
         if new_connection is None:  # We failed to establish new connection, do nothing and force a full refresh
             self.logger.warning(f"Failed to establish connection to {new_session.reconnect_url}, Twitch will close and we'll reconnect")
             return
-        self._reconnect = Reconnect(
-            session=new_session, connection=new_connection, task=self._socket_loop.create_task(self._handle_reconnect_until_ready()),
-        )
+        self._reconnect = Reconnect(session=new_session, connection=new_connection)
+        try:
+            message: WSMessage = await self._reconnect.connection.receive(timeout=30)
+        except asyncio.TimeoutError:
+            await self._reconnect.connection.close()
+            self._reconnect = None
+            self.logger.warning(f"Reconnect socket got a timeout waiting for first message {self._reconnect.session}")
+            return
+        self._reset_timeout()
+        if message.type != aiohttp.WSMsgType.TEXT:
+            self.logger.warning(f"Reconnect socket got an unknown message {message}")
+            await self._reconnect.connection.close()
+            self._reconnect = None
+            return
+        data = message.json()
+        message_type = data.get('metadata', {}).get('message_type')
+        if message_type != "session_welcome":
+            self.logger.warning(f"Reconnect socket got a non session_welcome first message {data}")
+            await self._reconnect.connection.close()
+            self._reconnect = None
+            return
+        session_dict = data.get('payload', {}).get('session', {})
+        self._reconnect.session = Session.from_twitch(session_dict)
+        await self._connection.close()  # This will wake up _task_receive with a CLOSING message
 
     async def _handle_welcome(self, data: dict):
         session = data.get('payload', {}).get('session', {})
