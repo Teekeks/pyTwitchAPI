@@ -249,13 +249,11 @@ class EventSubWebsocket(EventSubBase):
         return sub_id
 
     async def _connect(self, is_startup: bool = False):
-        _con_url = self.connection_url if self.active_session is None or self.active_session.reconnect_url is None else \
-            self.active_session.reconnect_url
         if is_startup:
-            self.logger.debug(f'connecting to {_con_url}...')
+            self.logger.debug(f'connecting to {self.connection_url}...')
         else:
             self._is_reconnecting = True
-            self.logger.debug(f'reconnecting using {_con_url}...')
+            self.logger.debug(f'reconnecting using {self.connection_url}...')
         self._reconnect_timeout = None
         if self._connection is not None and not self._connection.closed:
             await self._connection.close()
@@ -268,14 +266,14 @@ class EventSubWebsocket(EventSubBase):
         while need_retry and retry < len(self.reconnect_delay_steps):
             need_retry = False
             try:
-                self._connection = await self._session.ws_connect(_con_url)
+                self._connection = await self._session.ws_connect(self.connection_url)
             except Exception:
                 self.logger.warning(f'connection attempt failed, retry in {self.reconnect_delay_steps[retry]} seconds...')
                 await asyncio.sleep(self.reconnect_delay_steps[retry])
                 retry += 1
                 need_retry = True
         if retry >= len(self.reconnect_delay_steps):
-            raise TwitchBackendException(f'can\'t connect to EventSub websocket {_con_url}')
+            raise TwitchBackendException(f'can\'t connect to EventSub websocket {self.connection_url}')
 
     def _run_socket(self):
         self._socket_loop = asyncio.new_event_loop()
