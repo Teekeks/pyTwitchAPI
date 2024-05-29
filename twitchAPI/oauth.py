@@ -454,6 +454,107 @@ class UserAuthenticator:
             self._callback_func(data['access_token'], data['refresh_token'])
 
 
+class ImplicitGrantFlow(UserAuthenticator):
+    """Simple to use client for the Implicit Twitch User authentication flow.
+       """
+
+    def __init__(self, twitch: 'Twitch', scopes: List[AuthScope], force_verify: bool = False, url: str = 'http://localhost:17563',
+                 auth_base_url: str = TWITCH_AUTH_BASE_URL):
+        """
+
+        :param twitch: A twitch instance
+        :param scopes: List of the desired Auth scopes
+        :param force_verify: If this is true, the user will always be prompted for authorization by twitch |default| :code:`False`
+        :param url: The reachable URL that will be opened in the browser. |default| :code:`http://localhost:17563`
+        :param auth_base_url: The URL to the Twitch API auth server |default| :const:`~twitchAPI.helper.TWITCH_AUTH_BASE_URL`
+        """
+        super().__init__(twitch, scopes, force_verify, url, auth_base_url)
+        self.redirect_document = """<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>pyTwitchAPI OAuth</title>
+        </head>
+        <body>
+        <script>
+          if (window.location.hash !== "") {
+            window.location.replace(window.location.pathname + "?" + window.location.hash.substring(1));
+          }
+        </script>
+        <h1>Thanks for Authenticating with pyTwitchAPI!</h1>
+        You may now close this page.
+        </body>
+        </html>"""
+
+    def _build_auth_url(self):
+        params = {
+            'client_id': self._twitch.app_id,
+            'redirect_uri': self.url,
+            'response_type': 'token',
+            'scope': build_scope(self.scopes),
+            'force_verify': str(self.force_verify).lower(),
+            'state': self.state
+        }
+        return build_url(self.auth_base_url + 'authorize', params)
+
+    async def _handle_callback(self, request: web.Request):
+        if request.query_string == '':
+            return web.Response(text=self.redirect_document, content_type='text/html')
+        val = request.url.query.get("state")
+        self.logger.debug(f'got callback with state {val}')
+        # invalid state!
+        if val != self.state:
+            return web.Response(status=401)
+        self._user_token = request.rel_url.query.get('access_token')
+        if self._user_token is None:
+            # must provide code
+            return web.Response(status=400)
+        if self._callback_func is not None:
+            self._callback_func(self._user_token, '')
+        return web.Response(text=self.document, content_type='text/html')
+
+    def return_auth_url(self):
+        """Returns the URL that will authenticate the app, used for headless server environments."""
+        return self._build_auth_url()
+
+    async def authenticate(self,
+                           callback_func: Optional[Callable[[str, str], None]] = None,
+                           browser_name: Optional[str] = None,
+                           browser_new: int = 2, **_):
+        """Start the implicit user authentication flow\n
+        If callback_func is not set, authenticate will wait till the authentication process finished and then return
+        the access_token
+
+        :param callback_func: Function to call once the authentication finished.
+        :param browser_name: The browser that should be used, None means that the system default is used.
+                            See `the webbrowser documentation <https://docs.python.org/3/library/webbrowser.html#webbrowser.register>`__ for more info
+                            |default|:code:`None`
+        :param browser_new: controls in which way the link will be opened in the browser.
+                            See `the webbrowser documentation <https://docs.python.org/3/library/webbrowser.html#webbrowser.open>`__ for more info
+                            |default|:code:`2`
+        :return: None if callback_func is set, otherwise access_token
+        :raises ~twitchAPI.type.TwitchAPIException: if authentication fails
+        :rtype: None or (str, str)
+        """
+        self._callback_func = callback_func
+        self._can_close = False
+        self._user_token = None
+        self._is_closed = False
+
+        self._start()
+        # wait for the server to start up
+        while not self._server_running:
+            await asyncio.sleep(0.01)
+        # open in browser
+        browser = webbrowser.get(browser_name)
+        browser.open(self._build_auth_url(), new=browser_new)
+        while self._user_token is None:
+            await asyncio.sleep(0.01)
+        # now we have the user auth token
+        return self._user_token, None
+
+
+
 class UserAuthenticationStorageHelper:
     """Helper for automating the generation and storage of a user auth token.\n
     See :doc:`/tutorial/reuse-user-token` for more detailed examples and use cases.
