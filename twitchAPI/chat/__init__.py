@@ -399,6 +399,8 @@ class ChatMessage(EventData):
             self.is_me = True
         self.bits: int = int(parsed['tags'].get('bits', '0'))
         """The amount of Bits the user cheered"""
+        self.first: bool = parsed['tags'].get('first-msg', '0') != '0'
+        """Flag if message is user's first ever in room"""
         self.sent_timestamp: int = int(parsed['tags'].get('tmi-sent-ts'))
         """the unix timestamp of when the message was sent"""
         self.reply_parent_msg_id: Optional[str] = parsed['tags'].get('reply-parent-msg-id')
