@@ -102,7 +102,6 @@ import hmac
 import threading
 from functools import partial
 from json import JSONDecodeError
-from logging import getLogger
 from random import choice
 from string import ascii_lowercase
 from ssl import SSLContext

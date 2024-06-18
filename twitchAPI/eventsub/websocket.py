@@ -85,7 +85,6 @@ from asyncio import CancelledError
 from dataclasses import dataclass
 from functools import partial
 from time import sleep
-from logging import getLogger
 from typing import Optional, List, Dict, Callable, Awaitable
 
 import aiohttp
