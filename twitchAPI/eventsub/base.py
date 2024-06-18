@@ -41,12 +41,14 @@ class EventSubBase(ABC):
     """EventSub integration for the Twitch Helix API."""
 
     def __init__(self,
-                 twitch: Twitch):
+                 twitch: Twitch,
+                 logger_name: str):
         """
         :param twitch: a app authenticated instance of :const:`~twitchAPI.twitch.Twitch`
+        :param logger_name: the name of the logger to be used
         """
         self._twitch: Twitch = twitch
-        self.logger: Logger = getLogger('twitchAPI.eventsub')
+        self.logger: Logger = getLogger(logger_name)
         """The logger used for EventSub related log messages"""
         self._callbacks = {}
 

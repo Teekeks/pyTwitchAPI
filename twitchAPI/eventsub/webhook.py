@@ -102,6 +102,7 @@ import hmac
 import threading
 from functools import partial
 from json import JSONDecodeError
+from logging import getLogger
 from random import choice
 from string import ascii_lowercase
 from ssl import SSLContext
@@ -146,8 +147,7 @@ class EventSubWebhook(EventSubBase):
         :param revocation_handler: Optional handler for when subscriptions get revoked. |default| :code:`None`
         :param message_deduplication_history_length: The amount of messages being considered for the duplicate message deduplication. |default| :code:`50`
         """
-        super().__init__(twitch)
-        self.logger.name = 'twitchAPI.eventsub.webhook'
+        super().__init__(twitch, 'twitchAPI.eventsub.webhook')
         self.callback_url: str = callback_url
         """The full URL of the webhook."""
         if self.callback_url[-1] == '/':

@@ -85,6 +85,7 @@ from asyncio import CancelledError
 from dataclasses import dataclass
 from functools import partial
 from time import sleep
+from logging import getLogger
 from typing import Optional, List, Dict, Callable, Awaitable
 
 import aiohttp
@@ -142,8 +143,7 @@ class EventSubWebsocket(EventSubBase):
             Defaults to the one used by EventSub Websocket.
         :param revocation_handler: Optional handler for when subscriptions get revoked. |default| :code:`None`
         """
-        super().__init__(twitch)
-        self.logger.name = 'twitchAPI.eventsub.websocket'
+        super().__init__(twitch, 'twitchAPI.eventsub.websocket')
         self.subscription_url: Optional[str] = subscription_url
         """The URL where subscriptions are being send to. Defaults to :const:`~twitchAPI.helper.TWITCH_API_BASE_URL`"""
         if self.subscription_url is not None and self.subscription_url[-1] != '/':
