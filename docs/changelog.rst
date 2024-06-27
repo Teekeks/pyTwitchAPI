@@ -4,6 +4,15 @@ Changelog
 =========
 
 *************
+Version 4.2.1
+*************
+
+EventSub
+--------
+
+- Fixed event payload parsing for Channel Prediction events
+
+*************
 Version 4.2.0
 *************
 
