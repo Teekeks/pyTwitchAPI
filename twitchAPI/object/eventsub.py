@@ -541,7 +541,7 @@ class Outcome(TwitchObject):
     """The number of users who used Channel Points on this outcome."""
     channel_points: int
     """The total number of Channel Points used on this outcome."""
-    top_predictors: TopPredictors
+    top_predictors: List[TopPredictors]
     """An array of users who used the most Channel Points on this outcome."""
 
 
