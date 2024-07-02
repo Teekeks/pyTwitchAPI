@@ -92,6 +92,8 @@ class AuthScope(Enum):
     USER_WRITE_CHAT = 'user:write:chat'
     USER_READ_MODERATED_CHANNELS = 'user:read:moderated_channels'
     USER_READ_EMOTES = 'user:read:emotes'
+    MODERATOR_READ_UNBAN_REQUESTS = 'moderator:read:unban_requests'
+    MODERATOR_MANAGE_UNBAN_REQUESTS = 'moderator:manage:unban_requests'
 
 
 class ModerationEventType(Enum):
