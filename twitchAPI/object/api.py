@@ -408,9 +408,30 @@ class ChannelInformation(TwitchObject):
     is_branded_content: bool
 
 
-class SearchChannelResult(ChannelInformation):
+class SearchChannelResult(TwitchObject):
+    broadcaster_language: str
+    """The ISO 639-1 two-letter language code of the language used by the broadcaster. For example, en for English. 
+    If the broadcaster uses a language not in the list of supported stream languages, the value is other."""
+    broadcaster_login: str
+    """The broadcaster’s login name."""
+    display_name: str
+    """The broadcaster’s display name."""
+    game_id: str
+    """The ID of the game that the broadcaster is playing or last played."""
+    game_name: str
+    """The name of the game that the broadcaster is playing or last played."""
+    id: str
+    """An ID that uniquely identifies the channel (this is the broadcaster’s ID)."""
     is_live: bool
-    started_at: datetime
+    """A Boolean value that determines whether the broadcaster is streaming live. Is True if the broadcaster is streaming live; otherwise, False."""
+    tags: List[str]
+    """The tags applied to the channel."""
+    thumbnail_url: str
+    """A URL to a thumbnail of the broadcaster’s profile image."""
+    title: str
+    """The stream’s title. Is an empty string if the broadcaster didn’t set it."""
+    started_at: Optional[datetime]
+    """The datetime of when the broadcaster started streaming. None if the broadcaster is not streaming live."""
 
 
 class SearchCategoryResult(TwitchObject):
