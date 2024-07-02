@@ -20,7 +20,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
            'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent', 'ChannelAdBreakBeginEvent',
            'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent', 'UserWhisperMessageEvent', 'ChannelPointsAutomaticRewardRedemptionAddEvent',
-           'ChannelVIPAddEvent',
+           'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -38,7 +38,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelChatMessageData', 'ChatMessage', 'ChatMessageBadge', 'ChatMessageFragment', 'ChatMessageFragmentCheermoteMetadata',
            'ChatMessageFragmentMentionMetadata', 'ChatMessageReplyMetadata', 'ChatMessageCheerMetadata', 'ChatMessageFragmentEmoteMetadata',
            'ChannelChatSettingsUpdateData', 'WhisperInformation', 'UserWhisperMessageData', 'AutomaticReward', 'RewardMessage', 'RewardEmote',
-           'ChannelPointsAutomaticRewardRedemptionAddData', 'ChannelVIPAddData']
+           'ChannelPointsAutomaticRewardRedemptionAddData', 'ChannelVIPAddData', 'ChannelVIPRemoveData']
 
 
 # Event Data
@@ -1641,6 +1641,21 @@ class ChannelVIPAddData(TwitchObject):
     """The display name of the broadcaster."""
 
 
+class ChannelVIPRemoveData(TwitchObject):
+    user_id: str
+    """The ID of the user who was removed as a VIP."""
+    user_login: str
+    """The login of the user who was removed as a VIP."""
+    user_name: str
+    """The display name of the user who was removed as a VIP."""
+    broadcaster_user_id: str
+    """The ID of the broadcaster."""
+    broadcaster_user_login: str
+    """The login of the broadcaster."""
+    broadcaster_user_name: str
+    """The display name of the broadcaster."""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -1886,3 +1901,8 @@ class ChannelPointsAutomaticRewardRedemptionAddEvent(TwitchObject):
 class ChannelVIPAddEvent(TwitchObject):
     subscription: Subscription
     event: ChannelVIPAddData
+
+
+class ChannelVIPRemoveEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelVIPRemoveData

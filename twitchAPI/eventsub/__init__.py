@@ -267,4 +267,8 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_add()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelVIPAddEvent`
      - A VIP is added to the channel.
+   * - **Channel VIP Remove**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_remove()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.ChannelVIPRemoveEvent`
+     - A VIP is removed from the channel.
 """
