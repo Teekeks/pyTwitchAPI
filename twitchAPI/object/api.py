@@ -410,7 +410,6 @@ class ChannelInformation(TwitchObject):
 
 class SearchChannelResult(ChannelInformation):
     is_live: bool
-    tags_ids: List[str]
     started_at: datetime
 
 
