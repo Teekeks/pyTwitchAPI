@@ -263,4 +263,8 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_points_automatic_reward_redemption_add()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelPointsAutomaticRewardRedemptionAddEvent`
      - A viewer has redeemed an automatic channel points reward on the specified channel.
+   * - **Channel VIP Add**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_add()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.ChannelVIPAddEvent`
+     - A VIP is added to the channel.
 """
