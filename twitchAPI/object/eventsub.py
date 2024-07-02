@@ -20,7 +20,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
            'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent', 'ChannelAdBreakBeginEvent',
            'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent', 'UserWhisperMessageEvent', 'ChannelPointsAutomaticRewardRedemptionAddEvent',
-           'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent', 'ChannelUnbanRequestCreateEvent',
+           'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent', 'ChannelUnbanRequestCreateEvent', 'ChannelUnbanRequestResolveEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -38,7 +38,8 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelChatMessageData', 'ChatMessage', 'ChatMessageBadge', 'ChatMessageFragment', 'ChatMessageFragmentCheermoteMetadata',
            'ChatMessageFragmentMentionMetadata', 'ChatMessageReplyMetadata', 'ChatMessageCheerMetadata', 'ChatMessageFragmentEmoteMetadata',
            'ChannelChatSettingsUpdateData', 'WhisperInformation', 'UserWhisperMessageData', 'AutomaticReward', 'RewardMessage', 'RewardEmote',
-           'ChannelPointsAutomaticRewardRedemptionAddData', 'ChannelVIPAddData', 'ChannelVIPRemoveData', 'ChannelUnbanRequestCreateData']
+           'ChannelPointsAutomaticRewardRedemptionAddData', 'ChannelVIPAddData', 'ChannelVIPRemoveData', 'ChannelUnbanRequestCreateData',
+           'ChannelUnbanRequestResolveData']
 
 
 # Event Data
@@ -1677,6 +1678,37 @@ class ChannelUnbanRequestCreateData(TwitchObject):
     """The datetime of when the unban request was created."""
 
 
+class ChannelUnbanRequestResolveData(TwitchObject):
+    id: str
+    """The ID of the unban request."""
+    broadcaster_user_id: str
+    """The broadcaster’s user ID for the channel the unban request was updated for."""
+    broadcaster_user_login: str
+    """The broadcaster’s login name."""
+    broadcaster_user_name: str
+    """The broadcaster’s display name."""
+    moderator_id: str
+    """Optional. User ID of moderator who approved/denied the request."""
+    moderator_login: str
+    """Optional. The moderator’s login name"""
+    moderator_name: str
+    """Optional. The moderator’s display name"""
+    user_id: str
+    """User ID of user that requested to be unbanned."""
+    user_login: str
+    """The user’s login name."""
+    user_name: str
+    """The user’s display name."""
+    resolution_text: str
+    """Optional. Resolution text supplied by the mod/broadcaster upon approval/denial of the request."""
+    status: str
+    """Dictates whether the unban request was approved or denied. Can be the following:
+    
+    - approved
+    - canceled
+    - denied"""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -1932,3 +1964,8 @@ class ChannelVIPRemoveEvent(TwitchObject):
 class ChannelUnbanRequestCreateEvent(TwitchObject):
     subscription: Subscription
     event: ChannelUnbanRequestCreateData
+
+
+class ChannelUnbanRequestResolveEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelUnbanRequestResolveData

@@ -25,7 +25,7 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        ChannelChatClearEvent, ChannelChatClearUserMessagesEvent, ChannelChatMessageDeleteEvent,
                                        ChannelChatNotificationEvent, ChannelAdBreakBeginEvent, ChannelChatMessageEvent, ChannelChatSettingsUpdateEvent,
                                        UserWhisperMessageEvent, ChannelPointsAutomaticRewardRedemptionAddEvent, ChannelVIPAddEvent,
-                                       ChannelVIPRemoveEvent, ChannelUnbanRequestCreateEvent)
+                                       ChannelVIPRemoveEvent, ChannelUnbanRequestCreateEvent, ChannelUnbanRequestResolveEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1518,3 +1518,32 @@ class EventSubBase(ABC):
         param = {'broadcaster_user_id': broadcaster_user_id,
                  'moderator_user_id': moderator_user_id}
         return await self._subscribe('channel.unban_request.create', '1', param, callback, ChannelUnbanRequestCreateEvent)
+
+    async def listen_channel_unban_request_resolve(self,
+                                                   broadcaster_user_id: str,
+                                                   moderator_user_id: str,
+                                                   callback: Callable[[ChannelUnbanRequestResolveEvent], Awaitable[None]]) -> str:
+        """An unban request has been resolved.
+
+        Requires :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_UNBAN_REQUESTS` or :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_UNBAN_REQUESTS` scope.
+
+        If you use webhooks, the user in moderator_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
+
+        If you use WebSockets, the ID in moderator_id must match the user ID in the user access token.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelunban_requestresolve
+
+        :param broadcaster_user_id: The ID of the broadcaster you want to get unban request resolution notifications for.
+        :param moderator_user_id: The ID of the user that has permission to moderate the broadcaster’s channel and has granted your app permission to subscribe to this subscription type.
+        :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
+        """
+        param = {'broadcaster_user_id': broadcaster_user_id,
+                 'moderator_user_id': moderator_user_id}
+        return await self._subscribe('channel.unban_request.resolve', '1', param, callback, ChannelUnbanRequestResolveEvent)
