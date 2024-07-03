@@ -120,6 +120,11 @@ class TwitchObject:
                 continue
             self.__setattr__(name, TwitchObject._val_by_instance(cls, kwargs.get(name)))
 
+    def __repr__(self):
+        merged_annotations = self._get_annotations()
+        args = ', '.join(['='.join([name, str(self.__getattribute__(name))]) for name in merged_annotations.keys()])
+        return f'{type(self).__name__}({args})'
+
 
 class IterTwitchObject(TwitchObject):
     """Special type of :const:`~twitchAPI.object.TwitchObject`.
