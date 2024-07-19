@@ -391,11 +391,14 @@ class EventSubWebsocket(EventSubBase):
         self.logger.debug('resubscribe to all active subscriptions of this websocket...')
         subs = self._active_subscriptions.copy()
         self._active_subscriptions = {}
-        for sub in subs.values():
-            try:
+        try:
+            for sub in subs.values():
                 await self._subscribe(**sub)
-            except:
-                self.logger.exception('exception while resubscribing')
+        except:
+            self.logger.exception('exception while resubscribing')
+            if not self._active_subscriptions:  # Restore old subscriptions for next reconnect
+                self._active_subscriptions = subs
+            return
         self.logger.debug('done resubscribing!')
 
     def _reset_timeout(self):
