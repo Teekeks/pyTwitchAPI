@@ -138,7 +138,7 @@ class ChannelFollowData(TwitchObject):
     broadcaster_user_name: str
     """The requested broadcaster’s user display name"""
     followed_at: datetime
-    """when the follow occured"""
+    """when the follow occurred"""
 
 
 class ChannelSubscribeData(TwitchObject):
@@ -193,11 +193,11 @@ class ChannelSubscriptionGiftData(TwitchObject):
     broadcaster_user_name: str
     """The requested broadcaster’s user display name"""
     total: int
-    """The number of subscriptions in teh subscription gift"""
+    """The number of subscriptions in the subscription gift"""
     tier: str
     """The tier of the subscription that ended. Valid values are 1000, 2000, and 3000"""
     cumulative_total: Optional[int]
-    """The number of subscriptions giftet by this user in teh channel. 
+    """The number of subscriptions gifted by this user in the channel. 
     None for anonymous gifts or if the gifter has opted out of sharing this information"""
     is_anonymous: bool
     """Whether the subscription gift was anonymous"""
@@ -433,7 +433,7 @@ class ChannelPointsCustomRewardData(TwitchObject):
     """Timestamp of the cooldown expiration. None if the reward is not on cooldown."""
     redemptions_redeemed_current_stream: Optional[int]
     """The number of redemptions redeemed during the current live stream. Counts against the max_per_stream limit. 
-    None if the broadcasters stream is not live or max_per_stream isn not enabled."""
+    None if the broadcasters stream is not live or max_per_stream is not enabled."""
 
 
 class Reward(TwitchObject):

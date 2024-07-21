@@ -35,9 +35,9 @@ class TwitchObject:
         origin = instance.__origin__ if hasattr(instance, '__origin__') else None
         if instance == datetime:
             if isinstance(val, int):
-                # asume unix timestamp
+                # assume unix timestamp
                 return None if val == 0 else datetime.fromtimestamp(val)
-            # asume ISO8601 string
+            # assume ISO8601 string
             return du_parser.isoparse(val) if len(val) > 0 else None
         elif origin == list:
             c = instance.__args__[0]

@@ -284,7 +284,7 @@ class ChatEvent(Enum):
     """Triggered when someone whispers to your bot. NOTE: You need the :const:`~twitchAPI.type.AuthScope.WHISPERS_READ` Auth Scope
     to get this Event."""
     NOTICE = 'notice'
-    """Triggerd on server notice"""
+    """Triggered on server notice"""
 
 
 @dataclass
@@ -343,7 +343,7 @@ class TwitchBackendException(TwitchAPIException):
 
 
 class PubSubListenTimeoutException(TwitchAPIException):
-    """when a a PubSub listen command times out"""
+    """when a PubSub listen command times out"""
     pass
 
 

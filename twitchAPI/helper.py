@@ -256,13 +256,13 @@ class RateLimitBucket:
             logging.warning(msg)
 
     async def put(self, num: int = 1):
-        """Puts :code:`num` usees into the current bucket and waits if rate limit is hit
+        """Puts :code:`num` uses into the current bucket and waits if rate limit is hit
 
         :param num: the number of uses put into the current bucket"""
         async with self.lock:
             delta = self.get_delta(num)
             if delta is not None:
-                self._warn(f'Bucket {self.scope} got rate limited. wating {delta:.2f}s...')
+                self._warn(f'Bucket {self.scope} got rate limited. waiting {delta:.2f}s...')
                 await asyncio.sleep(delta + 0.05)
 
 

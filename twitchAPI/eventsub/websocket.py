@@ -4,7 +4,7 @@ EventSub Websocket
 ------------------
 
 .. note:: EventSub Websocket is targeted at programs which have to subscribe to topics for just a single broadcaster.\n
-    Should you need to target multiple broadcasters or are building a server side projekt, look at :doc:`/modules/twitchAPI.eventsub.webhook`
+    Should you need to target multiple broadcasters or are building a server side project, look at :doc:`/modules/twitchAPI.eventsub.webhook`
 
 EventSub lets you listen for events that happen on Twitch.
 
@@ -41,7 +41,7 @@ Code Example
 
 
     async def on_follow(data: ChannelFollowEvent):
-        # our event happend, lets do things with the data we got!
+        # our event happened, lets do things with the data we got!
         print(f'{data.event.user_name} now follows {data.event.broadcaster_user_name}!')
 
 
@@ -135,8 +135,8 @@ class EventSubWebsocket(EventSubBase):
                  revocation_handler: Optional[Callable[[dict], Awaitable[None]]] = None):
         """
         :param twitch: The Twitch instance to be used
-        :param connection_url: Alternative connection URL, usefull for development with the twitch-cli
-        :param subscription_url: Alternative subscription URL, usefull for development with the twitch-cli
+        :param connection_url: Alternative connection URL, useful for development with the twitch-cli
+        :param subscription_url: Alternative subscription URL, useful for development with the twitch-cli
         :param callback_loop: The asyncio eventloop to be used for callbacks. \n
             Set this if you or a library you use cares about which asyncio event loop is running the callbacks.
             Defaults to the one used by EventSub Websocket.
@@ -144,7 +144,7 @@ class EventSubWebsocket(EventSubBase):
         """
         super().__init__(twitch, 'twitchAPI.eventsub.websocket')
         self.subscription_url: Optional[str] = subscription_url
-        """The URL where subscriptions are being send to. Defaults to :const:`~twitchAPI.helper.TWITCH_API_BASE_URL`"""
+        """The URL where subscriptions are being sent to. Defaults to :const:`~twitchAPI.helper.TWITCH_API_BASE_URL`"""
         if self.subscription_url is not None and self.subscription_url[-1] != '/':
             self.subscription_url += '/'
         self.connection_url: str = connection_url if connection_url is not None else TWITCH_EVENT_SUB_WEBSOCKET_URL
