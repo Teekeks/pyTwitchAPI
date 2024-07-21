@@ -12,7 +12,7 @@ It provides non-server and server options.
 Requirements for non-server environment
 ***************************************
 
-Since this tool opens a browser tab for the Twitch authentication, you can only use this tool on enviroments that can
+Since this tool opens a browser tab for the Twitch authentication, you can only use this tool on environments that can
 open a browser window and render the `<twitch.tv>`__ website.
 
 For my authenticator you have to add the following URL as a "OAuth Redirect URL": :code:`http://localhost:17563`

@@ -104,7 +104,7 @@ class PubSub:
         self.logger: Logger = getLogger('twitchAPI.pubsub')
         """The logger used for PubSub related log messages"""
         self.ping_frequency: int = 120
-        """With which frequency in seconds a ping command is send. You probably don't want to change this. 
+        """With which frequency in seconds a ping command is sent. You probably don't want to change this. 
            This should never be shorter than 12 + `ping_jitter` seconds to avoid problems with the pong timeout. |default| :code:`120`"""
         self.ping_jitter: int = 4
         """time in seconds added or subtracted from `ping_frequency`. You probably don't want to change this. |default| :code:`4`"""

@@ -4,7 +4,7 @@ EventSub Webhook
 ----------------
 
 .. note:: EventSub Webhook is targeted at programs which have to subscribe to topics for multiple broadcasters.\n
-    Should you only need to target a single broadcaster or are building a client side projekt, look at :doc:`/modules/twitchAPI.eventsub.websocket`
+    Should you only need to target a single broadcaster or are building a client side project, look at :doc:`/modules/twitchAPI.eventsub.websocket`
 
 EventSub lets you listen for events that happen on Twitch.
 
@@ -55,7 +55,7 @@ Code Example
 
 
     async def on_follow(data: ChannelFollowEvent):
-        # our event happend, lets do things with the data we got!
+        # our event happened, lets do things with the data we got!
         print(f'{data.event.user_name} now follows {data.event.broadcaster_user_name}!')
 
 
@@ -139,7 +139,7 @@ class EventSubWebhook(EventSubBase):
         :param twitch: a app authenticated instance of :const:`~twitchAPI.twitch.Twitch`
         :param ssl_context: optional ssl context to be used |default| :code:`None`
         :param host_binding: the host to bind the internal server to |default| :code:`0.0.0.0`
-        :param subscription_url: Alternative subscription URL, usefull for development with the twitch-cli
+        :param subscription_url: Alternative subscription URL, useful for development with the twitch-cli
         :param callback_loop: The asyncio eventloop to be used for callbacks. \n
             Set this if you or a library you use cares about which asyncio event loop is running the callbacks.
             Defaults to the one used by EventSub Webhook.
@@ -161,7 +161,7 @@ class EventSubWebhook(EventSubBase):
 
         self._port: int = port
         self.subscription_url: Optional[str] = subscription_url
-        """Alternative subscription URL, usefull for development with the twitch-cli"""
+        """Alternative subscription URL, useful for development with the twitch-cli"""
         if self.subscription_url is not None and self.subscription_url[-1] != '/':
             self.subscription_url += '/'
         self._callback_loop = callback_loop

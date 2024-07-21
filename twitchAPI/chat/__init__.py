@@ -117,7 +117,7 @@ Available Events
      - ChatEvent: :const:`~twitchAPI.type.ChatEvent.CHAT_CLEARED` |br|
        Payload: :const:`~twitchAPI.chat.ClearChatEvent`
      - Triggered when a user was banned, timed out and/or all messaged from a user where deleted
-   * - Bot Reveives Whisper Message
+   * - Bot Receives Whisper Message
      - ChatEvent: :const:`~twitchAPI.type.ChatEvent.WHISPER` |br|
        Payload: :const:`~twitchAPI.chat.WhisperEvent`
      - Triggered when someone whispers to your bot. |br| **You need the** :const:`~twitchAPI.type.AuthScope.WHISPERS_READ` **Auth Scope to receive this Event.**
@@ -489,18 +489,18 @@ class ClearChatEvent(EventData):
     def __init__(self, chat, parsed):
         super(ClearChatEvent, self).__init__(chat)
         self.room_name: str = parsed['command']['channel'][1:]
-        """The name of the chat room the event happend in"""
+        """The name of the chat room the event happened in"""
         self.room_id: str = parsed['tags'].get('room-id')
-        """The ID of the chat room the event happend in"""
+        """The ID of the chat room the event happened in"""
         self.user_name: str = parsed['parameters']
-        """The name of the user whos messages got cleared"""
+        """The name of the user who's messages got cleared"""
         self.duration: Optional[int] = int(parsed['tags']['ban-duration']) if parsed['tags'].get('ban-duration') not in (None, '') else None
         """duration of the timeout in seconds. None if user was not timed out"""
         self.banned_user_id: Optional[str] = parsed['tags'].get('target-user-id')
         """The ID of the user who got banned or timed out. if :const:`~twitchAPI.chat.ClearChatEvent.duration` is None, the user was banned.
         Will be None when the user was not banned nor timed out."""
         self.sent_timestamp: int = int(parsed['tags'].get('tmi-sent-ts'))
-        """The timestamp the event happend at"""
+        """The timestamp the event happened at"""
 
     @property
     def room(self) -> Optional[ChatRoom]:
