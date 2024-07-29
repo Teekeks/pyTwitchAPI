@@ -69,13 +69,15 @@ Class Documentation
 import datetime
 import json
 import os.path
+from http import HTTPStatus
 from pathlib import PurePath
 
 import aiohttp
 
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL, fields_to_enum
-from .type import AuthScope, InvalidRefreshTokenException, UnauthorizedException, TwitchAPIException
+from .type import AuthScope, InvalidRefreshTokenException, UnauthorizedException, TwitchAPIException, \
+    InvalidAppSecretException
 from typing import Optional, Callable, Awaitable, Tuple
 import webbrowser
 from aiohttp import web
@@ -120,10 +122,12 @@ async def refresh_access_token(refresh_token: str,
         data = await result.json()
     if session is None:
         await ses.close()
-    if data.get('status', 200) == 400:
+    if data.get('status', 200) == HTTPStatus.BAD_REQUEST:
         raise InvalidRefreshTokenException(data.get('message', ''))
-    if data.get('status', 200) == 401:
+    if data.get('status', 200) == HTTPStatus.UNAUTHORIZED:
         raise UnauthorizedException(data.get('message', ''))
+    if data.get('status', 200) == HTTPStatus.FORBIDDEN:
+        raise InvalidAppSecretException(data.get('message', ''))
     return data['access_token'], data['refresh_token']
 
 

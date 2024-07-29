@@ -352,6 +352,11 @@ class MissingAppSecretException(TwitchAPIException):
     pass
 
 
+class InvalidAppSecretException(TwitchAPIException):
+    """When the app secret is invalid"""
+    pass
+
+
 class EventSubSubscriptionTimeout(TwitchAPIException):
     """When the waiting for a confirmed EventSub subscription timed out"""
     pass
