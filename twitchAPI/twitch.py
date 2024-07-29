@@ -873,7 +873,7 @@ class Twitch:
         if first > 100 or first < 1:
             raise ValueError("first must be between 1 and 100")
         if transaction_id is not None and isinstance(transaction_id, list) and len(transaction_id) > 100:
-            raise ValueError('transaction_ids can't be longer than 100 entries')
+            raise ValueError("transaction_ids can't be longer than 100 entries")
         url_param = {
             'extension_id': extension_id,
             'id': transaction_id,
@@ -2010,7 +2010,7 @@ class Twitch:
         if game_id is None and broadcaster_language is None and title is None and tags is None:
             raise ValueError('You need to specify at least one of the optional parameter')
         if title is not None and len(title) == 0:
-            raise ValueError('title can't be a empty string')
+            raise ValueError("title can't be a empty string")
         if tags is not None and len(tags) > 10:
             raise ValueError('tags can only contain up to 10 items')
         body = {k: v for k, v in {'game_id': game_id,
@@ -2553,7 +2553,7 @@ class Twitch:
                         the custom reward belongs to a different broadcaster
         """
         if isinstance(redemption_ids, list) and len(redemption_ids) > 50:
-            raise ValueError('redemption_ids can't have more than 50 entries')
+            raise ValueError("redemption_ids can't have more than 50 entries")
 
         param = {
             'id': redemption_ids,
@@ -3694,7 +3694,7 @@ class Twitch:
             'moderator_id': moderator_id
         }
         err = {403: TwitchAPIException(f'Forbidden: the user with ID {moderator_id} is not one of the moderators broadcasters or '
-                                       f'the broadcaster can't send {to_broadcaster_id} a shoutout')}
+                                       f"the broadcaster can't send {to_broadcaster_id} a shoutout")}
         await self._build_result('POST', 'chat/shoutouts', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_SHOUTOUTS], None, error_handler=err)
 
     async def get_chatters(self,
