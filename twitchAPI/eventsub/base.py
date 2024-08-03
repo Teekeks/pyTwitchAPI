@@ -1562,6 +1562,8 @@ class EventSubBase(ABC):
 
         If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
 
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelsuspicious_usermessage
+
         :param broadcaster_user_id: User ID of the channel to receive chat message events for.
         :param moderator_user_id: The ID of a user that has permission to moderate the broadcaster’s channel and has granted your app permission
             to subscribe to this subscription type.
