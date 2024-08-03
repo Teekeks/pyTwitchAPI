@@ -283,5 +283,8 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_suspicious_user_message()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelSuspiciousUserMessageEvent`
      - A chat message has been sent by a suspicious user.
-
+   * - **Channel Suspicious User Update**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_suspicious_user_update()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.ChannelSuspiciousUserUpdateEvent`
+     - A suspicious user has been updated.
 """

@@ -21,7 +21,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent', 'ChannelAdBreakBeginEvent',
            'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent', 'UserWhisperMessageEvent', 'ChannelPointsAutomaticRewardRedemptionAddEvent',
            'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent', 'ChannelUnbanRequestCreateEvent', 'ChannelUnbanRequestResolveEvent',
-           'ChannelSuspiciousUserMessageEvent',
+           'ChannelSuspiciousUserMessageEvent', 'ChannelSuspiciousUserUpdateEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -40,7 +40,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChatMessageFragmentMentionMetadata', 'ChatMessageReplyMetadata', 'ChatMessageCheerMetadata', 'ChatMessageFragmentEmoteMetadata',
            'ChannelChatSettingsUpdateData', 'WhisperInformation', 'UserWhisperMessageData', 'AutomaticReward', 'RewardMessage', 'RewardEmote',
            'ChannelPointsAutomaticRewardRedemptionAddData', 'ChannelVIPAddData', 'ChannelVIPRemoveData', 'ChannelUnbanRequestCreateData',
-           'ChannelUnbanRequestResolveData', 'MessageWithID', 'ChannelSuspiciousUserMessageData']
+           'ChannelUnbanRequestResolveData', 'MessageWithID', 'ChannelSuspiciousUserMessageData', 'ChannelSuspiciousUserUpdateData']
 
 
 # Event Data
@@ -1739,6 +1739,30 @@ class ChannelSuspiciousUserMessageData(TwitchObject):
     message: MessageWithID
     """The Chat Message"""
 
+
+class ChannelSuspiciousUserUpdateData(TwitchObject):
+    broadcaster_user_id: str
+    """The ID of the channel where the treatment for a suspicious user was updated."""
+    broadcaster_user_name: str
+    """The display name of the channel where the treatment for a suspicious user was updated."""
+    broadcaster_user_login: str
+    """The Login of the channel where the treatment for a suspicious user was updated."""
+    moderator_user_id: str
+    """The ID of the moderator that updated the treatment for a suspicious user."""
+    moderator_user_name: str
+    """The display name of the moderator that updated the treatment for a suspicious user."""
+    moderator_user_login: str
+    """The login of the moderator that updated the treatment for a suspicious user."""
+    user_id: str
+    """The ID of the suspicious user whose treatment was updated."""
+    user_name: str
+    """The display name of the suspicious user whose treatment was updated."""
+    user_login: str
+    """The login of the suspicious user whose treatment was updated."""
+    low_trust_status: str
+    """The status set for the suspicious user. Can be the following: “none”, “active_monitoring”, or “restricted”."""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -2004,3 +2028,8 @@ class ChannelUnbanRequestResolveEvent(TwitchObject):
 class ChannelSuspiciousUserMessageEvent(TwitchObject):
     subscription: Subscription
     event: ChannelSuspiciousUserMessageData
+
+
+class ChannelSuspiciousUserUpdateEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelSuspiciousUserUpdateData

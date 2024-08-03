@@ -26,7 +26,7 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        ChannelChatNotificationEvent, ChannelAdBreakBeginEvent, ChannelChatMessageEvent, ChannelChatSettingsUpdateEvent,
                                        UserWhisperMessageEvent, ChannelPointsAutomaticRewardRedemptionAddEvent, ChannelVIPAddEvent,
                                        ChannelVIPRemoveEvent, ChannelUnbanRequestCreateEvent, ChannelUnbanRequestResolveEvent,
-                                       ChannelSuspiciousUserMessageEvent)
+                                       ChannelSuspiciousUserMessageEvent, ChannelSuspiciousUserUpdateEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1579,3 +1579,34 @@ class EventSubBase(ABC):
         param = {'broadcaster_user_id': broadcaster_user_id,
                  'moderator_user_id': moderator_user_id}
         return await self._subscribe('channel.suspicious_user.message', '1', param, callback, ChannelSuspiciousUserMessageEvent)
+
+    async def listen_channel_suspicious_user_update(self,
+                                                    broadcaster_user_id: str,
+                                                    moderator_user_id: str,
+                                                    callback: Callable[[ChannelSuspiciousUserUpdateEvent], Awaitable[None]]) -> str:
+        """A suspicious user has been updated.
+
+        Requires :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_SUSPICIOUS_USERS` scope.
+
+        If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app
+            subscribing to this subscription type.
+
+        If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelsuspicious_userupdate
+
+        :param broadcaster_user_id: The broadcaster you want to get chat unban request notifications for.
+        :param moderator_user_id: The ID of a user that has permission to moderate the broadcaster’s channel and has granted your app permission
+            to subscribe to this subscription type.
+        :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
+        """
+        param = {'broadcaster_user_id': broadcaster_user_id,
+                 'moderator_user_id': moderator_user_id}
+        return await self._subscribe('channel.suspicious_user.update', '1', param, callback, ChannelSuspiciousUserUpdateEvent)
