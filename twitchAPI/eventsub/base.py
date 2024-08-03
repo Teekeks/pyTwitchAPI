@@ -1557,8 +1557,7 @@ class EventSubBase(ABC):
 
         Requires :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_SUSPICIOUS_USERS` scope.
 
-        If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app
-            subscribing to this subscription type.
+        If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
 
         If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
 
@@ -1588,8 +1587,7 @@ class EventSubBase(ABC):
 
         Requires :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_SUSPICIOUS_USERS` scope.
 
-        If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app
-            subscribing to this subscription type.
+        If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
 
         If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
 
