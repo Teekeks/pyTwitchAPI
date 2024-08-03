@@ -94,6 +94,7 @@ class AuthScope(Enum):
     USER_READ_EMOTES = 'user:read:emotes'
     MODERATOR_READ_UNBAN_REQUESTS = 'moderator:read:unban_requests'
     MODERATOR_MANAGE_UNBAN_REQUESTS = 'moderator:manage:unban_requests'
+    MODERATOR_READ_SUSPICIOUS_USERS = 'moderator:read:suspicious_users'
 
 
 class ModerationEventType(Enum):
