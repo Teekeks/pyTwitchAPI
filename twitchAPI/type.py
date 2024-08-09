@@ -309,6 +309,13 @@ class AuthScope(Enum):
     **EventSub** |br|
     :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()` |br|
     """
+    MODERATOR_READ_CHAT_SETTINGS = 'moderator:read:chat_settings'
+    """View a broadcaster’s chat room settings.
+    
+    **API** |br|
+    :const:`~twitchAPI.twitch.Twitch.get_chat_settings()` |br|
+    **EventSub** |br|
+    :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()` |br|"""
     MODERATOR_MANAGE_BANNED_USERS = 'moderator:manage:banned_users'
     """Ban and unban users.
     
@@ -316,6 +323,12 @@ class AuthScope(Enum):
     :const:`~twitchAPI.twitch.Twitch.get_banned_users()` |br|
     :const:`~twitchAPI.twitch.Twitch.ban_user()` |br|
     :const:`~twitchAPI.twitch.Twitch.unban_user()` |br|
+    **EventSub** |br|
+    :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()` |br|
+    """
+    MODERATOR_READ_BANNED_USERS = 'moderator:read:banned_users'
+    """Read banned users.
+    
     **EventSub** |br|
     :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()` |br|
     """
@@ -358,6 +371,30 @@ class AuthScope(Enum):
     **EventSub** |br|
     :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()` |br|
     """
+    MODERATOR_READ_CHAT_MESSAGES = 'moderator:read:chat_messages'
+    """Read deleted chat messages in channels where you have the moderator role.
+    
+    **EventSub** |br|
+    :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()` |br|
+    """
+    MODERATOR_READ_WARNINGS = 'moderator:read:warnings'
+    """Read warnings in channels where you have the moderator role.
+    
+    **EventSub** |br|
+    :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()` |br|
+    :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_acknowledge()` |br|
+    :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_send()` |br|
+    """
+    MODERATOR_MANAGE_WARNINGS = 'moderator:manage:warnings'
+    """Warn users in channels where you have the moderator role.
+    
+    **API** |br|
+    :const:`~twitchAPI.twitch.Twitch.warn_chat_user()` |br|
+    **EventSub** |br|
+    :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()` |br|
+    :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_acknowledge()` |br|
+    :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_send()` |br|
+    """
     USER_MANAGE_CHAT_COLOR = 'user:manage:chat_color'
     """Update the color used for the user’s name in chat.
     
@@ -381,6 +418,13 @@ class AuthScope(Enum):
     :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_add()` |br|
     :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_remove()` |br|
     """
+    MODERATOR_READ_MODERATORS = 'moderator:read:moderators'
+    """Read the list of channels you are moderator in.
+    
+    **EventSub** |br|
+    :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()` |br|
+    """
+    MODERATOR_READ_VIPS = 'moderator:read:vips'
     CHANNEL_MANAGE_VIPS = 'channel:manage:vips'
     """Add or remove the VIP role from users in your channel.
     
