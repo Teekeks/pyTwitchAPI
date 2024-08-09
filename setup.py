@@ -29,7 +29,8 @@ setup(
     install_requires=[
         'aiohttp>=3.9.3',
         'python-dateutil>=2.8.2',
-        'typing_extensions'
+        'typing_extensions',
+        'enum-tools'
     ],
     package_data={'twitchAPI': ['py.typed']}
 )
