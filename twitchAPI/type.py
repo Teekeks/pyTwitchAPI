@@ -729,6 +729,7 @@ class AutoModCheckEntry(TypedDict):
 
 # CHAT
 
+@document_enum
 class ChatEvent(Enum):
     """Represents the possible events to listen for using :const:`~twitchAPI.chat.Chat.register_event()`"""
     READY = 'ready'
