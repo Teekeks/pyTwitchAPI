@@ -21,7 +21,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent', 'ChannelAdBreakBeginEvent',
            'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent', 'UserWhisperMessageEvent', 'ChannelPointsAutomaticRewardRedemptionAddEvent',
            'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent', 'ChannelUnbanRequestCreateEvent', 'ChannelUnbanRequestResolveEvent',
-           'ChannelSuspiciousUserMessageEvent', 'ChannelSuspiciousUserUpdateEvent',
+           'ChannelSuspiciousUserMessageEvent', 'ChannelSuspiciousUserUpdateEvent', 'ChannelModerateEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -40,7 +40,11 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChatMessageFragmentMentionMetadata', 'ChatMessageReplyMetadata', 'ChatMessageCheerMetadata', 'ChatMessageFragmentEmoteMetadata',
            'ChannelChatSettingsUpdateData', 'WhisperInformation', 'UserWhisperMessageData', 'AutomaticReward', 'RewardMessage', 'RewardEmote',
            'ChannelPointsAutomaticRewardRedemptionAddData', 'ChannelVIPAddData', 'ChannelVIPRemoveData', 'ChannelUnbanRequestCreateData',
-           'ChannelUnbanRequestResolveData', 'MessageWithID', 'ChannelSuspiciousUserMessageData', 'ChannelSuspiciousUserUpdateData']
+           'ChannelUnbanRequestResolveData', 'MessageWithID', 'ChannelSuspiciousUserMessageData', 'ChannelSuspiciousUserUpdateData',
+           'ModerateMetadataSlow', 'ModerateMetadataWarn', 'ModerateMetadataDelete', 'ModerateMetadataTimeout', 'ModerateMetadataUnmod',
+           'ModerateMetadataUnvip', 'ModerateMetadataUntimeout', 'ModerateMetadataUnraid', 'ModerateMetadataUnban', 'ModerateMetadataUnbanRequest',
+           'ModerateMetadataAutomodTerms', 'ModerateMetadataBan', 'ModerateMetadataMod', 'ModerateMetadataVip', 'ModerateMetadataRaid',
+           'ModerateMetadataFollowers', 'ChannelModerateData']
 
 
 # Event Data
@@ -1763,6 +1767,245 @@ class ChannelSuspiciousUserUpdateData(TwitchObject):
     """The status set for the suspicious user. Can be the following: “none”, “active_monitoring”, or “restricted”."""
 
 
+class ModerateMetadataFollowers(TwitchObject):
+    follow_duration_minutes: int
+    """The length of time, in minutes, that the followers must have followed the broadcaster to participate in the chat room."""
+
+
+class ModerateMetadataSlow(TwitchObject):
+    wait_time_seconds: int
+    """The amount of time, in seconds, that users need to wait between sending messages."""
+
+
+class ModerateMetadataVip(TwitchObject):
+    user_id: str
+    """The ID of the user gaining VIP status."""
+    user_login: str
+    """The login of the user gaining VIP status."""
+    user_name: str
+    """The user name of the user gaining VIP status."""
+
+
+class ModerateMetadataUnvip(TwitchObject):
+    user_id: str
+    """The ID of the user losing VIP status."""
+    user_login: str
+    """The login of the user losing VIP status."""
+    user_name: str
+    """The user name of the user losing VIP status."""
+
+
+class ModerateMetadataMod(TwitchObject):
+    user_id: str
+    """The ID of the user gaining mod status."""
+    user_login: str
+    """The login of the user gaining mod status."""
+    user_name: str
+    """The user name of the user gaining mod status."""
+
+
+class ModerateMetadataUnmod(TwitchObject):
+    user_id: str
+    """The ID of the user losing mod status."""
+    user_login: str
+    """The login of the user losing mod status."""
+    user_name: str
+    """The user name of the user losing mod status."""
+
+
+class ModerateMetadataBan(TwitchObject):
+    user_id: str
+    """The ID of the user being banned."""
+    user_login: str
+    """The login of the user being banned."""
+    user_name: str
+    """The user name of the user being banned."""
+    reason: Optional[str]
+    """Reason given for the ban."""
+
+
+class ModerateMetadataUnban(TwitchObject):
+    user_id: str
+    """The ID of the user being unbanned."""
+    user_login: str
+    """The login of the user being unbanned."""
+    user_name: str
+    """The user name of the user being unbanned."""
+
+
+class ModerateMetadataTimeout(TwitchObject):
+    user_id: str
+    """The ID of the user being timed out."""
+    user_login: str
+    """The login of the user being timed out."""
+    user_name: str
+    """The user name of the user being timed out."""
+    reason: str
+    """Optional. The reason given for the timeout."""
+    expires_at: datetime
+    """The time at which the timeout ends."""
+
+
+class ModerateMetadataUntimeout(TwitchObject):
+    user_id: str
+    """The ID of the user being untimed out."""
+    user_login: str
+    """The login of the user being untimed out."""
+    user_name: str
+    """The user name of the user untimed out."""
+
+
+class ModerateMetadataRaid(TwitchObject):
+    user_id: str
+    """The ID of the user being raided."""
+    user_login: str
+    """The login of the user being raided."""
+    user_name: str
+    """The user name of the user raided."""
+    user_name: str
+    """The user name of the user raided."""
+    viewer_count: int
+    """The viewer count."""
+
+
+class ModerateMetadataUnraid(TwitchObject):
+    user_id: str
+    """The ID of the user no longer being raided."""
+    user_login: str
+    """The login of the user no longer being raided."""
+    user_name: str
+    """The user name of the no longer user raided."""
+
+
+class ModerateMetadataDelete(TwitchObject):
+    user_id: str
+    """The ID of the user whose message is being deleted."""
+    user_login: str
+    """The login of the user."""
+    user_name: str
+    """The user name of the user."""
+    message_id: str
+    """The ID of the message being deleted."""
+    message_body: str
+    """The message body of the message being deleted."""
+
+
+class ModerateMetadataAutomodTerms(TwitchObject):
+    action: str
+    """Either “add” or “remove”."""
+    list: str
+    """Either “blocked” or “permitted”."""
+    terms: List[str]
+    """Terms being added or removed."""
+    from_automod: bool
+    """Whether the terms were added due to an Automod message approve/deny action."""
+
+
+class ModerateMetadataUnbanRequest(TwitchObject):
+    is_approved: bool
+    """Whether or not the unban request was approved or denied."""
+    user_id: str
+    """The ID of the banned user."""
+    user_login: str
+    """The login of the user."""
+    user_name: str
+    """The user name of the user."""
+    moderator_message: str
+    """The message included by the moderator explaining their approval or denial."""
+
+
+class ModerateMetadataWarn(TwitchObject):
+    user_id: str
+    """The ID of the user being warned."""
+    user_login: str
+    """The login of the user being warned."""
+    user_name: str
+    """The user name of the user being warned."""
+    reason: Optional[str]
+    """Reason given for the warning."""
+    chat_rules_cited: Optional[List[str]]
+    """Chat rules cited for the warning."""
+
+
+class ChannelModerateData(TwitchObject):
+    broadcaster_user_id: str
+    """The ID of the broadcaster."""
+    broadcaster_user_login: str
+    """The login of the broadcaster."""
+    broadcaster_user_name: str
+    """The user name of the broadcaster."""
+    moderator_user_id: str
+    """The ID of the moderator who performed the action."""
+    moderator_user_login: str
+    """The login of the moderator."""
+    moderator_user_name: str
+    """The user name of the moderator."""
+    action: str
+    """The action performed. Possible values are:
+    
+    - ban
+    - timeout
+    - unban
+    - untimeout
+    - clear
+    - emoteonly
+    - emoteonlyoff
+    - followers
+    - followersoff
+    - uniquechat
+    - uniquechatoff
+    - slow
+    - slowoff
+    - subscribers
+    - subscribersoff
+    - unraid
+    - delete
+    - vip
+    - unvip
+    - raid
+    - add_blocked_term
+    - add_permitted_term
+    - remove_blocked_term
+    - remove_permitted_term
+    - mod
+    - unmod
+    - approve_unban_request
+    - deny_unban_request
+    - warn
+    """
+    followers: Optional[ModerateMetadataFollowers]
+    """Metadata associated with the followers command."""
+    slow: Optional[ModerateMetadataSlow]
+    """Metadata associated with the slow command."""
+    vip: Optional[ModerateMetadataVip]
+    """Metadata associated with the vip command."""
+    unvip: Optional[ModerateMetadataUnvip]
+    """Metadata associated with the unvip command."""
+    mod: Optional[ModerateMetadataMod]
+    """Metadata associated with the mod command."""
+    unmod: Optional[ModerateMetadataUnmod]
+    """Metadata associated with the unmod command."""
+    ban: Optional[ModerateMetadataBan]
+    """Metadata associated with the ban command."""
+    unban: Optional[ModerateMetadataUnban]
+    """Metadata associated with the unban command."""
+    timeout: Optional[ModerateMetadataTimeout]
+    """Metadata associated with the timeout command."""
+    untimeout: Optional[ModerateMetadataUntimeout]
+    """Metadata associated with the untimeout command."""
+    raid: Optional[ModerateMetadataRaid]
+    """Metadata associated with the raid command."""
+    unraid: Optional[ModerateMetadataUnraid]
+    """Metadata associated with the unraid command."""
+    delete: Optional[ModerateMetadataDelete]
+    """Metadata associated with the delete command."""
+    automod_terms: Optional[ModerateMetadataAutomodTerms]
+    """Metadata associated with the automod terms changes."""
+    unban_request: Optional[ModerateMetadataUnbanRequest]
+    """Metadata associated with an unban request."""
+    warn: Optional[ModerateMetadataWarn]
+    """Metadata associated with the warn command."""
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -2033,3 +2276,8 @@ class ChannelSuspiciousUserMessageEvent(TwitchObject):
 class ChannelSuspiciousUserUpdateEvent(TwitchObject):
     subscription: Subscription
     event: ChannelSuspiciousUserUpdateData
+
+
+class ChannelModerateEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelModerateData

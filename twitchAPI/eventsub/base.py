@@ -26,7 +26,7 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        ChannelChatNotificationEvent, ChannelAdBreakBeginEvent, ChannelChatMessageEvent, ChannelChatSettingsUpdateEvent,
                                        UserWhisperMessageEvent, ChannelPointsAutomaticRewardRedemptionAddEvent, ChannelVIPAddEvent,
                                        ChannelVIPRemoveEvent, ChannelUnbanRequestCreateEvent, ChannelUnbanRequestResolveEvent,
-                                       ChannelSuspiciousUserMessageEvent, ChannelSuspiciousUserUpdateEvent)
+                                       ChannelSuspiciousUserMessageEvent, ChannelSuspiciousUserUpdateEvent, ChannelModerateEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1528,9 +1528,9 @@ class EventSubBase(ABC):
 
         Requires :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_UNBAN_REQUESTS` or :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_UNBAN_REQUESTS` scope.
 
-        If you use webhooks, the user in moderator_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
+        .. note:: If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
 
-        If you use WebSockets, the ID in moderator_id must match the user ID in the user access token.
+                  If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelunban_requestresolve
 
@@ -1557,9 +1557,9 @@ class EventSubBase(ABC):
 
         Requires :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_SUSPICIOUS_USERS` scope.
 
-        If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
+        .. note:: If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
 
-        If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
+                  If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelsuspicious_usermessage
 
@@ -1587,9 +1587,9 @@ class EventSubBase(ABC):
 
         Requires :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_SUSPICIOUS_USERS` scope.
 
-        If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
+        .. note:: If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
 
-        If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
+                  If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelsuspicious_userupdate
 
@@ -1608,3 +1608,43 @@ class EventSubBase(ABC):
         param = {'broadcaster_user_id': broadcaster_user_id,
                  'moderator_user_id': moderator_user_id}
         return await self._subscribe('channel.suspicious_user.update', '1', param, callback, ChannelSuspiciousUserUpdateEvent)
+
+    async def listen_channel_moderate(self,
+                                      broadcaster_user_id: str,
+                                      moderator_user_id: str,
+                                      callback: Callable[[ChannelModerateEvent], Awaitable[None]]) -> str:
+        """A moderator performs a moderation action in a channel. Includes warnings.
+
+        Requires all of the following scopes:
+
+        - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_BLOCKED_TERMS` or :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_BLOCKED_TERMS`
+        - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_CHAT_SETTINGS` or :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_CHAT_SETTINGS`
+        - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_UNBAN_REQUESTS` or :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_UNBAN_REQUESTS`
+        - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_BANNED_USERS` or :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_BANNED_USERS`
+        - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_CHAT_MESSAGES` or :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_CHAT_MESSAGES`
+        - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_WARNINGS` or :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_WARNINGS`
+        - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_MODERATORS`
+        - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_VIPS`
+
+        .. note:: If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
+
+                  If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelmoderate-v2
+
+        :param broadcaster_user_id: The user ID of the broadcaster.
+        :param moderator_user_id: The user ID of the moderator.
+        :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
+        """
+        param = {
+            'broadcaster_user_id': broadcaster_user_id,
+            'moderator_user_id': moderator_user_id
+        }
+        return await self._subscribe('channel.moderate', '2', param, callback, ChannelModerateEvent)
