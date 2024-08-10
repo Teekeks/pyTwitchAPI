@@ -25,7 +25,8 @@ __all__ = ['TwitchUser', 'TwitchUserFollow', 'TwitchUserFollowResult', 'DateRang
            'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment', 'StreamVacation', 'ChannelStreamSchedule',
            'ChannelVIP', 'UserChatColor', 'Chatter', 'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign',
            'CharityCampaignDonation', 'AutoModSettings', 'ChannelFollower', 'ChannelFollowersResult', 'FollowedChannel', 'FollowedChannelsResult',
-           'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse', 'SendMessageResponse', 'ChannelModerator', 'UserEmotesResponse']
+           'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse', 'SendMessageResponse', 'ChannelModerator', 'UserEmotesResponse',
+           'WarnResponse']
 
 
 class TwitchUser(TwitchObject):
@@ -846,3 +847,15 @@ class UserEmotesResponse(AsyncIterTwitchObject):
     """A templated URL. Uses the values from the id, format, scale, and theme_mode fields to replace the like-named placeholder strings in the 
     templated URL to create a CDN (content delivery network) URL that you use to fetch the emote."""
     data: List[UserEmote]
+
+
+class WarnResponse(TwitchObject):
+    broadcaster_id: str
+    """The ID of the channel in which the warning will take effect."""
+    user_id: str
+    """The ID of the warned user."""
+    moderator_id: str
+    """The ID of the user who applied the warning."""
+    reason: str
+    """The reason provided for warning."""
+

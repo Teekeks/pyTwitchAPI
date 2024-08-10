@@ -4011,3 +4011,41 @@ class Twitch:
         return await self._build_iter_result('GET', 'chat/emotes/user', param,
                                              AuthType.USER, [AuthScope.USER_READ_EMOTES],
                                              UserEmotesResponse)
+
+    async def warn_chat_user(self,
+                             broadcaster_id: str,
+                             moderator_id: str,
+                             user_id: str,
+                             reason: str) -> WarnResponse:
+        """Warns a user in the specified broadcaster’s chat room, preventing them from chat interaction until the warning is acknowledged.
+        New warnings can be issued to a user when they already have a warning in the channel (new warning will replace old warning).
+
+        Requires User Authentication with :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_WARNINGS`\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#warn-chat-user
+
+        :param broadcaster_id: The ID of the channel in which the warning will take effect.
+        :param moderator_id: The ID of the twitch user who requested the warning.
+        :param user_id: The ID of the twitch user to be warned.
+        :param reason: A custom reason for the warning. Max 500 chars.
+        :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.type.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.type.MissingScopeException: if the user authentication is missing the required scope
+        :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ValueError: if :const:`~twitchAPI.twitch.Twitch.warn_chat_user.params.reason` is longer than 500 characters
+        """
+        if len(reason) > 500:
+            raise ValueError('reason has to be les than 500 characters long')
+        param = {
+            'broadcaster_id': broadcaster_id,
+            'moderator_id': moderator_id
+        }
+        data = {
+            'data': [{
+                'user_id': user_id,
+                'reason': reason
+            }]
+        }
+        return await self._build_result('POST', 'moderation/warnings', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_WARNINGS],
+                                        WarnResponse, body_data=data)
