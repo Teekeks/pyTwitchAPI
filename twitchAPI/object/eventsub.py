@@ -694,7 +694,8 @@ class GoalData(TwitchObject):
     - If type is subscription_count, this field is increased by 1 for each new subscription and decreased by 1 for each user that unsubscribes.
     - If type is new_subscription, this field is increased by the points value associated with the subscription tier. For example, if a tier-two 
       subscription is worth 2 points, this field is increased by 2, not 1.
-    - If type is new_subscription_count, this field is increased by 1 for each new subscription."""
+    - If type is new_subscription_count, this field is increased by 1 for each new subscription.
+    """
     target_amount: int
     """The goal’s target value. For example, if the broadcaster has 200 followers before creating the goal, and their goal is to double that number, 
     this field is set to 400."""
@@ -716,7 +717,8 @@ class TopContribution(TwitchObject):
     
     - bits — Cheering with Bits.
     - subscription — Subscription activity like subscribing or gifting subscriptions.
-    - other — Covers other contribution methods not listed."""
+    - other — Covers other contribution methods not listed.
+    """
     total: int
     """The total amount contributed. If type is bits, total represents the amount of Bits used. If type is subscription, total is 500, 1000, or 2500 
     to represent tier 1, 2, or 3 subscriptions, respectively."""
@@ -734,7 +736,8 @@ class LastContribution(TwitchObject):
     
     - bits — Cheering with Bits.
     - subscription — Subscription activity like subscribing or gifting subscriptions.
-    - other — Covers other contribution methods not listed."""
+    - other — Covers other contribution methods not listed.
+    """
     total: int
     """The total amount contributed. If type is bits, total represents the amount of Bits used. If type is subscription, total is 500, 1000, or 2500 
     to represent tier 1, 2, or 3 subscriptions, respectively."""
@@ -868,11 +871,9 @@ class ShieldModeData(TwitchObject):
     moderator_user_name: str
     """The moderator’s display name."""
     started_at: datetime
-    """The timestamp of when the moderator activated Shield Mode. The object includes this field only for 
-    channel.shield_mode.begin events."""
+    """The timestamp of when the moderator activated Shield Mode. The object includes this field only for channel.shield_mode.begin events."""
     ended_at: datetime
-    """The timestamp of when the moderator deactivated Shield Mode. The object includes this field only for 
-    channel.shield_mode.end events."""
+    """The timestamp of when the moderator deactivated Shield Mode. The object includes this field only for channel.shield_mode.end events."""
 
 
 class Amount(TwitchObject):
@@ -881,9 +882,7 @@ class Amount(TwitchObject):
     is $5.50 USD, value is set to 550."""
     decimal_places: int
     """The number of decimal places used by the currency. For example, USD uses two decimal places. Use this number to translate value from minor 
-    units to major units by using the formula:
-
-    value / 10^decimal_places"""
+    units to major units by using the formula: value / 10^decimal_places"""
     currency: str
     """The ISO-4217 three-letter currency code that identifies the type of currency in value."""
 
@@ -1112,8 +1111,9 @@ class MessageFragmentEmote(TwitchObject):
     format: List[str]
     """The formats that the emote is available in. For example, if the emote is available only as a static PNG, the array contains only static. But if the emote is available as a static PNG and an animated GIF, the array contains static and animated. The possible formats are:
         
-        - animated — An animated GIF is available for this emote.
-        - static — A static PNG file is available for this emote."""
+    - animated — An animated GIF is available for this emote.
+    - static — A static PNG file is available for this emote.
+    """
 
 
 class MessageFragmentMention(TwitchObject):
@@ -1129,10 +1129,11 @@ class MessageFragment(TwitchObject):
     type: str
     """The type of message fragment. Possible values:
     
-        - text
-        - cheermote
-        - emote
-        - mention"""
+    - text
+    - cheermote
+    - emote
+    - mention
+    """
     text: str
     """Message text in fragment"""
     cheermote: Optional[MessageFragmentCheermote]
@@ -1154,9 +1155,10 @@ class SubNoticeMetadata(TwitchObject):
     sub_tier: str
     """The type of subscription plan being used. Possible values are:
     
-        - 1000 — First level of paid or Prime subscription
-        - 2000 — Second level of paid subscription
-        - 3000 — Third level of paid subscription"""
+    - 1000 — First level of paid or Prime subscription
+    - 2000 — Second level of paid subscription
+    - 3000 — Third level of paid subscription
+    """
     is_prime: bool
     """Indicates if the subscription was obtained through Amazon Prime."""
     duration_months: int
@@ -1175,7 +1177,8 @@ class ResubNoticeMetadata(TwitchObject):
     
     - 1000 — First level of paid or Prime subscription
     - 2000 — Second level of paid subscription
-    - 3000 — Third level of paid subscription"""
+    - 3000 — Third level of paid subscription
+    """
     is_prime: bool
     """Indicates if the resub was obtained through Amazon Prime."""
     is_gift: bool
@@ -1206,7 +1209,8 @@ class SubGiftNoticeMetadata(TwitchObject):
     
     - 1000 — First level of paid subscription
     - 2000 — Second level of paid subscription
-    - 3000 — Third level of paid subscription"""
+    - 3000 — Third level of paid subscription
+    """
     community_gift_id: Optional[str]
     """Optional. The ID of the associated community gift. None if not associated with a community gift."""
 
@@ -1221,7 +1225,8 @@ class CommunitySubGiftNoticeMetadata(TwitchObject):
     
     - 1000 — First level of paid subscription
     - 2000 — Second level of paid subscription
-    - 3000 — Third level of paid subscription"""
+    - 3000 — Third level of paid subscription
+    """
     cumulative_total: Optional[int]
     """Optional. The amount of gifts the gifter has given in this channel. None if anonymous."""
 
@@ -1243,7 +1248,8 @@ class PrimePaidUpgradeNoticeMetadata(TwitchObject):
     
     - 1000 — First level of paid subscription
     - 2000 — Second level of paid subscription
-    - 3000 — Third level of paid subscription"""
+    - 3000 — Third level of paid subscription
+    """
 
 
 class RaidNoticeMetadata(TwitchObject):
@@ -1330,7 +1336,8 @@ class ChannelChatNotificationData(TwitchObject):
     - pay_it_forward
     - announcement
     - bits_badge_tier
-    - charity_donation"""
+    - charity_donation
+    """
     sub: Optional[SubNoticeMetadata]
     """Information about the sub event. None if notice_type is not sub."""
     resub: Optional[ResubNoticeMetadata]
@@ -1399,12 +1406,12 @@ class ChatMessageFragmentEmoteMetadata(TwitchObject):
     owner_id: str
     """The ID of the broadcaster who owns the emote."""
     format: str
-    """
-    The formats that the emote is available in. For example, if the emote is available only as a static PNG, the array contains only static. 
+    """The formats that the emote is available in. For example, if the emote is available only as a static PNG, the array contains only static. 
     But if the emote is available as a static PNG and an animated GIF, the array contains static and animated. The possible formats are:
 
     - animated — An animated GIF is available for this emote.
-    - static — A static PNG file is available for this emote."""
+    - static — A static PNG file is available for this emote.
+    """
 
 
 class ChatMessageFragmentMentionMetadata(TwitchObject):
@@ -1418,13 +1425,13 @@ class ChatMessageFragmentMentionMetadata(TwitchObject):
 
 class ChatMessageFragment(TwitchObject):
     type: str
-    """
-    The type of message fragment. Possible values:
+    """The type of message fragment. Possible values:
 
     - text
     - cheermote
     - emote
-    - mention"""
+    - mention
+    """
     text: str
     """Message text in fragment."""
     cheermote: Optional[ChatMessageFragmentCheermoteMetadata]
@@ -1497,13 +1504,13 @@ class ChannelChatMessageData(TwitchObject):
     message: ChatMessage
     """The structured chat message."""
     message_type: str
-    """
-    The type of message. Possible values:
+    """The type of message. Possible values:
 
     - text
     - channel_points_highlighted
     - channel_points_sub_only
-    - user_intro"""
+    - user_intro
+    """
     badges: List[ChatMessageBadge]
     """List of chat badges."""
     cheer: Optional[ChatMessageCheerMetadata]
@@ -1593,7 +1600,8 @@ class AutomaticReward(TwitchObject):
     - send_highlighted_message
     - random_sub_emote_unlock
     - chosen_sub_emote_unlock
-    - chosen_modified_sub_emote_unlock"""
+    - chosen_modified_sub_emote_unlock
+    """
     cost: int
     """The reward cost."""
     unlocked_emote: Optional[MessageFragmentEmote]
@@ -1711,7 +1719,8 @@ class ChannelUnbanRequestResolveData(TwitchObject):
     
     - approved
     - canceled
-    - denied"""
+    - denied
+    """
 
 
 class MessageWithID(Message):
