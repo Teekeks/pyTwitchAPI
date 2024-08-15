@@ -291,4 +291,8 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelModerateEvent`
      - A moderator performs a moderation action in a channel. Includes warnings.
+   * - **Channel Warning Acknowledgement**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_acknowledge()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.ChannelWarningAcknowledgeEvent`
+     - A user awknowledges a warning. Broadcasters and moderators can see the warning’s details.
 """
