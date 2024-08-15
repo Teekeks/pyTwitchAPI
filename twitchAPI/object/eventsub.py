@@ -22,6 +22,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent', 'UserWhisperMessageEvent', 'ChannelPointsAutomaticRewardRedemptionAddEvent',
            'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent', 'ChannelUnbanRequestCreateEvent', 'ChannelUnbanRequestResolveEvent',
            'ChannelSuspiciousUserMessageEvent', 'ChannelSuspiciousUserUpdateEvent', 'ChannelModerateEvent', 'ChannelWarningAcknowledgeEvent',
+           'ChannelWarningSendEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -44,7 +45,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ModerateMetadataSlow', 'ModerateMetadataWarn', 'ModerateMetadataDelete', 'ModerateMetadataTimeout', 'ModerateMetadataUnmod',
            'ModerateMetadataUnvip', 'ModerateMetadataUntimeout', 'ModerateMetadataUnraid', 'ModerateMetadataUnban', 'ModerateMetadataUnbanRequest',
            'ModerateMetadataAutomodTerms', 'ModerateMetadataBan', 'ModerateMetadataMod', 'ModerateMetadataVip', 'ModerateMetadataRaid',
-           'ModerateMetadataFollowers', 'ChannelModerateData', 'ChannelWarningAcknowledgeData']
+           'ModerateMetadataFollowers', 'ChannelModerateData', 'ChannelWarningAcknowledgeData', 'ChannelWarningSendData']
 
 
 # Event Data
@@ -2031,6 +2032,31 @@ class ChannelWarningAcknowledgeData(TwitchObject):
     """The user name of the user that has acknowledged their warning."""
 
 
+class ChannelWarningSendData(TwitchObject):
+    broadcaster_user_id: str
+    """The user ID of the broadcaster."""
+    broadcaster_user_login: str
+    """The login of the broadcaster."""
+    broadcaster_user_name: str
+    """The user name of the broadcaster."""
+    moderator_user_id: str
+    """The user ID of the moderator who sent the warning."""
+    moderator_user_login: str
+    """The login of the moderator."""
+    moderator_user_name: str
+    """The user name of the moderator."""
+    user_id: str
+    """The ID of the user being warned."""
+    user_login: str
+    """The login of the user being warned."""
+    user_name: str
+    """The user name of the user being."""
+    reason: Optional[str]
+    """The reason given for the warning."""
+    chat_rules_cited: Optional[List[str]]
+    """The chat rules cited for the warning."""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -2311,3 +2337,8 @@ class ChannelModerateEvent(TwitchObject):
 class ChannelWarningAcknowledgeEvent(TwitchObject):
     subscription: Subscription
     event: ChannelWarningAcknowledgeData
+
+
+class ChannelWarningSendEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelWarningSendData
