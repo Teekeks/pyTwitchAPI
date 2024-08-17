@@ -299,4 +299,8 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_send()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelWarningSendEvent`
      - A user is sent a warning. Broadcasters and moderators can see the warning’s details.
+   * - **Automod Message Hold**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_message_hold()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.AutomodMessageHoldEvent`
+     - A user is notified if a message is caught by automod for review.
 """

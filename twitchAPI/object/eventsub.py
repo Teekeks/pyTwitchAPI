@@ -22,7 +22,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent', 'UserWhisperMessageEvent', 'ChannelPointsAutomaticRewardRedemptionAddEvent',
            'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent', 'ChannelUnbanRequestCreateEvent', 'ChannelUnbanRequestResolveEvent',
            'ChannelSuspiciousUserMessageEvent', 'ChannelSuspiciousUserUpdateEvent', 'ChannelModerateEvent', 'ChannelWarningAcknowledgeEvent',
-           'ChannelWarningSendEvent',
+           'ChannelWarningSendEvent', 'AutomodMessageHoldEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -45,7 +45,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ModerateMetadataSlow', 'ModerateMetadataWarn', 'ModerateMetadataDelete', 'ModerateMetadataTimeout', 'ModerateMetadataUnmod',
            'ModerateMetadataUnvip', 'ModerateMetadataUntimeout', 'ModerateMetadataUnraid', 'ModerateMetadataUnban', 'ModerateMetadataUnbanRequest',
            'ModerateMetadataAutomodTerms', 'ModerateMetadataBan', 'ModerateMetadataMod', 'ModerateMetadataVip', 'ModerateMetadataRaid',
-           'ModerateMetadataFollowers', 'ChannelModerateData', 'ChannelWarningAcknowledgeData', 'ChannelWarningSendData']
+           'ModerateMetadataFollowers', 'ChannelModerateData', 'ChannelWarningAcknowledgeData', 'ChannelWarningSendData', 'AutomodMessageHoldData']
 
 
 # Event Data
@@ -2057,6 +2057,31 @@ class ChannelWarningSendData(TwitchObject):
     """The chat rules cited for the warning."""
 
 
+class AutomodMessageHoldData(TwitchObject):
+    broadcaster_user_id: str
+    """The ID of the broadcaster specified in the request."""
+    broadcaster_user_login: str
+    """The login of the broadcaster specified in the request."""
+    broadcaster_user_name: str
+    """The user name of the broadcaster specified in the request."""
+    user_id: str
+    """The message sender’s user ID."""
+    user_login: str
+    """The message sender’s login name."""
+    user_name: str
+    """The message sender’s display name."""
+    message_id: str
+    """The ID of the message that was flagged by automod."""
+    message: Message
+    """The body of the message."""
+    category: str
+    """The category of the message."""
+    level: int
+    """The level of severity. Measured between 1 to 4."""
+    held_at: datetime
+    """The timestamp of when automod saved the message."""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -2342,3 +2367,9 @@ class ChannelWarningAcknowledgeEvent(TwitchObject):
 class ChannelWarningSendEvent(TwitchObject):
     subscription: Subscription
     event: ChannelWarningSendData
+
+
+class AutomodMessageHoldEvent(TwitchObject):
+    subscription: Subscription
+    event: AutomodMessageHoldData
+
