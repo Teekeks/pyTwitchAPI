@@ -522,7 +522,7 @@ class ChannelPollEndData(TwitchObject):
     """The status of the poll. Valid values are completed, archived and terminated."""
     started_at: datetime
     """The time the poll started"""
-    ends_at: datetime
+    ended_at: datetime
     """The time the poll ended"""
 
 
