@@ -27,7 +27,8 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        UserWhisperMessageEvent, ChannelPointsAutomaticRewardRedemptionAddEvent, ChannelVIPAddEvent,
                                        ChannelVIPRemoveEvent, ChannelUnbanRequestCreateEvent, ChannelUnbanRequestResolveEvent,
                                        ChannelSuspiciousUserMessageEvent, ChannelSuspiciousUserUpdateEvent, ChannelModerateEvent,
-                                       ChannelWarningAcknowledgeEvent, ChannelWarningSendEvent, AutomodMessageHoldEvent, AutomodMessageUpdateEvent)
+                                       ChannelWarningAcknowledgeEvent, ChannelWarningSendEvent, AutomodMessageHoldEvent, AutomodMessageUpdateEvent,
+                                       AutomodSettingsUpdateEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1773,3 +1774,34 @@ class EventSubBase(ABC):
             'moderator_user_id': moderator_user_id
         }
         return await self._subscribe('automod.message.update', '1', param, callback, AutomodMessageUpdateEvent)
+
+    async def listen_automod_settings_update(self,
+                                             broadcaster_user_id: str,
+                                             moderator_user_id: str,
+                                             callback: Callable[[AutomodSettingsUpdateEvent], Awaitable[None]]) -> str:
+        """Sends a notification when the broadcaster's automod settings are updated.
+
+        Requires :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_AUTOMOD_SETTINGS` scope.
+
+        .. note:: If you use webhooks, the user in moderator_user_id must have granted your app (client ID) one of the above permissions prior to your app subscribing to this subscription type.
+
+                  If you use WebSockets, the ID in moderator_user_id must match the user ID in the user access token.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#automodsettingsupdate
+
+        :param broadcaster_user_id: User ID of the broadcaster (channel).
+        :param moderator_user_id: User ID of the moderator.
+        :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
+        """
+        param = {
+            'broadcaster_user_id': broadcaster_user_id,
+            'moderator_user_id': moderator_user_id
+        }
+        return await self._subscribe('automod.settings.update', '1', param, callback, AutomodSettingsUpdateEvent)
