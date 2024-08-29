@@ -23,6 +23,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent', 'ChannelUnbanRequestCreateEvent', 'ChannelUnbanRequestResolveEvent',
            'ChannelSuspiciousUserMessageEvent', 'ChannelSuspiciousUserUpdateEvent', 'ChannelModerateEvent', 'ChannelWarningAcknowledgeEvent',
            'ChannelWarningSendEvent', 'AutomodMessageHoldEvent', 'AutomodMessageUpdateEvent', 'AutomodSettingsUpdateEvent',
+           'AutomodTermsUpdateEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -46,7 +47,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ModerateMetadataUnvip', 'ModerateMetadataUntimeout', 'ModerateMetadataUnraid', 'ModerateMetadataUnban', 'ModerateMetadataUnbanRequest',
            'ModerateMetadataAutomodTerms', 'ModerateMetadataBan', 'ModerateMetadataMod', 'ModerateMetadataVip', 'ModerateMetadataRaid',
            'ModerateMetadataFollowers', 'ChannelModerateData', 'ChannelWarningAcknowledgeData', 'ChannelWarningSendData', 'AutomodMessageHoldData',
-           'AutomodMessageUpdateData', 'AutomodSettingsUpdateData']
+           'AutomodMessageUpdateData', 'AutomodSettingsUpdateData', 'AutomodTermsUpdateData']
 
 
 # Event Data
@@ -2153,6 +2154,32 @@ class AutomodSettingsUpdateData(TwitchObject):
     """The Automod level for profanity."""
 
 
+class AutomodTermsUpdateData(TwitchObject):
+    broadcaster_user_id: str
+    """The ID of the broadcaster specified in the request."""
+    broadcaster_user_login: str
+    """The login of the broadcaster specified in the request."""
+    broadcaster_user_name: str
+    """The user name of the broadcaster specified in the request."""
+    moderator_user_id: str
+    """The ID of the moderator who changed the channel settings."""
+    moderator_user_login: str
+    """The moderator’s login."""
+    moderator_user_name: str
+    """The moderator’s user name."""
+    action: str
+    """The status change applied to the terms. Possible options are:
+    
+    - add_permitted
+    - remove_permitted
+    - add_blocked
+    - remove_blocked"""
+    from_automod: bool
+    """Indicates whether this term was added due to an Automod message approve/deny action."""
+    terms: List[str]
+    """The list of terms that had a status change."""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -2453,4 +2480,9 @@ class AutomodMessageUpdateEvent(TwitchObject):
 class AutomodSettingsUpdateEvent(TwitchObject):
     subscription: Subscription
     event: AutomodSettingsUpdateData
+
+
+class AutomodTermsUpdateEvent(TwitchObject):
+    subscription: Subscription
+    event: AutomodTermsUpdateData
 

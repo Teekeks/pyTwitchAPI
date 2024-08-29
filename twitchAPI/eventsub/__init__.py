@@ -311,4 +311,8 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_settings_update()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.AutomodSettingsUpdateEvent`
      - A notification is sent when a broadcaster’s automod settings are updated.
+   * - **Automod Terms Update**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_terms_update()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.AutomodTermsUpdateEvent`
+     - A notification is sent when a broadcaster’s automod terms are updated. Changes to private terms are not sent.
 """
