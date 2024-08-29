@@ -303,4 +303,8 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_message_hold()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.AutomodMessageHoldEvent`
      - A user is notified if a message is caught by automod for review.
+   * - **Automod Message Update**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_message_update()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.AutomodMessageUpdateEvent`
+     - A message in the automod queue had its status changed.
 """
