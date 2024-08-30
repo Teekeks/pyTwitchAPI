@@ -23,7 +23,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent', 'ChannelUnbanRequestCreateEvent', 'ChannelUnbanRequestResolveEvent',
            'ChannelSuspiciousUserMessageEvent', 'ChannelSuspiciousUserUpdateEvent', 'ChannelModerateEvent', 'ChannelWarningAcknowledgeEvent',
            'ChannelWarningSendEvent', 'AutomodMessageHoldEvent', 'AutomodMessageUpdateEvent', 'AutomodSettingsUpdateEvent',
-           'AutomodTermsUpdateEvent', 'ChannelChatUserMessageHoldEvent',
+           'AutomodTermsUpdateEvent', 'ChannelChatUserMessageHoldEvent', 'ChannelChatUserMessageUpdateEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -47,7 +47,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ModerateMetadataUnvip', 'ModerateMetadataUntimeout', 'ModerateMetadataUnraid', 'ModerateMetadataUnban', 'ModerateMetadataUnbanRequest',
            'ModerateMetadataAutomodTerms', 'ModerateMetadataBan', 'ModerateMetadataMod', 'ModerateMetadataVip', 'ModerateMetadataRaid',
            'ModerateMetadataFollowers', 'ChannelModerateData', 'ChannelWarningAcknowledgeData', 'ChannelWarningSendData', 'AutomodMessageHoldData',
-           'AutomodMessageUpdateData', 'AutomodSettingsUpdateData', 'AutomodTermsUpdateData', 'ChannelChatUserMessageHoldData']
+           'AutomodMessageUpdateData', 'AutomodSettingsUpdateData', 'AutomodTermsUpdateData', 'ChannelChatUserMessageHoldData', 'ChannelChatUserMessageUpdateData']
 
 
 # Event Data
@@ -2198,6 +2198,32 @@ class ChannelChatUserMessageHoldData(TwitchObject):
     message: Message
     """The body of the message."""
 
+
+class ChannelChatUserMessageUpdateData(TwitchObject):
+    broadcaster_user_id: str
+    """The ID of the broadcaster specified in the request."""
+    broadcaster_user_login: str
+    """The login of the broadcaster specified in the request."""
+    broadcaster_user_name: str
+    """The user name of the broadcaster specified in the request."""
+    user_id: str
+    """The User ID of the message sender."""
+    user_login: str
+    """The message sender’s login."""
+    user_name: str
+    """The message sender’s user name."""
+    status: str
+    """The message’s status. Possible values are:
+    
+    - approved
+    - denied
+    - invalid"""
+    message_id: str
+    """The ID of the message that was flagged by automod."""
+    message: Message
+    """The body of the message."""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -2508,4 +2534,9 @@ class AutomodTermsUpdateEvent(TwitchObject):
 class ChannelChatUserMessageHoldEvent(TwitchObject):
     subscription: Subscription
     event: ChannelChatUserMessageHoldData
+
+
+class ChannelChatUserMessageUpdateEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelChatUserMessageUpdateData
 

@@ -28,7 +28,7 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        ChannelVIPRemoveEvent, ChannelUnbanRequestCreateEvent, ChannelUnbanRequestResolveEvent,
                                        ChannelSuspiciousUserMessageEvent, ChannelSuspiciousUserUpdateEvent, ChannelModerateEvent,
                                        ChannelWarningAcknowledgeEvent, ChannelWarningSendEvent, AutomodMessageHoldEvent, AutomodMessageUpdateEvent,
-                                       AutomodSettingsUpdateEvent, AutomodTermsUpdateEvent, ChannelChatUserMessageHoldEvent)
+                                       AutomodSettingsUpdateEvent, AutomodTermsUpdateEvent, ChannelChatUserMessageHoldEvent, ChannelChatUserMessageUpdateEvent)
 from twitchAPI.helper import remove_none_values
 from twitchAPI.type import TwitchAPIException
 import asyncio
@@ -1865,3 +1865,32 @@ class EventSubBase(ABC):
             'user_id': user_id
         }
         return await self._subscribe('channel.chat.user_message_hold', '1', param, callback, ChannelChatUserMessageHoldEvent)
+
+    async def listen_channel_chat_user_message_update(self,
+                                                      broadcaster_user_id: str,
+                                                      user_id: str,
+                                                      callback: Callable[[ChannelChatUserMessageUpdateEvent], Awaitable[None]]) -> str:
+        """A user is notified if their message’s automod status is updated.
+
+        .. note:: Requires :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT` scope from the chatting user.
+
+                  If WebSockets is used, additionally requires :const:`~twitchAPI.type.AuthScope.USER_BOT` from chatting user.
+
+        For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchatuser_message_update
+
+        :param broadcaster_user_id: User ID of the channel to receive chat message events for.
+        :param user_id: The user ID to read chat as.
+        :param callback: function for callback
+        :raises ~twitchAPI.type.EventSubSubscriptionConflict: if a conflict was found with this subscription
+            (e.g. already subscribed to this exact topic)
+        :raises ~twitchAPI.type.EventSubSubscriptionTimeout: if :const:`~twitchAPI.eventsub.webhook.EventSubWebhook.wait_for_subscription_confirm`
+            is true and the subscription was not fully confirmed in time
+        :raises ~twitchAPI.type.EventSubSubscriptionError: if the subscription failed (see error message for details)
+        :raises ~twitchAPI.type.TwitchBackendException: if the subscription failed due to a twitch backend error
+        :returns: The id of the topic subscription
+        """
+        param = {
+            'broadcaster_user_id': broadcaster_user_id,
+            'user_id': user_id
+        }
+        return await self._subscribe('channel.chat.user_message_update', '1', param, callback, ChannelChatUserMessageUpdateEvent)
