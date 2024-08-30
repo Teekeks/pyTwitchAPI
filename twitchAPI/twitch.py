@@ -3107,6 +3107,40 @@ class Twitch:
         return await self._build_result('GET', 'chat/emotes/set', {'emote_set_id': emote_set_id}, AuthType.EITHER, [], GetEmotesResponse,
                                         split_lists=True)
 
+    async def create_eventsub_subscription(self,
+                                           subscription_type: str,
+                                           version: str,
+                                           condition: dict,
+                                           transport: dict):
+        """Creates an EventSub subscription.
+
+        Requires Authentication and Scopes depending on Subscription & Transport used.\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#create-eventsub-subscription
+
+        :param subscription_type: The type of subscription to create. For a list of subscriptions that you can create, see [!Subscription Types](https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#subscription-types).
+                Set this field to the value in the Name column of the Subscription Types table.
+        :param version: The version number that identifies the definition of the subscription type that you want the response to use.
+        :param condition: A dict that contains the parameter values that are specific to the specified subscription type.
+                For the object’s required and optional fields, see the subscription type’s documentation.
+        :param transport: The transport details that you want Twitch to use when sending you notifications.
+        :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.type.UnauthorizedException: if authentication is not set or invalid
+        :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raises ~twitchAPI.type.TwitchResourceNotFound: if the subscription was not found
+        """
+        data = {
+            'type': subscription_type,
+            'version': version,
+            'condition': condition,
+            'transport': transport
+        }
+        await self._build_iter_result('POST',
+                                      'eventsub/subscriptions', {},
+                                      AuthType.USER if transport['method'] == 'websocket' else AuthType.APP, [],
+                                      GetEventSubSubscriptionResult, body_data=data)
+
     async def delete_eventsub_subscription(self, subscription_id: str):
         """Deletes an EventSub subscription.
 
