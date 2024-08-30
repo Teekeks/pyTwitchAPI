@@ -1843,9 +1843,9 @@ class EventSubBase(ABC):
                                                     callback: Callable[[ChannelChatUserMessageHoldEvent], Awaitable[None]]) -> str:
         """A user is notified if their message is caught by automod.
 
-        Requires :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT` scope.
+        .. note:: Requires :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT` scope from the chatting user.
 
-        .. note:: If WebSockets is used, additionally requires :const:`~twitchAPI.type.AuthScope.USER_BOT` from chatting user.
+                  If WebSockets is used, additionally requires :const:`~twitchAPI.type.AuthScope.USER_BOT` from chatting user.
 
         For more information see here: https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchatuser_message_hold
 
