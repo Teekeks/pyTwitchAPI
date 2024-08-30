@@ -315,4 +315,8 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_terms_update()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.AutomodTermsUpdateEvent`
      - A notification is sent when a broadcaster’s automod terms are updated. Changes to private terms are not sent.
+   * - **Channel Chat User Message Hold**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_user_message_hold()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.ChannelChatUserMessageHoldEvent`
+     - A user is notified if their message is caught by automod.
 """
