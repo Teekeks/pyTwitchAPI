@@ -4,6 +4,77 @@ Changelog
 =========
 
 *************
+Version 4.3.0
+*************
+
+Twitch
+------
+
+- Added the following new Endpoints:
+
+  - "Get User Emotes" :const:`~twitchAPI.twitch.Twitch.get_user_emotes()`
+  - "Warn Chat User" :const:`~twitchAPI.twitch.Twitch.warn_chat_user()`
+  - "Create EventSub Subscription" :const:`~twitchAPI.twitch.Twitch.create_eventsub_subscription()`
+
+- Fixed Error handling of Endpoint :const:`~twitchAPI.twitch.Twitch.create_clip()`
+- Fixed not raising UnauthorizedException when auth token is invalid and auto_refresh_auth is False
+- Added Parameter :const:`~twitchAPI.twitch.Twitch.update_custom_reward.params.is_paused` to :const:`~twitchAPI.twitch.Twitch.update_custom_reward()` (thanks https://github.com/iProdigy )
+- Remove deprecated field "tags_ids" from :const:`~twitchAPI.object.api.SearchChannelResult`
+
+
+EventSub
+--------
+
+- Added the following new Topics:
+
+  - "Channel Chat Settings Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_settings_update()`
+  - "User Whisper Message" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_user_whisper_message()`
+  - "Channel Points Automatic Reward Redemption" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_points_automatic_reward_redemption_add()`
+  - "Channel VIP Add" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_add()`
+  - "Channel VIP Remove" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_remove()`
+  - "Channel Unban Request Create" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_unban_request_create()`
+  - "Channel Unban Request Resolve" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_unban_request_resolve()`
+  - "Channel Suspicious User Message" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_suspicious_user_message()`
+  - "Channel Suspicious User Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_suspicious_user_update()`
+  - "Channel Moderate" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()`
+  - "Channel Warning Acknowledgement" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_acknowledge()`
+  - "Channel Warning Send" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_send()`
+  - "Automod Message Hold" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_message_hold()`
+  - "Automod Message Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_message_update()`
+  - "Automod Settings Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_settings_update()`
+  - "Automod Terms Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_terms_update()`
+  - "Channel Chat User Message Hold" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_user_message_hold()`
+  - "Channel Chat User Message Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_user_message_update()`
+
+- Fixed reconnect logic for Websockets (thanks https://github.com/Latent-Logic )
+- Fixed logger names being set incorrectly for EventSub transports
+- Fixed field "ended_at being incorrectly named "ends_at" for :const:`~twitchAPI.object.eventsub.ChannelPollEndData`
+
+Chat
+----
+
+- Added flag :const:`~twitchAPI.chat.ChatMessage.first` to ChatMessage indicating a first time chatter (thanks https://github.com/lbrooney )
+
+OAuth
+-----
+
+- Added CodeFlow user authenticator, usefull for headless server user token generation. :const:`~twitchAPI.oauth.CodeFlow`
+- Added the following new Auth Scopes:
+
+  - :const:`~twitchAPI.type.AuthScope.USER_READ_EMOTES`
+  - :const:`~twitchAPI.type.AuthScope.USER_READ_WHISPERS`
+  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_UNBAN_REQUESTS`
+  - :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_UNBAN_REQUESTS`
+  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_SUSPICIOUS_USERS`
+  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_BANNED_USERS`
+  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_CHAT_SETTINGS`
+  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_WARNINGS`
+  - :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_WARNINGS`
+  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_MODERATORS`
+  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_VIPS`
+
+
+*************
 Version 4.2.1
 *************
 
