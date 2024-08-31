@@ -28,6 +28,8 @@ You can set that `here in your twitch dev dashboard <https://dev.twitch.tv/conso
 
 .. seealso:: This tutorial has a more detailed example how to use UserAuthenticator on a headless server: :doc:`/tutorial/user-auth-headless`
 
+.. seealso:: You may also use the CodeFlow to generate your access token headless :const:`~twitchAPI.oauth.CodeFlow`
+
 Code example
 ************
 
@@ -86,8 +88,7 @@ from logging import getLogger, Logger
 
 from typing import List, Union
 
-__all__ = ['refresh_access_token', 'validate_token', 'get_user_info', 'revoke_token', 'UserAuthenticator', 'UserAuthenticationStorageHelper',
-           'CodeFlow']
+__all__ = ['refresh_access_token', 'validate_token', 'get_user_info', 'revoke_token', 'CodeFlow', 'UserAuthenticator', 'UserAuthenticationStorageHelper']
 
 
 async def refresh_access_token(refresh_token: str,
@@ -200,19 +201,47 @@ async def revoke_token(client_id: str,
 
 
 class CodeFlow:
+    """Basic implementation of the CodeFlow User Authentication.
+
+    Example use:
+
+    .. code-block:: python
+
+        APP_ID = "my_app_id"
+        APP_SECRET = "my_app_secret"
+        USER_SCOPES = [AuthScope.BITS_READ, AuthScope.BITS_WRITE]
+
+        twitch = await Twitch(APP_ID, APP_SECRET)
+        code_flow = CodeFlow(twitch, USER_SCOPES)
+        code, url = await code_flow.get_code()
+        print(url)  # visit this url and complete the flow
+        token, refresh = await code_flow.wait_for_auth_complete()
+        await twitch.set_user_authentication(token, USER_SCOPES, refresh)
+    """
     def __init__(self,
                  twitch: 'Twitch',
                  scopes: List[AuthScope],
                  auth_base_url: str = TWITCH_AUTH_BASE_URL):
+        """
+
+        :param twitch: A twitch instance
+        :param scopes: List of the desired Auth scopes
+        :param auth_base_url: The URL to the Twitch API auth server |default| :const:`~twitchAPI.helper.TWITCH_AUTH_BASE_URL`
+        """
         self._twitch: 'Twitch' = twitch
         self._client_id: str = twitch.app_id
         self._scopes: List[AuthScope] = scopes
         self.logger: Logger = getLogger('twitchAPI.oauth.code_flow')
+        """The logger used for OAuth related log messages"""
         self.auth_base_url: str = auth_base_url
         self._device_code: Optional[str] = None
         self._expires_in: Optional[datetime.datetime] = None
 
     async def get_code(self) -> (str, str):
+        """Requests a Code and URL from teh API to start the flow
+
+        :return: The Code and URL used to further the flow
+        """
         async with aiohttp.ClientSession(timeout=self._twitch.session_timeout) as session:
             data = {
                 'client_id': self._client_id,
@@ -225,6 +254,10 @@ class CodeFlow:
                 return data['user_code'], data['verification_uri']
 
     async def wait_for_auth_complete(self) -> (str, str):
+        """Waits till the user completed the flow on teh website and then generates the tokens.
+
+        :return: the generated access_token and refresh_token
+        """
         if self._device_code is None:
             raise ValueError('Please start the code flow first using CodeFlow.get_code()')
         request_data = {
