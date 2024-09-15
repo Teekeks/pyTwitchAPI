@@ -4,6 +4,15 @@ Changelog
 =========
 
 *************
+Version 4.3.1
+*************
+
+Twitch
+------
+
+- :const:`~twitchAPI.object.api.CustomReward.image` of :const:`~twitchAPI.object.api.CustomReward` is now parsed correctly
+
+*************
 Version 4.3.0
 *************
 
