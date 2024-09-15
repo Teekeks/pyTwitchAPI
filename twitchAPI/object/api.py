@@ -522,7 +522,7 @@ class CustomReward(TwitchObject):
     broadcaster_login: str
     broadcaster_id: str
     id: str
-    image: str
+    image: Dict[str, str]
     background_color: str
     is_enabled: bool
     cost: int
