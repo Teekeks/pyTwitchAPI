@@ -13,9 +13,9 @@ Objects used by this Library
 
 .. autosummary::
 
-   twitchAPI.object.base
-   twitchAPI.object.api
-   twitchAPI.object.eventsub
+   base
+   api
+   eventsub
 
 """
 
