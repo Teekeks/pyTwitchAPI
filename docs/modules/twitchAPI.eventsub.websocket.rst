@@ -1,4 +1,5 @@
 ﻿:orphan:
+
 .. automodule:: twitchAPI.eventsub.websocket
     :members:
     :undoc-members:
