@@ -1,3 +1,10 @@
 .default-value-section .default-value-label {
     font-style: italic;
 }
+.bd-main .bd-content .bd-article-container {
+  max-width: 100%;  /* default is 60em */
+}
+
+.bd-page-width {
+  max-width: 88rem;  /* default is 88rem */
+}
