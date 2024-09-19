@@ -320,6 +320,9 @@ Valid loggers are:
    * - :code:`twitchAPI.oauth`
      - :const:`~twitchAPI.oauth.UserAuthenticator`
      - :const:`~twitchAPI.oauth.UserAuthenticator.logger`
+   * - :code:`twitchAPI.oauth.code_flow`
+     - :const:`~twitchAPI.oauth.CodeFlow`
+     - :const:`~twitchAPI.oauth.CodeFlow.logger`
    * - :code:`twitchAPI.oauth.storage_helper`
      - :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper`
      - :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper.logger`
