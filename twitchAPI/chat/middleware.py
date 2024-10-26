@@ -230,3 +230,16 @@ class GlobalCommandCooldown(BaseCommandMiddleware):
 
     async def was_executed(self, command: 'ChatCommand'):
         self._last_executed[command.name] = datetime.now()
+
+
+class SharedChatOnlyCurrent(BaseCommandMiddleware):
+    """Restricts commands to only current chat room in Shared Chat streams"""
+
+    async def can_execute(self, command: ChatCommand) -> bool:
+        if "source-room-id" in command._parsed["tags"]:
+            if command._parsed["tags"]["source-room-id"] != command._parsed["tags"].get("room-id"):
+                return False
+        return True
+
+    async def was_executed(self, command: ChatCommand):
+        pass

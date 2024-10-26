@@ -556,7 +556,8 @@ class Chat:
                  is_verified_bot: bool = False,
                  initial_channel: Optional[List[str]] = None,
                  callback_loop: Optional[asyncio.AbstractEventLoop] = None,
-                 no_message_reset_time: Optional[float] = 10):
+                 no_message_reset_time: Optional[float] = 10,
+                 no_shared_chat_messages: bool = True):
         """
         :param twitch: A Authenticated twitch instance
         :param connection_url: alternative connection url |default|:code:`None`
@@ -568,6 +569,8 @@ class Chat:
         :param no_message_reset_time: How many minutes of mo messages from Twitch before the connection is considered
             dead. Twitch sends a PING just under every 5 minutes and the bot must respond to them for Twitch to keep
             the connection active. At 10 minutes we've definitely missed at least one PING |default|:code:`10`
+        :param no_shared_chat_messages: Filter out Twitch shared chat messages from other channels. This will only
+            listen for messages that were sent in the chat room that the bot is listening in.
         """
         self.logger: Logger = getLogger('twitchAPI.chat')
         """The logger used for Chat related log messages"""
@@ -584,6 +587,7 @@ class Chat:
         """Jitter in seconds for ping messages. This should usually not be changed."""
         self._callback_loop = callback_loop
         self.no_message_reset_time: Optional[float] = no_message_reset_time
+        self.no_shared_chat_messages: bool = no_shared_chat_messages
         self.listen_confirm_timeout: int = 30
         """Time in second that any :code:`listen_` should wait for its subscription to be completed."""
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
@@ -1091,6 +1095,9 @@ class Chat:
                 t.add_done_callback(self._task_callback)
 
     async def _handle_msg(self, parsed: dict):
+        if self.no_shared_chat_messages and "source-room-id" in parsed["tags"]:
+            if parsed["tags"]["source-room-id"] != parsed["tags"].get("room-id"):
+                return
 
         async def _can_execute_command(_com: ChatCommand, _name: str) -> bool:
             for mid in self._command_middleware + self._command_specific_middleware.get(_name, []):
