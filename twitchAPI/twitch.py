@@ -4083,3 +4083,22 @@ class Twitch:
         }
         return await self._build_result('POST', 'moderation/warnings', param, AuthType.USER, [AuthScope.MODERATOR_MANAGE_WARNINGS],
                                         WarnResponse, body_data=data)
+
+    async def get_shared_chat_session(self, broadcaster_id: str) -> Optional[SharedChatSession]:
+        """Retrieves the active shared chat session for a channel.
+
+        Requires User or App Authentication\n
+        For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#get-shared-chat-session
+
+        :param broadcaster_id: The User ID of the channel broadcaster.
+        :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
+        :raises ~twitchAPI.type.UnauthorizedException: if user authentication is not set or invalid
+        :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
+        :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
+        :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
+        :returns: None if there is no active shared chat session
+        """
+        param = {
+            'broadcaster_id': broadcaster_id
+        }
+        return await self._build_result('GET', 'shared_chat/session', param, AuthType.EITHER, [], SharedChatSession)

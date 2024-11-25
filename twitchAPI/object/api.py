@@ -26,7 +26,7 @@ __all__ = ['TwitchUser', 'TwitchUserFollow', 'TwitchUserFollowResult', 'DateRang
            'ChannelVIP', 'UserChatColor', 'Chatter', 'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign',
            'CharityCampaignDonation', 'AutoModSettings', 'ChannelFollower', 'ChannelFollowersResult', 'FollowedChannel', 'FollowedChannelsResult',
            'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse', 'SendMessageResponse', 'ChannelModerator', 'UserEmotesResponse',
-           'WarnResponse']
+           'WarnResponse', 'SharedChatParticipant', 'SharedChatSession']
 
 
 class TwitchUser(TwitchObject):
@@ -859,3 +859,20 @@ class WarnResponse(TwitchObject):
     reason: str
     """The reason provided for warning."""
 
+
+class SharedChatParticipant(TwitchObject):
+    broadcaster_id: str
+    """The User ID of the participant channel."""
+
+
+class SharedChatSession(TwitchObject):
+    session_id: str
+    """The unique identifier for the shared chat session."""
+    host_broadcaster_id: str
+    """The User ID of the host channel."""
+    participants: List[SharedChatParticipant]
+    """The list of participants in the session."""
+    created_at: datetime
+    """The UTC timestamp when the session was created."""
+    updated_at: datetime
+    """The UTC timestamp when the session was last updated."""
