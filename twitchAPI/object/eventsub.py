@@ -771,6 +771,8 @@ class HypeTrainData(TwitchObject):
     """The time when the Hype Train started."""
     expires_at: datetime
     """The time when the Hype Train expires. The expiration is extended when the Hype Train reaches a new level."""
+    is_golden_kappa_train: bool
+    """Indicates if the Hype Train is a Golden Kappa Train."""
 
 
 class HypeTrainEndData(TwitchObject):
@@ -794,6 +796,8 @@ class HypeTrainEndData(TwitchObject):
     """The time when the Hype Train ended."""
     cooldown_ends_at: datetime
     """The time when the Hype Train cooldown ends so that the next Hype Train can start."""
+    is_golden_kappa_train: bool
+    """Indicates if the Hype Train is a Golden Kappa Train."""
 
 
 class StreamOnlineData(TwitchObject):
