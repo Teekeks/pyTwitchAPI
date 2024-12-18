@@ -124,12 +124,21 @@ html_theme_options = {
         "text": "twitchAPI",
         "image_light": "logo.png",
         "image_dark": "logo.png"
+    },
+    "secondary_sidebar_items": {
+        "**": ["page-toc"]
     }
 }
 # remove left sidebar
 html_sidebars = {
     "**": []
 }
+
+favicons = [
+    "logo-32x32.png",
+    "logo-16x16.png",
+    {"rel": "shortcut icon", "sizes": "any", "href": "logo.ico"},
+]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
