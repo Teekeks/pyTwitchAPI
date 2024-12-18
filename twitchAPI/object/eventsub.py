@@ -23,7 +23,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent', 'ChannelUnbanRequestCreateEvent', 'ChannelUnbanRequestResolveEvent',
            'ChannelSuspiciousUserMessageEvent', 'ChannelSuspiciousUserUpdateEvent', 'ChannelModerateEvent', 'ChannelWarningAcknowledgeEvent',
            'ChannelWarningSendEvent', 'AutomodMessageHoldEvent', 'AutomodMessageUpdateEvent', 'AutomodSettingsUpdateEvent',
-           'AutomodTermsUpdateEvent', 'ChannelChatUserMessageHoldEvent', 'ChannelChatUserMessageUpdateEvent',
+           'AutomodTermsUpdateEvent', 'ChannelChatUserMessageHoldEvent', 'ChannelChatUserMessageUpdateEvent', 'ChannelSharedChatBeginEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -47,7 +47,8 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ModerateMetadataUnvip', 'ModerateMetadataUntimeout', 'ModerateMetadataUnraid', 'ModerateMetadataUnban', 'ModerateMetadataUnbanRequest',
            'ModerateMetadataAutomodTerms', 'ModerateMetadataBan', 'ModerateMetadataMod', 'ModerateMetadataVip', 'ModerateMetadataRaid',
            'ModerateMetadataFollowers', 'ChannelModerateData', 'ChannelWarningAcknowledgeData', 'ChannelWarningSendData', 'AutomodMessageHoldData',
-           'AutomodMessageUpdateData', 'AutomodSettingsUpdateData', 'AutomodTermsUpdateData', 'ChannelChatUserMessageHoldData', 'ChannelChatUserMessageUpdateData']
+           'AutomodMessageUpdateData', 'AutomodSettingsUpdateData', 'AutomodTermsUpdateData', 'ChannelChatUserMessageHoldData', 'ChannelChatUserMessageUpdateData',
+           'SharedChatParticipant', 'ChannelSharedChatBeginData']
 
 
 # Event Data
@@ -2228,6 +2229,33 @@ class ChannelChatUserMessageUpdateData(TwitchObject):
     """The body of the message."""
 
 
+class SharedChatParticipant(TwitchObject):
+    broadcaster_user_id: str
+    """The User ID of the participant channel."""
+    broadcaster_user_name: str
+    """The display name of the participant channel."""
+    broadcaster_user_login: str
+    """The user login of the participant channel."""
+
+
+class ChannelSharedChatBeginData(TwitchObject):
+    session_id: str
+    """The unique identifier for the shared chat session."""
+    broadcaster_user_id: str
+    """The User ID of the channel in the subscription condition which is now active in the shared chat session."""
+    broadcaster_user_name: str
+    """The display name of the channel in the subscription condition which is now active in the shared chat session."""
+    broadcaster_user_login: str
+    """The user login of the channel in the subscription condition which is now active in the shared chat session."""
+    host_broadcaster_user_id: str
+    """The User ID of the host channel."""
+    host_broadcaster_user_name: str
+    """The display name of the host channel."""
+    host_broadcaster_user_login: str
+    """The user login of the host channel."""
+    participants: List[SharedChatParticipant]
+    """The list of participants in the session."""
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -2543,4 +2571,9 @@ class ChannelChatUserMessageHoldEvent(TwitchObject):
 class ChannelChatUserMessageUpdateEvent(TwitchObject):
     subscription: Subscription
     event: ChannelChatUserMessageUpdateData
+
+
+class ChannelSharedChatBeginEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelSharedChatBeginData
 
