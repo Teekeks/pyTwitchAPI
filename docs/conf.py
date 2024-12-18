@@ -118,13 +118,17 @@ html_theme_options = {
     "header_links_before_dropdown": 4,
     "navbar_center": ["version-switcher", "navbar-nav"],
     "github_url": "https://github.com/Teekeks/pyTwitchAPI",
-    "pygment_dark_style": "monokai",
+    "pygments_dark_style": "monokai",
     "navbar_align": "left",
     "logo": {
         "text": "twitchAPI",
         "image_light": "logo.png",
         "image_dark": "logo.png"
     }
+}
+# remove left sidebar
+html_sidebars = {
+    "**": []
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
