@@ -54,7 +54,8 @@ extensions = [
     'enum_tools.autoenum',
     'recommonmark',
     'sphinx_paramlinks',
-    'sphinx_favicon'
+    'sphinx_favicon',
+    'sphinx_copybutton',
 ]
 
 aiohttp.client.ClientTimeout.__module__ = 'aiohttp'
