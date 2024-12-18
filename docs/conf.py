@@ -119,7 +119,6 @@ html_theme_options = {
     },
     "header_links_before_dropdown": 4,
     "navbar_center": ["version-switcher", "navbar-nav"],
-    "github_url": "https://github.com/Teekeks/pyTwitchAPI",
     "pygments_dark_style": "monokai",
     "navbar_align": "left",
     "logo": {
@@ -127,6 +126,23 @@ html_theme_options = {
         "image_light": "logo.png",
         "image_dark": "logo.png"
     },
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/Teekeks/pyTwitchAPI",
+            "icon": "fa-brands fa-github",
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/twitchAPI",
+            "icon": "fa-custom fa-pypi",
+        },
+        {
+            "name": "Discord Support Server",
+            "url": "https://discord.gg/tu2Dmc7gpd",
+            "icon": "fa-brands fa-discord",
+        }
+    ],
     "secondary_sidebar_items": {
         "**": ["page-toc"]
     }
@@ -146,3 +162,4 @@ favicons = [
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_js_files = ['icons/pypi-icon.js']
