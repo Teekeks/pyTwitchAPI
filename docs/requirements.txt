@@ -9,3 +9,4 @@ sphinx-autodoc-typehints
 pydata-sphinx-theme==0.16.1
 recommonmark
 sphinx-paramlinks
+sphinx_favicon

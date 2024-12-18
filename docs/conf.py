@@ -53,7 +53,8 @@ extensions = [
     'sphinx.ext.autosummary',
     'enum_tools.autoenum',
     'recommonmark',
-    'sphinx_paramlinks'
+    'sphinx_paramlinks',
+    'sphinx_favicon'
 ]
 
 aiohttp.client.ClientTimeout.__module__ = 'aiohttp'
