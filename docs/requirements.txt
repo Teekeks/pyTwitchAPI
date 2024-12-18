@@ -2,7 +2,7 @@ enum-tools[sphinx]
 sphinx_toolbox
 aiohttp
 python-dateutil
-sphinx==7.1.2
+sphinx==8.1.3
 pygments
 typing_extensions
 sphinx-autodoc-typehints
