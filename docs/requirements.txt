@@ -11,3 +11,4 @@ recommonmark
 sphinx-paramlinks
 sphinx_favicon
 sphinx-copybutton
+sphinx-design

@@ -56,6 +56,7 @@ extensions = [
     'sphinx_paramlinks',
     'sphinx_favicon',
     'sphinx_copybutton',
+    'sphinx_design'
 ]
 
 aiohttp.client.ClientTimeout.__module__ = 'aiohttp'

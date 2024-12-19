@@ -3,1084 +3,919 @@
 Changelog
 =========
 
-*************
-Version 4.4.0
-*************
+**************
+Latest Version
+**************
 
-Twitch
-------
+.. dropdown:: Version 4.4.0
+    :color: info
+    :open:
 
-- Added the following new Endpoint:
+    **Twitch**
 
-  - "Get Shared Chat Session" :const:`~twitchAPI.twitch.Twitch.get_shared_chat_session()`
+    - Added the following new Endpoint:
 
+      - "Get Shared Chat Session" :const:`~twitchAPI.twitch.Twitch.get_shared_chat_session()`
 
-EventSub
---------
 
-- Added the following new Topics:
+    **EventSub**
 
-  - "Channel Shared Chat Session Begin" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_begin()`
-  - "Channel Shared Chat Session Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_update()`
-  - "Channel Shared Chat Session End" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_end()`
+    - Added the following new Topics:
 
-- Added the "Golden Kappa Train" info to the following Topics:
+      - "Channel Shared Chat Session Begin" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_begin()`
+      - "Channel Shared Chat Session Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_update()`
+      - "Channel Shared Chat Session End" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_end()`
 
-  - :const:`~twitchAPI.eventsub.base.EventSubBase.listen_hype_train_begin()`
-  - :const:`~twitchAPI.eventsub.base.EventSubBase.listen_hype_train_progress()`
-  - :const:`~twitchAPI.eventsub.base.EventSubBase.listen_hype_train_end()`
+    - Added the "Golden Kappa Train" info to the following Topics:
 
-Chat
-----
+      - :const:`~twitchAPI.eventsub.base.EventSubBase.listen_hype_train_begin()`
+      - :const:`~twitchAPI.eventsub.base.EventSubBase.listen_hype_train_progress()`
+      - :const:`~twitchAPI.eventsub.base.EventSubBase.listen_hype_train_end()`
 
-- Added new middleware :const:`~twitchAPI.chat.middleware.SharedChatOnlyCurrent` which restricts the messages to only the current room (thanks https://github.com/Latent-Logic )
-- Added support for source room and user tags
-- Added new option :const:`~twitchAPI.chat.Chat.params.no_shared_chat_messages` which controls if shared chat messages should be filtered out or not (thanks https://github.com/Latent-Logic )
+    **Chat**
 
+    - Added new middleware :const:`~twitchAPI.chat.middleware.SharedChatOnlyCurrent` which restricts the messages to only the current room (thanks https://github.com/Latent-Logic )
+    - Added support for source room and user tags
+    - Added new option :const:`~twitchAPI.chat.Chat.params.no_shared_chat_messages` which controls if shared chat messages should be filtered out or not (thanks https://github.com/Latent-Logic )
 
-OAuth
------
 
-- Made it possible to specify target host and port in constructor of :const:`~twitchAPI.oauth.UserAuthenticator` (thanks https://github.com/nojoule )
-- Made it possible to control if a browser should be opened in :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()` (thanks https://github.com/Latent-Logic )
+    **OAuth**
 
+    - Made it possible to specify target host and port in constructor of :const:`~twitchAPI.oauth.UserAuthenticator` (thanks https://github.com/nojoule )
+    - Made it possible to control if a browser should be opened in :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()` (thanks https://github.com/Latent-Logic )
 
-*************
-Version 4.3.1
-*************
+**************
+Older Versions
+**************
 
-Twitch
-------
+.. dropdown:: Version 4.3.1
 
-- :const:`~twitchAPI.object.api.CustomReward.image` of :const:`~twitchAPI.object.api.CustomReward` is now parsed correctly
+    **Twitch**
 
-*************
-Version 4.3.0
-*************
+    - :const:`~twitchAPI.object.api.CustomReward.image` of :const:`~twitchAPI.object.api.CustomReward` is now parsed correctly
 
-Twitch
-------
+.. dropdown:: Version 4.3.0
+    :color: info
 
-- Added the following new Endpoints:
+    **Twitch**
 
-  - "Get User Emotes" :const:`~twitchAPI.twitch.Twitch.get_user_emotes()`
-  - "Warn Chat User" :const:`~twitchAPI.twitch.Twitch.warn_chat_user()`
-  - "Create EventSub Subscription" :const:`~twitchAPI.twitch.Twitch.create_eventsub_subscription()`
+    - Added the following new Endpoints:
 
-- Fixed Error handling of Endpoint :const:`~twitchAPI.twitch.Twitch.create_clip()`
-- Fixed not raising UnauthorizedException when auth token is invalid and auto_refresh_auth is False
-- Added Parameter :const:`~twitchAPI.twitch.Twitch.update_custom_reward.params.is_paused` to :const:`~twitchAPI.twitch.Twitch.update_custom_reward()` (thanks https://github.com/iProdigy )
-- Remove deprecated field "tags_ids" from :const:`~twitchAPI.object.api.SearchChannelResult`
+      - "Get User Emotes" :const:`~twitchAPI.twitch.Twitch.get_user_emotes()`
+      - "Warn Chat User" :const:`~twitchAPI.twitch.Twitch.warn_chat_user()`
+      - "Create EventSub Subscription" :const:`~twitchAPI.twitch.Twitch.create_eventsub_subscription()`
 
+    - Fixed Error handling of Endpoint :const:`~twitchAPI.twitch.Twitch.create_clip()`
+    - Fixed not raising UnauthorizedException when auth token is invalid and auto_refresh_auth is False
+    - Added Parameter :const:`~twitchAPI.twitch.Twitch.update_custom_reward.params.is_paused` to :const:`~twitchAPI.twitch.Twitch.update_custom_reward()` (thanks https://github.com/iProdigy )
+    - Remove deprecated field "tags_ids" from :const:`~twitchAPI.object.api.SearchChannelResult`
 
-EventSub
---------
+    **EventSub**
 
-- Added the following new Topics:
+    - Added the following new Topics:
 
-  - "Channel Chat Settings Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_settings_update()`
-  - "User Whisper Message" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_user_whisper_message()`
-  - "Channel Points Automatic Reward Redemption" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_points_automatic_reward_redemption_add()`
-  - "Channel VIP Add" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_add()`
-  - "Channel VIP Remove" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_remove()`
-  - "Channel Unban Request Create" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_unban_request_create()`
-  - "Channel Unban Request Resolve" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_unban_request_resolve()`
-  - "Channel Suspicious User Message" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_suspicious_user_message()`
-  - "Channel Suspicious User Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_suspicious_user_update()`
-  - "Channel Moderate" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()`
-  - "Channel Warning Acknowledgement" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_acknowledge()`
-  - "Channel Warning Send" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_send()`
-  - "Automod Message Hold" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_message_hold()`
-  - "Automod Message Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_message_update()`
-  - "Automod Settings Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_settings_update()`
-  - "Automod Terms Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_terms_update()`
-  - "Channel Chat User Message Hold" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_user_message_hold()`
-  - "Channel Chat User Message Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_user_message_update()`
+      - "Channel Chat Settings Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_settings_update()`
+      - "User Whisper Message" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_user_whisper_message()`
+      - "Channel Points Automatic Reward Redemption" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_points_automatic_reward_redemption_add()`
+      - "Channel VIP Add" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_add()`
+      - "Channel VIP Remove" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_vip_remove()`
+      - "Channel Unban Request Create" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_unban_request_create()`
+      - "Channel Unban Request Resolve" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_unban_request_resolve()`
+      - "Channel Suspicious User Message" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_suspicious_user_message()`
+      - "Channel Suspicious User Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_suspicious_user_update()`
+      - "Channel Moderate" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_moderate()`
+      - "Channel Warning Acknowledgement" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_acknowledge()`
+      - "Channel Warning Send" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_warning_send()`
+      - "Automod Message Hold" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_message_hold()`
+      - "Automod Message Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_message_update()`
+      - "Automod Settings Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_settings_update()`
+      - "Automod Terms Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_automod_terms_update()`
+      - "Channel Chat User Message Hold" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_user_message_hold()`
+      - "Channel Chat User Message Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_user_message_update()`
 
-- Fixed reconnect logic for Websockets (thanks https://github.com/Latent-Logic )
-- Fixed logger names being set incorrectly for EventSub transports
-- Fixed field "ended_at being incorrectly named "ends_at" for :const:`~twitchAPI.object.eventsub.ChannelPollEndData`
+    - Fixed reconnect logic for Websockets (thanks https://github.com/Latent-Logic )
+    - Fixed logger names being set incorrectly for EventSub transports
+    - Fixed field "ended_at being incorrectly named "ends_at" for :const:`~twitchAPI.object.eventsub.ChannelPollEndData`
 
-Chat
-----
+    **Chat**
 
-- Added flag :const:`~twitchAPI.chat.ChatMessage.first` to ChatMessage indicating a first time chatter (thanks https://github.com/lbrooney )
+    - Added flag :const:`~twitchAPI.chat.ChatMessage.first` to ChatMessage indicating a first time chatter (thanks https://github.com/lbrooney )
 
-OAuth
------
+    **OAuth**
 
-- Added CodeFlow user authenticator, usefull for headless server user token generation. :const:`~twitchAPI.oauth.CodeFlow`
-- Added the following new Auth Scopes:
+    - Added CodeFlow user authenticator, usefull for headless server user token generation. :const:`~twitchAPI.oauth.CodeFlow`
+    - Added the following new Auth Scopes:
 
-  - :const:`~twitchAPI.type.AuthScope.USER_READ_EMOTES`
-  - :const:`~twitchAPI.type.AuthScope.USER_READ_WHISPERS`
-  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_UNBAN_REQUESTS`
-  - :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_UNBAN_REQUESTS`
-  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_SUSPICIOUS_USERS`
-  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_BANNED_USERS`
-  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_CHAT_SETTINGS`
-  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_WARNINGS`
-  - :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_WARNINGS`
-  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_MODERATORS`
-  - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_VIPS`
+      - :const:`~twitchAPI.type.AuthScope.USER_READ_EMOTES`
+      - :const:`~twitchAPI.type.AuthScope.USER_READ_WHISPERS`
+      - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_UNBAN_REQUESTS`
+      - :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_UNBAN_REQUESTS`
+      - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_SUSPICIOUS_USERS`
+      - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_BANNED_USERS`
+      - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_CHAT_SETTINGS`
+      - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_WARNINGS`
+      - :const:`~twitchAPI.type.AuthScope.MODERATOR_MANAGE_WARNINGS`
+      - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_MODERATORS`
+      - :const:`~twitchAPI.type.AuthScope.MODERATOR_READ_VIPS`
 
 
-*************
-Version 4.2.1
-*************
+.. dropdown:: Version 4.2.1
 
-EventSub
---------
+    **EventSub**
 
-- Fixed event payload parsing for Channel Prediction events
+    - Fixed event payload parsing for Channel Prediction events
 
-*************
-Version 4.2.0
-*************
+.. dropdown:: Version 4.2.0
+    :color: info
 
-Twitch
-------
+    **Twitch**
 
-- Fixed Endpoint :const:`~twitchAPI.twitch.Twitch.get_stream_key()` (thanks https://github.com/moralrecordings )
-- Added the following new Endpoints:
+    - Fixed Endpoint :const:`~twitchAPI.twitch.Twitch.get_stream_key()` (thanks https://github.com/moralrecordings )
+    - Added the following new Endpoints:
 
-  - "Get Ad Schedule" :const:`~twitchAPI.twitch.Twitch.get_ad_schedule()`
-  - "Snooze Next Ad" :const:`~twitchAPI.twitch.Twitch.snooze_next_ad()`
-  - "Send Chat Message" :const:`~twitchAPI.twitch.Twitch.send_chat_message()`
-  - "Get Moderated Channels" :const:`~twitchAPI.twitch.Twitch.get_moderated_channels()`
+      - "Get Ad Schedule" :const:`~twitchAPI.twitch.Twitch.get_ad_schedule()`
+      - "Snooze Next Ad" :const:`~twitchAPI.twitch.Twitch.snooze_next_ad()`
+      - "Send Chat Message" :const:`~twitchAPI.twitch.Twitch.send_chat_message()`
+      - "Get Moderated Channels" :const:`~twitchAPI.twitch.Twitch.get_moderated_channels()`
 
+    **EventSub**
 
-EventSub
---------
+    - Fixed :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket.stop()` not raising RuntimeException when called and socket not running.
+    - Added the following new Topics:
 
-- Fixed :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket.stop()` not raising RuntimeException when called and socket not running.
-- Added the following new Topics:
+      - "Channel Ad Break Begin" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_ad_break_begin()`
+      - "Channel Chat Message" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_message()`
 
-  - "Channel Ad Break Begin" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_ad_break_begin()`
-  - "Channel Chat Message" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_message()`
+    **OAuth**
 
+    - Added the following new AuthScopes:
 
-OAuth
------
+      - :const:`~twitchAPI.type.AuthScope.USER_WRITE_CHAT`
+      - :const:`~twitchAPI.type.AuthScope.CHANNEL_READ_ADS`
+      - :const:`~twitchAPI.type.AuthScope.CHANNEL_MANAGE_ADS`
+      - :const:`~twitchAPI.type.AuthScope.USER_READ_MODERATED_CHANNELS`
 
-- Added the following new AuthScopes:
+.. dropdown:: Version 4.1.0
+    :color: info
 
-  - :const:`~twitchAPI.type.AuthScope.USER_WRITE_CHAT`
-  - :const:`~twitchAPI.type.AuthScope.CHANNEL_READ_ADS`
-  - :const:`~twitchAPI.type.AuthScope.CHANNEL_MANAGE_ADS`
-  - :const:`~twitchAPI.type.AuthScope.USER_READ_MODERATED_CHANNELS`
+    **Twitch**
 
+    - Removed the deprecated Endpoint "Get Users Follows"
+    - Removed the deprecated bits related fields from Poll Endpoint data
 
-*************
-Version 4.1.0
-*************
+    **EventSub**
 
-Twitch
-------
+    - Duplicate Webhook messages will now be ignored
+    - EventSub will now recover properly from a disconnect when auth token is expired
+    - Added the following new Topics:
 
-- Removed the deprecated Endpoint "Get Users Follows"
-- Removed the deprecated bits related fields from Poll Endpoint data
+      - "Channel Chat Clear" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_clear()`
+      - "Channel Chat Clear User Messages" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_clear_user_messages()`
+      - "Channel Chat Message Delete" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_message_delete()`
+      - "Channel Chat Notification" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_notification()`
 
-EventSub
---------
+    - Removed the deprecated version 1 of topic "Channel Follow"
 
-- Duplicate Webhook messages will now be ignored
-- EventSub will now recover properly from a disconnect when auth token is expired
-- Added the following new Topics:
+    **Chat**
 
-  - "Channel Chat Clear" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_clear()`
-  - "Channel Chat Clear User Messages" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_clear_user_messages()`
-  - "Channel Chat Message Delete" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_message_delete()`
-  - "Channel Chat Notification" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_notification()`
+    - Improved recovery from broken network connection (thanks https://github.com/Latent-Logic )
+    - Added :const:`~twitchAPI.chat.ChatMessage.is_me` flag to :const:`~twitchAPI.chat.ChatMessage`
+    - Fixed parsing of messages using the :const:`/me` chat command
 
-- Removed the deprecated version 1 of topic "Channel Follow"
+    **OAuth**
 
+    - Added the following new AuthScopes:
 
-Chat
-----
+      - :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT`
+      - :const:`~twitchAPI.type.AuthScope.USER_BOT`
+      - :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT`
 
-- Improved recovery from broken network connection (thanks https://github.com/Latent-Logic )
-- Added :const:`~twitchAPI.chat.ChatMessage.is_me` flag to :const:`~twitchAPI.chat.ChatMessage`
-- Fixed parsing of messages using the :const:`/me` chat command
+.. dropdown:: Version 4.0.1
 
+    **Chat**
 
-OAuth
------
+    - Fixed RuntimeWarning when handling chat commands
 
-- Added the following new AuthScopes:
+.. dropdown:: Version 4.0.0
+    :color: danger
 
-  - :const:`~twitchAPI.type.AuthScope.CHANNEL_BOT`
-  - :const:`~twitchAPI.type.AuthScope.USER_BOT`
-  - :const:`~twitchAPI.type.AuthScope.USER_READ_CHAT`
+    .. note:: This Version introduces a lot of breaking changes. Please see the :doc:`v4-migration` to learn how to migrate.
 
-*************
-Version 4.0.1
-*************
+    **Keystone Features**
 
-Chat
-----
+    - EventSub now supports the newly added Websocket transport
+    - EventSub is now using TwitchObject based callback payloads instead of raw dictionaries
+    - Chat now supports Command Middleware, check out :doc:`/tutorial/chat-use-middleware` for more info
+    - Added :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper` to cut down on common boilerplate code, check out :doc:`/tutorial/reuse-user-token` for more info
 
-- Fixed RuntimeWarning when handling chat commands
+    **Twitch**
 
-*************
-Version 4.0.0
-*************
+    - Added new fields :const:`~twitchAPI.object.api.ChannelInformation.is_branded_content` and :const:`~twitchAPI.object.api.ChannelInformation.content_classification_labels` to response of :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
+    - Added new parameters :paramref:`~twitchAPI.twitch.Twitch.modify_channel_information.is_branded_content` and :paramref:`~twitchAPI.twitch.Twitch.modify_channel_information.content_classification_labels` to :const:`~twitchAPI.twitch.Twitch.modify_channel_information()`
+    - Added new Endpoint "Get Content Classification Labels" :const:`~twitchAPI.twitch.Twitch.get_content_classification_labels()`
 
-.. note:: This Version introduces a lot of breaking changes. Please see the :doc:`v4-migration` to learn how to migrate.
+    - Removed the following deprecated Endpoints:
 
-Keystone Features
------------------
+      - "Get Soundstrack Current Track"
+      - "Get SoundTrack Playlist"
+      - "Get Soundtrack Playlists"
 
-- EventSub now supports the newly added Websocket transport
-- EventSub is now using TwitchObject based callback payloads instead of raw dictionaries
-- Chat now supports Command Middleware, check out :doc:`/tutorial/chat-use-middleware` for more info
-- Added :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper` to cut down on common boilerplate code, check out :doc:`/tutorial/reuse-user-token` for more info
+    - :const:`~twitchAPI.twitch.Twitch.get_polls()` now allows up to 20 poll IDs
+    - :const:`~twitchAPI.twitch.Twitch.get_channel_followers()` can now also be used without the required Scope or just with App Authentication
+    - Added new parameter :paramref:`~twitchAPI.twitch.Twitch.get_clips.is_featured` to :const:`~twitchAPI.twitch.Twitch.get_clips()` and added :const:`~twitchAPI.object.api.Clip.is_featured` to result.
 
-Twitch
-------
+    **EventSub**
 
-- Added new fields :const:`~twitchAPI.object.api.ChannelInformation.is_branded_content` and :const:`~twitchAPI.object.api.ChannelInformation.content_classification_labels` to response of :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
-- Added new parameters :paramref:`~twitchAPI.twitch.Twitch.modify_channel_information.is_branded_content` and :paramref:`~twitchAPI.twitch.Twitch.modify_channel_information.content_classification_labels` to :const:`~twitchAPI.twitch.Twitch.modify_channel_information()`
-- Added new Endpoint "Get Content Classification Labels" :const:`~twitchAPI.twitch.Twitch.get_content_classification_labels()`
+    - Moved old EventSub from :const:`twitchAPI.eventsub` to new package :const:`twitchAPI.eventsub.webhook` and renamed it to :const:`~twitchAPI.eventsub.webhook.EventSubWebhook`
+    - Added new EventSub Websocket transport :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket`
+    - All EventSub callbacks now use :const:`~twitchAPI.object.base.TwitchObject` based Payloads instead of raw dictionaries. See :ref:`eventsub-available-topics` for a list of all available Payloads
+    - Added :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_update_v2()`
+    - Added option for :const:`~twitchAPI.eventsub.webhook.EventSubWebhook` to specify a asyncio loop via :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.callback_loop` in which to run all callbacks in
+    - Added option for :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket` to specify a asyncio loop via :paramref:`~twitchAPI.eventsub.websocket.EventSubWebsocket.callback_loop` in which to run all callbacks in
+    - Added automatical removal of tailing ``/`` in :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.callback_url` if present
+    - Fixed broken handling of malformed HTTP requests made to the callback endport of :const:`~twitchAPI.eventsub.webhook.EventSubWebhook`
+    - Made :const:`~twitchAPI.eventsub.webhook.EventSubWebhook` more easily mockable via ``twitch-cli`` by adding :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.subscription_url`
+    - Added optional subscription revokation handler via :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.revocation_handler` to :const:`~twitchAPI.eventsub.webhook.EventSubWebhook`
 
-- Removed the following deprecated Endpoints:
+    **PubSub**
 
-  - "Get Soundstrack Current Track"
-  - "Get SoundTrack Playlist"
-  - "Get Soundtrack Playlists"
+    - Handle Authorization Revoked messages (Thanks https://github.com/Braastos )
+    - Added option to specify a asyncio loop via :paramref:`~twitchAPI.pubsub.PubSub.callback_loop` in which to run all callbacks in
 
-- :const:`~twitchAPI.twitch.Twitch.get_polls()` now allows up to 20 poll IDs
-- :const:`~twitchAPI.twitch.Twitch.get_channel_followers()` can now also be used without the required Scope or just with App Authentication
-- Added new parameter :paramref:`~twitchAPI.twitch.Twitch.get_clips.is_featured` to :const:`~twitchAPI.twitch.Twitch.get_clips()` and added :const:`~twitchAPI.object.api.Clip.is_featured` to result.
+    **Chat**
 
-EventSub
---------
+    - Added Chat Command Middleware, a way to decide if a command should run, see :doc:`/tutorial/chat-use-middleware` for more info.
+    - Added the following default Chat Command Middleware:
 
-- Moved old EventSub from :const:`twitchAPI.eventsub` to new package :const:`twitchAPI.eventsub.webhook` and renamed it to :const:`~twitchAPI.eventsub.webhook.EventSubWebhook`
-- Added new EventSub Websocket transport :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket`
-- All EventSub callbacks now use :const:`~twitchAPI.object.base.TwitchObject` based Payloads instead of raw dictionaries. See :ref:`eventsub-available-topics` for a list of all available Payloads
-- Added :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_update_v2()`
-- Added option for :const:`~twitchAPI.eventsub.webhook.EventSubWebhook` to specify a asyncio loop via :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.callback_loop` in which to run all callbacks in
-- Added option for :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket` to specify a asyncio loop via :paramref:`~twitchAPI.eventsub.websocket.EventSubWebsocket.callback_loop` in which to run all callbacks in
-- Added automatical removal of tailing ``/`` in :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.callback_url` if present
-- Fixed broken handling of malformed HTTP requests made to the callback endport of :const:`~twitchAPI.eventsub.webhook.EventSubWebhook`
-- Made :const:`~twitchAPI.eventsub.webhook.EventSubWebhook` more easily mockable via ``twitch-cli`` by adding :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.subscription_url`
-- Added optional subscription revokation handler via :paramref:`~twitchAPI.eventsub.webhook.EventSubWebhook.revocation_handler` to :const:`~twitchAPI.eventsub.webhook.EventSubWebhook`
+      - :const:`~twitchAPI.chat.middleware.ChannelRestriction`
+      - :const:`~twitchAPI.chat.middleware.UserRestriction`
+      - :const:`~twitchAPI.chat.middleware.StreamerOnly`
+      - :const:`~twitchAPI.chat.middleware.ChannelCommandCooldown`
+      - :const:`~twitchAPI.chat.middleware.ChannelUserCommandCooldown`
+      - :const:`~twitchAPI.chat.middleware.GlobalCommandCooldown`
 
-PubSub
-------
+    - Added option to specify a asyncio loop via :paramref:`~twitchAPI.chat.Chat.callback_loop` in which to run all callbacks in
+    - Fixed errors raised in callbacks not being properly reported
+    - Added Hype Chat related fields to :const:`~twitchAPI.chat.ChatMessage`
+    - Improved logging
+    - Fixed KeyError when encountering some Notice events
+    - Added new reply tags :paramref:`~twitchAPI.chat.ChatMessage.reply_thread_parent_msg_id` and :paramref:`~twitchAPI.chat.ChatMessage.reply_thread_parent_user_login` to :const:`~twitchAPI.chat.ChatMessage`
+    - Reconnects no longer duplicate the channel join list
+    - :const:`twitchAPI.chat.Chat.start()` now thows an error should Chat() not have been awaited
 
-- Handle Authorization Revoked messages (Thanks https://github.com/Braastos )
-- Added option to specify a asyncio loop via :paramref:`~twitchAPI.pubsub.PubSub.callback_loop` in which to run all callbacks in
 
-Chat
-----
+    **OAuth**
 
-- Added Chat Command Middleware, a way to decide if a command should run, see :doc:`/tutorial/chat-use-middleware` for more info.
-- Added the following default Chat Command Middleware:
+    - Added :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper`, a easy plug and play way to generate user auth tokens only on demand
+    - Made it possible to mock all auth flows with ``twitch-cli``
 
-  - :const:`~twitchAPI.chat.middleware.ChannelRestriction`
-  - :const:`~twitchAPI.chat.middleware.UserRestriction`
-  - :const:`~twitchAPI.chat.middleware.StreamerOnly`
-  - :const:`~twitchAPI.chat.middleware.ChannelCommandCooldown`
-  - :const:`~twitchAPI.chat.middleware.ChannelUserCommandCooldown`
-  - :const:`~twitchAPI.chat.middleware.GlobalCommandCooldown`
+    **Other**
 
-- Added option to specify a asyncio loop via :paramref:`~twitchAPI.chat.Chat.callback_loop` in which to run all callbacks in
-- Fixed errors raised in callbacks not being properly reported
-- Added Hype Chat related fields to :const:`~twitchAPI.chat.ChatMessage`
-- Improved logging
-- Fixed KeyError when encountering some Notice events
-- Added new reply tags :paramref:`~twitchAPI.chat.ChatMessage.reply_thread_parent_msg_id` and :paramref:`~twitchAPI.chat.ChatMessage.reply_thread_parent_user_login` to :const:`~twitchAPI.chat.ChatMessage`
-- Reconnects no longer duplicate the channel join list
-- :const:`twitchAPI.chat.Chat.start()` now thows an error should Chat() not have been awaited
+    - Added :const:`~twitchAPI.object.base.AsyncIterTwitchObject.current_cursor()` to :const:`~twitchAPI.object.base.AsyncIterTwitchObject`
+    - Renamed module ``twitchAPI.types`` to :const:`twitchAPI.type`
+    - Moved all API related TwitchObjects from module :const:`twitchAPI.object` to :const:`twitchAPI.object.api`
+    - Removed default imports from module :const:`twitchAPI`
 
 
-OAuth
------
+.. dropdown:: Version 3.11.0
+    :color: info
 
-- Added :const:`~twitchAPI.oauth.UserAuthenticationStorageHelper`, a easy plug and play way to generate user auth tokens only on demand
-- Made it possible to mock all auth flows with ``twitch-cli``
+    **Twitch**
 
-Other
------
+    - Added missing field `emote_mode` to response of :const:`~twitchAPI.twitch.Twitch.get_chat_settings()` and :const:`~twitchAPI.twitch.Twitch.update_chat_settings()` (https://github.com/Teekeks/pyTwitchAPI/issues/234)
 
-- Added :const:`~twitchAPI.object.base.AsyncIterTwitchObject.current_cursor()` to :const:`~twitchAPI.object.base.AsyncIterTwitchObject`
-- Renamed module ``twitchAPI.types`` to :const:`twitchAPI.type`
-- Moved all API related TwitchObjects from module :const:`twitchAPI.object` to :const:`twitchAPI.object.api`
-- Removed default imports from module :const:`twitchAPI`
+    **Chat**
 
+    - Fixed timing based `AttributeError: 'NoneType' object has no attribute 'get'` in NoticeEvent during reconnect
+    - Ensured that only Chat Messages will ever be parsed as chat commands
+    - Added functionality to set per channel based prefixes (https://github.com/Teekeks/pyTwitchAPI/issues/229):
 
-****************
-Version 3.11.0
-****************
+      - :const:`~twitchAPI.chat.Chat.set_channel_prefix()` to set a custom prefix for the given channel(s)
+      - :const:`~twitchAPI.chat.Chat.reset_channel_prefix()` to remove a custom set prefix for the given channel(s)
 
-Twitch
-------
+.. dropdown:: Version 3.10.0
+    :color: info
 
-- Added missing field `emote_mode` to response of :const:`~twitchAPI.twitch.Twitch.get_chat_settings()` and :const:`~twitchAPI.twitch.Twitch.update_chat_settings()` (https://github.com/Teekeks/pyTwitchAPI/issues/234)
+    **Twitch**
 
-Chat
-----
+    - Added new :const:`~twitchAPI.object.ChatBadgeVersion` related fields to the following Endpoints: (Thanks https://github.com/stolenvw )
 
-- Fixed timing based `AttributeError: 'NoneType' object has no attribute 'get'` in NoticeEvent during reconnect
-- Ensured that only Chat Messages will ever be parsed as chat commands
-- Added functionality to set per channel based prefixes (https://github.com/Teekeks/pyTwitchAPI/issues/229):
+      - :const:`~twitchAPI.twitch.Twitch.get_chat_badges()`
+      - :const:`~twitchAPI.twitch.Twitch.get_global_chat_badges()`
 
-  - :const:`~twitchAPI.chat.Chat.set_channel_prefix()` to set a custom prefix for the given channel(s)
-  - :const:`~twitchAPI.chat.Chat.reset_channel_prefix()` to remove a custom set prefix for the given channel(s)
+    - :const:`~twitchAPI.twitch.Twitch.set_user_authentication()` now tries to refresh the given token set if it seems to be out of date
+    - removed the following deprecated endpoints:
 
+      - "Replace Stream Tags"
+      - "Get Stream Tags"
+      - "Get All Stream Tags"
+      - "Redeem Code"
+      - "Get Code Status"
 
-****************
-Version 3.10.0
-****************
+    - Fixed condition logic when parameter `first` was given for the following Endpoints:
 
-Twitch
-------
+      - :const:`~twitchAPI.twitch.Twitch.get_chatters()` (Thanks https://github.com/d7415 )
+      - :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlist()`
+      - :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlists()`
 
-- Added new :const:`~twitchAPI.object.ChatBadgeVersion` related fields to the following Endpoints: (Thanks https://github.com/stolenvw )
+    **PubSub**
 
-  - :const:`~twitchAPI.twitch.Twitch.get_chat_badges()`
-  - :const:`~twitchAPI.twitch.Twitch.get_global_chat_badges()`
+    - PubSub now cleanly reestablishes the connection when the websocket was unexpectedly closed
 
-- :const:`~twitchAPI.twitch.Twitch.set_user_authentication()` now tries to refresh the given token set if it seems to be out of date
-- removed the following deprecated endpoints:
+.. dropdown:: Version 3.9.0
+    :color: info
 
-  - "Replace Stream Tags"
-  - "Get Stream Tags"
-  - "Get All Stream Tags"
-  - "Redeem Code"
-  - "Get Code Status"
+    **Twitch**
 
-- Fixed condition logic when parameter `first` was given for the following Endpoints:
+    - Added the following new Endpoints:
 
-  - :const:`~twitchAPI.twitch.Twitch.get_chatters()` (Thanks https://github.com/d7415 )
-  - :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlist()`
-  - :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlists()`
+      - "Get Channel Followers" :const:`~twitchAPI.twitch.Twitch.get_channel_followers()`
+      - "Get Followed Channels" :const:`~twitchAPI.twitch.Twitch.get_followed_channels()`
 
-PubSub
-------
+    - Fixed TypeError: __api_get_request() got an unexpected keyword argument 'body' (Thanks https://github.com/JC-Chung )
 
-- PubSub now cleanly reestablishes the connection when the websocket was unexpectedly closed
+    **EventSub**
 
-****************
-Version 3.9.0
-****************
+    - Added new Topic :const:`~twitchAPI.eventsub.EventSub.listen_channel_follow_v2()`
 
-Twitch
-------
+    **Chat**
 
-- Added the following new Endpoints:
+    - Bot is now correctly reconnecting and rejoining channels after losing connection
+    - added :const:`~twitchAPI.chat.Chat.is_subscriber()` (Thanks https://github.com/stolenvw )
+    - added new Event :const:`~twitchAPI.types.ChatEvent.NOTICE` - Triggered when server sends a notice message (Thanks https://github.com/stolenvw )
 
-  - "Get Channel Followers" :const:`~twitchAPI.twitch.Twitch.get_channel_followers()`
-  - "Get Followed Channels" :const:`~twitchAPI.twitch.Twitch.get_followed_channels()`
+.. dropdown:: Version 3.8.0
+    :color: info
 
-- Fixed TypeError: __api_get_request() got an unexpected keyword argument 'body' (Thanks https://github.com/JC-Chung )
+    **Twitch**
 
-EventSub
---------
+    - Added the new Endpoint "Send a Shoutout" :const:`~twitchAPI.twitch.Twitch.send_a_shoutout()`
+    - :const:`~twitchAPI.twitch.Twitch.get_users_follows()` is now marked as deprecated
+    - Added missing parameter :code:`type` to :const:`~twitchAPI.twitch.Twitch.get_streams()`
 
-- Added new Topic :const:`~twitchAPI.eventsub.EventSub.listen_channel_follow_v2()`
+    **Helper**
 
-Chat
-----
+    - Added new Async Generator helper :const:`~twitchAPI.helper.limit()`, with this you can limit the amount of results returned from the given AsyncGenerator to a maximum number
 
-- Bot is now correctly reconnecting and rejoining channels after losing connection
-- added :const:`~twitchAPI.chat.Chat.is_subscriber()` (Thanks https://github.com/stolenvw )
-- added new Event :const:`~twitchAPI.types.ChatEvent.NOTICE` - Triggered when server sends a notice message (Thanks https://github.com/stolenvw )
+    **EventSub**
 
+    - Added the following new Topics:
 
-****************
-Version 3.8.0
-****************
+      - "Channel Shoutout Create" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shoutout_create()`
+      - "Channel Shoutout Receive" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shoutout_receive()`
 
-Twitch
-------
+    **PubSub**
 
-- Added the new Endpoint "Send a Shoutout" :const:`~twitchAPI.twitch.Twitch.send_a_shoutout()`
-- :const:`~twitchAPI.twitch.Twitch.get_users_follows()` is now marked as deprecated
-- Added missing parameter :code:`type` to :const:`~twitchAPI.twitch.Twitch.get_streams()`
+    - Added new Topic "Low trust Users" :const:`~twitchAPI.pubsub.PubSub.listen_low_trust_users()`
 
-Helper
-------
+    **Chat**
 
-- Added new Async Generator helper :const:`~twitchAPI.helper.limit()`, with this you can limit the amount of results returned from the given AsyncGenerator to a maximum number
+    - Improved rate limit handling of :const:`~twitchAPI.chat.Chat.join_room()` when joining multiple rooms per call
+    - The following functions now all ignore the capitalization of the given  chat room:
 
-EventSub
---------
+      - :const:`~twitchAPI.chat.Chat.join_room()`
+      - :const:`~twitchAPI.chat.Chat.leave_room()`
+      - :const:`~twitchAPI.chat.Chat.is_mod()`
+      - :const:`~twitchAPI.chat.Chat.send_message()`
 
-- Added the following new Topics:
+    - Added :const:`initial_channel` to :const:`~twitchAPI.chat.Chat.__init__()`, with this you can auto join channels on bot startup
+    - Added :const:`~twitchAPI.chat.Chat.is_in_room()`
+    - Added :const:`~twitchAPI.chat.Chat.log_no_registered_command_handler`, with this you can control if the "no registered handler for event" warnings should be logged or not
 
-  - "Channel Shoutout Create" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shoutout_create()`
-  - "Channel Shoutout Receive" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shoutout_receive()`
 
-PubSub
-------
+    **OAuth**
 
-- Added new Topic "Low trust Users" :const:`~twitchAPI.pubsub.PubSub.listen_low_trust_users()`
+    - Added the following new AuthScopes:
 
-Chat
-----
+      - :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHOUTOUTS`
+      - :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHOUTOUTS`
+      - :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_FOLLOWERS`
 
-- Improved rate limit handling of :const:`~twitchAPI.chat.Chat.join_room()` when joining multiple rooms per call
-- The following functions now all ignore the capitalization of the given  chat room:
+    - Improved async handling of :const:`~twitchAPI.oauth.UserAuthenticator`
 
-  - :const:`~twitchAPI.chat.Chat.join_room()`
-  - :const:`~twitchAPI.chat.Chat.leave_room()`
-  - :const:`~twitchAPI.chat.Chat.is_mod()`
-  - :const:`~twitchAPI.chat.Chat.send_message()`
+.. dropdown:: Version 3.7.0
+    :color: info
 
-- Added :const:`initial_channel` to :const:`~twitchAPI.chat.Chat.__init__()`, with this you can auto join channels on bot startup
-- Added :const:`~twitchAPI.chat.Chat.is_in_room()`
-- Added :const:`~twitchAPI.chat.Chat.log_no_registered_command_handler`, with this you can control if the "no registered handler for event" warnings should be logged or not
+    **Twitch**
 
+    - Added the following Endpoints:
 
-OAuth
------
+      - "Get AutoMod Settings" :const:`~twitchAPI.twitch.Twitch.get_automod_settings()`
+      - "Update AutoMod Settings" :const:`~twitchAPI.twitch.Twitch.update_automod_settings()`
 
-- Added the following new AuthScopes:
+    - Added :const:`~twitchAPI.twitch.Twitch.session_timeout` config. With this you can optionally change the timeout behavior across the entire library
 
-  - :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_SHOUTOUTS`
-  - :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_SHOUTOUTS`
-  - :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_FOLLOWERS`
+    **OAuth**
 
-- Improved async handling of :const:`~twitchAPI.oauth.UserAuthenticator`
+    - Added the following new AuthScopes:
 
+      - :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_AUTOMOD_SETTINGS`
+      - :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_AUTOMOD_SETTINGS`
 
-****************
-Version 3.7.0
-****************
+.. dropdown:: Version 3.6.2
 
-Twitch
-------
+    - Added :code:`py.typed` file to comply with PEP-561
 
-- Added the following Endpoints:
+    **Twitch**
 
-  - "Get AutoMod Settings" :const:`~twitchAPI.twitch.Twitch.get_automod_settings()`
-  - "Update AutoMod Settings" :const:`~twitchAPI.twitch.Twitch.update_automod_settings()`
+    - Fixed all Endpoints that use :const:`~twitchAPI.object.AsyncIterTwitchObject` yielding some items multiple times
+    - added missing field :const:`~twitchAPI.object.TwitchUserFollow.to_login` to :const:`~twitchAPI.twitch.Twitch.get_users_follows()`
 
-- Added :const:`~twitchAPI.twitch.Twitch.session_timeout` config. With this you can optionally change the timeout behavior across the entire library
+.. dropdown:: Version 3.6.1
+    :color: info
 
-OAuth
------
+    **EventSub**
 
-- Added the following new AuthScopes:
+    - :const:`~twitchAPI.eventsub.EventSub.start()` now waits till the internal web server has fully started up
 
-  - :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_AUTOMOD_SETTINGS`
-  - :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_AUTOMOD_SETTINGS`
+    **Chat**
 
-****************
-Version 3.6.2
-****************
+    - Added :const:`~twitchAPI.chat.Chat.is_mod()` function (Thanks https://github.com/stolenvw )
+    - Made the check if the bot is a moderator in the current channel for message sending rate limiting more consistent (Thanks https://github.com/stolenvw )
 
-- Added :code:`py.typed` file to comply with PEP-561
+.. dropdown:: Version 3.5.2
 
-Twitch
-------
+    **Twitch**
 
-- Fixed all Endpoints that use :const:`~twitchAPI.object.AsyncIterTwitchObject` yielding some items multiple times
-- added missing field :const:`~twitchAPI.object.TwitchUserFollow.to_login` to :const:`~twitchAPI.twitch.Twitch.get_users_follows()`
+    - Fixed :const:`~twitchAPI.twitch.Twitch.end_prediction()` calling NoneType
 
-****************
-Version 3.6.1
-****************
+.. dropdown:: Version 3.5.1
 
-EventSub
---------
+    **Chat**
 
-- :const:`~twitchAPI.eventsub.EventSub.start()` now waits till the internal web server has fully started up
+    - Fixed KeyError in clear chat event
 
-Chat
-----
+.. dropdown:: Version 3.5.0
+    :color: info
 
-- Added :const:`~twitchAPI.chat.Chat.is_mod()` function (Thanks https://github.com/stolenvw )
-- Made the check if the bot is a moderator in the current channel for message sending rate limiting more consistent (Thanks https://github.com/stolenvw )
+    **Twitch**
 
+    - Added the following new Endpoints:
 
-****************
-Version 3.5.2
-****************
+      - "Get Charity Campaign" :const:`~twitchAPI.twitch.Twitch.get_charity_campaign()`
+      - "Get Charity Donations" :const:`~twitchAPI.twitch.Twitch.get_charity_donations()`
 
-Twitch
-------
+    - Fixed bug that made the user refresh token invalid in some rare edge cases
 
-- Fixed :const:`~twitchAPI.twitch.Twitch.end_prediction()` calling NoneType
+    **EventSub**
 
-****************
-Version 3.5.1
-****************
+    - Added the following new Topics:
 
-Chat
-----
+      - "Charity Campaign Start" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_start()`
+      - "Charity Campaign Stop" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_stop()`
+      - "Charity Campaign Progress" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_progress()`
+      - "Charity Campaign Donate" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_donate()`
 
-- Fixed KeyError in clear chat event
+    **PubSub**
 
-****************
-Version 3.5.0
-****************
+    - Added :const:`~twitchAPI.pubsub.PubSub.is_connected()`
+    - Fixed bug that prevented a clean shutdown on Linux
 
-Twitch
-------
+    **Chat**
 
-- Added the following new Endpoints:
+    - Added automatic rate limit handling to channel joining and message sending
+    - :const:`~twitchAPI.chat.Chat.send_message()` now waits till reconnected when Chat got disconnected
+    - :const:`~twitchAPI.chat.Chat.send_raw_irc_message()` now waits till reconnected when Chat got disconnected
+    - Added :const:`~twitchAPI.chat.Chat.is_connected()`
+    - Added :const:`~twitchAPI.chat.Chat.is_ready()`
+    - Chat now cleanly handles reconnect requests
 
-  - "Get Charity Campaign" :const:`~twitchAPI.twitch.Twitch.get_charity_campaign()`
-  - "Get Charity Donations" :const:`~twitchAPI.twitch.Twitch.get_charity_donations()`
+    **OAuth**
 
-- Fixed bug that made the user refresh token invalid in some rare edge cases
+    - Added new Auth Scope :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY`
+    - Fixed bug that prevented a clean shutdown on Linux
 
-EventSub
---------
+.. dropdown:: Version 3.4.1
 
-- Added the following new Topics:
+    - fixed bug that prevented newer pip versions from gathering the dependencies
 
-  - "Charity Campaign Start" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_start()`
-  - "Charity Campaign Stop" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_stop()`
-  - "Charity Campaign Progress" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_progress()`
-  - "Charity Campaign Donate" :const:`~twitchAPI.eventsub.EventSub.listen_channel_charity_campaign_donate()`
+.. dropdown:: Version 3.4.0
+    :color: info
 
-PubSub
-------
+    **Twitch**
 
-- Added :const:`~twitchAPI.pubsub.PubSub.is_connected()`
-- Fixed bug that prevented a clean shutdown on Linux
+    - Added the following new Endpoints:
 
-Chat
-----
+      - "Update Shield Mode Status" :const:`~twitchAPI.twitch.Twitch.update_shield_mode_status()`
+      - "Get Shield Mode Status" :const:`~twitchAPI.twitch.Twitch.get_shield_mode_status()`
 
-- Added automatic rate limit handling to channel joining and message sending
-- :const:`~twitchAPI.chat.Chat.send_message()` now waits till reconnected when Chat got disconnected
-- :const:`~twitchAPI.chat.Chat.send_raw_irc_message()` now waits till reconnected when Chat got disconnected
-- Added :const:`~twitchAPI.chat.Chat.is_connected()`
-- Added :const:`~twitchAPI.chat.Chat.is_ready()`
-- Chat now cleanly handles reconnect requests
+    - Added the new :code:`tags` Field to the following Endpoints:
 
-OAuth
------
+      - "Get Streams" :const:`~twitchAPI.twitch.Twitch.get_streams()`
+      - "Get Followed Streams" :const:`~twitchAPI.twitch.Twitch.get_followed_streams()`
+      - "Search Channels" :const:`~twitchAPI.twitch.Twitch.search_channels()`
+      - "Get Channel Information" :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
+      - "Modify Channel Information" :const:`~twitchAPI.twitch.Twitch.modify_channel_information()`
 
-- Added new Auth Scope :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_CHARITY`
-- Fixed bug that prevented a clean shutdown on Linux
+    - Improved documentation
 
-****************
-Version 3.4.1
-****************
+    **EventSub**
 
-- fixed bug that prevented newer pip versions from gathering the dependencies
+    - Added the following new Topics:
 
-****************
-Version 3.4.0
-****************
+      - "Shield Mode End" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shield_mode_end()`
+      - "Shield Mode Begin" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shield_mode_begin()`
 
-Twitch
-------
+    - Improved type hints of :code:`listen_` functions
+    - Added check if given callback is a coroutine to :code:`listen_` functions
 
-- Added the following new Endpoints:
+    **PubSub**
 
-  - "Update Shield Mode Status" :const:`~twitchAPI.twitch.Twitch.update_shield_mode_status()`
-  - "Get Shield Mode Status" :const:`~twitchAPI.twitch.Twitch.get_shield_mode_status()`
+    - Fixed AttributeError when reconnecting
 
-- Added the new :code:`tags` Field to the following Endpoints:
+    **Chat**
 
-  - "Get Streams" :const:`~twitchAPI.twitch.Twitch.get_streams()`
-  - "Get Followed Streams" :const:`~twitchAPI.twitch.Twitch.get_followed_streams()`
-  - "Search Channels" :const:`~twitchAPI.twitch.Twitch.search_channels()`
-  - "Get Channel Information" :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
-  - "Modify Channel Information" :const:`~twitchAPI.twitch.Twitch.modify_channel_information()`
+    - Expanded documentation on Events and Commands
+    - Fixed room cache being randomly destroyed over time
+    - Improved message handling performance drastically for high volume chat bots
+    - Fixed AttributeError when reconnecting
+    - :const:`~twitchAPI.chat.Chat.join_room()` now times out when it was unable to join a room instead of being infinitly stuck
+    - :const:`~twitchAPI.chat.Chat.join_room()` now returns a list of channels it was unable to join
+    - Added :const:`~twitchAPI.chat.Chat.join_timeout`
+    - Added :const:`~twitchAPI.chat.Chat.unregister_command()`
+    - Added :const:`~twitchAPI.chat.Chat.unregister_event()`
+    - Added the following new Events:
 
-- Improved documentation
+      - :const:`~twitchAPI.types.ChatEvent.USER_LEFT` - Triggered when a user leaves a chat channel
+      - :const:`~twitchAPI.types.ChatEvent.CHAT_CLEARED` - Triggered when a user was timed out, banned or the messages where deleted
+      - :const:`~twitchAPI.types.ChatEvent.WHISPER` - Triggered when a user sends a whisper message to the bot
 
-EventSub
---------
+    **OAuth**
 
-- Added the following new Topics:
+    - fixed :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()` getting stuck when :code:`user_token` is provided (thanks https://github.com/Tempystral )
 
-  - "Shield Mode End" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shield_mode_end()`
-  - "Shield Mode Begin" :const:`~twitchAPI.eventsub.EventSub.listen_channel_shield_mode_begin()`
+.. dropdown:: Version 3.3.0
+    :color: info
 
-- Improved type hints of :code:`listen_` functions
-- Added check if given callback is a coroutine to :code:`listen_` functions
+    - Added new event to Chat: :const:`~twitchAPI.types.ChatEvent.MESSAGE_DELETE` which triggers whenever a single message got deleted in a channel
+    - Added :const:`~twitchAPI.chat.Chat.send_raw_irc_message()` method for sending raw irc commands to the websocket. Use with care!
+    - Fixed missing state cleanup after closing Chat, preventing the same instance from being started again
+    - fixed :const:`~twitchAPI.types.ChatRoom.room_id` always being Null
 
-PubSub
-------
+.. dropdown:: Version 3.2.2
 
-- Fixed AttributeError when reconnecting
+    - Fixed return type of :const:`~twitchAPI.twitch.Twitch.get_broadcaster_subscriptions()`
+    - removed any field starting with underscore from :const:`~twitchAPI.object.TwitchObject.to_dict()`
 
-Chat
-----
+.. dropdown:: Version 3.2.1
 
-- Expanded documentation on Events and Commands
-- Fixed room cache being randomly destroyed over time
-- Improved message handling performance drastically for high volume chat bots
-- Fixed AttributeError when reconnecting
-- :const:`~twitchAPI.chat.Chat.join_room()` now times out when it was unable to join a room instead of being infinitly stuck
-- :const:`~twitchAPI.chat.Chat.join_room()` now returns a list of channels it was unable to join
-- Added :const:`~twitchAPI.chat.Chat.join_timeout`
-- Added :const:`~twitchAPI.chat.Chat.unregister_command()`
-- Added :const:`~twitchAPI.chat.Chat.unregister_event()`
-- Added the following new Events:
+    - Fixed bug that resulted in a timeout when reading big API requests
+    - Optimized the use of Sessions, slight to decent performance optimization for API requests, especially for async generators
 
-  - :const:`~twitchAPI.types.ChatEvent.USER_LEFT` - Triggered when a user leaves a chat channel
-  - :const:`~twitchAPI.types.ChatEvent.CHAT_CLEARED` - Triggered when a user was timed out, banned or the messages where deleted
-  - :const:`~twitchAPI.types.ChatEvent.WHISPER` - Triggered when a user sends a whisper message to the bot
+.. dropdown:: Version 3.2.0
+    :color: info
 
-OAuth
------
+    - Made the used loggers available for easy logging configuration
+    - added the option to set the chat command prefix via :const:`~twitchAPI.chat.Chat.set_prefix()`
+    - :const:`~twitchAPI.twitch.Twitch.set_user_authentication()` now also throws a :const:`~twitchAPI.types.MissingScopeException` when no scope is given. (thanks https://github.com/aw-was-here )
 
-- fixed :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()` getting stuck when :code:`user_token` is provided (thanks https://github.com/Tempystral )
+.. dropdown:: Version 3.1.1
+    :color: info
 
+    - Added the Endpoint "Get Chatters" :const:`~twitchAPI.twitch.Twitch.get_chatters()`
+    - Added the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_CHATTERS` AuthScope
+    - Added missing :const:`total` field to :const:`~twitchAPI.twitch.Twitch.get_users_follows()`
+    - added :const:`~twitchAPI.chat.ChatCommand.send()` shorthand to ChatCommand, this makes sending command replies easier.
+    - Fixed issue which prevented the Twitch client being used inside a EventSub, PubSub or Chat callback
+    - Fixed issue with using the wrong API url in :const:`~twitchAPI.twitch.Twitch.create_custom_reward()`
+    - :const:`twitchAPI.helper.first()` now returns None when there is no data to return instead of raising StopAsyncIteration exception
+    - Exceptions in Chat callback methods are now properly displayed
 
-****************
-Version 3.3.0
-****************
+.. dropdown:: Version 3.0.1
 
-- Added new event to Chat: :const:`~twitchAPI.types.ChatEvent.MESSAGE_DELETE` which triggers whenever a single message got deleted in a channel
-- Added :const:`~twitchAPI.chat.Chat.send_raw_irc_message()` method for sending raw irc commands to the websocket. Use with care!
-- Fixed missing state cleanup after closing Chat, preventing the same instance from being started again
-- fixed :const:`~twitchAPI.types.ChatRoom.room_id` always being Null
+    - Fixed bug which resulted in :code:`Timeout context manager should be used inside a task` when subscribing to more than one EventSub topic
 
-****************
-Version 3.2.2
-****************
+.. dropdown:: Version 3.0.0
+    :color: danger
 
-- Fixed return type of :const:`~twitchAPI.twitch.Twitch.get_broadcaster_subscriptions()`
-- removed any field starting with underscore from :const:`~twitchAPI.object.TwitchObject.to_dict()`
+    .. note:: This Version is a major rework of the library. Please see the :doc:`v3-migration` to learn how to migrate.
 
-****************
-Version 3.2.1
-****************
+    **Highlights**
 
-- Fixed bug that resulted in a timeout when reading big API requests
-- Optimized the use of Sessions, slight to decent performance optimization for API requests, especially for async generators
+    - Library is now fully async
+    - Twitch API responses are now Objects and Generators instead of pure dictionaries
+    - Automatic Pagination of API results
+    - First alpha of a Chat Bot implementation
+    - More customizability for the UserAuthenticator
+    - A lot of new Endpoints where added
+    - New look and content for the documentation
 
-****************
-Version 3.2.0
-****************
+    **Full Changelog**
 
-- Made the used loggers available for easy logging configuration
-- added the option to set the chat command prefix via :const:`~twitchAPI.chat.Chat.set_prefix()`
-- :const:`~twitchAPI.twitch.Twitch.set_user_authentication()` now also throws a :const:`~twitchAPI.types.MissingScopeException` when no scope is given. (thanks https://github.com/aw-was-here )
+    * Rewrote the twitchAPI to be async
+    * twitchAPI now uses Objects instead of dictionaries
+    * added automatic pagination to all relevant API endpoints
+    * PubSub now uses async callbacks
+    * EventSub subscribing and unsubscribing is now async
+    * Added a alpha version of a Twitch Chat Bot implementation
+    * switched AuthScope `CHANNEL_MANAGE_CHAT_SETTINGS` to `MODERATOR_MANAGE_CHAT_SETTINGS`
+    * Added the following AuthScopes:
 
+      * :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_ANNOUNCEMENTS`
+      * :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_MESSAGES`
+      * :const:`~twitchAPI.types.AuthScope.USER_MANAGE_CHAT_COLOR`
+      * :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_MODERATORS`
+      * :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_VIPS`
+      * :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIPS`
+      * :const:`~twitchAPI.types.AuthScope.USER_MANAGE_WHISPERS`
+    * added :const:`~twitchAPI.helper.first()` helper function
 
-****************
-Version 3.1.1
-****************
+    * Added the following new Endpoints:
 
-- Added the Endpoint "Get Chatters" :const:`~twitchAPI.twitch.Twitch.get_chatters()`
-- Added the :const:`~twitchAPI.types.AuthScope.MODERATOR_READ_CHATTERS` AuthScope
-- Added missing :const:`total` field to :const:`~twitchAPI.twitch.Twitch.get_users_follows()`
-- added :const:`~twitchAPI.chat.ChatCommand.send()` shorthand to ChatCommand, this makes sending command replies easier.
-- Fixed issue which prevented the Twitch client being used inside a EventSub, PubSub or Chat callback
-- Fixed issue with using the wrong API url in :const:`~twitchAPI.twitch.Twitch.create_custom_reward()`
-- :const:`twitchAPI.helper.first()` now returns None when there is no data to return instead of raising StopAsyncIteration exception
-- Exceptions in Chat callback methods are now properly displayed
+      * "Send Whisper" :const:`~twitchAPI.twitch.Twitch.send_whisper()`
+      * "Remove Channel VIP" :const:`~twitchAPI.twitch.Twitch.remove_channel_vip()`
+      * "Add Channel VIP" :const:`~twitchAPI.twitch.Twitch.add_channel_vip()`
+      * "Get VIPs" :const:`~twitchAPI.twitch.Twitch.get_vips()`
+      * "Add Channel Moderator" :const:`~twitchAPI.twitch.Twitch.add_channel_moderator()`
+      * "Remove Channel Moderator" :const:`~twitchAPI.twitch.Twitch.remove_channel_moderator()`
+      * "Get User Chat Color" :const:`~twitchAPI.twitch.Twitch.get_user_chat_color()`
+      * "Update User Chat Color" :const:`~twitchAPI.twitch.Twitch.update_user_chat_color()`
+      * "Delete Chat Message" :const:`~twitchAPI.twitch.Twitch.delete_chat_message()`
+      * "Send Chat Announcement" :const:`~twitchAPI.twitch.Twitch.send_chat_announcement()`
+      * "Get Soundtrack Current Track" :const:`~twitchAPI.twitch.Twitch.get_soundtrack_current_track()`
+      * "Get Soundtrack Playlist" :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlist()`
+      * "Get Soundtrack Playlists" :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlists()`
+    * Removed the folllowing deprecated Endpoints:
 
-****************
-Version 3.0.1
-****************
+      * "Get Banned Event"
+      * "Get Moderator Events"
+      * "Get Webhook Subscriptions"
+    * The following Endpoints got changed:
 
-- Fixed bug which resulted in :code:`Timeout context manager should be used inside a task` when subscribing to more than one EventSub topic
+      * Added `igdb_id` search parameter to :const:`~twitchAPI.twitch.Twitch.get_games()`
+      * Removed the Voting related fields in :const:`~twitchAPI.twitch.Twitch.create_poll()` due to being deprecated
+      * Updated the logic in :const:`~twitchAPI.twitch.Twitch.update_custom_reward()` to avoid API errors
+      * Removed `id` parameter from :const:`~twitchAPI.twitch.Twitch.get_hype_train_events()`
+      * Fixed the range check in :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
+    * :const:`~twitchAPI.twitch.Twitch.app_auth_refresh_callback` and :const:`~twitchAPI.twitch.Twitch.user_auth_refresh_callback` are now async
+    * Added :const:`~twitchAPI.oauth.get_user_info()`
+    * UserAuthenticator:
 
-****************
-Version 3.0.0
-****************
+      * You can now set the document that will be shown at the end of the Auth flow by setting :const:`~twitchAPI.oauth.UserAuthenticator.document`
+      * The optional callback is now called with the access and refresh token instead of the user token
+      * Added browser controls to :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()`
+    * removed :code:`requests` and :code:`websockets` libraries from the requirements (resulting in smaller library footprint)
 
-.. note:: This Version is a major rework of the library. Please see the :doc:`v3-migration` to learn how to migrate.
+.. dropdown:: Version 2.5.7
 
-**Highlights**
+    - Fixed the End Poll Endpoint
+    - Properly define terminated poll status (thanks @iProdigy!)
 
-- Library is now fully async
-- Twitch API responses are now Objects and Generators instead of pure dictionaries
-- Automatic Pagination of API results
-- First alpha of a Chat Bot implementation
-- More customizability for the UserAuthenticator
-- A lot of new Endpoints where added
-- New look and content for the documentation
+.. dropdown:: Version 2.5.6
 
-**Full Changelog**
+    - Updated Create Prediction to take between 2 and 10 outcomes (thanks @lynara!)
+    - Added "Get Creator Goals" Endpoint (thanks @gitagogaming!)
+    - TwitchAPIException will now also include the message from the Twitch API when available
 
-* Rewrote the twitchAPI to be async
-* twitchAPI now uses Objects instead of dictionaries
-* added automatic pagination to all relevant API endpoints
-* PubSub now uses async callbacks
-* EventSub subscribing and unsubscribing is now async
-* Added a alpha version of a Twitch Chat Bot implementation
-* switched AuthScope `CHANNEL_MANAGE_CHAT_SETTINGS` to `MODERATOR_MANAGE_CHAT_SETTINGS`
-* Added the following AuthScopes:
+.. dropdown:: Version 2.5.5
 
-  * :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_ANNOUNCEMENTS`
-  * :const:`~twitchAPI.types.AuthScope.MODERATOR_MANAGE_CHAT_MESSAGES`
-  * :const:`~twitchAPI.types.AuthScope.USER_MANAGE_CHAT_COLOR`
-  * :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_MODERATORS`
-  * :const:`~twitchAPI.types.AuthScope.CHANNEL_READ_VIPS`
-  * :const:`~twitchAPI.types.AuthScope.CHANNEL_MANAGE_VIPS`
-  * :const:`~twitchAPI.types.AuthScope.USER_MANAGE_WHISPERS`
-* added :const:`~twitchAPI.helper.first()` helper function
+    - Added datetime parsing to `created_at` field for Ban User and Get Banned Users endpoints
+    - fixed title length check failing if the title is None for Modify Channel Information endpoint (thanks @Meduris!)
 
-* Added the following new Endpoints:
+.. dropdown:: Version 2.5.4
+    :color: info
 
-  * "Send Whisper" :const:`~twitchAPI.twitch.Twitch.send_whisper()`
-  * "Remove Channel VIP" :const:`~twitchAPI.twitch.Twitch.remove_channel_vip()`
-  * "Add Channel VIP" :const:`~twitchAPI.twitch.Twitch.add_channel_vip()`
-  * "Get VIPs" :const:`~twitchAPI.twitch.Twitch.get_vips()`
-  * "Add Channel Moderator" :const:`~twitchAPI.twitch.Twitch.add_channel_moderator()`
-  * "Remove Channel Moderator" :const:`~twitchAPI.twitch.Twitch.remove_channel_moderator()`
-  * "Get User Chat Color" :const:`~twitchAPI.twitch.Twitch.get_user_chat_color()`
-  * "Update User Chat Color" :const:`~twitchAPI.twitch.Twitch.update_user_chat_color()`
-  * "Delete Chat Message" :const:`~twitchAPI.twitch.Twitch.delete_chat_message()`
-  * "Send Chat Announcement" :const:`~twitchAPI.twitch.Twitch.send_chat_announcement()`
-  * "Get Soundtrack Current Track" :const:`~twitchAPI.twitch.Twitch.get_soundtrack_current_track()`
-  * "Get Soundtrack Playlist" :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlist()`
-  * "Get Soundtrack Playlists" :const:`~twitchAPI.twitch.Twitch.get_soundtrack_playlists()`
-* Removed the folllowing deprecated Endpoints:
+    - Added the following new endpoints:
 
-  * "Get Banned Event"
-  * "Get Moderator Events"
-  * "Get Webhook Subscriptions"
-* The following Endpoints got changed:
+      - "Ban User"
 
-  * Added `igdb_id` search parameter to :const:`~twitchAPI.twitch.Twitch.get_games()`
-  * Removed the Voting related fields in :const:`~twitchAPI.twitch.Twitch.create_poll()` due to being deprecated
-  * Updated the logic in :const:`~twitchAPI.twitch.Twitch.update_custom_reward()` to avoid API errors
-  * Removed `id` parameter from :const:`~twitchAPI.twitch.Twitch.get_hype_train_events()`
-  * Fixed the range check in :const:`~twitchAPI.twitch.Twitch.get_channel_information()`
-* :const:`~twitchAPI.twitch.Twitch.app_auth_refresh_callback` and :const:`~twitchAPI.twitch.Twitch.user_auth_refresh_callback` are now async
-* Added :const:`~twitchAPI.oauth.get_user_info()`
-* UserAuthenticator:
+      - "Unban User"
 
-  * You can now set the document that will be shown at the end of the Auth flow by setting :const:`~twitchAPI.oauth.UserAuthenticator.document`
-  * The optional callback is now called with the access and refresh token instead of the user token
-  * Added browser controls to :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()`
-* removed :code:`requests` and :code:`websockets` libraries from the requirements (resulting in smaller library footprint)
+      - "Get Blocked Terms"
 
+      - "Add Blocked Term"
 
-****************
-Version 2.5.7
-****************
+      - "Remove Blocked Term"
 
-- Fixed the End Poll Endpoint
-- Properly define terminated poll status (thanks @iProdigy!)
+    - Added the following Auth Scopes:
 
-****************
-Version 2.5.6
-****************
+      - `moderator:manage:banned_users`
 
-- Updated Create Prediction to take between 2 and 10 outcomes (thanks @lynara!)
-- Added "Get Creator Goals" Endpoint (thanks @gitagogaming!)
-- TwitchAPIException will now also include the message from the Twitch API when available
+      - `moderator:read:blocked_terms`
 
-****************
-Version 2.5.5
-****************
+      - `moderator:manage:blocked_terms`
 
-- Added datetime parsing to `created_at` field for Ban User and Get Banned Users endpoints
-- fixed title length check failing if the title is None for Modify Channel Information endpoint (thanks @Meduris!)
+    - Added additional debug logging to PubSub
+    - Fixed KeyError when being rate limited
 
-****************
-Version 2.5.4
-****************
+.. dropdown:: Version 2.5.3
 
-- Added the following new endpoints:
+    - `Twitch.get_channel_info` now also optionally accepts a list of strings with up to 100 entries for the `broadcaster_id` parameter
 
-  - "Ban User"
+.. dropdown:: Version 2.5.2
+    :color: info
 
-  - "Unban User"
+    - Added the following new endpoints:
 
-  - "Get Blocked Terms"
+      - "Get Chat Settings"
+      - "Update Chat Settings"
 
-  - "Add Blocked Term"
+    - Added Auth Scope "channel:manage:chat_settings"
+    - Fixed error in Auth Scope "channel:manage:schedule"
+    - Fixed error in Endpoint "Get Extension Transactions"
+    - Removed unusable Webhook code
 
-  - "Remove Blocked Term"
+.. dropdown:: Version 2.5.1
 
-- Added the following Auth Scopes:
+    - Fixed bug that prevented EventSub subscriptions to work if main threads asyncio loop was already running
 
-  - `moderator:manage:banned_users`
+.. dropdown:: Version 2.5.0
+    :color: info
 
-  - `moderator:read:blocked_terms`
+    - EventSub and PubSub callbacks are now executed non blocking, this fixes that long running callbacks stop the library to respond to heartbeats etc.
+    - EventSub subscription can now throw a TwitchBackendException when the API returns a Error 500
+    - added the following EventSub topics (thanks d7415!)
 
-  - `moderator:manage:blocked_terms`
+      - "Goal Begin"
+      - "Goal Progress"
+      - "Goal End"
 
-- Added additional debug logging to PubSub
-- Fixed KeyError when being rate limited
+.. dropdown:: Version 2.4.2
 
-****************
-Version 2.5.3
-****************
+    - Fixed EventSub not keeping local state in sync on unsubscribe
+    - Added proper exception if authentication via oauth fails
 
-- `Twitch.get_channel_info` now also optionally accepts a list of strings with up to 100 entries for the `broadcaster_id` parameter
+.. dropdown:: Version 2.4.1
 
-****************
-Version 2.5.2
-****************
+    - EventSub now uses a random 20 letter secret by default
+    - EventSub now verifies the send signature
 
-- Added the following new endpoints:
+.. dropdown:: Version 2.4.0
+    :color: info
 
-  - "Get Chat Settings"
+    - **Implemented EventSub**
 
-  - "Update Chat Settings"
+    - Marked Webhook as deprecated
+    - added the following new endpoints
 
-- Added Auth Scope "channel:manage:chat_settings"
-- Fixed error in Auth Scope "channel:manage:schedule"
-- Fixed error in Endpoint "Get Extension Transactions"
-- Removed unusable Webhook code
+      - "Get Followed Streams"
+      - "Get Polls"
+      - "End Poll"
+      - "Get Predictions"
+      - "Create Prediction"
+      - "End Prediction"
+      - "Manage held AutoMod Messages"
+      - "Get Channel Badges"
+      - "Get Global Chat Badges"
+      - "Get Channel Emotes"
+      - "Get Global Emotes"
+      - "Get Emote Sets"
+      - "Delete EventSub Subscription"
+      - "Get Channel Stream Schedule"
+      - "Get Channel iCalendar"
+      - "Update Channel Stream Schedule"
+      - "Create Channel Stream Schedule Segment"
+      - "Update Channel Stream Schedule Segment"
+      - "Delete Channel Stream Schedule Segment"
+      - "Update Drops Entitlements"
 
-****************
-Version 2.5.1
-****************
+    - Added the following new AuthScopes
 
-- Fixed bug that prevented EventSub subscriptions to work if main threads asyncio loop was already running
+      - USER_READ_FOLLOWS
+      - CHANNEL_READ_POLLS
+      - CHANNEL_MANAGE_POLLS
+      - CHANNEL_READ_PREDICTIONS
+      - CHANNEL_MANAGE_PREDICTIONS
+      - MODERATOR_MANAGE_AUTOMOD
+      - CHANNEL_MANAGE_SCHEDULE
 
-****************
-Version 2.5.0
-****************
+    - removed deprecated Endpoints
 
-- EventSub and PubSub callbacks are now executed non blocking, this fixes that long running callbacks stop the library to respond to heartbeats etc.
-- EventSub subscription can now throw a TwitchBackendException when the API returns a Error 500
-- added the following EventSub topics (thanks d7415!)
+      - "Create User Follows"
+      - "Delete User Follows"
 
-  - "Goal Begin"
+    - Added Topics to PubSub
 
-  - "Goal Progress"
+      - "AutoMod Queue"
+      - "User Moderation Notifications"
 
-  - "Goal End"
+    - Check if at least one of status or id is provided in get_custom_reward_redemption
+    - reverted change that made reward_id optional in get_custom_reward_redemption
+    - get_extension_transactions now takes up to 100 transaction ids
+    - added delay parameter to modify_channel_information
+    - made parameter prompt of create_custom_reward optional and changed parameter order
+    - made reward_id of get_custom_reward take either a list of str or str
+    - made parameter title, prompt and cost optional in update_custom_reward
+    - made parameter redemption_ids of update_redemption_status take either a list of str or str
+    - fixed exception in block_user
+    - allowed Twitch.check_automod_status to take in more that one entry
 
-****************
-Version 2.4.2
-****************
+.. dropdown:: Version 2.3.2
 
-- Fixed EventSub not keeping local state in sync on unsubscribe
-- Added proper exception if authentication via oauth fails
+    * fixed get_custom_reward_redemption url (thanks iProdigy!)
+    * made reward_id parameter of get_custom_reward_redemption optional
 
-****************
-Version 2.4.1
-****************
+.. dropdown:: Version 2.3.1
 
-- EventSub now uses a random 20 letter secret by default
-- EventSub now verifies the send signature
+    * fixed id parameter for get_clips of Twitch
 
-****************
-Version 2.4.0
-****************
+.. dropdown:: Version 2.3.0
+    :color: info
 
-- **Implemented EventSub**
+    * Initializing the Twitch API now automatically creates a app authorization (can be disabled via flag)
+    * Made it possible to not set a app secret in cases where only user authentication is required
+    * added helper function `validate_token` to OAuth
+    * added helper function `revoke_token` to OAuth
+    * User OAuth Token is now automatically validated for correct scope and validity when being set
+    * added new "Get Drops Entitlement" endpoint
+    * added new "Get Teams" endpoint
+    * added new "Get Chattel teams" endpoint
+    * added new AuthScope USER_READ_SUBSCRIPTIONS
+    * fixed exception in Webhook if no Authentication is set and also not required
+    * refactored Authentication handling, making it more versatile
+    * added more debugging logs
+    * improved documentation
 
-- Marked Webhook as deprecated
+.. dropdown:: Version 2.2.5
 
-- added the following new endpoints
+    * added optional callback to Twitch for user and app access token refresh
+    * added additional check for non empty title in Twitch.modify_channel_information
+    * changed required scope of PubSub.listen_channel_subscriptions from CHANNEL_SUBSCRIPTIONS to CHANNEL_READ_SUBSCRIPTIONS
 
-  - "Get Followed Streams"
 
-  - "Get Polls"
+.. dropdown:: Version 2.2.4
 
-  - "End Poll"
+    * added Python 3.9 compatibility
+    * improved example for PubSub
 
-  - "Get Predictions"
+.. dropdown:: Version 2.2.3
+    :color: info
 
-  - "Create Prediction"
+    * added new "get channel editors" endpoint
+    * added new "delete videos" endpoint
+    * added new "get user block list" endpoint
+    * added new "block user" endpoint
+    * added new "unblock user" endpoint
+    * added new authentication scopes
+    * some refactoring
 
-  - "End Prediction"
+.. dropdown:: Version 2.2.2
 
-  - "Manage held AutoMod Messages"
+    * added missing API base url to delete_custom_reward, get_custom_reward, get_custom_reward_redemption and update_redemption_status (thanks asphaltschneider!)
 
-  - "Get Channel Badges"
+.. dropdown:: Version 2.2.1
 
-  - "Get Global Chat Badges"
+    * added option to set a ssl context to be used by Webhook
+    * fixed modify_channel_information throwing ValueError (thanks asishm!)
+    * added default route to Webhook on / for easier debugging
+    * properly check for empty lists in the selection of the used AuthScope in get_users
+    * raise ValueError if both from_id and to_id are None in subscribe_user_follow of Webhook
 
-  - "Get Channel Emotes"
+.. dropdown:: Version 2.2.0
+    :color: info
 
-  - "Get Global Emotes"
+    * added missing "Create custom rewards" endpoint
+    * added missing "Delete Custom rewards" endpoint
+    * added missing "Get Custom Reward" endpoint
+    * added missing "Get custom reward redemption" endpoint
+    * added missing "Update custom Reward" endpoint
+    * added missing "Update redemption status" endpoint
+    * added missing pagination parameters to endpoints that support them
+    * improved documentation
+    * properly handle 401 response after retries
 
-  - "Get Emote Sets"
+.. dropdown:: Version 2.1.0
+    :color: info
 
-  - "Delete EventSub Subscription"
+    Added a Twitch PubSub client implementation.
 
-  - "Get Channel Stream Schedule"
+    See :doc:`modules/twitchAPI.pubsub` for more Info!
 
-  - "Get Channel iCalendar"
+    * added PubSub client
+    * made UserAuthenticator URL dynamic
+    * added named loggers for all modules
+    * fixed bug in Webhook.subscribe_subscription_events
+    * added Twitch.get_user_auth_scope
 
-  - "Update Channel Stream Schedule"
+.. dropdown:: Version 2.0.1
 
-  - "Create Channel Stream Schedule Segment"
+    Fixed some bugs and implemented changes made to the Twitch API
 
-  - "Update Channel Stream Schedule Segment"
+.. dropdown:: Version 2.0.0
+    :color: danger
 
-  - "Delete Channel Stream Schedule Segment"
+    This version is a major overhaul of the Webhook, implementing missing and changed API endpoints and adding a bunch of quality of life changes.
 
-  - "Update Drops Entitlements"
-
-- Added the following new AuthScopes
-
-  - USER_READ_FOLLOWS
-
-  - CHANNEL_READ_POLLS
-
-  - CHANNEL_MANAGE_POLLS
-
-  - CHANNEL_READ_PREDICTIONS
-
-  - CHANNEL_MANAGE_PREDICTIONS
-
-  - MODERATOR_MANAGE_AUTOMOD
-
-  - CHANNEL_MANAGE_SCHEDULE
-
-- removed deprecated Endpoints
-
-  - "Create User Follows"
-
-  - "Delete User Follows"
-
-- Added Topics to PubSub
-
-  - "AutoMod Queue"
-
-  - "User Moderation Notifications"
-
-- Check if at least one of status or id is provided in get_custom_reward_redemption
-- reverted change that made reward_id optional in get_custom_reward_redemption
-- get_extension_transactions now takes up to 100 transaction ids
-- added delay parameter to modify_channel_information
-- made parameter prompt of create_custom_reward optional and changed parameter order
-- made reward_id of get_custom_reward take either a list of str or str
-- made parameter title, prompt and cost optional in update_custom_reward
-- made parameter redemption_ids of update_redemption_status take either a list of str or str
-- fixed exception in block_user
-- allowed Twitch.check_automod_status to take in more that one entry
-
-****************
-Version 2.3.2
-****************
-
-* fixed get_custom_reward_redemption url (thanks iProdigy!)
-* made reward_id parameter of get_custom_reward_redemption optional
-
-****************
-Version 2.3.1
-****************
-
-* fixed id parameter for get_clips of Twitch
-
-****************
-Version 2.3.0
-****************
-
-* Initializing the Twitch API now automatically creates a app authorization (can be disabled via flag)
-* Made it possible to not set a app secret in cases where only user authentication is required
-* added helper function `validate_token` to OAuth
-* added helper function `revoke_token` to OAuth
-* User OAuth Token is now automatically validated for correct scope and validity when being set
-* added new "Get Drops Entitlement" endpoint
-* added new "Get Teams" endpoint
-* added new "Get Chattel teams" endpoint
-* added new AuthScope USER_READ_SUBSCRIPTIONS
-* fixed exception in Webhook if no Authentication is set and also not required
-* refactored Authentication handling, making it more versatile
-* added more debugging logs
-* improved documentation
-
-****************
-Version 2.2.5
-****************
-
-* added optional callback to Twitch for user and app access token refresh
-* added additional check for non empty title in Twitch.modify_channel_information
-* changed required scope of PubSub.listen_channel_subscriptions from CHANNEL_SUBSCRIPTIONS to CHANNEL_READ_SUBSCRIPTIONS
-
-
-****************
-Version 2.2.4
-****************
-
-* added Python 3.9 compatibility
-* improved example for PubSub
-
-****************
-Version 2.2.3
-****************
-
-* added new "get channel editors" endpoint
-* added new "delete videos" endpoint
-* added new "get user block list" endpoint
-* added new "block user" endpoint
-* added new "unblock user" endpoint
-* added new authentication scopes
-* some refactoring
-
-****************
-Version 2.2.2
-****************
-
-* added missing API base url to delete_custom_reward, get_custom_reward, get_custom_reward_redemption and update_redemption_status (thanks asphaltschneider!)
-
-****************
-Version 2.2.1
-****************
-
-* added option to set a ssl context to be used by Webhook
-* fixed modify_channel_information throwing ValueError (thanks asishm!)
-* added default route to Webhook on / for easier debugging
-* properly check for empty lists in the selection of the used AuthScope in get_users
-* raise ValueError if both from_id and to_id are None in subscribe_user_follow of Webhook
-
-****************
-Version 2.2.0
-****************
-
-* added missing "Create custom rewards" endpoint
-* added missing "Delete Custom rewards" endpoint
-* added missing "Get Custom Reward" endpoint
-* added missing "Get custom reward redemption" endpoint
-* added missing "Update custom Reward" endpoint
-* added missing "Update redemption status" endpoint
-* added missing pagination parameters to endpoints that support them
-* improved documentation
-* properly handle 401 response after retries
-
-****************
-Version 2.1
-****************
-
-Added a Twitch PubSub client implementation.
-
-See :doc:`modules/twitchAPI.pubsub` for more Info!
-
-* added PubSub client
-* made UserAuthenticator URL dynamic
-* added named loggers for all modules
-* fixed bug in Webhook.subscribe_subscription_events
-* added Twitch.get_user_auth_scope
-
-****************
-Version 2.0.1
-****************
-
-Fixed some bugs and implemented changes made to the Twitch API
-
-****************
-Version 2.0
-****************
-
-This version is a major overhaul of the Webhook, implementing missing and changed API endpoints and adding a bunch of quality of life changes.
-
-* Reworked the entire Documentation
-* Webhook subscribe and unsubscribe now waits for handshake to finish
-* Webhook now refreshes its subscriptions
-* Webhook unsubscribe is now a single function
-* Webhook auto unsubscribes from topics on stop()
-* Added unsubscribe_all function to Webhook
-* Twitch instance now auto renews auth token once they become invalid
-* Added retry on API backend error
-* Added get_drops_entitlements endpoint
-* Fixed function signature of get_webhook_subscriptions
-* Fixed update_user_extension not writing data
-* get_user_active_extensions now requires User Authentication
-* get_user_follows now requires at elast App Authentication
-* get_users now follows the changed API Authentication logic
-* get_stream_markers now also checks that at least one of user_id or video_id is provided
-* get_streams now takes a list for game_id
-* get_streams now checks the length of the language list
-* get_moderator_events now takes in a list of user_ids
-* get_moderators now takes in a list of user_ids
-* get_clips can now use the first parameter
-* Raise exception when twitch backend returns 503 even after a retry
-* Now use custom exception classes
-* Removed depraced endpoint get_streams_metadata
+    * Reworked the entire Documentation
+    * Webhook subscribe and unsubscribe now waits for handshake to finish
+    * Webhook now refreshes its subscriptions
+    * Webhook unsubscribe is now a single function
+    * Webhook auto unsubscribes from topics on stop()
+    * Added unsubscribe_all function to Webhook
+    * Twitch instance now auto renews auth token once they become invalid
+    * Added retry on API backend error
+    * Added get_drops_entitlements endpoint
+    * Fixed function signature of get_webhook_subscriptions
+    * Fixed update_user_extension not writing data
+    * get_user_active_extensions now requires User Authentication
+    * get_user_follows now requires at elast App Authentication
+    * get_users now follows the changed API Authentication logic
+    * get_stream_markers now also checks that at least one of user_id or video_id is provided
+    * get_streams now takes a list for game_id
+    * get_streams now checks the length of the language list
+    * get_moderator_events now takes in a list of user_ids
+    * get_moderators now takes in a list of user_ids
+    * get_clips can now use the first parameter
+    * Raise exception when twitch backend returns 503 even after a retry
+    * Now use custom exception classes
+    * Removed depraced endpoint get_streams_metadata
