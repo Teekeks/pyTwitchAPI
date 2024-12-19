@@ -327,5 +327,9 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_begin()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelSharedChatBeginEvent`
      - A notification when a channel becomes active in an active shared chat session.
+   * - **Channel Shared Chat Session Update**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_update()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.ChannelSharedChatUpdateEvent`
+     - A notification when the active shared chat session the channel is in changes.
 
 """
