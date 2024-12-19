@@ -289,6 +289,8 @@ class UserAuthenticator:
                  scopes: List[AuthScope],
                  force_verify: bool = False,
                  url: str = 'http://localhost:17563',
+                 host: str = '0.0.0.0',
+                 port: int = 17563,
                  auth_base_url: str = TWITCH_AUTH_BASE_URL):
         """
 
@@ -296,6 +298,8 @@ class UserAuthenticator:
         :param scopes: List of the desired Auth scopes
         :param force_verify: If this is true, the user will always be prompted for authorization by twitch |default| :code:`False`
         :param url: The reachable URL that will be opened in the browser. |default| :code:`http://localhost:17563`
+        :param host: The host the webserver will bind to. |default| :code:`0.0.0.0`
+        :param port: The port that will be used for the webserver. |default| :code:`17653`
         :param auth_base_url: The URL to the Twitch API auth server |default| :const:`~twitchAPI.helper.TWITCH_AUTH_BASE_URL`
         """
         self._twitch: 'Twitch' = twitch
@@ -318,10 +322,8 @@ class UserAuthenticator:
         </body>
         </html>"""
         """The document that will be rendered at the end of the flow"""
-        self.port: int = 17563
-        """The port that will be used. |default| :code:`17653`"""
-        self.host: str = '0.0.0.0'
-        """the host the webserver will bind to. |default| :code:`0.0.0.0`"""
+        self.port: int = port
+        self.host: str = host
         self.state: str = str(get_uuid())
         self._callback_func = None
         self._server_running: bool = False
