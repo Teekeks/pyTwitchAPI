@@ -1,3 +1,3 @@
-VERSION = (4, 3, 1, '')
+VERSION = (4, 4, 0, '')
 
-__version__ = '4.3.1'
+__version__ = '4.4.0'
