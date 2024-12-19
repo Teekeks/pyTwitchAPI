@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 
 
 __all__ = ['BaseCommandMiddleware', 'ChannelRestriction', 'UserRestriction', 'StreamerOnly',
-           'ChannelCommandCooldown', 'ChannelUserCommandCooldown', 'GlobalCommandCooldown']
+           'ChannelCommandCooldown', 'ChannelUserCommandCooldown', 'GlobalCommandCooldown', 'SharedChatOnlyCurrent']
 
 
 class BaseCommandMiddleware(ABC):
