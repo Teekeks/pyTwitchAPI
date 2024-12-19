@@ -38,7 +38,7 @@ from datetime import datetime
 from typing import Optional, List, TYPE_CHECKING, Callable, Awaitable, Dict
 
 if TYPE_CHECKING:
-    from . import ChatCommand
+    from twitchAPI.chat import ChatCommand
 
 
 __all__ = ['BaseCommandMiddleware', 'ChannelRestriction', 'UserRestriction', 'StreamerOnly',
@@ -235,11 +235,10 @@ class GlobalCommandCooldown(BaseCommandMiddleware):
 class SharedChatOnlyCurrent(BaseCommandMiddleware):
     """Restricts commands to only current chat room in Shared Chat streams"""
 
-    async def can_execute(self, command: ChatCommand) -> bool:
-        if "source-room-id" in command._parsed["tags"]:
-            if command._parsed["tags"]["source-room-id"] != command._parsed["tags"].get("room-id"):
-                return False
+    async def can_execute(self, command: 'ChatCommand') -> bool:
+        if command.source_room_id != command.room.room_id:
+            return False
         return True
 
-    async def was_executed(self, command: ChatCommand):
+    async def was_executed(self, command: 'ChatCommand'):
         pass
