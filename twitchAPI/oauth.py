@@ -433,7 +433,8 @@ class UserAuthenticator:
                            user_token: Optional[str] = None,
                            browser_name: Optional[str] = None,
                            browser_new: int = 2,
-                           use_browser: bool = True):
+                           use_browser: bool = True,
+                           auth_url_callback: Optional[Callable[[str], Awaitable[None]]] = None):
         """Start the user authentication flow\n
         If callback_func is not set, authenticate will wait till the authentication process finished and then return
         the access_token and the refresh_token
@@ -447,8 +448,14 @@ class UserAuthenticator:
         :param browser_new: controls in which way the link will be opened in the browser.
                             See `the webbrowser documentation <https://docs.python.org/3/library/webbrowser.html#webbrowser.open>`__ for more info
                             |default|:code:`2`
-        :param use_browser: controls if a browser should be opened by default or if the url to authenticate via should printed to the log
-                            |default|:code: True
+        :param use_browser: controls if a browser should be opened.
+                            If set to :const:`False`, the browser will not be opened and the URL to be opened will either be printed to the info log or
+                            send to the specified callback function (controlled by :const:`~twitchAPI.oauth.UserAuthenticator.authenticate.params.auth_url_callback`)
+                            |default|:code:`True`
+        :param auth_url_callback: a async callback that will be called with the url to be used for the authentication flow should
+                            :const:`~twitchAPI.oauth.UserAuthenticator.authenticate.params.use_browser` be :const:`False`.
+                            If left as None, the URL will instead be printed to the info log
+                            |default|:code:`None`
         :return: None if callback_func is set, otherwise access_token and refresh_token
         :raises ~twitchAPI.type.TwitchAPIException: if authentication fails
         :rtype: None or (str, str)
@@ -468,7 +475,10 @@ class UserAuthenticator:
                 browser = webbrowser.get(browser_name)
                 browser.open(self._build_auth_url(), new=browser_new)
             else:
-                self.logger.info(f"To authenticate open: {self._build_auth_url()}")
+                if auth_url_callback is not None:
+                    await auth_url_callback(self._build_auth_url())
+                else:
+                    self.logger.info(f"To authenticate open: {self._build_auth_url()}")
             while self._user_token is None:
                 await asyncio.sleep(0.01)
             # now we need to actually get the correct token
