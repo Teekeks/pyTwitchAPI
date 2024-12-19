@@ -262,6 +262,10 @@ class ChatUser:
         """All infos related to the badges of the user"""
         self.badges = parsed['tags'].get('badges')
         """The badges of the user"""
+        self.source_badges = parsed['tags'].get('source-badges')
+        """The badges for the chatter in the room the message was sent from. This uses the same format as the badges tag."""
+        self.source_badge_info = parsed['tags'].get('source-badge-info')
+        """Contains metadata related to the chat badges in the source-badges tag."""
         self.color: str = parsed['tags'].get('color')
         """The color of the chat user if set"""
         self.display_name: str = parsed['tags'].get('display-name')
@@ -424,6 +428,12 @@ class ChatMessage(EventData):
         """the ID of the message"""
         self.hype_chat: Optional[HypeChat] = HypeChat(parsed) if parsed['tags'].get('pinned-chat-paid-level') is not None else None
         """Hype Chat related data, is None if the message was not a hype chat"""
+        self.source_id: Optional[str] = parsed['tags'].get('source-id')
+        """A UUID that identifies the source message from the channel the message was sent from."""
+        self.source_room_id: Optional[str] = parsed['tags'].get('source-room-id')
+        """An ID that identifies the chat room (channel) the message was sent from."""
+
+
 
     @property
     def room(self) -> Optional[ChatRoom]:
@@ -717,7 +727,7 @@ class Chat:
         for tag in tags:
             parsed_tag = tag.split('=')
             tag_value = None if parsed_tag[1] == '' else parsed_tag[1]
-            if parsed_tag[0] in ('badges', 'badge-info'):
+            if parsed_tag[0] in ('badges', 'badge-info', 'source-badges', 'source-badge-info'):
                 if tag_value is not None:
                     d = {}
                     badges = tag_value.split(',')
