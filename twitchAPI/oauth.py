@@ -323,8 +323,11 @@ class UserAuthenticator:
         </html>"""
         """The document that will be rendered at the end of the flow"""
         self.port: int = port
+        """The port that will be used for the webserver. |default| :code:`17653`"""
         self.host: str = host
+        """The host the webserver will bind to. |default| :code:`0.0.0.0`"""
         self.state: str = str(get_uuid())
+        """The state to be used for identification, |default| a random UUID"""
         self._callback_func = None
         self._server_running: bool = False
         self._loop: Union[asyncio.AbstractEventLoop, None] = None
