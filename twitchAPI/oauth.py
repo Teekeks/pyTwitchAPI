@@ -432,7 +432,8 @@ class UserAuthenticator:
                            callback_func: Optional[Callable[[str, str], None]] = None,
                            user_token: Optional[str] = None,
                            browser_name: Optional[str] = None,
-                           browser_new: int = 2):
+                           browser_new: int = 2,
+                           use_browser: bool = True):
         """Start the user authentication flow\n
         If callback_func is not set, authenticate will wait till the authentication process finished and then return
         the access_token and the refresh_token
@@ -446,6 +447,8 @@ class UserAuthenticator:
         :param browser_new: controls in which way the link will be opened in the browser.
                             See `the webbrowser documentation <https://docs.python.org/3/library/webbrowser.html#webbrowser.open>`__ for more info
                             |default|:code:`2`
+        :param use_browser: controls if a browser should be opened by default or if the url to authenticate via should printed to the log
+                            |default|:code: True
         :return: None if callback_func is set, otherwise access_token and refresh_token
         :raises ~twitchAPI.type.TwitchAPIException: if authentication fails
         :rtype: None or (str, str)
@@ -460,9 +463,12 @@ class UserAuthenticator:
             # wait for the server to start up
             while not self._server_running:
                 await asyncio.sleep(0.01)
-            # open in browser
-            browser = webbrowser.get(browser_name)
-            browser.open(self._build_auth_url(), new=browser_new)
+            if use_browser:
+                # open in browser
+                browser = webbrowser.get(browser_name)
+                browser.open(self._build_auth_url(), new=browser_new)
+            else:
+                self.logger.info(f"To authenticate open: {self._build_auth_url()}")
             while self._user_token is None:
                 await asyncio.sleep(0.01)
             # now we need to actually get the correct token
