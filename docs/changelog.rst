@@ -4,6 +4,48 @@ Changelog
 =========
 
 *************
+Version 4.4.0
+*************
+
+Twitch
+------
+
+- Added the following new Endpoint:
+
+  - "Get Shared Chat Session" :const:`~twitchAPI.twitch.Twitch.get_shared_chat_session()`
+
+
+EventSub
+--------
+
+- Added the following new Topics:
+
+  - "Channel Shared Chat Session Begin" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_begin()`
+  - "Channel Shared Chat Session Update" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_update()`
+  - "Channel Shared Chat Session End" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_end()`
+
+- Added the "Golden Kappa Train" info to the following Topics:
+
+  - :const:`~twitchAPI.eventsub.base.EventSubBase.listen_hype_train_begin()`
+  - :const:`~twitchAPI.eventsub.base.EventSubBase.listen_hype_train_progress()`
+  - :const:`~twitchAPI.eventsub.base.EventSubBase.listen_hype_train_end()`
+
+Chat
+----
+
+- Added new middleware :const:`~twitchAPI.chat.middleware.SharedChatOnlyCurrent` which restricts the messages to only the current room (thanks https://github.com/Latent-Logic )
+- Added support for source room and user tags
+- Added new option :const:`~twitchAPI.chat.Chat.params.no_shared_chat_messages` which controls if shared chat messages should be filtered out or not (thanks https://github.com/Latent-Logic )
+
+
+OAuth
+-----
+
+- Made it possible to specify target host and port in constructor of :const:`~twitchAPI.oauth.UserAuthenticator` (thanks https://github.com/nojoule )
+- Made it possible to control if a browser should be opened in :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()` (thanks https://github.com/Latent-Logic )
+
+
+*************
 Version 4.3.1
 *************
 
