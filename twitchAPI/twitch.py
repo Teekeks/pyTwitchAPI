@@ -3059,7 +3059,7 @@ class Twitch:
         """
         return await self._build_result('GET', 'chat/badges/global', {}, AuthType.EITHER, [], List[ChatBadge])
 
-    async def get_channel_emotes(self, broadcaster_id: str) -> GetEmotesResponse:
+    async def get_channel_emotes(self, broadcaster_id: str) -> GetChannelEmotesResponse:
         """Gets all emotes that the specified Twitch channel created.
 
         Requires User or App Authentication\n
@@ -3105,7 +3105,7 @@ class Twitch:
         if len(emote_set_id) == 0 or len(emote_set_id) > 25:
             raise ValueError('you need to specify between 1 and 25 emote_set_ids')
         return await self._build_result('GET', 'chat/emotes/set', {'emote_set_id': emote_set_id}, AuthType.EITHER, [], GetEmotesResponse,
-                                        split_lists=True)
+                                        get_from_data=False, split_lists=True)
 
     async def create_eventsub_subscription(self,
                                            subscription_type: str,

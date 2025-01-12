@@ -21,12 +21,12 @@ __all__ = ['TwitchUser', 'TwitchUserFollow', 'TwitchUserFollowResult', 'DateRang
            'SearchCategoryResult', 'StartCommercialResult', 'Cheermote', 'GetCheermotesResponse', 'HypeTrainContribution', 'HypeTrainEventData',
            'HypeTrainEvent', 'DropsEntitlement', 'MaxPerStreamSetting', 'MaxPerUserPerStreamSetting', 'GlobalCooldownSetting', 'CustomReward',
            'PartialCustomReward', 'CustomRewardRedemption', 'ChannelEditor', 'BlockListEntry', 'PollChoice', 'Poll', 'Predictor', 'PredictionOutcome',
-           'Prediction', 'RaidStartResult', 'ChatBadgeVersion', 'ChatBadge', 'Emote', 'UserEmote', 'GetEmotesResponse', 'EventSubSubscription',
-           'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment', 'StreamVacation', 'ChannelStreamSchedule',
-           'ChannelVIP', 'UserChatColor', 'Chatter', 'GetChattersResponse', 'ShieldModeStatus', 'CharityAmount', 'CharityCampaign',
-           'CharityCampaignDonation', 'AutoModSettings', 'ChannelFollower', 'ChannelFollowersResult', 'FollowedChannel', 'FollowedChannelsResult',
-           'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse', 'SendMessageResponse', 'ChannelModerator', 'UserEmotesResponse',
-           'WarnResponse', 'SharedChatParticipant', 'SharedChatSession']
+           'Prediction', 'RaidStartResult', 'ChatBadgeVersion', 'ChatBadge', 'Emote', 'ChannelEmote', 'UserEmote', 'GetChannelEmotesResponse',
+           'GetEmotesResponse', 'EventSubSubscription', 'GetEventSubSubscriptionResult', 'StreamCategory', 'ChannelStreamScheduleSegment',
+           'StreamVacation', 'ChannelStreamSchedule', 'ChannelVIP', 'UserChatColor', 'Chatter', 'GetChattersResponse', 'ShieldModeStatus',
+           'CharityAmount', 'CharityCampaign', 'CharityCampaignDonation', 'AutoModSettings', 'ChannelFollower', 'ChannelFollowersResult',
+           'FollowedChannel', 'FollowedChannelsResult', 'ContentClassificationLabel', 'AdSchedule', 'AdSnoozeResponse', 'SendMessageResponse',
+           'ChannelModerator', 'UserEmotesResponse', 'WarnResponse', 'SharedChatParticipant', 'SharedChatSession']
 
 
 class TwitchUser(TwitchObject):
@@ -650,7 +650,6 @@ class Emote(TwitchObject):
     id: str
     name: str
     images: Dict[str, str]
-    tier: str
     emote_type: str
     emote_set_id: str
     format: List[str]
@@ -658,8 +657,17 @@ class Emote(TwitchObject):
     theme_mode: List[str]
 
 
+class ChannelEmote(Emote):
+    tier: str
+
+
 class UserEmote(Emote):
     owner_id: str
+
+
+class GetChannelEmotesResponse(IterTwitchObject):
+    data: List[ChannelEmote]
+    template: str
 
 
 class GetEmotesResponse(IterTwitchObject):
