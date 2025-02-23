@@ -209,7 +209,7 @@ from .helper import TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, enum
 from logging import getLogger, Logger
 from .object.api import *
 from .type import *
-from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict, Awaitable
+from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict, Awaitable, Type
 
 __all__ = ['Twitch']
 T = TypeVar('T')
@@ -456,7 +456,7 @@ class Twitch:
                                url_params: dict,
                                auth_type: AuthType,
                                auth_scope: List[Union[AuthScope, List[AuthScope]]],
-                               return_type: T,
+                               return_type: Type[T],
                                body_data: Optional[dict] = None,
                                split_lists: bool = False,
                                error_handler: Optional[Dict[int, BaseException]] = None) -> AsyncGenerator[T, None]:
@@ -482,7 +482,7 @@ class Twitch:
                                  url_params: dict,
                                  auth_type: AuthType,
                                  auth_scope: List[Union[AuthScope, List[AuthScope]]],
-                                 return_type: T,
+                                 return_type: Type[T],
                                  body_data: Optional[dict] = None,
                                  split_lists: bool = False,
                                  iter_field: str = 'data',
@@ -514,7 +514,7 @@ class Twitch:
                             url_params: dict,
                             auth_type: AuthType,
                             auth_scope: List[Union[AuthScope, List[AuthScope]]],
-                            return_type: T,
+                            return_type: Type[T],
                             body_data: Optional[dict] = None,
                             split_lists: bool = False,
                             get_from_data: bool = True,
