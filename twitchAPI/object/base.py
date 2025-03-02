@@ -122,7 +122,7 @@ class TwitchObject:
 
     def __repr__(self):
         merged_annotations = self._get_annotations()
-        args = ', '.join(['='.join([name, str(self.__getattribute__(name))]) for name in merged_annotations.keys()])
+        args = ', '.join(['='.join([name, str(getattr(self, name))]) for name in merged_annotations.keys() if hasattr(self, name)])
         return f'{type(self).__name__}({args})'
 
 
