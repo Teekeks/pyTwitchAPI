@@ -3,6 +3,10 @@
 PubSub
 ------
 
+.. warning::
+    PubSub has been decommissioned as of 2025-04-14. 
+    Please read here for more information on how to migrate to EventSub: <https://dev.twitch.tv/docs/pubsub/>`__.
+
 This is a full implementation of the PubSub API of twitch.
 PubSub enables you to subscribe to a topic, for updates (e.g., when a user cheers in a channel).
 
