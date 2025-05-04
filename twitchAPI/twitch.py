@@ -2664,7 +2664,7 @@ class Twitch:
         :raises ValueError: if first is not in range 1 to 100
         """
 
-        if first < 1 or first > 100:
+        if first is not None and (first < 1 or first > 100):
             raise ValueError('first must be in range 1 to 100')
         param = {
             'broadcaster_id': broadcaster_id,
