@@ -39,10 +39,10 @@ class TwitchObject:
                 return None if val == 0 else datetime.fromtimestamp(val)
             # assume ISO8601 string
             return du_parser.isoparse(val) if len(val) > 0 else None
-        elif origin == list:
+        elif origin is list:
             c = instance.__args__[0]
             return [TwitchObject._val_by_instance(c, x) for x in val]
-        elif origin == dict:
+        elif origin is dict:
             c1 = instance.__args__[0]
             c2 = instance.__args__[1]
             return {TwitchObject._val_by_instance(c1, x1): TwitchObject._val_by_instance(c2, x2) for x1, x2 in val.items()}
@@ -64,15 +64,15 @@ class TwitchObject:
         origin = instance.__origin__ if hasattr(instance, '__origin__') else None
         if instance == datetime:
             return val.isoformat() if val is not None else None
-        elif origin == list:
+        elif origin is list:
             c = instance.__args__[0]
             return [TwitchObject._dict_val_by_instance(c, x, include_none_values) for x in val]
-        elif origin == dict:
+        elif origin is dict:
             c1 = instance.__args__[0]
             c2 = instance.__args__[1]
             return {TwitchObject._dict_val_by_instance(c1, x1, include_none_values):
                     TwitchObject._dict_val_by_instance(c2, x2, include_none_values) for x1, x2 in val.items()}
-        elif origin == Union:
+        elif origin is Union:
             # TODO: only works for optional pattern, fix to try out all possible patterns?
             c1 = instance.__args__[0]
             return TwitchObject._dict_val_by_instance(c1, val, include_none_values)
