@@ -833,7 +833,7 @@ class Twitch:
             raise ValueError('count must be between 1 and 100')
         url_params = {
             'count': count,
-            'period': period.value,
+            'period': period.value if period is not None else None,
             'started_at': datetime_to_str(started_at),
             'user_id': user_id
         }
