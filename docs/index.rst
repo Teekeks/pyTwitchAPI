@@ -6,7 +6,7 @@
 Python Twitch API
 =================
 
-This is a full implementation of the Twitch Helix API, PubSub, EventSub and Chat in python 3.7+.
+This is a full implementation of the Twitch Helix API, EventSub and Chat in python 3.7+.
 
 On Github: https://github.com/Teekeks/pyTwitchAPI
 
@@ -149,55 +149,6 @@ There are multiple EventSub transports available, used for different use cases.
 
 See here for more info about EventSub in general and the different Transports, including code examples: :doc:`/modules/twitchAPI.eventsub`
 
-PubSub
-------
-
-PubSub enables you to subscribe to a topic, for updates (e.g., when a user cheers in a channel).
-
-See here for more info: :doc:`/modules/twitchAPI.pubsub`
-
-.. code-block:: python
-
-    from twitchAPI.pubsub import PubSub
-    from twitchAPI.twitch import Twitch
-    from twitchAPI.helper import first
-    from twitchAPI.type import AuthScope
-    from twitchAPI.oauth import UserAuthenticator
-    import asyncio
-    from pprint import pprint
-    from uuid import UUID
-
-    APP_ID = 'my_app_id'
-    APP_SECRET = 'my_app_secret'
-    USER_SCOPE = [AuthScope.WHISPERS_READ]
-    TARGET_CHANNEL = 'teekeks42'
-
-    async def callback_whisper(uuid: UUID, data: dict) -> None:
-        print('got callback for UUID ' + str(uuid))
-        pprint(data)
-
-
-    async def run_example():
-        # setting up Authentication and getting your user id
-        twitch = await Twitch(APP_ID, APP_SECRET)
-        auth = UserAuthenticator(twitch, [AuthScope.WHISPERS_READ], force_verify=False)
-        token, refresh_token = await auth.authenticate()
-        # you can get your user auth token and user auth refresh token following the example in twitchAPI.oauth
-        await twitch.set_user_authentication(token, [AuthScope.WHISPERS_READ], refresh_token)
-        user = await first(twitch.get_users(logins=[TARGET_CHANNEL]))
-
-        # starting up PubSub
-        pubsub = PubSub(twitch)
-        pubsub.start()
-        # you can either start listening before or after you started pubsub.
-        uuid = await pubsub.listen_whispers(user.id, callback_whisper)
-        input('press ENTER to close...')
-        # you do not need to unlisten to topics before stopping but you can listen and unlisten at any moment you want
-        await pubsub.unlisten(uuid)
-        pubsub.stop()
-        await twitch.close()
-
-    asyncio.run(run_example())
 
 Chat
 ----
@@ -314,9 +265,6 @@ Valid loggers are:
    * - :code:`twitchAPI.eventsub.websocket`
      - :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket`
      - :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket.logger`
-   * - :code:`twitchAPI.pubsub`
-     - :const:`~twitchAPI.pubsub.PubSub`
-     - :const:`~twitchAPI.pubsub.PubSub.logger`
    * - :code:`twitchAPI.oauth`
      - :const:`~twitchAPI.oauth.UserAuthenticator`
      - :const:`~twitchAPI.oauth.UserAuthenticator.logger`
@@ -341,11 +289,8 @@ Indices and tables
 
 
 .. autosummary::
-   :toctree: modules
-
    twitchAPI.twitch
    twitchAPI.eventsub
-   twitchAPI.pubsub
    twitchAPI.chat
    twitchAPI.chat.middleware
    twitchAPI.oauth
@@ -358,5 +303,13 @@ Indices and tables
    :caption: Contents:
    :hidden:
 
+   modules/twitchAPI.twitch
+   modules/twitchAPI.eventsub
+   modules/twitchAPI.chat
    tutorials
+   modules/twitchAPI.chat.middleware
+   modules/twitchAPI.oauth
+   modules/twitchAPI.type
+   modules/twitchAPI.helper
+   modules/twitchAPI.object
    changelog

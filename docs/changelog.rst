@@ -879,7 +879,7 @@ Older Versions
 
     Added a Twitch PubSub client implementation.
 
-    See :doc:`modules/twitchAPI.pubsub` for more Info!
+    See modules/twitchAPI.pubsub for more Info!
 
     * added PubSub client
     * made UserAuthenticator URL dynamic

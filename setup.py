@@ -25,7 +25,7 @@ if version.endswith(('a', 'b', 'rc')):
 setup(
     packages=find_packages(),
     version=version,
-    keywords=['twitch', 'twitch.tv', 'chat', 'bot', 'event sub', 'EventSub', 'pub sub', 'PubSub', 'helix', 'api'],
+    keywords=['twitch', 'twitch.tv', 'chat', 'bot', 'event sub', 'EventSub', 'helix', 'api'],
     install_requires=[
         'aiohttp>=3.9.3',
         'python-dateutil>=2.8.2',

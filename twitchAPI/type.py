@@ -8,11 +8,11 @@ from typing_extensions import TypedDict
 from enum_tools.documentation import document_enum
 
 __all__ = ['AnalyticsReportType', 'AuthScope', 'ModerationEventType', 'TimePeriod', 'SortMethod', 'HypeTrainContributionMethod',
-           'VideoType', 'AuthType', 'StatusCode', 'PubSubResponseError', 'CustomRewardRedemptionStatus', 'SortOrder',
+           'VideoType', 'AuthType', 'StatusCode', 'CustomRewardRedemptionStatus', 'SortOrder',
            'BlockSourceContext', 'BlockReason', 'EntitlementFulfillmentStatus', 'PollStatus', 'PredictionStatus', 'AutoModAction',
            'AutoModCheckEntry', 'DropsEntitlementFulfillmentStatus', 'ChatEvent', 'ChatRoom',
            'TwitchAPIException', 'InvalidRefreshTokenException', 'InvalidTokenException', 'NotFoundException', 'TwitchAuthorizationException',
-           'UnauthorizedException', 'MissingScopeException', 'TwitchBackendException', 'PubSubListenTimeoutException', 'MissingAppSecretException',
+           'UnauthorizedException', 'MissingScopeException', 'TwitchBackendException', 'MissingAppSecretException',
            'EventSubSubscriptionTimeout', 'EventSubSubscriptionConflict', 'EventSubSubscriptionError', 'DeprecatedError', 'TwitchResourceNotFound',
            'ForbiddenError']
 
@@ -683,17 +683,6 @@ class StatusCode(Enum):
     UNKNOWN_VALUE = ''
 
 
-class PubSubResponseError(Enum):
-    """
-    """
-    BAD_MESSAGE = 'ERR_BADMESSAGE'
-    BAD_AUTH = 'ERR_BADAUTH'
-    SERVER = 'ERR_SERVER'
-    BAD_TOPIC = 'ERR_BADTOPIC'
-    NONE = ''
-    UNKNOWN = 'unknown error'
-
-
 class CustomRewardRedemptionStatus(Enum):
     """
     """
@@ -857,11 +846,6 @@ class MissingScopeException(TwitchAuthorizationException):
 
 class TwitchBackendException(TwitchAPIException):
     """when the Twitch API itself is down"""
-    pass
-
-
-class PubSubListenTimeoutException(TwitchAPIException):
-    """when a PubSub listen command times out"""
     pass
 
 

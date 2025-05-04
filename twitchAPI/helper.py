@@ -16,7 +16,7 @@ from .type import AuthScope
 
 from typing import Union, List, Type, Optional
 
-__all__ = ['first', 'limit', 'TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_PUB_SUB_URL', 'TWITCH_CHAT_URL', 'TWITCH_EVENT_SUB_WEBSOCKET_URL',
+__all__ = ['first', 'limit', 'TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_CHAT_URL', 'TWITCH_EVENT_SUB_WEBSOCKET_URL',
            'build_url', 'get_uuid', 'build_scope', 'fields_to_enum', 'make_enum',
            'enum_value_or_none', 'datetime_to_str', 'remove_none_values', 'ResultType', 'RateLimitBucket', 'RATE_LIMIT_SIZES', 'done_task_callback']
 
@@ -26,8 +26,6 @@ TWITCH_API_BASE_URL: str = "https://api.twitch.tv/helix/"
 """The base url to the Twitch API endpoints"""
 TWITCH_AUTH_BASE_URL: str = "https://id.twitch.tv/oauth2/"
 """The base url to the twitch authentication endpoints"""
-TWITCH_PUB_SUB_URL: str = "wss://pubsub-edge.twitch.tv"
-"""The url to the Twitch PubSub websocket"""
 TWITCH_CHAT_URL: str = "wss://irc-ws.chat.twitch.tv:443"
 """The url to the Twitch Chat websocket"""
 TWITCH_EVENT_SUB_WEBSOCKET_URL: str = 'wss://eventsub.wss.twitch.tv/ws'
