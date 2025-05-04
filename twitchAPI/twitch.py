@@ -1934,7 +1934,7 @@ class Twitch:
         """
         if ids is None and user_id is None and game_id is None:
             raise ValueError('you must use either ids, user_id or game_id')
-        if first < 1 or first > 100:
+        if first is not None and (first < 1 or first > 100):
             raise ValueError('first must be between 1 and 100')
         if ids is not None and len(ids) > 100:
             raise ValueError('ids can only have a maximum of 100 entries')
