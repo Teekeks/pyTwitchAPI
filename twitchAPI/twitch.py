@@ -204,12 +204,24 @@ import aiohttp.helpers
 from datetime import datetime
 from aiohttp import ClientSession, ClientResponse
 from aiohttp.client import ClientTimeout
-from .helper import TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, enum_value_or_none, datetime_to_str, remove_none_values, ResultType, \
-    build_url
+from twitchAPI.helper import (
+    TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, enum_value_or_none, datetime_to_str, remove_none_values, ResultType, build_url)
 from logging import getLogger, Logger
-from .object.api import *
-from .type import *
-from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict, Awaitable, Type, Mapping, overload
+from twitchAPI.object.api import (
+    TwitchUser, ExtensionAnalytic, GameAnalytics, CreatorGoal, BitsLeaderboard, ExtensionTransaction, ChatSettings, CreatedClip, Clip, 
+    Game, AutoModStatus, BannedUser, BanUserResponse, BlockedTerm, Moderator, CreateStreamMarkerResponse, Stream, GetStreamMarkerResponse,
+    BroadcasterSubscriptions, UserSubscription, ChannelTeam, UserExtension, UserActiveExtensions, Video, ChannelInformation, SearchChannelResult,
+    SearchCategoryResult, StartCommercialResult, GetCheermotesResponse, HypeTrainEvent, DropsEntitlement, CustomReward,
+    CustomRewardRedemption, ChannelEditor, BlockListEntry, Poll, Prediction, RaidStartResult, ChatBadge, GetChannelEmotesResponse,
+    GetEmotesResponse, GetEventSubSubscriptionResult, ChannelStreamSchedule, ChannelVIP, UserChatColor, GetChattersResponse, ShieldModeStatus,
+    CharityCampaign, CharityCampaignDonation, AutoModSettings, ChannelFollowersResult, FollowedChannelsResult, ContentClassificationLabel, 
+    AdSchedule, AdSnoozeResponse, SendMessageResponse, ChannelModerator, UserEmotesResponse, WarnResponse, SharedChatSession)
+from twitchAPI.type import (
+    AnalyticsReportType, AuthScope, TimePeriod, SortMethod, VideoType, AuthType, CustomRewardRedemptionStatus, SortOrder,
+           BlockSourceContext, BlockReason, EntitlementFulfillmentStatus, PollStatus, PredictionStatus, AutoModAction,
+           AutoModCheckEntry, TwitchAPIException, InvalidTokenException, TwitchAuthorizationException,
+           UnauthorizedException, MissingScopeException, TwitchBackendException, MissingAppSecretException, TwitchResourceNotFound, ForbiddenError)
+from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Awaitable, Type, Mapping, overload
 
 __all__ = ['Twitch']
 T = TypeVar('T')
