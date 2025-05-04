@@ -547,7 +547,7 @@ class Twitch:
                             split_lists: bool = False,
                             get_from_data: bool = True,
                             result_type: ResultType = ResultType.RETURN_TYPE,
-                            error_handler: Optional[Mapping[int, BaseException]] = None) -> Union[T, None]:
+                            error_handler: Optional[Mapping[int, BaseException]] = None) -> Union[T, None, int, str, List[T]]:
         async with ClientSession(timeout=self.session_timeout) as session:
             _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
             response = await self._api_request(method, session, _url, auth_type, auth_scope, data=body_data)
@@ -563,7 +563,7 @@ class Twitch:
                 if isinstance(return_type, dict):
                     return data
                 origin = return_type.__origin__ if hasattr(return_type, '__origin__') else None
-                if origin == list:
+                if origin is list:
                     c = return_type.__args__[0]
                     return [x if isinstance(x, c) else c(**x) for x in data['data']]
                 if get_from_data:
@@ -3274,7 +3274,7 @@ class Twitch:
         :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
         """
-        return await self._build_result('GET', 'schedule/icalendar', {'broadcaster_id': broadcaster_id}, AuthType.NONE, [], None,
+        return await self._build_result('GET', 'schedule/icalendar', {'broadcaster_id': broadcaster_id}, AuthType.NONE, [], str,
                                         result_type=ResultType.TEXT)
 
     async def update_channel_stream_schedule(self,
