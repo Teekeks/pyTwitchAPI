@@ -209,7 +209,7 @@ from .helper import TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, enum
 from logging import getLogger, Logger
 from .object.api import *
 from .type import *
-from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict, Awaitable, Type, Mapping
+from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict, Awaitable, Type, Mapping, overload
 
 __all__ = ['Twitch']
 T = TypeVar('T')
@@ -459,7 +459,7 @@ class Twitch:
                                return_type: Type[T],
                                body_data: Optional[dict] = None,
                                split_lists: bool = False,
-                               error_handler: Optional[Dict[int, BaseException]] = None) -> AsyncGenerator[T, None]:
+                               error_handler: Optional[Mapping[int, BaseException]] = None) -> AsyncGenerator[T, None]:
         _after = url_params.get('after')
         _first = True
         async with ClientSession(timeout=self.session_timeout) as session:
@@ -508,6 +508,34 @@ class Twitch:
         }
         return return_type(cont_data, **data)
 
+    @overload
+    async def _build_result(self,
+                            method: str,
+                            url: str,
+                            url_params: dict,
+                            auth_type: AuthType,
+                            auth_scope: List[Union[AuthScope, List[AuthScope]]],
+                            return_type: Type[T],
+                            body_data: Optional[dict] = None,
+                            split_lists: bool = False,
+                            get_from_data: bool = True,
+                            result_type: ResultType = ResultType.RETURN_TYPE,
+                            error_handler: Optional[Mapping[int, BaseException]] = None) -> T: ...
+    
+    @overload
+    async def _build_result(self,
+                            method: str,
+                            url: str,
+                            url_params: dict,
+                            auth_type: AuthType,
+                            auth_scope: List[Union[AuthScope, List[AuthScope]]],
+                            return_type: None,
+                            body_data: Optional[dict] = None,
+                            split_lists: bool = False,
+                            get_from_data: bool = True,
+                            result_type: ResultType = ResultType.RETURN_TYPE,
+                            error_handler: Optional[Mapping[int, BaseException]] = None) -> None: ...
+
     async def _build_result(self,
                             method: str,
                             url: str,
@@ -519,7 +547,7 @@ class Twitch:
                             split_lists: bool = False,
                             get_from_data: bool = True,
                             result_type: ResultType = ResultType.RETURN_TYPE,
-                            error_handler: Optional[Mapping[int, BaseException]] = None):
+                            error_handler: Optional[Mapping[int, BaseException]] = None) -> Union[T, None]:
         async with ClientSession(timeout=self.session_timeout) as session:
             _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
             response = await self._api_request(method, session, _url, auth_type, auth_scope, data=body_data)
