@@ -514,7 +514,7 @@ class Twitch:
                             url_params: dict,
                             auth_type: AuthType,
                             auth_scope: List[Union[AuthScope, List[AuthScope]]],
-                            return_type: Type[T],
+                            return_type: Union[Type[T], None],
                             body_data: Optional[dict] = None,
                             split_lists: bool = False,
                             get_from_data: bool = True,
