@@ -2217,7 +2217,7 @@ class Twitch:
         :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if first is not in range 1 to 1000
         """
-        if first < 1 or first > 1000:
+        if first is not None and (first < 1 or first > 1000):
             raise ValueError('first must be between 1 and 1000')
         can_use, auth_type, token, scope = self._get_used_either_auth([])
         if auth_type == AuthType.USER:
