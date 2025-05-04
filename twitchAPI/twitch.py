@@ -3100,7 +3100,7 @@ class Twitch:
         :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
         """
-        return await self._build_result('GET', 'chat/emotes', {'broadcaster_id': broadcaster_id}, AuthType.EITHER, [], GetEmotesResponse,
+        return await self._build_result('GET', 'chat/emotes', {'broadcaster_id': broadcaster_id}, AuthType.EITHER, [], GetChannelEmotesResponse,
                                         get_from_data=False)
 
     async def get_global_emotes(self) -> GetEmotesResponse:
