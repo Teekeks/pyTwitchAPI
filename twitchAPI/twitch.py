@@ -1452,7 +1452,7 @@ class Twitch:
         :raises ValueError: if user_ids has more than 100 entries
         :raises ValueError: if first is not in range 1 to 100
         """
-        if first < 1 or first > 100:
+        if first is not None and (first < 1 or first > 100):
             raise ValueError('first must be in range 1 to 100')
         if user_ids is not None and len(user_ids) > 100:
             raise ValueError('user_ids can only be 100 entries long')
