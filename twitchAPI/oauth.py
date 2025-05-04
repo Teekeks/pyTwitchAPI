@@ -78,15 +78,13 @@ import aiohttp
 from .twitch import Twitch
 from .helper import build_url, build_scope, get_uuid, TWITCH_AUTH_BASE_URL, fields_to_enum
 from .type import AuthScope, InvalidRefreshTokenException, UnauthorizedException, TwitchAPIException
-from typing import Optional, Callable, Awaitable, Tuple
 import webbrowser
 from aiohttp import web
 import asyncio
 from threading import Thread
 from concurrent.futures import CancelledError
 from logging import getLogger, Logger
-
-from typing import List, Union
+from typing import List, Union, Optional, Callable, Awaitable, Tuple
 
 __all__ = ['refresh_access_token', 'validate_token', 'get_user_info', 'revoke_token', 'CodeFlow', 'UserAuthenticator', 'UserAuthenticationStorageHelper']
 
@@ -237,7 +235,7 @@ class CodeFlow:
         self._device_code: Optional[str] = None
         self._expires_in: Optional[datetime.datetime] = None
 
-    async def get_code(self) -> (str, str):
+    async def get_code(self) -> Tuple[str, str]:
         """Requests a Code and URL from teh API to start the flow
 
         :return: The Code and URL used to further the flow

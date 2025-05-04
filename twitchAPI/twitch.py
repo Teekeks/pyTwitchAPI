@@ -209,7 +209,7 @@ from .helper import TWITCH_API_BASE_URL, TWITCH_AUTH_BASE_URL, build_scope, enum
 from logging import getLogger, Logger
 from .object.api import *
 from .type import *
-from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict, Awaitable, Type
+from typing import Union, List, Optional, Callable, AsyncGenerator, TypeVar, Dict, Awaitable, Type, Mapping
 
 __all__ = ['Twitch']
 T = TypeVar('T')
@@ -237,7 +237,7 @@ class Twitch:
         :param auth_base_url: The URL to the Twitch API auth server |default| :const:`~twitchAPI.helper.TWITCH_AUTH_BASE_URL`
         :param session_timeout: Override the time in seconds before any request times out. Defaults to aiohttp default (300 seconds)
         """
-        self.app_id: Optional[str] = app_id
+        self.app_id: str = app_id
         self.app_secret: Optional[str] = app_secret
         self.logger: Logger = getLogger('twitchAPI.twitch')
         """The logger used for Twitch API call related log messages"""
@@ -385,7 +385,7 @@ class Twitch:
                                     method: str,
                                     url: str,
                                     auth_type: 'AuthType',
-                                    required_scope: List[AuthScope],
+                                    required_scope: List[Union[AuthScope, List[AuthScope]]],
                                     data: Optional[dict] = None,
                                     retries: int = 1
                                     ) -> ClientResponse:
@@ -519,7 +519,7 @@ class Twitch:
                             split_lists: bool = False,
                             get_from_data: bool = True,
                             result_type: ResultType = ResultType.RETURN_TYPE,
-                            error_handler: Optional[Dict[int, BaseException]] = None):
+                            error_handler: Optional[Mapping[int, BaseException]] = None):
         async with ClientSession(timeout=self.session_timeout) as session:
             _url = build_url(self.base_url + url, url_params, remove_none=True, split_lists=split_lists)
             response = await self._api_request(method, session, _url, auth_type, auth_scope, data=body_data)

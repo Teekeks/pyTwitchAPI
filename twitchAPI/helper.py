@@ -14,7 +14,7 @@ from enum import Enum
 
 from .type import AuthScope
 
-from typing import Union, List, Type, Optional
+from typing import Union, List, Type, Optional, overload
 
 __all__ = ['first', 'limit', 'TWITCH_API_BASE_URL', 'TWITCH_AUTH_BASE_URL', 'TWITCH_CHAT_URL', 'TWITCH_EVENT_SUB_WEBSOCKET_URL',
            'build_url', 'get_uuid', 'build_scope', 'fields_to_enum', 'make_enum',
@@ -89,6 +89,14 @@ def build_scope(scopes: List[AuthScope]) -> str:
     """
     return ' '.join([s.value for s in scopes])
 
+
+@overload
+def fields_to_enum(data: dict, fields: List[str], _enum: Type[Enum], default: Optional[Enum]) -> dict:
+    ...
+
+@overload
+def fields_to_enum(data: List[dict], fields: List[str], _enum: Type[Enum], default: Optional[Enum]) -> List[dict]:
+    ...
 
 def fields_to_enum(data: Union[dict, list],
                    fields: List[str],
