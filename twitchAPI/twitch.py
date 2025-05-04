@@ -829,7 +829,7 @@ class Twitch:
         :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ValueError: if first is not in range 1 to 100
         """
-        if count > 100 or count < 1:
+        if count is not None and (count > 100 or count < 1):
             raise ValueError('count must be between 1 and 100')
         url_params = {
             'count': count,
