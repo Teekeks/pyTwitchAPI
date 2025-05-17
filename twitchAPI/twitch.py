@@ -4038,7 +4038,8 @@ class Twitch:
                                 broadcaster_id: str,
                                 sender_id: str,
                                 message: str,
-                                reply_parent_message_id: Optional[str] = None) -> SendMessageResponse:
+                                reply_parent_message_id: Optional[str] = None,
+                                for_source_only: Optional[bool] = None) -> SendMessageResponse:
         """Sends a message to the broadcaster’s chat room.
 
         Requires User or App Authentication with :const:`~twitchAPI.type.AuthScope.USER_WRITE_CHAT` \n
@@ -4053,6 +4054,9 @@ class Twitch:
             The names are case sensitive. Don’t include colons around the name (e.g., :bleedPurple:).
             If Twitch recognizes the name, Twitch converts the name to the emote before writing the chat message to the chat room
         :param reply_parent_message_id: The ID of the chat message being replied to.
+        :param for_source_only: Determines if the chat message is sent only to the source channel (defined by broadcaster_id) during a shared chat session.
+            This has no effect if the message is sent during a shared chat session. \n
+            This parameter can only be set when utilizing App Authentication.
         :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.type.UnauthorizedException: if user authentication is not set or invalid
         :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
@@ -4063,7 +4067,8 @@ class Twitch:
             'broadcaster_id': broadcaster_id,
             'sender_id': sender_id,
             'message': message,
-            'reply_parent_message_id': reply_parent_message_id
+            'reply_parent_message_id': reply_parent_message_id,
+            'for_source_only': for_source_only
         }
         return await self._build_result('POST',
                                         'chat/messages',
