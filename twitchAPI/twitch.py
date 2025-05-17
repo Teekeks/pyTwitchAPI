@@ -519,7 +519,7 @@ class Twitch:
             'iter_field': iter_field,
             'in_data': in_data
         }
-        return return_type(**cont_data, **data)
+        return return_type(cont_data, **data)
 
     @overload
     async def _build_result(self,
