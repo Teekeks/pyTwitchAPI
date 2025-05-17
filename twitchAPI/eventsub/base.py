@@ -75,7 +75,7 @@ class EventSubBase(ABC):
         """
 
     @abstractmethod
-    def _get_transport(self):
+    def _get_transport(self) -> dict:
         pass
 
     # ==================================================================================================================
@@ -83,7 +83,7 @@ class EventSubBase(ABC):
     # ==================================================================================================================
 
     @abstractmethod
-    async def _build_request_header(self):
+    async def _build_request_header(self) -> dict:
         pass
 
     async def _api_post_request(self, session, url: str, data: Union[dict, None] = None):

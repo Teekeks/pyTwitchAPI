@@ -202,10 +202,11 @@ class EventSubWebsocket(EventSubBase):
         self._startup_complete = False
         self._running = False
         self._ready = False
-        f = asyncio.run_coroutine_threadsafe(self._stop(), self._socket_loop)
-        f.result()
+        if self._socket_loop is not None:
+            f = asyncio.run_coroutine_threadsafe(self._stop(), self._socket_loop)
+            f.result()
 
-    def _get_transport(self):
+    def _get_transport(self) -> dict:
         return {
             'method': 'websocket',
             'session_id': self.active_session.id
@@ -394,7 +395,7 @@ class EventSubWebsocket(EventSubBase):
         try:
             for sub in subs.values():
                 await self._subscribe(**sub)
-        except:
+        except BaseException:
             self.logger.exception('exception while resubscribing')
             if not self._active_subscriptions:  # Restore old subscriptions for next reconnect
                 self._active_subscriptions = subs

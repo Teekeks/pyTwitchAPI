@@ -244,20 +244,21 @@ class EventSubWebhook(EventSubBase):
         await asyncio.sleep(0.25)
         self._closing = True
         # cleanly shut down the runner
-        await self.__hook_runner.shutdown()
-        await self.__hook_runner.cleanup()
+        if self.__hook_runner is not None:
+            await self.__hook_runner.shutdown()
+            await self.__hook_runner.cleanup()
         self.__hook_runner = None
         self.__running = False
         self.logger.debug('eventsub shut down')
 
-    def _get_transport(self):
+    def _get_transport(self) -> dict:
         return {
             'method': 'webhook',
             'callback': f'{self.callback_url}/callback',
             'secret': self.secret
         }
 
-    async def _build_request_header(self):
+    async def _build_request_header(self) -> dict:
         token = await self._twitch.get_refreshed_app_token()
         if token is None:
             raise TwitchAuthorizationException('no Authorization set!')
@@ -321,11 +322,11 @@ class EventSubWebhook(EventSubBase):
         return web.Response(text="pyTwitchAPI EventSub")
 
     async def __handle_challenge(self, request: 'web.Request', data: dict):
-        self.logger.debug(f'received challenge for subscription {data.get("subscription").get("id")}')
+        self.logger.debug(f'received challenge for subscription {data.get("subscription", {}).get("id")}')
         if not await self._verify_signature(request):
-            self.logger.warning(f'message signature is not matching! Discarding message')
+            self.logger.warning('message signature is not matching! Discarding message')
             return web.Response(status=403)
-        await self._activate_callback(data.get('subscription').get('id'))
+        await self._activate_callback(data.get('subscription', {}).get('id'))
         return web.Response(text=data.get('challenge'))
 
     async def _handle_revokation(self, data):
@@ -335,8 +336,8 @@ class EventSubWebhook(EventSubBase):
             self.logger.warning(f'unknown subscription {sub_id} got revoked. ignore')
             return
         self._callbacks.pop(sub_id)
-        if self.revokation_handler is not None:
-            t = self._callback_loop.create_task(self.revokation_handler(data))
+        if self.revokation_handler is not None and self._callback_loop is not None:
+            t = self._callback_loop.create_task(self.revokation_handler(data)) #type: ignore
             t.add_done_callback(self._task_callback)
 
     async def __handle_callback(self, request: 'web.Request'):
@@ -353,7 +354,7 @@ class EventSubWebhook(EventSubBase):
             self.logger.error(f'received event for unknown subscription with ID {sub_id}')
         else:
             if not await self._verify_signature(request):
-                self.logger.warning(f'message signature is not matching! Discarding message')
+                self.logger.warning('message signature is not matching! Discarding message')
                 return web.Response(status=403)
             msg_type = request.headers['Twitch-Eventsub-Message-Type']
             if msg_type.lower() == 'revocation':
@@ -365,6 +366,7 @@ class EventSubWebhook(EventSubBase):
                 else:
                     self._msg_id_history.append(msg_id)
                     dat = callback['event'](**data)
-                    t = self._callback_loop.create_task(callback['callback'](dat))
-                    t.add_done_callback(self._task_callback)
+                    if self._callback_loop is not None:
+                        t = self._callback_loop.create_task(callback['callback'](dat))
+                        t.add_done_callback(self._task_callback)
         return web.Response(status=200)

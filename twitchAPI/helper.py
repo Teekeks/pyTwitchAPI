@@ -101,7 +101,7 @@ def fields_to_enum(data: List[dict], fields: List[str], _enum: Type[Enum], defau
 def fields_to_enum(data: Union[dict, list],
                    fields: List[str],
                    _enum: Type[Enum],
-                   default: Optional[Enum]) -> Union[dict, list]:
+                   default: Optional[Enum]) -> Union[dict, List]:
     """Iterates a dict or list and tries to replace every dict entry with key in fields with the correct Enum value
 
     :param data: dict or list

@@ -219,9 +219,9 @@ from twitchAPI.object.api import (
     AdSchedule, AdSnoozeResponse, SendMessageResponse, ChannelModerator, UserEmotesResponse, WarnResponse, SharedChatSession)
 from twitchAPI.type import (
     AnalyticsReportType, AuthScope, TimePeriod, SortMethod, VideoType, AuthType, CustomRewardRedemptionStatus, SortOrder,
-           BlockSourceContext, BlockReason, EntitlementFulfillmentStatus, PollStatus, PredictionStatus, AutoModAction,
-           AutoModCheckEntry, TwitchAPIException, InvalidTokenException, TwitchAuthorizationException,
-           UnauthorizedException, MissingScopeException, TwitchBackendException, MissingAppSecretException, TwitchResourceNotFound, ForbiddenError)
+    BlockSourceContext, BlockReason, EntitlementFulfillmentStatus, PollStatus, PredictionStatus, AutoModAction,
+    AutoModCheckEntry, TwitchAPIException, InvalidTokenException, TwitchAuthorizationException,
+    UnauthorizedException, MissingScopeException, TwitchBackendException, MissingAppSecretException, TwitchResourceNotFound, ForbiddenError)
 from typing import Sequence, Union, List, Optional, Callable, AsyncGenerator, TypeVar, Awaitable, Type, Mapping, overload, Tuple
 
 __all__ = ['Twitch']
@@ -645,6 +645,7 @@ class Twitch:
                         return return_type(**d)
                 else:
                     return return_type(**data)
+            return None
 
     async def _generate_app_token(self) -> None:
         if self.app_secret is None:
