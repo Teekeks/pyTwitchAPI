@@ -1756,7 +1756,7 @@ class ChannelSuspiciousUserMessageData(TwitchObject):
     shared_ban_channel_ids: List[str]
     """A list of channel IDs where the suspicious user is also banned."""
     types: List[str]
-    """User types (if any) that apply to the suspicious user, can be “manual”, “ban_evader_detector”, or “shared_channel_ban”."""
+    """User types (if any) that apply to the suspicious user, can be “manually_added”, “ban_evader”, or “banned_in_shared_channel”."""
     ban_evasion_evaluation: str
     """A ban evasion likelihood value (if any) that as been applied to the user automatically by Twitch, can be “unknown”, “possible”, or “likely”."""
     message: MessageWithID
