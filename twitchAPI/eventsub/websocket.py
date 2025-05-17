@@ -478,6 +478,7 @@ class EventSubWebsocket(EventSubBase):
     async def _handle_notification(self, data: dict):
         self._reset_timeout()
         _payload = data.get('payload', {})
+        _payload['metadata'] = data.get('metadata', {})
         sub_id = _payload.get('subscription', {}).get('id')
         callback = self._callbacks.get(sub_id)
         if callback is None:

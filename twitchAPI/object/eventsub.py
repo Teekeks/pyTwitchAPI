@@ -26,7 +26,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelWarningSendEvent', 'AutomodMessageHoldEvent', 'AutomodMessageUpdateEvent', 'AutomodSettingsUpdateEvent',
            'AutomodTermsUpdateEvent', 'ChannelChatUserMessageHoldEvent', 'ChannelChatUserMessageUpdateEvent', 'ChannelSharedChatBeginEvent',
            'ChannelSharedChatUpdateEvent', 'ChannelSharedChatEndEvent', 'ChannelBitsUseEvent',
-           'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
+           'Subscription', 'MessageMetadata', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
            'ChannelModeratorRemoveData', 'ChannelPointsCustomRewardData', 'GlobalCooldown', 'Image', 'MaxPerStream', 'MaxPerUserPerStream',
@@ -66,6 +66,21 @@ class Subscription(TwitchObject):
     transport: dict
     type: str
     version: str
+
+
+class MessageMetadata(TwitchObject):
+    message_id: str
+    """An ID that uniquely identifies the message. 
+    Twitch sends messages at least once, but if Twitch is unsure of whether you received a notification, it’ll resend the message. 
+    This means you may receive a notification twice. If Twitch resends the message, the message ID will be the same."""
+    message_type: str
+    """The type of message, which is set to notification."""
+    message_timestamp: datetime
+    """The timestamp that the message was sent."""
+    subscription_type: str
+    """The type of event sent in the message."""
+    subscription_version: str
+    """The version number of the subscription type’s definition. This is the same value specified in the subscription request."""
 
 
 class PollChoice(TwitchObject):
@@ -2416,339 +2431,407 @@ class ChannelBitsUseData(TwitchObject):
 
 class ChannelPollBeginEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPollBeginData
 
 
 class ChannelUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelUpdateData
 
 
 class ChannelFollowEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelFollowData
 
 
 class ChannelSubscribeEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelSubscribeData
 
 
 class ChannelSubscriptionEndEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelSubscribeData
 
 
 class ChannelSubscriptionGiftEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelSubscriptionGiftData
 
 
 class ChannelSubscriptionMessageEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelSubscriptionMessageData
 
 
 class ChannelCheerEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelCheerData
 
 
 class ChannelRaidEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelRaidData
 
 
 class ChannelBanEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelBanData
 
 
 class ChannelUnbanEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelUnbanData
 
 
 class ChannelModeratorAddEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelModeratorAddData
 
 
 class ChannelModeratorRemoveEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelModeratorRemoveData
 
 
 class ChannelPointsCustomRewardAddEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPointsCustomRewardData
 
 
 class ChannelPointsCustomRewardUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPointsCustomRewardData
 
 
 class ChannelPointsCustomRewardRemoveEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPointsCustomRewardData
 
 
 class ChannelPointsCustomRewardRedemptionAddEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPointsCustomRewardRedemptionData
 
 
 class ChannelPointsCustomRewardRedemptionUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPointsCustomRewardRedemptionData
 
 
 class ChannelPollProgressEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPollProgressData
 
 
 class ChannelPollEndEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPollEndData
 
 
 class ChannelPredictionEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPredictionData
 
 
 class ChannelPredictionEndEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPredictionEndData
 
 
 class DropEntitlementGrantEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: DropEntitlementGrantData
 
 
 class ExtensionBitsTransactionCreateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ExtensionBitsTransactionCreateData
 
 
 class GoalEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: GoalData
 
 
 class HypeTrainEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: HypeTrainData
 
 
 class HypeTrainEndEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: HypeTrainEndData
 
 
 class StreamOnlineEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: StreamOnlineData
 
 
 class StreamOfflineEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: StreamOfflineData
 
 
 class UserAuthorizationGrantEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: UserAuthorizationGrantData
 
 
 class UserAuthorizationRevokeEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: UserAuthorizationRevokeData
 
 
 class UserUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: UserUpdateData
 
 
 class ShieldModeEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ShieldModeData
 
 
 class CharityCampaignStartEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: CharityCampaignStartData
 
 
 class CharityCampaignProgressEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: CharityCampaignProgressData
 
 
 class CharityCampaignStopEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: CharityCampaignStopData
 
 
 class CharityDonationEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: CharityDonationData
 
 
 class ChannelShoutoutCreateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelShoutoutCreateData
 
 
 class ChannelShoutoutReceiveEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelShoutoutReceiveData
 
 
 class ChannelChatClearEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelChatClearData
 
 
 class ChannelChatClearUserMessagesEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelChatClearUserMessagesData
 
 
 class ChannelChatMessageDeleteEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelChatMessageDeleteData
 
 
 class ChannelChatNotificationEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelChatNotificationData
 
 
 class ChannelAdBreakBeginEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelAdBreakBeginData
 
 
 class ChannelChatMessageEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelChatMessageData
 
 
 class ChannelChatSettingsUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelChatSettingsUpdateData
 
 
 class UserWhisperMessageEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: UserWhisperMessageData
 
 
 class ChannelPointsAutomaticRewardRedemptionAddEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPointsAutomaticRewardRedemptionAddData
 
 
 class ChannelPointsAutomaticRewardRedemptionAdd2Event(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelPointsAutomaticRewardRedemptionAdd2Data
 
 
 class ChannelVIPAddEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelVIPAddData
 
 
 class ChannelVIPRemoveEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelVIPRemoveData
 
 
 class ChannelUnbanRequestCreateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelUnbanRequestCreateData
 
 
 class ChannelUnbanRequestResolveEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelUnbanRequestResolveData
 
 
 class ChannelSuspiciousUserMessageEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelSuspiciousUserMessageData
 
 
 class ChannelSuspiciousUserUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelSuspiciousUserUpdateData
 
 
 class ChannelModerateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelModerateData
 
 
 class ChannelWarningAcknowledgeEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelWarningAcknowledgeData
 
 
 class ChannelWarningSendEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelWarningSendData
 
 
 class AutomodMessageHoldEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: AutomodMessageHoldData
 
 
 class AutomodMessageUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: AutomodMessageUpdateData
 
 
 class AutomodSettingsUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: AutomodSettingsUpdateData
 
 
 class AutomodTermsUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: AutomodTermsUpdateData
 
 
 class ChannelChatUserMessageHoldEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelChatUserMessageHoldData
 
 
 class ChannelChatUserMessageUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelChatUserMessageUpdateData
 
 
 class ChannelSharedChatBeginEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelSharedChatBeginData
 
 
 class ChannelSharedChatUpdateEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelSharedChatUpdateData
 
 
 class ChannelSharedChatEndEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelSharedChatEndData
 
 
 class ChannelBitsUseEvent(TwitchObject):
     subscription: Subscription
+    metadata: MessageMetadata
     event: ChannelBitsUseData

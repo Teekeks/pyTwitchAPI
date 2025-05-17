@@ -365,6 +365,13 @@ class EventSubWebhook(EventSubBase):
                     self.logger.warning(f'got message with duplicate id {msg_id}! Discarding message')
                 else:
                     self._msg_id_history.append(msg_id)
+                    data['metadata'] = {
+                        'message_id': msg_id,
+                        'message_type': msg_type,
+                        'message_timestamp': request.headers['Twitch-Eventsub-Message-Timestamp'],
+                        'subscription_type': request.headers['Twitch-Eventsub-Subscription-Type'],
+                        'subscription_version': request.headers['Twitch-Eventsub-Subscription-Version'],
+                    }
                     dat = callback['event'](**data)
                     if self._callback_loop is not None:
                         t = self._callback_loop.create_task(callback['callback'](dat))
