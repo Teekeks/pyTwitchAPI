@@ -20,6 +20,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'CharityDonationEvent', 'ChannelShoutoutCreateEvent', 'ChannelShoutoutReceiveEvent', 'ChannelChatClearEvent',
            'ChannelChatClearUserMessagesEvent', 'ChannelChatMessageDeleteEvent', 'ChannelChatNotificationEvent', 'ChannelAdBreakBeginEvent',
            'ChannelChatMessageEvent', 'ChannelChatSettingsUpdateEvent', 'UserWhisperMessageEvent', 'ChannelPointsAutomaticRewardRedemptionAddEvent',
+           'ChannelPointsAutomaticRewardRedemptionAdd2Event',
            'ChannelVIPAddEvent', 'ChannelVIPRemoveEvent', 'ChannelUnbanRequestCreateEvent', 'ChannelUnbanRequestResolveEvent',
            'ChannelSuspiciousUserMessageEvent', 'ChannelSuspiciousUserUpdateEvent', 'ChannelModerateEvent', 'ChannelWarningAcknowledgeEvent',
            'ChannelWarningSendEvent', 'AutomodMessageHoldEvent', 'AutomodMessageUpdateEvent', 'AutomodSettingsUpdateEvent',
@@ -42,7 +43,8 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelChatMessageData', 'ChatMessage', 'ChatMessageBadge', 'ChatMessageFragment', 'ChatMessageFragmentCheermoteMetadata',
            'ChatMessageFragmentMentionMetadata', 'ChatMessageReplyMetadata', 'ChatMessageCheerMetadata', 'ChatMessageFragmentEmoteMetadata',
            'ChannelChatSettingsUpdateData', 'WhisperInformation', 'UserWhisperMessageData', 'AutomaticReward', 'RewardMessage', 'RewardEmote',
-           'ChannelPointsAutomaticRewardRedemptionAddData', 'ChannelVIPAddData', 'ChannelVIPRemoveData', 'ChannelUnbanRequestCreateData',
+           'ChannelPointsAutomaticRewardRedemptionAddData', 'ChannelPointsAutomaticRewardRedemptionAdd2Data', 'ChannelVIPAddData', 'ChannelVIPRemoveData',
+           'ChannelUnbanRequestCreateData', 'AutomaticReward2',
            'ChannelUnbanRequestResolveData', 'MessageWithID', 'ChannelSuspiciousUserMessageData', 'ChannelSuspiciousUserUpdateData',
            'ModerateMetadataSlow', 'ModerateMetadataWarn', 'ModerateMetadataDelete', 'ModerateMetadataTimeout', 'ModerateMetadataUnmod',
            'ModerateMetadataUnvip', 'ModerateMetadataUntimeout', 'ModerateMetadataUnraid', 'ModerateMetadataUnban', 'ModerateMetadataUnbanRequest',
@@ -1635,7 +1637,7 @@ class AutomaticReward(TwitchObject):
     type: str
     """The type of reward. One of:
     
-    - ssingle_message_bypass_sub_mode
+    - single_message_bypass_sub_mode
     - send_highlighted_message
     - random_sub_emote_unlock
     - chosen_sub_emote_unlock
@@ -1645,6 +1647,22 @@ class AutomaticReward(TwitchObject):
     """The reward cost."""
     unlocked_emote: Optional[MessageFragmentEmote]
     """Emote that was unlocked."""
+
+
+class AutomaticReward2(TwitchObject):
+    type: str
+    """The type of reward. One of:
+
+    - single_message_bypass_sub_mode
+    - send_highlighted_message
+    - random_sub_emote_unlock
+    - chosen_sub_emote_unlock
+    - chosen_modified_sub_emote_unlock
+    """
+    channel_points: int
+    """Number of channel points used."""
+    unlocked_emote: Optional[RewardEmote]
+    """Emote associated with the reward."""
 
 
 class RewardMessage(TwitchObject):
@@ -1675,6 +1693,29 @@ class ChannelPointsAutomaticRewardRedemptionAddData(TwitchObject):
     """An object that contains the user message and emote information needed to recreate the message."""
     user_input: Optional[str]
     """A string that the user entered if the reward requires input."""
+    redeemed_at: datetime
+    """The time of when the reward was redeemed."""
+
+
+class ChannelPointsAutomaticRewardRedemptionAdd2Data(TwitchObject):
+    broadcaster_user_id: str
+    """The ID of the channel where the reward was redeemed."""
+    broadcaster_user_login: str
+    """The login of the channel where the reward was redeemed."""
+    broadcaster_user_name: str
+    """The display name of the channel where the reward was redeemed."""
+    user_id: str
+    """The ID of the redeeming user."""
+    user_login: str
+    """The login of the redeeming user."""
+    user_name: str
+    """The display name of the redeeming user."""
+    id: str
+    """The ID of the Redemption."""
+    reward: AutomaticReward2
+    """An object that contains the reward information."""
+    message: RewardMessage
+    """An object that contains the user message and emote information needed to recreate the message."""
     redeemed_at: datetime
     """The time of when the reward was redeemed."""
 
@@ -2611,6 +2652,11 @@ class UserWhisperMessageEvent(TwitchObject):
 class ChannelPointsAutomaticRewardRedemptionAddEvent(TwitchObject):
     subscription: Subscription
     event: ChannelPointsAutomaticRewardRedemptionAddData
+
+
+class ChannelPointsAutomaticRewardRedemptionAdd2Event(TwitchObject):
+    subscription: Subscription
+    event: ChannelPointsAutomaticRewardRedemptionAdd2Data
 
 
 class ChannelVIPAddEvent(TwitchObject):
