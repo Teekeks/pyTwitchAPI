@@ -3258,6 +3258,7 @@ class Twitch:
                                          status: Optional[str] = None,
                                          sub_type: Optional[str] = None,
                                          user_id: Optional[str] = None,
+                                         subscription_id: Optional[str] = None,
                                          after: Optional[str] = None) -> GetEventSubSubscriptionResult:
         """Gets a list of your EventSub subscriptions.
         The list is paginated and ordered by the oldest subscription first.
@@ -3268,6 +3269,8 @@ class Twitch:
         :param status: Filter subscriptions by its status. |default| :code:`None`
         :param sub_type: Filter subscriptions by subscription type. |default| :code:`None`
         :param user_id: Filter subscriptions by user ID. |default| :code:`None`
+        :param subscription_id: Returns an array with the subscription matching the ID (as long as it is owned by the client making the request),
+                    or an empty array if there is no matching subscription. |default| :code:`None`
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -3281,6 +3284,7 @@ class Twitch:
             'status': status,
             'type': sub_type,
             'user_id': user_id,
+            'subscription_id': subscription_id,
             'after': after
         }
         return await self._build_iter_result('GET', 'eventsub/subscriptions', param, AuthType.APP, [], GetEventSubSubscriptionResult)
