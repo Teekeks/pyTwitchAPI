@@ -335,4 +335,8 @@ The Callback Payload is the type of the parameter passed to the callback functio
      - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_shared_chat_end()` |br|
        Payload: :const:`~twitchAPI.object.eventsub.ChannelSharedChatEndEvent`
      - A notification when a channel leaves a shared chat session or the session ends.
+   * - **Channel Bits Use**
+     - Function: :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_bits_use()` |br|
+       Payload: :const:`~twitchAPI.object.eventsub.ChannelBitsUseEvent`
+     - A notification is sent whenever Bits are used on a channel.
 """

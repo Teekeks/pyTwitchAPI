@@ -24,7 +24,7 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ChannelSuspiciousUserMessageEvent', 'ChannelSuspiciousUserUpdateEvent', 'ChannelModerateEvent', 'ChannelWarningAcknowledgeEvent',
            'ChannelWarningSendEvent', 'AutomodMessageHoldEvent', 'AutomodMessageUpdateEvent', 'AutomodSettingsUpdateEvent',
            'AutomodTermsUpdateEvent', 'ChannelChatUserMessageHoldEvent', 'ChannelChatUserMessageUpdateEvent', 'ChannelSharedChatBeginEvent',
-           'ChannelSharedChatUpdateEvent', 'ChannelSharedChatEndEvent',
+           'ChannelSharedChatUpdateEvent', 'ChannelSharedChatEndEvent', 'ChannelBitsUseEvent',
            'Subscription', 'ChannelPollBeginData', 'PollChoice', 'BitsVoting', 'ChannelPointsVoting', 'ChannelUpdateData', 'ChannelFollowData',
            'ChannelSubscribeData', 'ChannelSubscriptionEndData', 'ChannelSubscriptionGiftData', 'ChannelSubscriptionMessageData',
            'SubscriptionMessage', 'Emote', 'ChannelCheerData', 'ChannelRaidData', 'ChannelBanData', 'ChannelUnbanData', 'ChannelModeratorAddData',
@@ -49,7 +49,8 @@ __all__ = ['ChannelPollBeginEvent', 'ChannelUpdateEvent', 'ChannelFollowEvent', 
            'ModerateMetadataAutomodTerms', 'ModerateMetadataBan', 'ModerateMetadataMod', 'ModerateMetadataVip', 'ModerateMetadataRaid',
            'ModerateMetadataFollowers', 'ChannelModerateData', 'ChannelWarningAcknowledgeData', 'ChannelWarningSendData', 'AutomodMessageHoldData',
            'AutomodMessageUpdateData', 'AutomodSettingsUpdateData', 'AutomodTermsUpdateData', 'ChannelChatUserMessageHoldData', 'ChannelChatUserMessageUpdateData',
-           'SharedChatParticipant', 'ChannelSharedChatBeginData', 'ChannelSharedChatUpdateData', 'ChannelSharedChatEndData']
+           'SharedChatParticipant', 'ChannelSharedChatBeginData', 'ChannelSharedChatUpdateData', 'ChannelSharedChatEndData', 'PowerUpEmote', 'PowerUp',
+           'ChannelBitsUseData']
 
 
 # Event Data
@@ -2294,6 +2295,53 @@ class ChannelSharedChatEndData(TwitchObject):
     """The user login of the host channel."""
 
 
+class PowerUpEmote(TwitchObject):
+    id: str
+    """The ID that uniquely identifies this emote."""
+    name: str
+    """The human readable emote token."""
+
+
+class PowerUp(TwitchObject):
+    type: str
+    """Possible values:
+    
+    - message_effect
+    - celebration
+    - gigantify_an_emote"""
+    emote: Optional[PowerUpEmote]
+    """Emote associated with the reward."""
+    message_effect_id: Optional[str]
+    """The ID of the message effect."""
+
+
+class ChannelBitsUseData(TwitchObject):
+    broadcaster_user_id: str
+    """The User ID of the channel where the Bits were redeemed."""
+    broadcaster_user_login: str
+    """The login of the channel where the Bits were used."""
+    broadcaster_user_name: str
+    """The display name of the channel where the Bits were used."""
+    user_id: str
+    """The User ID of the redeeming user."""
+    user_login: str
+    """The login name of the redeeming user."""
+    user_name: str
+    """The display name of the redeeming user."""
+    bits: int
+    """The number of Bits used."""
+    type: str
+    """Possible values are:
+    
+    - cheer
+    - power_up
+    - combo"""
+    message: Optional[Message]
+    """Contains the user message and emote information needed to recreate the message."""
+    power_up: Optional[PowerUp]
+    """Data about Power-up."""
+
+
 # Events
 
 class ChannelPollBeginEvent(TwitchObject):
@@ -2624,3 +2672,8 @@ class ChannelSharedChatUpdateEvent(TwitchObject):
 class ChannelSharedChatEndEvent(TwitchObject):
     subscription: Subscription
     event: ChannelSharedChatEndData
+
+
+class ChannelBitsUseEvent(TwitchObject):
+    subscription: Subscription
+    event: ChannelBitsUseData
