@@ -1520,6 +1520,8 @@ class ChannelChatMessageData(TwitchObject):
     - channel_points_highlighted
     - channel_points_sub_only
     - user_intro
+    - power_ups_message_effect
+    - power_ups_gigantified_emote
     """
     badges: List[ChatMessageBadge]
     """List of chat badges."""
@@ -1532,6 +1534,33 @@ class ChannelChatMessageData(TwitchObject):
     """Optional. Metadata if this message is a reply."""
     channel_points_custom_reward_id: str
     """Optional. The ID of a channel points custom reward that was redeemed."""
+    source_broadcaster_user_id: Optional[str]
+    """The broadcaster user ID of the channel the message was sent from. 
+    
+    Is None when the message happens in the same channel as the broadcaster. 
+    Is not None when in a shared chat session, and the action happens in the channel of a participant other than the broadcaster."""
+    source_broadcaster_user_name: Optional[str]
+    """The user name of the broadcaster of the channel the message was sent from. 
+    
+    Is None when the message happens in the same channel as the broadcaster. 
+    Is not None when in a shared chat session, and the action happens in the channel of a participant other than the broadcaster."""
+    source_broadcaster_user_login: Optional[str]
+    """The login of the broadcaster of the channel the message was sent from. 
+    
+    Is None when the message happens in the same channel as the broadcaster. 
+    Is not None when in a shared chat session, and the action happens in the channel of a participant other than the broadcaster."""
+    source_message_id: Optional[str]
+    """The UUID that identifies the source message from the channel the message was sent from. 
+    
+    Is None when the message happens in the same channel as the broadcaster. 
+    Is not None when in a shared chat session, and the action happens in the channel of a participant other than the broadcaster."""
+    source_badges: Optional[List[ChatMessageBadge]]
+    """The list of chat badges for the chatter in the channel the message was sent from. 
+    
+    Is None when the message happens in the same channel as the broadcaster. 
+    Is not None when in a shared chat session, and the action happens in the channel of a participant other than the broadcaster."""
+    is_source_only: Optional[bool]
+    """Determines if a message delivered during a shared chat session is only sent to the source channel. Has no effect if the message is not sent during a shared chat session."""
 
 
 class ChannelChatSettingsUpdateData(TwitchObject):
