@@ -89,6 +89,7 @@ from typing import Optional, List, Dict, Callable, Awaitable
 
 import aiohttp
 from aiohttp import ClientSession, WSMessage, ClientWebSocketResponse
+from collections import deque
 
 from .base import EventSubBase
 
@@ -132,7 +133,8 @@ class EventSubWebsocket(EventSubBase):
                  connection_url: Optional[str] = None,
                  subscription_url: Optional[str] = None,
                  callback_loop: Optional[asyncio.AbstractEventLoop] = None,
-                 revocation_handler: Optional[Callable[[dict], Awaitable[None]]] = None):
+                 revocation_handler: Optional[Callable[[dict], Awaitable[None]]] = None,
+                 message_deduplication_history_length: int = 50):
         """
         :param twitch: The Twitch instance to be used
         :param connection_url: Alternative connection URL, useful for development with the twitch-cli
@@ -141,6 +143,7 @@ class EventSubWebsocket(EventSubBase):
             Set this if you or a library you use cares about which asyncio event loop is running the callbacks.
             Defaults to the one used by EventSub Websocket.
         :param revocation_handler: Optional handler for when subscriptions get revoked. |default| :code:`None`
+        :param message_deduplication_history_length: The amount of messages being considered for the duplicate message deduplication. |default| :code:`50`
         """
         super().__init__(twitch, 'twitchAPI.eventsub.websocket')
         self.subscription_url: Optional[str] = subscription_url
@@ -162,6 +165,7 @@ class EventSubWebsocket(EventSubBase):
         self._callback_loop = callback_loop
         self._is_reconnecting: bool = False
         self._active_subscriptions = {}
+        self._msg_id_history: deque = deque(maxlen=message_deduplication_history_length)
         self.revokation_handler: Optional[Callable[[dict], Awaitable[None]]] = revocation_handler
         """Optional handler for when subscriptions get revoked."""
         self._task_callback = partial(done_task_callback, self.logger)
@@ -484,6 +488,10 @@ class EventSubWebsocket(EventSubBase):
         if callback is None:
             self.logger.error(f'received event for unknown subscription with ID {sub_id}')
         else:
-            t = self._callback_loop.create_task(callback['callback'](callback['event'](**_payload)))
-            t.add_done_callback(self._task_callback)
+            msg_id = _payload['metadata'].get('message_id')
+            if msg_id is not None and msg_id in self._msg_id_history:
+                self.logger.warning(f'got message with duplicate id {msg_id}! Discarding message')
+            else:
+                t = self._callback_loop.create_task(callback['callback'](callback['event'](**_payload)))
+                t.add_done_callback(self._task_callback)
 
