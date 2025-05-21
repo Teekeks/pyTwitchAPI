@@ -7,9 +7,45 @@ Changelog
 Latest Version
 **************
 
-.. dropdown:: Version 4.4.0
+.. dropdown:: Version 4.5.0
     :color: info
     :open:
+
+    .. important:: This version drops PubSub from the library
+
+    **Twitch**
+
+    - Fixed :const:`~twitchAPI.twitch.Twitch.get_emote_sets()` being parsed incorrectly (thanks https://github.com/moralrecordings )
+    - Fixed Exceptions when passing None to unsuspecting parameters in various functions
+    - Fixed returning wrong object for :const:`~twitchAPI.twitch.Twitch.get_channel_emotes()`
+    - Added new parameter :const:`~twitchAPI.twitch.Twitch.send_chat_message.params.for_source_only` to :const:`~twitchAPI.twitch.Twitch.send_chat_message()`
+    - Added new parameter :const:`~twitchAPI.twitch.Twitch.get_eventsub_subscriptions.params.subscription_id` to :const:`~twitchAPI.twitch.Twitch.get_eventsub_subscriptions()`
+    - Added new parameter :const:`~twitchAPI.twitch.Twitch.get_eventsub_subscriptions.params.target_token` to :const:`~twitchAPI.twitch.Twitch.get_eventsub_subscriptions()`
+    - Added new parameter :const:`~twitchAPI.twitch.Twitch.delete_eventsub_subscription.params.target_token` to :const:`~twitchAPI.twitch.Twitch.delete_eventsub_subscription()`
+
+    **EventSub**
+
+    - Added new data related to shared chat to the payload of :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_message()`
+    - Added message metadata to all event payloads
+    - Added message deduplication to :const:`~twitchAPI.eventsub.websocket.EventSubWebsocket`
+    - Added the following new Topics:
+
+      - "Channel Bits Use" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_bits_use()`
+      - "Channel Points Automatic Reward Redemption v2" :const:`~twitchAPI.eventsub.base.EventSubBase.listen_channel_points_automatic_reward_redemption_add_v2()`
+
+    - Fixed potentially targeting the wrong access token depending on transport and available tokens
+
+    **Other**
+
+    - Improved type hints all over the library
+    - Fixed AttributeError in :const:`TwitchObject.__repr__()` for unset attributes
+
+**************
+Older Versions
+**************
+
+.. dropdown:: Version 4.4.0
+    :color: info
 
     **Twitch**
 
@@ -43,10 +79,6 @@ Latest Version
 
     - Made it possible to specify target host and port in constructor of :const:`~twitchAPI.oauth.UserAuthenticator` (thanks https://github.com/nojoule )
     - Made it possible to control if a browser should be opened in :const:`~twitchAPI.oauth.UserAuthenticator.authenticate()` (thanks https://github.com/Latent-Logic )
-
-**************
-Older Versions
-**************
 
 .. dropdown:: Version 4.3.1
 
