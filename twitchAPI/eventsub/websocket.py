@@ -252,6 +252,9 @@ class EventSubWebsocket(EventSubBase):
         }
         return sub_id
 
+    def _target_token(self) -> AuthType:
+        return AuthType.USER
+
     async def _connect(self, is_startup: bool = False):
         if is_startup:
             self.logger.debug(f'connecting to {self.connection_url}...')

@@ -116,7 +116,7 @@ from twitchAPI.eventsub.base import EventSubBase
 from ..twitch import Twitch
 from ..helper import done_task_callback
 from ..type import TwitchBackendException, EventSubSubscriptionConflict, EventSubSubscriptionError, EventSubSubscriptionTimeout, \
-    TwitchAuthorizationException
+    TwitchAuthorizationException, AuthType
 
 __all__ = ['EventSubWebhook']
 
@@ -306,6 +306,9 @@ class EventSubWebhook(EventSubBase):
             self._callbacks.pop(sub_id, None)
             raise EventSubSubscriptionTimeout()
         return sub_id
+
+    def _target_token(self) -> AuthType:
+        return AuthType.APP
 
     async def _verify_signature(self, request: 'web.Request') -> bool:
         expected = request.headers['Twitch-Eventsub-Message-Signature']

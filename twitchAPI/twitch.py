@@ -3238,27 +3238,34 @@ class Twitch:
                                       AuthType.USER if transport['method'] == 'websocket' else AuthType.APP, [],
                                       GetEventSubSubscriptionResult, body_data=data)
 
-    async def delete_eventsub_subscription(self, subscription_id: str):
+    async def delete_eventsub_subscription(self, subscription_id: str, target_token: AuthType = AuthType.APP):
         """Deletes an EventSub subscription.
 
         Requires App Authentication\n
         For detailed documentation, see here: https://dev.twitch.tv/docs/api/reference#delete-eventsub-subscription
 
         :param subscription_id: The ID of the subscription
+        :param target_token: The token to be used to delete the eventsub subscription. Use :const:`~twitchAPI.type.AuthType.APP` when deleting a webhook subscription
+                or :const:`~twitchAPI.type.AuthType.USER` when deleting a websocket subscription.
         :raises ~twitchAPI.type.TwitchAPIException: if the request was malformed
         :raises ~twitchAPI.type.UnauthorizedException: if authentication is not set or invalid
         :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
         :raises ~twitchAPI.type.TwitchResourceNotFound: if the subscription was not found
+        :raise ValueError: when :const:`~twitchAPI.twitch.Twitch.delete_eventsub_subscription.params.target_token` is not
+                either :const:`~twitchAPI.type.AuthType.APP` or :const:`~twitchAPI.type.AuthType.USER`
         """
-        await self._build_result('DELETE', 'eventsub/subscriptions', {'id': subscription_id}, AuthType.APP, [], None)
+        if target_token not in (AuthType.USER, AuthType.APP):
+            raise ValueError('target_token has to either be APP or USER')
+        await self._build_result('DELETE', 'eventsub/subscriptions', {'id': subscription_id}, target_token, [], None)
 
     async def get_eventsub_subscriptions(self,
                                          status: Optional[str] = None,
                                          sub_type: Optional[str] = None,
                                          user_id: Optional[str] = None,
                                          subscription_id: Optional[str] = None,
+                                         target_token: AuthType = AuthType.APP,
                                          after: Optional[str] = None) -> GetEventSubSubscriptionResult:
         """Gets a list of your EventSub subscriptions.
         The list is paginated and ordered by the oldest subscription first.
@@ -3271,6 +3278,8 @@ class Twitch:
         :param user_id: Filter subscriptions by user ID. |default| :code:`None`
         :param subscription_id: Returns an array with the subscription matching the ID (as long as it is owned by the client making the request),
                     or an empty array if there is no matching subscription. |default| :code:`None`
+        :param target_token: The token to be used when getting eventsub subscriptions. \n
+                    Use :const:`~twitchAPI.type.AuthType.APP` when getting webhook subscriptions or :const:`~twitchAPI.type.AuthType.USER` when getting websocket subscriptions.
         :param after: Cursor for forward pagination.\n
                     Note: The library handles pagination on its own, only use this parameter if you get a pagination cursor via other means.
                     |default| :code:`None`
@@ -3279,7 +3288,11 @@ class Twitch:
         :raises ~twitchAPI.type.TwitchAuthorizationException: if the used authentication token became invalid and a re authentication failed
         :raises ~twitchAPI.type.TwitchBackendException: if the Twitch API itself runs into problems
         :raises ~twitchAPI.type.TwitchAPIException: if a Query Parameter is missing or invalid
+        :raise ValueError: when :const:`~twitchAPI.twitch.Twitch.get_eventsub_subscriptions.params.target_token` is not
+                either :const:`~twitchAPI.type.AuthType.APP` or :const:`~twitchAPI.type.AuthType.USER`
         """
+        if target_token not in (AuthType.USER, AuthType.APP):
+            raise ValueError('target_token has to either be APP or USER')
         param = {
             'status': status,
             'type': sub_type,
@@ -3287,7 +3300,7 @@ class Twitch:
             'subscription_id': subscription_id,
             'after': after
         }
-        return await self._build_iter_result('GET', 'eventsub/subscriptions', param, AuthType.APP, [], GetEventSubSubscriptionResult)
+        return await self._build_iter_result('GET', 'eventsub/subscriptions', param, target_token, [], GetEventSubSubscriptionResult)
 
     async def get_channel_stream_schedule(self,
                                           broadcaster_id: str,

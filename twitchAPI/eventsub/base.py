@@ -32,7 +32,7 @@ from twitchAPI.object.eventsub import (ChannelPollBeginEvent, ChannelUpdateEvent
                                        ChannelSharedChatBeginEvent, ChannelSharedChatUpdateEvent, ChannelSharedChatEndEvent, ChannelBitsUseEvent,
                                        ChannelPointsAutomaticRewardRedemptionAdd2Event)
 from twitchAPI.helper import remove_none_values
-from twitchAPI.type import TwitchAPIException
+from twitchAPI.type import TwitchAPIException, AuthType
 import asyncio
 from logging import getLogger, Logger
 from twitchAPI.twitch import Twitch
@@ -111,10 +111,10 @@ class EventSubBase(ABC):
 
     async def unsubscribe_all(self):
         """Unsubscribe from all subscriptions"""
-        ret = await self._twitch.get_eventsub_subscriptions()
+        ret = await self._twitch.get_eventsub_subscriptions(target_token=self._target_token())
         async for d in ret:
             try:
-                await self._twitch.delete_eventsub_subscription(d.id)
+                await self._twitch.delete_eventsub_subscription(d.id, target_token=self._target_token())
             except TwitchAPIException as e:
                 self.logger.warning(f'failed to unsubscribe from event {d.id}: {str(e)}')
         self._callbacks.clear()
@@ -124,10 +124,14 @@ class EventSubBase(ABC):
         for key, value in self._callbacks.items():
             self.logger.debug(f'unsubscribe from event {key}')
             try:
-                await self._twitch.delete_eventsub_subscription(key)
+                await self._twitch.delete_eventsub_subscription(key, target_token=self._target_token())
             except TwitchAPIException as e:
                 self.logger.warning(f'failed to unsubscribe from event {key}: {str(e)}')
         self._callbacks.clear()
+
+    @abstractmethod
+    def _target_token(self) -> AuthType:
+        pass
 
     @abstractmethod
     async def _unsubscribe_hook(self, topic_id: str) -> bool:
@@ -136,7 +140,7 @@ class EventSubBase(ABC):
     async def unsubscribe_topic(self, topic_id: str) -> bool:
         """Unsubscribe from a specific topic."""
         try:
-            await self._twitch.delete_eventsub_subscription(topic_id)
+            await self._twitch.delete_eventsub_subscription(topic_id, target_token=self._target_token())
             self._callbacks.pop(topic_id, None)
             return await self._unsubscribe_hook(topic_id)
         except TwitchAPIException as e:
