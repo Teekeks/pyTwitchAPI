@@ -110,7 +110,7 @@ class Session:
     reconnect_url: str
 
     @classmethod
-    def from_twitch(cls, data: dict):
+    def from_twitch(cls, data: dict) -> 'Session':
         return cls(
             id=data.get('id'),
             keepalive_timeout_seconds=data.get('keepalive_timeout_seconds'),
@@ -127,14 +127,14 @@ class Reconnect:
 
 class EventSubWebsocket(EventSubBase):
     _reconnect: Optional[Reconnect] = None
-    
+
     def __init__(self,
                  twitch: Twitch,
                  connection_url: Optional[str] = None,
                  subscription_url: Optional[str] = None,
                  callback_loop: Optional[asyncio.AbstractEventLoop] = None,
                  revocation_handler: Optional[Callable[[dict], Awaitable[None]]] = None,
-                 message_deduplication_history_length: int = 50):
+                 message_deduplication_history_length: int = 50) -> None:
         """
         :param twitch: The Twitch instance to be used
         :param connection_url: Alternative connection URL, useful for development with the twitch-cli
@@ -173,7 +173,7 @@ class EventSubWebsocket(EventSubBase):
         self.reconnect_delay_steps: List[int] = [0, 1, 2, 4, 8, 16, 32, 64, 128]
         """Time in seconds between reconnect attempts"""
 
-    def start(self):
+    def start(self) -> None:
         """Starts the EventSub client
 
         :raises RuntimeError: If EventSub is already running
@@ -195,7 +195,7 @@ class EventSubWebsocket(EventSubBase):
             sleep(0.01)
         self.logger.debug('EventSubWebsocket started up!')
 
-    async def stop(self):
+    async def stop(self) -> None:
         """Stops the EventSub client
 
         :raises RuntimeError: If EventSub is not running
@@ -255,7 +255,7 @@ class EventSubWebsocket(EventSubBase):
     def _target_token(self) -> AuthType:
         return AuthType.USER
 
-    async def _connect(self, is_startup: bool = False):
+    async def _connect(self, is_startup: bool = False) -> None:
         if is_startup:
             self.logger.debug(f'connecting to {self.connection_url}...')
         else:
@@ -282,7 +282,7 @@ class EventSubWebsocket(EventSubBase):
         if retry >= len(self.reconnect_delay_steps):
             raise TwitchBackendException(f'can\'t connect to EventSub websocket {self.connection_url}')
 
-    def _run_socket(self):
+    def _run_socket(self) -> None:
         self._socket_loop = asyncio.new_event_loop()
         if self._callback_loop is None:
             self._callback_loop = self._socket_loop
@@ -296,7 +296,7 @@ class EventSubWebsocket(EventSubBase):
         ]
         self._socket_loop.run_until_complete(self._keep_loop_alive())
 
-    async def _stop(self):
+    async def _stop(self) -> None:
         await self._connection.close()
         await self._session.close()
         await asyncio.sleep(0.25)
@@ -304,11 +304,11 @@ class EventSubWebsocket(EventSubBase):
         self._session = None
         self._closing = True
 
-    async def _keep_loop_alive(self):
+    async def _keep_loop_alive(self) -> None:
         while not self._closing:
             await asyncio.sleep(0.1)
 
-    async def _task_reconnect_handler(self):
+    async def _task_reconnect_handler(self) -> None:
         try:
             while not self._closing:
                 await asyncio.sleep(0.1)
@@ -321,7 +321,7 @@ class EventSubWebsocket(EventSubBase):
         except CancelledError:
             return
 
-    async def _task_receive(self):
+    async def _task_receive(self) -> None:
         handler: Dict[str, Callable] = {
             'session_welcome': self._handle_welcome,
             'session_keepalive': self._handle_keepalive,
@@ -381,7 +381,7 @@ class EventSubWebsocket(EventSubBase):
         except CancelledError:
             return
 
-    async def _build_request_header(self):
+    async def _build_request_header(self) -> dict[str,str]:
         token = await self._twitch.get_refreshed_user_auth_token()
         if token is None:
             raise TwitchAuthorizationException('no Authorization set!')
@@ -409,10 +409,10 @@ class EventSubWebsocket(EventSubBase):
             return
         self.logger.debug('done resubscribing!')
 
-    def _reset_timeout(self):
+    def _reset_timeout(self) -> None:
         self._reconnect_timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.active_session.keepalive_timeout_seconds*2)
 
-    async def _handle_revocation(self, data: dict):
+    async def _handle_revocation(self, data: dict) -> None:
         _payload = data.get('payload', {})
         sub_id: str = _payload.get('subscription', {}).get('id')
         self.logger.debug(f'got revocation of subscription {sub_id} for reason {_payload.get("subscription").get("status")}')
@@ -425,7 +425,7 @@ class EventSubWebsocket(EventSubBase):
             t = self._callback_loop.create_task(self.revokation_handler(_payload))
             t.add_done_callback(self._task_callback)
 
-    async def _handle_reconnect(self, data: dict):
+    async def _handle_reconnect(self, data: dict) -> None:
         session = data.get('payload', {}).get('session', {})
         new_session = Session.from_twitch(session)
         self.logger.debug(f"got request from websocket to reconnect, reconnect url: {new_session.reconnect_url}")
@@ -468,7 +468,7 @@ class EventSubWebsocket(EventSubBase):
         self._reconnect = reconnect
         await self._connection.close()  # This will wake up _task_receive with a CLOSING message
 
-    async def _handle_welcome(self, data: dict):
+    async def _handle_welcome(self, data: dict) -> None:
         session = data.get('payload', {}).get('session', {})
         self.active_session = Session.from_twitch(session)
         self.logger.debug(f'new session id: {self.active_session.id}')
@@ -478,11 +478,11 @@ class EventSubWebsocket(EventSubBase):
         self._is_reconnecting = False
         self._startup_complete = True
 
-    async def _handle_keepalive(self, data: dict):
+    async def _handle_keepalive(self, data: dict) -> None:
         self.logger.debug('got session keep alive')
         self._reset_timeout()
 
-    async def _handle_notification(self, data: dict):
+    async def _handle_notification(self, data: dict) -> None:
         self._reset_timeout()
         _payload = data.get('payload', {})
         _payload['metadata'] = data.get('metadata', {})

@@ -106,7 +106,7 @@ from random import choice
 from string import ascii_lowercase
 from ssl import SSLContext
 from time import sleep
-from typing import Optional, Union, Callable, Awaitable
+from typing import Optional, Union, Callable, Awaitable, Dict
 import datetime
 from collections import deque
 
@@ -132,7 +132,7 @@ class EventSubWebhook(EventSubBase):
                  subscription_url: Optional[str] = None,
                  callback_loop: Optional[asyncio.AbstractEventLoop] = None,
                  revocation_handler: Optional[Callable[[dict], Awaitable[None]]] = None,
-                 message_deduplication_history_length: int = 50):
+                 message_deduplication_history_length: int = 50) -> None:
         """
         :param callback_url: The full URL of the webhook.
         :param port: the port on which this webhook should run
@@ -188,13 +188,13 @@ class EventSubWebhook(EventSubBase):
     async def _unsubscribe_hook(self, topic_id: str) -> bool:
         return True
 
-    def __build_runner(self):
+    def __build_runner(self) -> 'web.AppRunner':
         hook_app = web.Application()
         hook_app.add_routes([web.post('/callback', self.__handle_callback),
                              web.get('/', self.__handle_default)])
         return web.AppRunner(hook_app)
 
-    def __run_hook(self, runner: 'web.AppRunner'):
+    def __run_hook(self, runner: 'web.AppRunner') -> None:
         self.__hook_runner = runner
         self.__hook_loop = asyncio.new_event_loop()
         if self._callback_loop is None:
@@ -207,11 +207,11 @@ class EventSubWebhook(EventSubBase):
         self._startup_complete = True
         self.__hook_loop.run_until_complete(self._keep_loop_alive())
 
-    async def _keep_loop_alive(self):
+    async def _keep_loop_alive(self) -> None:
         while not self._closing:
             await asyncio.sleep(0.1)
 
-    def start(self):
+    def start(self) -> None:
         """Starts the EventSub client
 
         :rtype: None
@@ -227,7 +227,7 @@ class EventSubWebhook(EventSubBase):
         while not self._startup_complete:
             sleep(0.1)
 
-    async def stop(self):
+    async def stop(self) -> None:
         """Stops the EventSub client
 
         This also unsubscribes from all known subscriptions if unsubscribe_on_stop is True
@@ -251,14 +251,14 @@ class EventSubWebhook(EventSubBase):
         self.__running = False
         self.logger.debug('eventsub shut down')
 
-    def _get_transport(self) -> dict:
+    def _get_transport(self) -> Dict[str,str]:
         return {
             'method': 'webhook',
             'callback': f'{self.callback_url}/callback',
             'secret': self.secret
         }
 
-    async def _build_request_header(self) -> dict:
+    async def _build_request_header(self) -> Dict[str,str]:
         token = await self._twitch.get_refreshed_app_token()
         if token is None:
             raise TwitchAuthorizationException('no Authorization set!')
@@ -321,10 +321,10 @@ class EventSubWebhook(EventSubBase):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    async def __handle_default(request: 'web.Request'):
+    async def __handle_default(request: 'web.Request') -> 'web.Response':
         return web.Response(text="pyTwitchAPI EventSub")
 
-    async def __handle_challenge(self, request: 'web.Request', data: dict):
+    async def __handle_challenge(self, request: 'web.Request', data: dict) -> 'web.Response':
         self.logger.debug(f'received challenge for subscription {data.get("subscription", {}).get("id")}')
         if not await self._verify_signature(request):
             self.logger.warning('message signature is not matching! Discarding message')
@@ -332,7 +332,7 @@ class EventSubWebhook(EventSubBase):
         await self._activate_callback(data.get('subscription', {}).get('id'))
         return web.Response(text=data.get('challenge'))
 
-    async def _handle_revokation(self, data):
+    async def _handle_revokation(self, data) -> None:
         sub_id: str = data.get('subscription', {}).get('id')
         self.logger.debug(f'got revocation of subscription {sub_id} for reason {data.get("subscription").get("status")}')
         if sub_id not in self._callbacks.keys():
@@ -343,7 +343,7 @@ class EventSubWebhook(EventSubBase):
             t = self._callback_loop.create_task(self.revokation_handler(data)) #type: ignore
             t.add_done_callback(self._task_callback)
 
-    async def __handle_callback(self, request: 'web.Request'):
+    async def __handle_callback(self, request: 'web.Request')-> 'web.Response':
         try:
             data: dict = await request.json()
         except JSONDecodeError:

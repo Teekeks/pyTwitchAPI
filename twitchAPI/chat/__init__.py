@@ -235,7 +235,7 @@ from twitchAPI.object.api import TwitchUser
 from twitchAPI.helper import TWITCH_CHAT_URL, first, RateLimitBucket, RATE_LIMIT_SIZES, done_task_callback
 from twitchAPI.type import ChatRoom, TwitchBackendException, AuthType, AuthScope, ChatEvent, UnauthorizedException
 
-from typing import List, Optional, Union, Callable, Dict, Awaitable, Any, TYPE_CHECKING
+from typing import List, Optional, Union, Callable, Dict, Awaitable, Any, TYPE_CHECKING, Generator
 
 if TYPE_CHECKING:
     from twitchAPI.chat.middleware import BaseCommandMiddleware
@@ -249,7 +249,7 @@ class ChatUser:
     """Represents a user in a chat channel
     """
 
-    def __init__(self, chat, parsed, name_override=None):
+    def __init__(self, chat, parsed, name_override=None) -> None:
         self.chat: 'Chat' = chat
         """The :const:`twitchAPI.chat.Chat` instance"""
         self.name: str = parsed['source']['nick'] if parsed['source']['nick'] is not None else f'{chat.username}'
@@ -287,14 +287,14 @@ class ChatUser:
 class EventData:
     """Represents a basic chat event"""
 
-    def __init__(self, chat):
+    def __init__(self, chat) -> None:
         self.chat: 'Chat' = chat
         """The :const:`twitchAPI.chat.Chat` instance"""
 
 
 class MessageDeletedEvent(EventData):
 
-    def __init__(self, chat, parsed):
+    def __init__(self, chat, parsed) -> None:
         super(MessageDeletedEvent, self).__init__(chat)
         self._room_name = parsed['command']['channel'][1:]
         self.message: str = parsed['parameters']
@@ -315,7 +315,7 @@ class MessageDeletedEvent(EventData):
 class RoomStateChangeEvent(EventData):
     """Triggered when a room state changed"""
 
-    def __init__(self, chat, prev, new):
+    def __init__(self, chat, prev, new) -> None:
         super(RoomStateChangeEvent, self).__init__(chat)
         self.old: Optional[ChatRoom] = prev
         """The State of the room from before the change, might be Null if not in cache"""
@@ -331,7 +331,7 @@ class RoomStateChangeEvent(EventData):
 class JoinEvent(EventData):
     """"""
 
-    def __init__(self, chat, channel_name, user_name):
+    def __init__(self, chat, channel_name, user_name) -> None:
         super(JoinEvent, self).__init__(chat)
         self._name = channel_name
         self.user_name: str = user_name
@@ -346,7 +346,7 @@ class JoinEvent(EventData):
 class JoinedEvent(EventData):
     """"""
 
-    def __init__(self, chat, channel_name, user_name):
+    def __init__(self, chat, channel_name, user_name) -> None:
         super(JoinedEvent, self).__init__(chat)
         self.room_name: str = channel_name
         """the name of the room the bot joined to"""
@@ -357,7 +357,7 @@ class JoinedEvent(EventData):
 class LeftEvent(EventData):
     """When the bot or a user left a room"""
 
-    def __init__(self, chat, channel_name, room, user):
+    def __init__(self, chat, channel_name, room, user) -> None:
         super(LeftEvent, self).__init__(chat)
         self.room_name: str = channel_name
         """the name of the channel the bot left"""
@@ -369,13 +369,13 @@ class LeftEvent(EventData):
 
 class HypeChat:
 
-    def __init__(self, parsed):
+    def __init__(self, parsed) -> None:
         self.amount: int = int(parsed['tags'].get('pinned-chat-paid-amount'))
         """The value of the Hype Chat sent by the user."""
         self.currency: str = parsed['tags'].get('pinned-chat-paid-currency')
         """The ISO 4217 alphabetic currency code the user has sent the Hype Chat in."""
         self.exponent: int = int(parsed['tags'].get('pinned-chat-paid-exponent'))
-        """Indicates how many decimal points this currency represents partial amounts in. 
+        """Indicates how many decimal points this currency represents partial amounts in.
         Decimal points start from the right side of the value defined in :const:`~twitchAPI.chat.HypeChat.amount`"""
         self.level: str = parsed['tags'].get('pinned-chat-paid-level')
         """The level of the Hype Chat, in English.\n
@@ -390,7 +390,7 @@ class HypeChat:
 class ChatMessage(EventData):
     """Represents a chat message"""
 
-    def __init__(self, chat, parsed):
+    def __init__(self, chat, parsed) -> None:
         super(ChatMessage, self).__init__(chat)
         self._parsed = parsed
         self.text: str = parsed['parameters']
@@ -445,7 +445,7 @@ class ChatMessage(EventData):
         """The user that issued the message"""
         return ChatUser(self.chat, self._parsed)
 
-    async def reply(self, text: str):
+    async def reply(self, text: str) -> None:
         """Reply to this message"""
         bucket = self.chat._get_message_bucket(self._parsed['command']['channel'][1:])
         await bucket.put()
@@ -455,7 +455,7 @@ class ChatMessage(EventData):
 class ChatCommand(ChatMessage):
     """Represents a command"""
 
-    def __init__(self, chat, parsed):
+    def __init__(self, chat, parsed) -> None:
         super(ChatCommand, self).__init__(chat, parsed)
         self.name: str = parsed['command'].get('bot_command')
         """the name of the command"""
@@ -473,7 +473,7 @@ class ChatCommand(ChatMessage):
 class ChatSub:
     """Represents a sub to a channel"""
 
-    def __init__(self, chat, parsed):
+    def __init__(self, chat, parsed) -> None:
         self.chat: 'Chat' = chat
         """The :const:`twitchAPI.chat.Chat` instance"""
         self._parsed = parsed
@@ -496,7 +496,7 @@ class ChatSub:
 
 class ClearChatEvent(EventData):
 
-    def __init__(self, chat, parsed):
+    def __init__(self, chat, parsed) -> None:
         super(ClearChatEvent, self).__init__(chat)
         self.room_name: str = parsed['command']['channel'][1:]
         """The name of the chat room the event happened in"""
@@ -520,7 +520,7 @@ class ClearChatEvent(EventData):
 
 class WhisperEvent(EventData):
 
-    def __init__(self, chat, parsed):
+    def __init__(self, chat, parsed) -> None:
         super(WhisperEvent, self).__init__(chat)
         self._parsed = parsed
         self.message: str = parsed['parameters']
@@ -535,7 +535,7 @@ class WhisperEvent(EventData):
 class NoticeEvent(EventData):
     """Represents a server notice"""
 
-    def __init__(self, chat, parsed):
+    def __init__(self, chat, parsed) -> None:
         super(NoticeEvent, self).__init__(chat)
         self._room_name = parsed['command']['channel'][1:]
         """The name of the chat room the notice is from"""
@@ -567,7 +567,7 @@ class Chat:
                  initial_channel: Optional[List[str]] = None,
                  callback_loop: Optional[asyncio.AbstractEventLoop] = None,
                  no_message_reset_time: Optional[float] = 10,
-                 no_shared_chat_messages: bool = True):
+                 no_shared_chat_messages: bool = True) -> None:
         """
         :param twitch: A Authenticated twitch instance
         :param connection_url: alternative connection url |default|:code:`None`
@@ -635,12 +635,12 @@ class Chat:
         """The default handler to be called should a command execution be blocked by a middleware that has no specific handler set."""
         self.username: Optional[str] = None
 
-    def __await__(self):
+    def __await__(self) -> Generator[Any, None, 'Chat']:
         t = asyncio.create_task(self._get_username())
         yield from t
         return self
 
-    async def _get_username(self):
+    async def _get_username(self) -> None:
         user: TwitchUser = await first(self.twitch.get_users())
         self.username = user.login.lower()
 
@@ -712,7 +712,7 @@ class Chat:
         return command
 
     @staticmethod
-    def _parse_irc_source(raw_source_component: str):
+    def _parse_irc_source(raw_source_component: str) -> Dict[str, Optional[str]]:
         if raw_source_component is None:
             return None
         source_parts = raw_source_component.split('!')
@@ -845,7 +845,7 @@ class Chat:
         f = asyncio.run_coroutine_threadsafe(self._stop(), self.__socket_loop)
         f.result()
 
-    async def _stop(self):
+    async def _stop(self) -> None:
         await self.__connection.close()
         await self._session.close()
         # wait for ssl to close as per aiohttp docs...
@@ -858,7 +858,7 @@ class Chat:
         self._room_leave_locks = []
         self._closing = True
 
-    async def __connect(self, is_startup=False):
+    async def __connect(self, is_startup=False) -> None:
         if is_startup:
             self.logger.debug('connecting...')
         else:
@@ -881,11 +881,11 @@ class Chat:
         if retry >= len(self.reconnect_delay_steps):
             raise TwitchBackendException('can\'t connect')
 
-    async def _keep_loop_alive(self):
+    async def _keep_loop_alive(self) -> None:
         while not self._closing:
             await asyncio.sleep(0.1)
 
-    def __run_socket(self):
+    def __run_socket(self) -> None:
         self.__socket_loop = asyncio.new_event_loop()
         if self._callback_loop is None:
             self._callback_loop = self.__socket_loop
@@ -901,11 +901,11 @@ class Chat:
         # keep loop alive
         self.__socket_loop.run_until_complete(self._keep_loop_alive())
 
-    async def _send_message(self, message: str):
+    async def _send_message(self, message: str) -> None:
         self.logger.debug(f'> "{message}"')
         await self.__connection.send_str(message)
 
-    async def __task_receive(self):
+    async def __task_receive(self) -> None:
         receive_timeout = None if self.no_message_reset_time is None else self.no_message_reset_time * 60
         try:
             handlers: Dict[str, Callable] = {
@@ -968,48 +968,48 @@ class Chat:
             # print('we are closing down!')
             return
 
-    async def _handle_base_reconnect(self):
+    async def _handle_base_reconnect(self) -> None:
         await self.__connect(is_startup=False)
         await self.__task_startup()
 
     # noinspection PyUnusedLocal
-    async def _handle_reconnect(self, parsed: dict):
+    async def _handle_reconnect(self, parsed: dict) -> None:
         self.logger.info('got reconnect request...')
         await self._handle_base_reconnect()
         self.logger.info('reconnect completed')
 
-    async def _handle_whisper(self, parsed: dict):
+    async def _handle_whisper(self, parsed: dict) -> None:
         e = WhisperEvent(self, parsed)
         for handler in self._event_handler.get(ChatEvent.WHISPER, []):
             t = asyncio.ensure_future(handler(e), loop=self._callback_loop)
             t.add_done_callback(self._task_callback)
 
-    async def _handle_clear_chat(self, parsed: dict):
+    async def _handle_clear_chat(self, parsed: dict) -> None:
         e = ClearChatEvent(self, parsed)
         for handler in self._event_handler.get(ChatEvent.CHAT_CLEARED, []):
             t = asyncio.ensure_future(handler(e), loop=self._callback_loop)
             t.add_done_callback(self._task_callback)
 
-    async def _handle_notice(self, parsed: dict):
+    async def _handle_notice(self, parsed: dict) -> None:
         e = NoticeEvent(self, parsed)
         for handler in self._event_handler.get(ChatEvent.NOTICE, []):
             t = asyncio.ensure_future(handler(e), loop=self._callback_loop)
             t.add_done_callback(self._task_callback)
         self.logger.debug(f'got NOTICE for channel {parsed["command"]["channel"]}: {parsed["tags"].get("msg-id")}')
 
-    async def _handle_clear_msg(self, parsed: dict):
+    async def _handle_clear_msg(self, parsed: dict) -> None:
         ev = MessageDeletedEvent(self, parsed)
         for handler in self._event_handler.get(ChatEvent.MESSAGE_DELETE, []):
             t = asyncio.ensure_future(handler(ev), loop=self._callback_loop)
             t.add_done_callback(self._task_callback)
 
-    async def _handle_cap_reply(self, parsed: dict):
+    async def _handle_cap_reply(self, parsed: dict) -> None:
         self.logger.debug(f'got CAP reply, granted caps: {parsed["parameters"]}')
         caps = parsed['parameters'].split()
         if not all([x in caps for x in ['twitch.tv/membership', 'twitch.tv/tags', 'twitch.tv/commands']]):
             self.logger.warning(f'chat bot did not get all requested capabilities granted, this might result in weird bot behavior!')
 
-    async def _handle_join(self, parsed: dict):
+    async def _handle_join(self, parsed: dict) -> None:
         ch = parsed['command']['channel'][1:]
         nick = parsed['source']['nick'][1:]
         if ch in self._room_join_locks and nick == self.username:
@@ -1025,7 +1025,7 @@ class Chat:
                 t = asyncio.ensure_future(handler(e), loop=self._callback_loop)
                 t.add_done_callback(self._task_callback)
 
-    async def _handle_part(self, parsed: dict):
+    async def _handle_part(self, parsed: dict) -> None:
         ch = parsed['command']['channel'][1:]
         usr = parsed['source']['nick'][1:]
         if usr == self.username:
@@ -1043,7 +1043,7 @@ class Chat:
                 t = asyncio.ensure_future(handler(e), loop=self._callback_loop)
                 t.add_done_callback(self._task_callback)
 
-    async def _handle_user_notice(self, parsed: dict):
+    async def _handle_user_notice(self, parsed: dict) -> None:
         if parsed['tags'].get('msg-id') == 'raid':
             handlers = self._event_handler.get(ChatEvent.RAID, [])
             for handler in handlers:
@@ -1054,7 +1054,7 @@ class Chat:
                 t = asyncio.ensure_future(handler(sub), loop=self._callback_loop)
                 t.add_done_callback(self._task_callback)
 
-    async def _handle_room_state(self, parsed: dict):
+    async def _handle_room_state(self, parsed: dict) -> None:
         self.logger.debug('got room state event')
         state = ChatRoom(
             name=parsed['command']['channel'][1:],
@@ -1075,7 +1075,7 @@ class Chat:
             t = asyncio.ensure_future(handler(dat), loop=self._callback_loop)
             t.add_done_callback(self._task_callback)
 
-    async def _handle_user_state(self, parsed: dict):
+    async def _handle_user_state(self, parsed: dict) -> None:
         self.logger.debug('got user state event')
         is_broadcaster = False
         if parsed['tags'].get('badges') is not None:
@@ -1083,12 +1083,12 @@ class Chat:
         self._mod_status_cache[parsed['command']['channel'][1:]] = 'mod' if parsed['tags']['mod'] == '1' or is_broadcaster else 'user'
         self._subscriber_status_cache[parsed['command']['channel'][1:]] = 'sub' if parsed['tags']['subscriber'] == '1' else 'non-sub'
 
-    async def _handle_ping(self, parsed: dict):
+    async def _handle_ping(self, parsed: dict) -> None:
         self.logger.debug('got PING')
         await self._send_message('PONG ' + parsed['parameters'])
 
     # noinspection PyUnusedLocal
-    async def _handle_ready(self, parsed: dict):
+    async def _handle_ready(self, parsed: dict) -> None:
         self.logger.debug('got ready event')
         dat = EventData(self)
         was_ready = self._ready
@@ -1104,7 +1104,7 @@ class Chat:
                 t = asyncio.ensure_future(h(dat), loop=self._callback_loop)
                 t.add_done_callback(self._task_callback)
 
-    async def _handle_msg(self, parsed: dict):
+    async def _handle_msg(self, parsed: dict) -> None:
         if self.no_shared_chat_messages and "source-room-id" in parsed["tags"]:
             if parsed["tags"]["source-room-id"] != parsed["tags"].get("room-id"):
                 return
@@ -1140,7 +1140,7 @@ class Chat:
             t = asyncio.ensure_future(h(message), loop=self._callback_loop)
             t.add_done_callback(self._task_callback)
 
-    async def __task_startup(self):
+    async def __task_startup(self) -> None:
         await self._send_message('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands')
         await self._send_message(f'PASS oauth:{await self.twitch.get_refreshed_user_auth_token()}')
         await self._send_message(f'NICK {self.username}')
@@ -1160,7 +1160,7 @@ class Chat:
     # user functions
     ##################################################################################################################################################
 
-    def set_prefix(self, prefix: str):
+    def set_prefix(self, prefix: str) -> None:
         """Sets a command prefix.
 
         The default prefix is !, the prefix can not start with / or .
@@ -1172,7 +1172,7 @@ class Chat:
             raise ValueError('Prefix starting with / or . are reserved for twitch internal use')
         self._prefix = prefix
 
-    def set_channel_prefix(self, prefix: str, channel: Union[CHATROOM_TYPE, List[CHATROOM_TYPE]]):
+    def set_channel_prefix(self, prefix: str, channel: Union[CHATROOM_TYPE, List[CHATROOM_TYPE]]) -> None:
         """Sets a command prefix for the given channel or channels
 
         The default channel prefix is either ! or the one set by :const:`~twitchAPI.chat.Chat.set_prefix()`, the prefix can not start with / or .
@@ -1190,7 +1190,7 @@ class Chat:
                 ch = ch.name
             self._channel_command_prefix[ch] = prefix
 
-    def reset_channel_prefix(self, channel: Union[CHATROOM_TYPE, List[CHATROOM_TYPE]]):
+    def reset_channel_prefix(self, channel: Union[CHATROOM_TYPE, List[CHATROOM_TYPE]]) -> None:
         """Resets the custom command prefix set by :const:`~twitchAPI.chat.Chat.set_channel_prefix()` back to the global one.
 
         :param channel: The channel or channels you want to reset the channel command prefix for
@@ -1231,7 +1231,7 @@ class Chat:
         self._command_handler.pop(name, None)
         return True
 
-    def register_event(self, event: ChatEvent, handler: EVENT_CALLBACK_TYPE):
+    def register_event(self, event: ChatEvent, handler: EVENT_CALLBACK_TYPE) -> None:
         """Register a event handler
 
         :param event: The Event you want to register the handler to
@@ -1342,7 +1342,7 @@ class Chat:
             self._room_join_locks.remove(r)
         return failed_to_join
 
-    async def send_raw_irc_message(self, message: str):
+    async def send_raw_irc_message(self, message: str) -> None:
         """Send a raw IRC message
 
         :param message: the message to send
@@ -1356,7 +1356,7 @@ class Chat:
             raise ValueError('message must be a non empty string')
         await self._send_message(message)
 
-    async def send_message(self, room: CHATROOM_TYPE, text: str):
+    async def send_message(self, room: CHATROOM_TYPE, text: str) -> None:
         """Send a message to the given channel
 
         Please note that you first need to join a channel before you can send a message to it.
@@ -1383,7 +1383,7 @@ class Chat:
         await bucket.put()
         await self._send_message(f'PRIVMSG {room} :{text}')
 
-    async def leave_room(self, chat_rooms: Union[List[str], str]):
+    async def leave_room(self, chat_rooms: Union[List[str], str]) -> None:
         """leave one or more chat rooms\n
         Will only exit once all given chat rooms where successfully left
 
@@ -1402,12 +1402,12 @@ class Chat:
         while any([r in self._room_leave_locks for r in target]):
             await asyncio.sleep(0.01)
 
-    def register_command_middleware(self, mid: 'BaseCommandMiddleware'):
+    def register_command_middleware(self, mid: 'BaseCommandMiddleware') -> None:
         """Adds the given command middleware as a general middleware"""
         if mid not in self._command_middleware:
             self._command_middleware.append(mid)
 
-    def unregister_command_middleware(self, mid: 'BaseCommandMiddleware'):
+    def unregister_command_middleware(self, mid: 'BaseCommandMiddleware') -> None:
         """Removes the given command middleware from the general list"""
         if mid in self._command_middleware:
             self._command_middleware.remove(mid)
