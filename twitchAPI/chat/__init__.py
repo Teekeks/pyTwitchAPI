@@ -627,6 +627,7 @@ class Chat:
         """Time in seconds till a channel join attempt times out"""
         self._mod_status_cache = {}
         self._subscriber_status_cache = {}
+        self._vip_status_cache = {}
         self._channel_command_prefix = {}
         self._command_middleware: List['BaseCommandMiddleware'] = []
         self._command_specific_middleware: Dict[str, List['BaseCommandMiddleware']] = {}
@@ -1077,15 +1078,27 @@ class Chat:
 
     async def _handle_user_state(self, parsed: dict):
         self.logger.debug('got user state event')
-        is_broadcaster = False
-        if parsed['tags'].get('badges') is not None:
-            is_broadcaster = parsed['tags']['badges'].get('broadcaster') is not None
-        self._mod_status_cache[parsed['command']['channel'][1:]] = 'mod' if parsed['tags']['mod'] == '1' or is_broadcaster else 'user'
-        self._subscriber_status_cache[parsed['command']['channel'][1:]] = 'sub' if parsed['tags']['subscriber'] == '1' else 'non-sub'
-
-    async def _handle_ping(self, parsed: dict):
-        self.logger.debug('got PING')
-        await self._send_message('PONG ' + parsed['parameters'])
+        
+        # Parse user badges (source of truth for user status)
+        # Note: Legacy tags (mod='1', subscriber='1') exist for backwards compatibility,
+        # but badges dict is the authoritative source. VIP status is only available in badges.
+        badges = parsed['tags'].get('badges', {})
+        channel = parsed['command']['channel'][1:]
+        
+        # MOD STATUS: broadcaster OR moderator badge
+        is_mod = badges.get('broadcaster') is not None or badges.get('moderator') is not None
+        self._mod_status_cache[channel] = 'mod' if is_mod else 'user'
+        
+        # VIP STATUS: vip badge (not available in legacy tags)
+        is_vip = badges.get('vip') is not None
+        self._vip_status_cache[channel] = 'vip' if is_vip else 'non-vip'
+        
+        # SUB STATUS: subscriber badge
+        is_sub = badges.get('subscriber') is not None
+        self._subscriber_status_cache[channel] = 'sub' if is_sub else 'non-sub'
+        async def _handle_ping(self, parsed: dict):
+            self.logger.debug('got PING')
+            await self._send_message('PONG ' + parsed['parameters'])
 
     # noinspection PyUnusedLocal
     async def _handle_ready(self, parsed: dict):
@@ -1293,6 +1306,20 @@ class Chat:
         if room[0] == '#':
             room = room[1:]
         return self._subscriber_status_cache.get(room.lower(), 'user') == 'sub'
+
+    def is_vip(self, room: CHATROOM_TYPE) -> bool:
+        """Check if chat bot is a VIP in a channel
+
+        :param room: The chat room you want to check if bot is a VIP in.
+            This can either be a instance of :const:`~twitchAPI.type.ChatRoom` or a string with the room name (either with leading # or without)
+        :return: Returns True if chat bot is a VIP """
+        if isinstance(room, ChatRoom):
+            room = room.name
+        if room is None or len(room) == 0:
+            raise ValueError('please specify a room')
+        if room[0] == '#':
+            room = room[1:]
+        return self._vip_status_cache.get(room.lower(), 'non-vip') == 'vip'
 
     def is_in_room(self, room: CHATROOM_TYPE) -> bool:
         """Check if the bot is currently in the given chat room
