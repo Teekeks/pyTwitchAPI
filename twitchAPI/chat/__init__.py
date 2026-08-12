@@ -625,6 +625,8 @@ class Chat:
         self._closing: bool = False
         self.join_timeout: int = 10
         """Time in seconds till a channel join attempt times out"""
+        self.leave_timeout: int = 10
+        """Time in seconds till a channel leave attempt times out"""
         self._mod_status_cache = {}
         self._subscriber_status_cache = {}
         self._channel_command_prefix = {}
@@ -1385,9 +1387,11 @@ class Chat:
 
     async def leave_room(self, chat_rooms: Union[List[str], str]):
         """leave one or more chat rooms\n
-        Will only exit once all given chat rooms where successfully left
+        Will only exit once all given chat rooms where successfully left or :const:`twitchAPI.chat.Chat.leave_timeout` run out.
 
-        :param chat_rooms: The room or rooms you want to leave"""
+        :param chat_rooms: The room or rooms you want to leave
+        :returns: list of channels that could not be left
+        """
         if isinstance(chat_rooms, str):
             chat_rooms = [chat_rooms]
         room_str = ','.join([f'#{c}'.lower() if c[0] != '#' else c.lower() for c in chat_rooms])
@@ -1399,8 +1403,13 @@ class Chat:
             if x in self._join_target:
                 self._join_target.remove(x)
         # wait to leave all rooms
-        while any([r in self._room_leave_locks for r in target]):
+        timeout = datetime.datetime.now() + datetime.timedelta(seconds=self.leave_timeout)
+        while any([r in self._room_leave_locks for r in target]) and timeout > datetime.datetime.now():
             await asyncio.sleep(0.01)
+        failed_to_leave = [r for r in self._room_leave_locks if r in target]
+        for r in failed_to_leave:
+            self._room_leave_locks.remove(r)
+        return failed_to_leave
 
     def register_command_middleware(self, mid: 'BaseCommandMiddleware'):
         """Adds the given command middleware as a general middleware"""
