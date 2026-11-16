@@ -340,8 +340,7 @@ class EventSubWebhook(EventSubBase):
             return
         self._callbacks.pop(sub_id)
         if self.revokation_handler is not None and self._callback_loop is not None:
-            t = self._callback_loop.create_task(self.revokation_handler(data)) #type: ignore
-            t.add_done_callback(self._task_callback)
+            self._run_callback(self.revokation_handler(data))
 
     async def __handle_callback(self, request: 'web.Request'):
         try:
@@ -377,6 +376,5 @@ class EventSubWebhook(EventSubBase):
                     }
                     dat = callback['event'](**data)
                     if self._callback_loop is not None:
-                        t = self._callback_loop.create_task(callback['callback'](dat))
-                        t.add_done_callback(self._task_callback)
+                        self._run_callback(callback['callback'](dat))
         return web.Response(status=200)

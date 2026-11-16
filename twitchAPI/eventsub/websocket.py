@@ -208,7 +208,7 @@ class EventSubWebsocket(EventSubBase):
         self._ready = False
         if self._socket_loop is not None:
             f = asyncio.run_coroutine_threadsafe(self._stop(), self._socket_loop)
-            f.result()
+            await asyncio.wrap_future(f)
 
     def _get_transport(self) -> dict:
         return {
@@ -422,8 +422,7 @@ class EventSubWebsocket(EventSubBase):
         self._active_subscriptions.pop(sub_id)
         self._callbacks.pop(sub_id)
         if self.revokation_handler is not None:
-            t = self._callback_loop.create_task(self.revokation_handler(_payload))
-            t.add_done_callback(self._task_callback)
+            self._run_callback(self.revokation_handler(_payload))
 
     async def _handle_reconnect(self, data: dict):
         session = data.get('payload', {}).get('session', {})
@@ -495,6 +494,5 @@ class EventSubWebsocket(EventSubBase):
             if msg_id is not None and msg_id in self._msg_id_history:
                 self.logger.warning(f'got message with duplicate id {msg_id}! Discarding message')
             else:
-                t = self._callback_loop.create_task(callback['callback'](callback['event'](**_payload)))
-                t.add_done_callback(self._task_callback)
+                self._run_callback(callback['callback'](callback['event'](**_payload)))
 

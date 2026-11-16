@@ -91,6 +91,19 @@ class EventSubBase(ABC):
         headers = await self._build_request_header()
         return await session.post(url, headers=headers, json=data)
 
+    def _run_callback(self, coro: Awaitable[None]):
+        """Run a user callback on the callback loop.
+
+        Subclasses set ``_callback_loop`` and ``_task_callback``. This is called from the client's own
+        event loop, which runs in a separate thread. ``loop.create_task`` must only be called from the
+        thread that runs that loop, so a different callback loop is handed the callback with
+        ``asyncio.run_coroutine_threadsafe``."""
+        if self._callback_loop is asyncio.get_running_loop():
+            task = self._callback_loop.create_task(coro)
+        else:
+            task = asyncio.run_coroutine_threadsafe(coro, self._callback_loop)
+        task.add_done_callback(self._task_callback)
+
     def _add_callback(self, c_id: str, callback, event):
         self._callbacks[c_id] = {'id': c_id, 'callback': callback, 'active': False, 'event': event}
 
