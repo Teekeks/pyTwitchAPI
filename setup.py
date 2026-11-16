@@ -1,4 +1,5 @@
 #  Copyright (c) 2022. Lena "Teekeks" During <info@teawork.de>
+from platform import python_version
 from setuptools import setup, find_packages
 
 version = ''
@@ -25,6 +26,7 @@ if version.endswith(('a', 'b', 'rc')):
 setup(
     packages=find_packages(),
     version=version,
+    python_version="3.7",
     keywords=['twitch', 'twitch.tv', 'chat', 'bot', 'event sub', 'EventSub', 'helix', 'api'],
     install_requires=[
         'aiohttp>=3.9.3',

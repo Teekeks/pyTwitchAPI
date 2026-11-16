@@ -219,7 +219,7 @@ class CodeFlow:
     def __init__(self,
                  twitch: 'Twitch',
                  scopes: List[AuthScope],
-                 auth_base_url: str = TWITCH_AUTH_BASE_URL):
+                 auth_base_url: str = TWITCH_AUTH_BASE_URL) -> None:
         """
 
         :param twitch: A twitch instance
@@ -289,7 +289,7 @@ class UserAuthenticator:
                  url: str = 'http://localhost:17563',
                  host: str = '0.0.0.0',
                  port: int = 17563,
-                 auth_base_url: str = TWITCH_AUTH_BASE_URL):
+                 auth_base_url: str = TWITCH_AUTH_BASE_URL) -> None:
         """
 
         :param twitch: A twitch instance
@@ -335,7 +335,7 @@ class UserAuthenticator:
         self._can_close: bool = False
         self._is_closed = False
 
-    def _build_auth_url(self):
+    def _build_auth_url(self) -> str:
         params = {
             'client_id': self._twitch.app_id,
             'redirect_uri': self.url,
@@ -346,12 +346,12 @@ class UserAuthenticator:
         }
         return build_url(self.auth_base_url + 'authorize', params)
 
-    def _build_runner(self):
+    def _build_runner(self) -> 'web.AppRunner':
         app = web.Application()
         app.add_routes([web.get('/', self._handle_callback)])
         return web.AppRunner(app)
 
-    async def _run_check(self):
+    async def _run_check(self) -> None:
         while not self._can_close:
             await asyncio.sleep(0.1)
         await self._runner.shutdown()
@@ -359,7 +359,7 @@ class UserAuthenticator:
         self.logger.info('shutting down oauth Webserver')
         self._is_closed = True
 
-    def _run(self, runner: web.AppRunner):
+    def _run(self, runner: web.AppRunner) -> None:
         self._runner = runner
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
@@ -373,18 +373,18 @@ class UserAuthenticator:
         except (CancelledError, asyncio.CancelledError):
             pass
 
-    def _start(self):
+    def _start(self) -> None:
         self._thread = Thread(target=self._run, args=(self._build_runner(),))
         self._thread.start()
 
-    def stop(self):
+    def stop(self) -> None:
         """Manually stop the flow
 
         :rtype: None
         """
         self._can_close = True
 
-    async def _handle_callback(self, request: web.Request):
+    async def _handle_callback(self, request: web.Request) -> 'web.Response':
         val = request.rel_url.query.get('state')
         self.logger.debug(f'got callback with state {val}')
         # invalid state!
@@ -398,7 +398,7 @@ class UserAuthenticator:
             self._callback_func(self._user_token)
         return web.Response(text=self.document, content_type='text/html')
 
-    def return_auth_url(self):
+    def return_auth_url(self) -> str:
         """Returns the URL that will authenticate the app, used for headless server environments."""
         return self._build_auth_url()
 
@@ -523,7 +523,7 @@ class UserAuthenticationStorageHelper:
                  scopes: List[AuthScope],
                  storage_path: Optional[PurePath] = None,
                  auth_generator_func: Optional[Callable[['Twitch', List[AuthScope]], Awaitable[Tuple[str, str]]]] = None,
-                 auth_base_url: str = TWITCH_AUTH_BASE_URL):
+                 auth_base_url: str = TWITCH_AUTH_BASE_URL) -> None:
         self.twitch = twitch
         self.logger: Logger = getLogger('twitchAPI.oauth.storage_helper')
         """The logger used for OAuth Storage Helper related log messages"""
@@ -536,12 +536,12 @@ class UserAuthenticationStorageHelper:
         auth = UserAuthenticator(twitch, scopes, force_verify=True, auth_base_url=self.auth_base_url)
         return await auth.authenticate()
 
-    async def _update_stored_tokens(self, token: str, refresh_token: str):
+    async def _update_stored_tokens(self, token: str, refresh_token: str) -> None:
         self.logger.info('user token got refreshed and stored')
         with open(self.storage_path, 'w') as _f:
             json.dump({'token': token, 'refresh': refresh_token}, _f)
 
-    async def bind(self):
+    async def bind(self) -> None:
         """Bind the helper to the provided instance of twitch and sets the user authentication."""
         self.twitch.user_auth_refresh_callback = self._update_stored_tokens
         needs_auth = True
