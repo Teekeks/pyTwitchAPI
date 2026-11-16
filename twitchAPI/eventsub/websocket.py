@@ -494,5 +494,7 @@ class EventSubWebsocket(EventSubBase):
             if msg_id is not None and msg_id in self._msg_id_history:
                 self.logger.warning(f'got message with duplicate id {msg_id}! Discarding message')
             else:
+                if msg_id is not None:
+                    self._msg_id_history.append(msg_id)
                 self._run_callback(callback['callback'](callback['event'](**_payload)))
 
